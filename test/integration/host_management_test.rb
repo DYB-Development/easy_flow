@@ -67,5 +67,11 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a host's pages do not preview another host's flow" do
+      get easy_flow.manage_flow_preview_path(console_flow)
+
+      assert_response :not_found
+    end
   end
 end

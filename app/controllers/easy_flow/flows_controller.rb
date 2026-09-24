@@ -7,11 +7,11 @@ module EasyFlow
     end
 
     def start
-      redirect_to easy_flow.run_path(Run.start(flow))
+      redirect_to run_location(start_run(flow))
     end
 
     def step
-      @guide = QuestionRunner.new(running_definition)
+      @guide = runner_for(running_definition)
       @progress = progress
       @guide.run(@progress)
       @answers = @progress.recorded
@@ -24,10 +24,22 @@ module EasyFlow
 
     def update
       params[:back] ? progress.discard_last : record_submitted
-      redirect_to easy_flow.run_path(run)
+      redirect_to run_location(run)
     end
 
     private
+
+    def runner_for(definition)
+      QuestionRunner.new(definition)
+    end
+
+    def run_location(run)
+      easy_flow.run_path(run)
+    end
+
+    def start_run(flow)
+      Run.start(flow)
+    end
 
     def flow_start_path(slug)
       easy_flow.flow_path(slug)
@@ -42,7 +54,7 @@ module EasyFlow
     end
 
     def step_form
-      return { url: easy_flow.run_path(run), method: :patch } if run
+      return { url: run_location(run), method: :patch } if run
 
       { url: flow_step_path(@guide.slug), method: :get }
     end
@@ -53,7 +65,10 @@ module EasyFlow
 
     def render_completion
       @answered = @guide.state_on_path(@answers)
-      @progress.finish(@answered)
+      finished(@answered, @progress.finish(@answered))
+    end
+
+    def finished(_answers, _run)
       render :complete
     end
 
@@ -97,7 +112,7 @@ module EasyFlow
     end
 
     def asked
-      QuestionRunner.new(run.pinned_definition).steps.map(&:id)
+      runner_for(run.pinned_definition).steps.map(&:id)
     end
   end
 end

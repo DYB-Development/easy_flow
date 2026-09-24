@@ -7,7 +7,7 @@ module EasyFlow
       end
 
       def create
-        @flow = Definition.new(create_params)
+        @flow = flow_host.flows.new(create_params)
 
         if @flow.save
           redirect_to manage_flow_path(@flow), notice: "Flow created."

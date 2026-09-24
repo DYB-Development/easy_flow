@@ -15,7 +15,7 @@ module EasyFlow
     end
 
     def saved
-      @saved ||= Definition.create!(slug: "saved", persists: :each_step).tap { |flow| flow.record_definition(flowing(branching)); flow.publish }
+      @saved ||= Definition.create!(host: "dummy", slug: "saved", persists: :each_step).tap { |flow| flow.record_definition(flowing(branching)); flow.publish }
     end
 
     test "starting a saved session sends the visitor to its durable URL" do

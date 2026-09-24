@@ -6,7 +6,7 @@ module EasyFlow
     enum :kind, { scored: "scored", guide: "guide" }
     enum :persists, { unsaved: "unsaved", each_step: "each_step", on_finish: "on_finish" }
 
-    validates :slug, presence: true
+    validates :host, :slug, presence: true
 
     after_initialize :begin_the_flow, if: :new_record?
 

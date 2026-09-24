@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class VisitorGateTest < ActionDispatch::IntegrationTest
     def published
-      @published ||= Definition.create!(slug: "gated").tap do |flow|
+      @published ||= Definition.create!(host: "dummy", slug: "gated").tap do |flow|
         flow.record_definition(
           "slug" => "gated", "entry" => "ask",
           "nodes" => [ { "id" => "ask", "type" => "question", "text" => "Ready?",
@@ -37,7 +37,7 @@ module EasyFlow
     end
 
     test "a visitor cannot reach a flow with nothing published even when the host authorizes it" do
-      unpublished = Definition.create!(slug: "unpublished")
+      unpublished = Definition.create!(host: "dummy", slug: "unpublished")
 
       get easy_flow.flow_path(unpublished.slug)
 

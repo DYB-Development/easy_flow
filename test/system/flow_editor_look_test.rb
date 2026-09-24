@@ -3,7 +3,7 @@ require "application_system_test_case"
 module EasyFlow
   class FlowEditorLookTest < ApplicationSystemTestCase
     def flow
-      @flow ||= Definition.create!(slug: "editor-look").tap do |built|
+      @flow ||= Definition.create!(host: "dummy", slug: "editor-look").tap do |built|
         built.record_definition(flowing(
           "slug" => "editor-look", "entry" => "first",
           "nodes" => [ { "id" => "first", "type" => "question", "question" => "First",

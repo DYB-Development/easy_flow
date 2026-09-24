@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class RunTest < ActiveSupport::TestCase
     test "going back removes the last answer along the path, not the last in list order" do
-      flow = Definition.create!(slug: "jump")
+      flow = Definition.create!(host: "dummy", slug: "jump")
       flow.definition_versions.create!(number: 1, definition: flowing({
         "slug" => "jump", "entry" => "a",
         "nodes" => [
@@ -23,7 +23,7 @@ module EasyFlow
     end
 
     test "pins to the flow's current definition version when started" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })
       flow.publish_version(version)
 
@@ -33,7 +33,7 @@ module EasyFlow
     end
 
     test "pins to the newer version once that version is published" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })
       flow.publish_version(flow.definition_versions.first)
       republished = flow.definition_versions.create!(number: 2, definition: { "slug" => "demo" })
@@ -45,7 +45,7 @@ module EasyFlow
     end
 
     test "leaves an earlier response pinned to the version it began on" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       began_on = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })
       flow.publish_version(began_on)
       response = Run.start(flow)
@@ -56,10 +56,10 @@ module EasyFlow
     end
 
     test "takes an owner of any type the host application supplies" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })
       flow.publish_version(version)
-      owner = Definition.create!(slug: "owning-record")
+      owner = Definition.create!(host: "dummy", slug: "owning-record")
 
       response = flow.runs.create!(definition_version: version, owner: owner)
 
@@ -67,7 +67,7 @@ module EasyFlow
     end
 
     test "is valid with no owner at all" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })
       flow.publish_version(version)
 
@@ -109,7 +109,7 @@ module EasyFlow
     private
 
     def flow_with_a_version
-      Definition.create!(slug: "demo").tap do |flow|
+      Definition.create!(host: "dummy", slug: "demo").tap do |flow|
         version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })
         flow.publish_version(version)
       end
@@ -126,7 +126,7 @@ module EasyFlow
     end
 
     def weighted_flow
-      Definition.create!(slug: "scored").tap do |flow|
+      Definition.create!(host: "dummy", slug: "scored").tap do |flow|
         flow.record_definition("slug" => "scored", "entry" => "budget", "edges" => [],
           "nodes" => [ { "id" => "budget", "type" => "question", "text" => "Budget?",
                          "options" => [ { "value" => "high", "weight" => 5 } ] } ])
@@ -135,7 +135,7 @@ module EasyFlow
     end
 
     test "a run starts on the live version" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
 
       run = Run.start(flow)
@@ -144,7 +144,7 @@ module EasyFlow
     end
 
     def pinned
-      flow = Definition.create!(slug: "pinned")
+      flow = Definition.create!(host: "dummy", slug: "pinned")
       flow.record_definition(flowing(
         "slug" => "pinned", "entry" => "a",
         "nodes" => [ { "id" => "a", "type" => "question", "question" => "A?",

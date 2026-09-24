@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class CanvasBuilderTest < ActionDispatch::IntegrationTest
     def flow
-      @flow ||= Definition.create!(slug: "canvas").tap do |built|
+      @flow ||= Definition.create!(host: "dummy", slug: "canvas").tap do |built|
         built.record_definition(flowing(
           "slug" => "canvas", "entry" => "a",
           "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "answers" => [ { "value" => "yes" } ] },

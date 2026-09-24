@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class ProgressTest < ActiveSupport::TestCase
     def flow(persists)
-      Definition.create!(slug: "p-#{persists}", persists: persists).tap do |built|
+      Definition.create!(host: "dummy", slug: "p-#{persists}", persists: persists).tap do |built|
         built.record_definition(flowing({ "slug" => "p", "entry" => "a",
           "nodes" => [ { "id" => "a", "type" => "question", "question" => "A?", "answers" => [ { "value" => "yes" } ] } ] }))
         built.publish

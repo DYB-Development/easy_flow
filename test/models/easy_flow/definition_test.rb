@@ -9,24 +9,30 @@ module EasyFlow
       assert_equal 2, Definition.where(slug: "intake").count
     end
 
+    test "a flow without a host is not valid" do
+      flow = Definition.new(slug: "orphan").tap(&:validate)
+
+      assert flow.errors.of_kind?(:host, :blank)
+    end
+
     test "keeps nothing of a run until it is told to" do
-      assert_predicate Definition.create!(slug: "fresh"), :unsaved?
+      assert_predicate Definition.create!(host: "dummy", slug: "fresh"), :unsaved?
     end
 
     test "begins with a step that starts the flow and one that ends it" do
-      flow = Definition.create!(slug: "fresh")
+      flow = Definition.create!(host: "dummy", slug: "fresh")
 
       assert_equal [ "start", "terminal" ], flow.document["nodes"].map { |node| node["type"] }
     end
 
     test "leads from where it begins to where it ends" do
-      flow = Definition.create!(slug: "fresh")
+      flow = Definition.create!(host: "dummy", slug: "fresh")
 
       assert_equal [ { "from" => "start", "to" => "end" } ], flow.document["edges"]
     end
 
     test "begins sound, with nothing to report" do
-      flow = Definition.create!(slug: "fresh")
+      flow = Definition.create!(host: "dummy", slug: "fresh")
 
       assert_empty Validator.new(Document.new(flow.document)).violations
     end
@@ -40,7 +46,7 @@ module EasyFlow
     end
 
     test "builds a runner from the version it published" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition({ "slug" => "demo" })
       flow.publish
 
@@ -48,7 +54,7 @@ module EasyFlow
     end
 
     test "recording a definition stores it as a version" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
 
       flow.record_definition({ "slug" => "demo" })
 
@@ -56,7 +62,7 @@ module EasyFlow
     end
 
     test "recording a second definition takes the next version number" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition({ "slug" => "first" })
 
       flow.record_definition({ "slug" => "second" })
@@ -71,7 +77,7 @@ module EasyFlow
     end
 
     test "undoing puts back the document as it was before the change" do
-      flow = Definition.create!(slug: "undo", document: { "entry" => "one" })
+      flow = Definition.create!(host: "dummy", slug: "undo", document: { "entry" => "one" })
       edited(flow, "two", { "entry" => "one" })
 
       flow.edit_history.undo_change
@@ -80,7 +86,7 @@ module EasyFlow
     end
 
     test "redoing puts the change back" do
-      flow = Definition.create!(slug: "undo", document: { "entry" => "one" })
+      flow = Definition.create!(host: "dummy", slug: "undo", document: { "entry" => "one" })
       edited(flow, "two", { "entry" => "one" })
       flow.edit_history.undo_change
 
@@ -90,7 +96,7 @@ module EasyFlow
     end
 
     test "undoing records no version" do
-      flow = Definition.create!(slug: "undo", document: { "entry" => "one" })
+      flow = Definition.create!(host: "dummy", slug: "undo", document: { "entry" => "one" })
       edited(flow, "two", { "entry" => "one" })
 
       assert_no_difference -> { flow.definition_versions.count } do
@@ -99,20 +105,20 @@ module EasyFlow
     end
 
     test "there is nothing to undo before anything is changed" do
-      flow = Definition.create!(slug: "undo", document: { "entry" => "one" })
+      flow = Definition.create!(host: "dummy", slug: "undo", document: { "entry" => "one" })
 
       assert_not flow.edit_history.undoable?
     end
 
     test "there is nothing to redo until something is undone" do
-      flow = Definition.create!(slug: "undo", document: { "entry" => "one" })
+      flow = Definition.create!(host: "dummy", slug: "undo", document: { "entry" => "one" })
       edited(flow, "two", { "entry" => "one" })
 
       assert_not flow.edit_history.redoable?
     end
 
     test "undoing with nothing behind it leaves the document alone" do
-      flow = Definition.create!(slug: "undo", document: { "entry" => "one" })
+      flow = Definition.create!(host: "dummy", slug: "undo", document: { "entry" => "one" })
 
       flow.edit_history.undo_change
 
@@ -120,7 +126,7 @@ module EasyFlow
     end
 
     test "creating a version leaves nothing to redo but keeps what can be undone" do
-      flow = Definition.create!(slug: "undo", document: { "entry" => "one" })
+      flow = Definition.create!(host: "dummy", slug: "undo", document: { "entry" => "one" })
       edited(flow, "two", { "entry" => "one" })
       flow.edit_history.undo_change
 
@@ -130,7 +136,7 @@ module EasyFlow
     end
 
     test "creating a version leaves the author able to undo past it" do
-      flow = Definition.create!(slug: "undo", document: { "entry" => "one" })
+      flow = Definition.create!(host: "dummy", slug: "undo", document: { "entry" => "one" })
       edited(flow, "two", { "entry" => "one" })
 
       flow.create_version
@@ -139,7 +145,7 @@ module EasyFlow
     end
 
     test "reports its current definition as the highest-numbered version" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition({ "slug" => "first" })
       flow.record_definition({ "slug" => "second" })
 
@@ -177,7 +183,7 @@ module EasyFlow
     end
 
     test "can be deleted once a definition has been recorded" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition("slug" => "demo")
 
       assert_difference -> { Definition.count }, -1 do
@@ -186,7 +192,7 @@ module EasyFlow
     end
 
     test "holds a live document that can be edited" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
 
       flow.update!(document: { "entry" => "a", "nodes" => [], "edges" => [] })
 
@@ -194,13 +200,13 @@ module EasyFlow
     end
 
     test "starts with nothing changed since its last version" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
 
       assert_empty flow.changes_since_version.to_a
     end
 
     test "recording a first definition gives the flow a document to edit" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
 
       flow.record_definition("entry" => "a", "nodes" => [], "edges" => [])
 
@@ -208,7 +214,7 @@ module EasyFlow
     end
 
     test "creating a version records the live document" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition("entry" => "a", "nodes" => [], "edges" => [])
       flow.update!(document: { "entry" => "b", "nodes" => [], "edges" => [] })
 
@@ -218,7 +224,7 @@ module EasyFlow
     end
 
     test "creating a version clears what had changed since the last one" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition("entry" => "a", "nodes" => [], "edges" => [])
       flow.update!(document: { "entry" => "b" }, changes_since_version: [ { "action" => "moved", "steps" => [ "a" ], "named" => [ "A" ] } ])
 
@@ -228,7 +234,7 @@ module EasyFlow
     end
 
     test "creating a version twice over records only one" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition("entry" => "a", "nodes" => [], "edges" => [])
 
       assert_no_difference -> { flow.definition_versions.count } do
@@ -237,7 +243,7 @@ module EasyFlow
     end
 
     test "publishing marks the created version as the one visitors run" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition("entry" => "a", "nodes" => [], "edges" => [])
       flow.update!(document: { "entry" => "b", "nodes" => [], "edges" => [] })
 
@@ -247,7 +253,7 @@ module EasyFlow
     end
 
     test "a version carries the changes that produced it" do
-      flow = Definition.create!(slug: "demo", document: { "entry" => "a" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "entry" => "a" })
       flow.update!(changes_since_version: [ { "action" => "added", "steps" => [ "a" ], "named" => [ "A" ] } ])
 
       flow.create_version
@@ -256,7 +262,7 @@ module EasyFlow
     end
 
     test "returning to a version makes its content the live document" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition("entry" => "first")
       first = flow.definition_versions.last
       flow.update!(document: { "entry" => "later" })
@@ -295,7 +301,7 @@ module EasyFlow
 
     test "refuses a version belonging to another flow" do
       flow = returnable
-      stranger = Definition.create!(slug: "stranger")
+      stranger = Definition.create!(host: "dummy", slug: "stranger")
       stranger.record_definition("entry" => "theirs")
 
       assert_raises(ActiveRecord::RecordNotFound) { flow.return_to(stranger.definition_versions.last) }
@@ -321,14 +327,14 @@ module EasyFlow
     end
 
     def returnable
-      Definition.create!(slug: "returnable").tap do |flow|
+      Definition.create!(host: "dummy", slug: "returnable").tap do |flow|
         flow.record_definition("entry" => "first")
         flow.record_definition("entry" => "second")
       end
     end
 
     test "publishing makes the version live" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
 
       flow.publish
 
@@ -336,7 +342,7 @@ module EasyFlow
     end
 
     test "publishing a newer version supersedes the one that was live" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
       first = flow.current_definition_version
 
@@ -347,7 +353,7 @@ module EasyFlow
     end
 
     test "publishing the version that is already live leaves it live" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
 
       flow.publish
@@ -356,7 +362,7 @@ module EasyFlow
     end
 
     test "a retired version is no longer the live one" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
 
       flow.retire_version(flow.live_version)
@@ -365,7 +371,7 @@ module EasyFlow
     end
 
     test "a retired version cannot be published" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
       retired = flow.live_version
       flow.retire_version(retired)
@@ -374,7 +380,7 @@ module EasyFlow
     end
 
     test "a retired version cannot be returned to" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
       retired = flow.live_version
       flow.retire_version(retired)
@@ -383,25 +389,25 @@ module EasyFlow
     end
 
     test "a flow is active until it is set otherwise" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
 
       assert_predicate flow, :active?
     end
 
     test "a hidden flow is left out of the listable ones" do
-      flow = Definition.create!(slug: "demo", status: :hidden)
+      flow = Definition.create!(host: "dummy", slug: "demo", status: :hidden)
 
       assert_not_includes Definition.listable, flow
     end
 
     test "an active flow is among the listable ones" do
-      flow = Definition.create!(slug: "demo")
+      flow = Definition.create!(host: "dummy", slug: "demo")
 
       assert_includes Definition.listable, flow
     end
 
     test "only one version of a flow can be live" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
       other = flow.definition_versions.create!(number: 2, definition: { "slug" => "demo" })
 
@@ -409,7 +415,7 @@ module EasyFlow
     end
 
     test "a withdrawn version cannot be published" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
       withdrawn = flow.live_version
       withdrawn.update!(status: :withdrawn)
@@ -418,7 +424,7 @@ module EasyFlow
     end
 
     test "a withdrawn version cannot be returned to" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
       withdrawn = flow.live_version
       withdrawn.update!(status: :withdrawn)
@@ -427,7 +433,7 @@ module EasyFlow
     end
 
     test "a version survives being withdrawn so a finished run stays readable" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
       version = flow.live_version
 
@@ -437,7 +443,7 @@ module EasyFlow
     end
 
     test "withdrawing a version takes it out of service" do
-      flow = Definition.create!(slug: "demo", document: { "slug" => "demo" })
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish
 
       flow.withdraw_version(flow.live_version)

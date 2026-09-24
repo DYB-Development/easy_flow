@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class StepProcessTest < ActionDispatch::IntegrationTest
     def delivering(persists: :each_step, slug: "delivering")
-      Definition.create!(slug: slug, persists: persists).tap do |flow|
+      Definition.create!(host: "dummy", slug: slug, persists: persists).tap do |flow|
         flow.record_definition(flowing({ "slug" => slug, "entry" => "who",
           "nodes" => [ { "id" => "who", "type" => "question", "question" => "Who?",
                          "answers" => [ { "value" => "sam" } ] },

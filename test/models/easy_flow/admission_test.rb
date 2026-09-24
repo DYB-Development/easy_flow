@@ -7,7 +7,7 @@ module EasyFlow
     end
 
     test "it refuses a flow with nothing published as unpublished" do
-      unpublished = Definition.create!(slug: "nothing-published")
+      unpublished = Definition.create!(host: "dummy", slug: "nothing-published")
 
       assert_raises(NotPublished) { Admission.of(unpublished, permitted: true) }
     end

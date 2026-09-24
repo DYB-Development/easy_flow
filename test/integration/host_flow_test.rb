@@ -2,7 +2,7 @@ require "test_helper"
 
 class HostFlowTest < ActionDispatch::IntegrationTest
   def flow
-    @flow ||= EasyFlow::Definition.create!(slug: "fee").tap do |flow|
+    @flow ||= EasyFlow::Definition.create!(host: "dummy", slug: "fee").tap do |flow|
       flow.record_definition(flowing(
         "slug" => "fee", "entry" => "annual_fee",
         "nodes" => [ { "id" => "annual_fee", "type" => "question", "text" => "Does the card have an annual fee?",

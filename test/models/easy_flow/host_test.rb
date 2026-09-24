@@ -5,5 +5,9 @@ module EasyFlow
     test "renders its visitor pages in easy_flow's own layout when it names none" do
       assert_equal "easy_flow/application", Host.new(:alembic).layout
     end
+
+    test "renders its pages for managing flows in the application layout when it names none" do
+      assert_equal "application", Host.new(:alembic).admin_layout
+    end
   end
 end

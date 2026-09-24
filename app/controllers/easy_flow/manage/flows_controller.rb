@@ -33,7 +33,7 @@ module EasyFlow
       end
 
       def destroy
-        Definition.find(params[:id]).destroy!
+        flow_host.flows.find(params[:id]).destroy!
         redirect_to manage_flows_path, notice: "Flow removed."
       end
 

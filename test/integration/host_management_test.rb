@@ -37,5 +37,11 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a host's pages do not remove another host's flow" do
+      delete easy_flow.manage_flow_path(console_flow)
+
+      assert Definition.exists?(console_flow.id)
+    end
   end
 end

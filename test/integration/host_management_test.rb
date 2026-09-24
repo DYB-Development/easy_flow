@@ -31,5 +31,11 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a host's pages do not save changes to another host's flow" do
+      patch easy_flow.manage_flow_path(console_flow), params: { flow: { title: "Taken over" } }
+
+      assert_response :not_found
+    end
   end
 end

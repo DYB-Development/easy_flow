@@ -27,7 +27,7 @@ module EasyFlow
       end
 
       def update
-        @flow = Definition.find(params[:id])
+        @flow = flow_host.flows.find(params[:id])
         @flow.update!(flow_params)
         redirect_to manage_flow_path(@flow), notice: "Saved."
       end

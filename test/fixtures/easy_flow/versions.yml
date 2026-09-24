@@ -1,0 +1,17 @@
+_fixture:
+  model_class: EasyFlow::Version
+
+db_guide_v1:
+  flow: db_guide
+  number: 1
+  status: live
+  definition:
+    slug: db-guide
+    headline: A flow defined in the database
+    nodes:
+      - { id: start, type: start }
+      - { id: pick, type: question, text: Pick one option, options: [ { value: a, label: Option A }, { value: b, label: Option B } ] }
+      - { id: why, type: question, text: Why that one?, options: [ { value: cost, label: Cost } ] }
+    edges:
+      - { from: start, to: pick }
+      - { from: pick, to: why }

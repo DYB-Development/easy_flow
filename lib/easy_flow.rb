@@ -13,6 +13,10 @@ module EasyFlow
   class UnknownStepType < KeyError; end
   class UnknownCheck < ArgumentError; end
   class InvalidEdit < StandardError; end
+  class NotPublished < StandardError; end
+  class NotPermitted < StandardError; end
+  class OutOfService < StandardError; end
+  class Withdrawn < StandardError; end
 
   DRAWING = "easy_flow/steps/choosing".freeze
 

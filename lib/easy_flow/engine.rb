@@ -7,6 +7,7 @@ module EasyFlow
         EasyFlow::Start.register
         EasyFlow::Terminal.register
 
+        EasyFlow::Steps::Question.register
         EasyFlow::Condition.register
         EasyFlow::Switch.register
 

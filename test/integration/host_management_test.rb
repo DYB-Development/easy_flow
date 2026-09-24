@@ -61,5 +61,11 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a host's canvas does not draw another host's flow" do
+      get easy_flow.manage_flow_canvas_path(console_flow)
+
+      assert_response :not_found
+    end
   end
 end

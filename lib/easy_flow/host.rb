@@ -18,5 +18,9 @@ module EasyFlow
     def flows
       Definition.where(host: name)
     end
+
+    def set_up?
+      true
+    end
   end
 end

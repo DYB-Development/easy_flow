@@ -1,11 +1,11 @@
 <%= ui_page(max_width: :lg) do %>
   <p class="mb-4">
-    <%= link_to "← Back to the flow", easy_flow.manage_flow_path(@flow), class: "text-sm text-accent-600 hover:text-accent-700" %>
+    <%= link_to "← Back to the flow", manage_flow_path(@flow), class: "text-sm text-accent-600 hover:text-accent-700" %>
   </p>
 
-  <%= ui_form_page(title: "Edit details", back_url: easy_flow.manage_flow_path(@flow)) %>
+  <%= ui_form_page(title: "Edit details", back_url: manage_flow_path(@flow)) %>
 
-  <%= ui_form(action: easy_flow.manage_flow_path(@flow), method: :patch) do %>
+  <%= ui_form(action: manage_flow_path(@flow), method: :patch) do %>
     <%= ui_section(title: "How this is introduced") do %>
       <label class="block text-sm font-medium mb-1">Title</label>
       <%= ui_input(name: "flow[title]", value: @flow.title) %>

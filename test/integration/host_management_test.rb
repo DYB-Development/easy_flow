@@ -73,5 +73,11 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a second host's pages send their forms to that host's own path" do
+      get console_flows.manage_flows_path
+
+      assert_select "form[action=?]", "/console/manage/flows"
+    end
   end
 end

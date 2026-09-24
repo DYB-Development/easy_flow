@@ -52,4 +52,15 @@ class HostFlowTest < ActionDispatch::IntegrationTest
 
     assert_equal "The host takes it from here: yes", response.body
   end
+
+  test "a host's own controller does not run another host's flow" do
+    console = EasyFlow::Definition.create!(host: "console", slug: "console-fee").tap do |other|
+      other.record_definition(flow.definition.merge("slug" => "console-fee"))
+      other.publish
+    end
+
+    get "/host/#{console.slug}/step"
+
+    assert_response :not_found
+  end
 end

@@ -89,7 +89,7 @@ module EasyFlow
     end
 
     def admitted_run
-      found = Run.find(params[:id])
+      found = Run.where(flow: flow_host.flows).find(params[:id])
 
       Admission.of_run(found, permitted: permitted?(found.flow))
     end

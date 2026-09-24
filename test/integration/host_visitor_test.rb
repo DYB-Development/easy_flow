@@ -19,5 +19,13 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a visitor on one host's path does not open another host's run" do
+      run = Run.start(published)
+
+      get console_flows.run_path(run)
+
+      assert_response :not_found
+    end
   end
 end

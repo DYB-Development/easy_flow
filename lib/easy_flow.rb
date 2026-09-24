@@ -39,6 +39,8 @@ module EasyFlow
     end
 
     def host(name)
+      raise ArgumentError, "a host needs a name" if name.blank?
+
       hosts[name.to_s] = Host.new(name).tap { |host| yield host if block_given? }
     end
 

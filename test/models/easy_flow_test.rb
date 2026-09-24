@@ -10,6 +10,10 @@ module EasyFlow
       EasyFlow.hosts.delete("alembic")
     end
 
+    test "refuses to set up a host with no name" do
+      assert_raises(ArgumentError) { EasyFlow.host("") }
+    end
+
     test "finds no flows for a host that is not set up, even flows that name it" do
       Definition.create!(host: "retired", slug: "old")
 

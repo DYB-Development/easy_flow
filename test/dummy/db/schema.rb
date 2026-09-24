@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_24_120200) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_24_130000) do
   create_table "easy_flow_definitions", force: :cascade do |t|
     t.string "slug"
     t.string "title"
@@ -25,7 +25,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_24_120200) do
     t.json "undone_changes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["slug"], name: "index_easy_flow_definitions_on_slug", unique: true
+    t.string "host", default: "", null: false
+    t.index ["host", "slug"], name: "index_easy_flow_definitions_on_host_and_slug", unique: true
   end
 
   create_table "easy_flow_runs", force: :cascade do |t|

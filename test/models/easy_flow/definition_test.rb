@@ -2,6 +2,13 @@ require "test_helper"
 
 module EasyFlow
   class DefinitionTest < ActiveSupport::TestCase
+    test "two hosts can each hold a flow under the same slug" do
+      Definition.create!(host: "alembic", slug: "intake")
+      Definition.create!(host: "console", slug: "intake")
+
+      assert_equal 2, Definition.where(slug: "intake").count
+    end
+
     test "keeps nothing of a run until it is told to" do
       assert_predicate Definition.create!(slug: "fresh"), :unsaved?
     end

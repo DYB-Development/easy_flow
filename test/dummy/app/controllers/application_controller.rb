@@ -8,6 +8,10 @@ class ApplicationController < ActionController::Base
     redirect_to "/host-login"
   end
 
+  def turn_away_the_admin
+    head :forbidden
+  end
+
   def easy_flow_visitor_permitted?(flow)
     flow.present?
   end

@@ -1,0 +1,26 @@
+<% content_for :head do %>
+  <%= javascript_include_tag "keystone_ui/react", defer: true %>
+  <%= javascript_include_tag "easy_flow/canvas", defer: true %>
+<% end %>
+
+<div class="flex h-screen flex-col overflow-hidden">
+  <header class="flex shrink-0 items-center justify-between gap-4 border-b border-gray-200 px-6 py-3">
+    <div>
+      <h1 class="text-lg font-semibold text-gray-900" data-flow-heading><%= @flow.title.presence || @flow.slug %></h1>
+      <p class="text-sm text-gray-500"><%= @flow.slug %></p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button" data-open-panel
+              onclick="document.dispatchEvent(new CustomEvent('easy_flow:open-flow'))"
+              class="inline-flex items-center justify-center font-semibold rounded-lg border-0 cursor-pointer bg-accent-600 text-white hover:bg-accent-700 text-base px-4 py-2">This flow</button>
+
+      <%= ui_button(label: "Try it", href: easy_flow.manage_flow_preview_path(@flow), variant: :secondary) %>
+
+      <%= ui_button(label: "All flows", href: easy_flow.manage_flows_path, variant: :secondary) %>
+    </div>
+  </header>
+
+  <%= react_ui("easy_flow/flow-editor", { base: easy_flow.manage_flow_canvas_path(@flow), token: form_authenticity_token, initial: @canvas },
+               class: "min-h-0 flex-1",
+               data: { flow_canvas: true }) %>
+</div>

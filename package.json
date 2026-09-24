@@ -1,0 +1,31 @@
+{
+  "name": "easy_flow",
+  "version": "0.1.0",
+  "description": "Flow canvas assets for the EasyFlow Rails engine",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "build": "esbuild app/javascript/easy_flow/canvas.jsx --bundle --minify --format=iife --target=es2020 --define:process.env.NODE_ENV=\\\"production\\\" --alias:react=keystone_ui-react/src/react_on_page.js --alias:react-dom/client=keystone_ui-react/src/react_dom_on_page.js --alias:react-dom=keystone_ui-react/src/react_dom_on_page.js --alias:react/jsx-runtime=keystone_ui-react/src/jsx_runtime_on_page.js --outdir=app/assets/builds/easy_flow",
+    "test": "node --import ./test/javascript/support/jsx.js --test \"test/javascript/**/*_test.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DYB-Development/easy_flow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DYB-Development/easy_flow/issues"
+  },
+  "homepage": "https://github.com/DYB-Development/easy_flow#readme",
+  "dependencies": {
+    "keystone_ui-react": "https://github.com/DYB-Development/keystone_ui-react/archive/refs/tags/v0.1.3.tar.gz",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "private": true,
+  "type": "module"
+}

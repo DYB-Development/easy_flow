@@ -1,0 +1,13 @@
+<%= ui_page(max_width: :lg) do %>
+  <p class="mb-4">
+    <%= link_to "← Back to the flow", easy_flow.manage_flow_path(@flow), class: "text-sm text-accent-600 hover:text-accent-700" %>
+  </p>
+
+  <%= ui_form_page(title: "Definition", back_url: easy_flow.manage_flow_path(@flow), subtitle: @flow.slug) %>
+
+  <%= ui_form(action: easy_flow.manage_flow_definition_path(@flow), method: :patch) do %>
+    <%= ui_textarea(name: "definition", value: JSON.pretty_generate(@flow.document), rows: 30) %>
+
+    <%= ui_button(label: "Save", type: :submit) %>
+  <% end %>
+<% end %>

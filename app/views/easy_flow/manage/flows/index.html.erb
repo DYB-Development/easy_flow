@@ -1,0 +1,32 @@
+<%= ui_page(max_width: :xl) do %>
+  <%= ui_page_header(title: "Flows", subtitle: "Build and edit your flows") %>
+
+  <%= ui_data_table(
+    items: @flows,
+    columns: [ { title: "Title" }, { slug: "Slug" }, { kind: "Kind" }, { status: "Status" } ],
+    empty_message: "No flows yet."
+  ) do |table| %>
+    <% table.link(:title) { |flow| easy_flow.manage_flow_path(flow) } %>
+    <% table.actions do |flow| %>
+      <%= ui_form(action: easy_flow.manage_flow_path(flow), method: :delete) do %>
+        <%= ui_button(label: "Remove", type: :submit, variant: :secondary) %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= ui_section(title: "Create a flow") do %>
+    <% if @flow&.errors&.any? %>
+      <%= ui_alert(message: @flow.errors.full_messages.to_sentence, type: :error) %>
+    <% end %>
+
+    <%= ui_form(action: easy_flow.manage_flows_path, method: :post) do %>
+      <label class="block text-sm font-medium mb-1">Slug</label>
+      <%= ui_input(name: "flow[slug]", placeholder: "e.g. business-scorecard") %>
+
+      <label class="block text-sm font-medium mb-1 mt-4">Kind</label>
+      <%= ui_select(name: "flow[kind]", options: [ [ "Scored", "scored" ], [ "Guide", "guide" ] ]) %>
+
+      <%= ui_button(label: "Create", type: :submit, variant: :secondary) %>
+    <% end %>
+  <% end %>
+<% end %>

@@ -1,0 +1,26 @@
+<%= ui_page(max_width: :lg) do %>
+  <p class="mb-4">
+    <%= link_to "← Back to the flow", easy_flow.manage_flow_path(@flow), class: "text-sm text-accent-600 hover:text-accent-700" %>
+  </p>
+
+  <%= ui_form_page(title: "Edit details", back_url: easy_flow.manage_flow_path(@flow)) %>
+
+  <%= ui_form(action: easy_flow.manage_flow_path(@flow), method: :patch) do %>
+    <%= ui_section(title: "How this is introduced") do %>
+      <label class="block text-sm font-medium mb-1">Title</label>
+      <%= ui_input(name: "flow[title]", value: @flow.title) %>
+
+      <label class="block text-sm font-medium mb-1 mt-4">Start label</label>
+      <%= ui_input(name: "flow[start_label]", value: @flow.start_label) %>
+    <% end %>
+
+    <%= ui_section(title: "What this keeps of a run") do %>
+      <%= ui_select(name: "flow[persists]", selected: @flow.persists,
+            options: [ [ "Nothing", "unsaved" ],
+                       [ "Every answer as it is given", "each_step" ],
+                       [ "The whole run once it finishes", "on_finish" ] ]) %>
+    <% end %>
+
+    <%= ui_button(label: "Save", type: :submit) %>
+  <% end %>
+<% end %>

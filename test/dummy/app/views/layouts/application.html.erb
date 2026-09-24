@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html <%= keystone_theme_attributes %>>
   <head>
     <title><%= content_for(:title) || "Dummy" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light">
     <meta name="application-name" content="Dummy">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
+
+    <%= stylesheet_link_tag :app %>
+    <%= turbo_include_tags %>
   </head>
 
-  <body>
+  <body class="bg-white text-gray-900 dark:bg-surface-950 dark:text-gray-100">
     <%= yield %>
   </body>
 </html>

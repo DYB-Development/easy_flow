@@ -1,0 +1,55 @@
+module EasyFlow
+  module Manage
+    class FlowsController < BaseController
+      include DrawsCanvas
+      def index
+        @flows = ordered_flows
+      end
+
+      def create
+        @flow = Definition.new(create_params)
+
+        if @flow.save
+          redirect_to manage_flow_path(@flow), notice: "Flow created."
+        else
+          @flows = ordered_flows
+          render :index, status: :unprocessable_entity
+        end
+      end
+
+      def show
+        @flow = Definition.find(params[:id])
+        @canvas = canvas_payload(@flow)
+      end
+
+      def edit
+        @flow = Definition.find(params[:id])
+      end
+
+      def update
+        @flow = Definition.find(params[:id])
+        @flow.update!(flow_params)
+        redirect_to manage_flow_path(@flow), notice: "Saved."
+      end
+
+      def destroy
+        Definition.find(params[:id]).destroy!
+        redirect_to manage_flows_path, notice: "Flow removed."
+      end
+
+      private
+
+      def ordered_flows
+        Definition.order(:slug)
+      end
+
+      def create_params
+        params.require(:flow).permit(:slug, :kind)
+      end
+
+      def flow_params
+        params.require(:flow).permit(:title, :start_label, :persists)
+      end
+    end
+  end
+end

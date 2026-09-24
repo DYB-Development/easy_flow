@@ -2,6 +2,14 @@ require "test_helper"
 
 module EasyFlow
   class EasyFlowTest < ActiveSupport::TestCase
+    test "keeps the settings a host is set up with" do
+      EasyFlow.host(:alembic) { |host| host.layout = "alembic" }
+
+      assert_equal "alembic", EasyFlow.hosts.fetch("alembic").layout
+    ensure
+      EasyFlow.hosts.delete("alembic")
+    end
+
     test "draws a step with the template it ships when nothing replaces it" do
       assert_equal "easy_flow/steps/choosing", EasyFlow.drawing
     end

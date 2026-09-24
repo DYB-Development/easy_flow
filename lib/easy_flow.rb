@@ -1,5 +1,6 @@
 require "json"
 require "easy_flow/version"
+require "easy_flow/host"
 require "easy_flow/engine"
 
 module EasyFlow
@@ -34,6 +35,14 @@ module EasyFlow
 
     def admin_layout
       @admin_layout || "application"
+    end
+
+    def host(name)
+      hosts[name.to_s] = Host.new(name).tap { |host| yield host if block_given? }
+    end
+
+    def hosts
+      @hosts ||= {}
     end
 
     def draws_with(template)

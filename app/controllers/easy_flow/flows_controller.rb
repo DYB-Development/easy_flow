@@ -7,7 +7,7 @@ module EasyFlow
     end
 
     def start
-      redirect_to run_location(Run.start(flow))
+      redirect_to run_location(start_run(flow))
     end
 
     def step
@@ -35,6 +35,10 @@ module EasyFlow
 
     def run_location(run)
       easy_flow.run_path(run)
+    end
+
+    def start_run(flow)
+      Run.start(flow)
     end
 
     def flow_start_path(slug)

@@ -40,4 +40,10 @@ class HostFlowTest < ActionDispatch::IntegrationTest
 
     assert_select "form[action=?]", "/host/runs/#{run.id}"
   end
+
+  test "a host records what it needs when a visitor starts a flow" do
+    post "/host/#{flow.slug}/runs"
+
+    assert_equal "Started by the host", EasyFlow::Run.sole.label
+  end
 end

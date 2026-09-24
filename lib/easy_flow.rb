@@ -24,7 +24,7 @@ module EasyFlow
 
   class << self
     attr_writer :layout, :base_controller
-    attr_accessor :visitor_authorization_method, :refusal_method, :admin_authentication_method
+    attr_accessor :visitor_authorization_method, :refusal_method
 
     def layout
       @layout || "easy_flow/application"

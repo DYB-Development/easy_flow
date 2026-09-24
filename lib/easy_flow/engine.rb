@@ -1,3 +1,5 @@
+require "keystone_ui-react"
+
 module EasyFlow
   class Engine < ::Rails::Engine
     isolate_namespace EasyFlow

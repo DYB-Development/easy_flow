@@ -64,7 +64,7 @@ module EasyFlow
     end
 
     def running_definition
-      @running_definition ||= run ? run.pinned_definition : flow.live_definition
+      @running_definition ||= run ? run.pinned_definition : flowing_definition(flow)
     end
 
     def run
@@ -81,6 +81,10 @@ module EasyFlow
 
     def flow
       @stored_flow ||= admit(Definition.find_by(slug: params[:slug]))
+    end
+
+    def flowing_definition(flow)
+      flow.live_definition
     end
 
     def submitted_answers

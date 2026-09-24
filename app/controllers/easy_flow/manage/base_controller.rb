@@ -9,7 +9,7 @@ module EasyFlow
 
       include AuthenticatesAdmin
 
-      layout -> { EasyFlow.admin_layout }
+      layout -> { flow_host.admin_layout }
 
       helper KeystoneUiHelper
       helper KeystoneUi::React::MountHelper

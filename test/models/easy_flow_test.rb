@@ -50,15 +50,6 @@ module EasyFlow
       EasyFlow.base_controller = host_controller
     end
 
-    test "renders the pages for managing flows in the application layout when the host names none" do
-      host_layout = EasyFlow.admin_layout
-      EasyFlow.admin_layout = nil
-
-      assert_equal "application", EasyFlow.admin_layout
-    ensure
-      EasyFlow.admin_layout = host_layout
-    end
-
     test "refuses a check it does not ship" do
       assert_raises(UnknownCheck) { EasyFlow.check(:invented) }
     end

@@ -85,5 +85,15 @@ module EasyFlow
 
       assert_select "a[href=?]", "/console/manage/flows/#{console_flow.id}/preview/step"
     end
+
+    test "a host's management pages render in the admin layout that host names" do
+      EasyFlow.host_named(:console).admin_layout = "easy_flow/application"
+
+      get console_flows.manage_flows_path
+
+      assert_select "title", "EasyFlow"
+    ensure
+      EasyFlow.host_named(:console).admin_layout = nil
+    end
   end
 end

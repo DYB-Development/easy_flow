@@ -23,7 +23,7 @@ module EasyFlow
   DRAWING = "easy_flow/steps/choosing".freeze
 
   class << self
-    attr_writer :layout, :base_controller, :admin_layout
+    attr_writer :layout, :base_controller
     attr_accessor :visitor_authorization_method, :refusal_method, :admin_authentication_method
 
     def layout
@@ -32,10 +32,6 @@ module EasyFlow
 
     def base_controller
       @base_controller || "ActionController::Base"
-    end
-
-    def admin_layout
-      @admin_layout || "application"
     end
 
     def host(name)

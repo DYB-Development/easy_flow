@@ -95,7 +95,7 @@ module EasyFlow
     end
 
     def flow
-      @stored_flow ||= admit(Definition.find_by(slug: params[:slug]))
+      @stored_flow ||= admit(flow_host.flows.find_by(slug: params[:slug]))
     end
 
     def flowing_definition(flow)

@@ -6,7 +6,7 @@ module EasyFlow
       end
 
       def update
-        @flow = Definition.find(params[:flow_id])
+        @flow = flow_host.flows.find(params[:flow_id])
         @flow.edit_history.edit_document(JSON.parse(params.require(:definition)))
         redirect_to manage_flow_path(@flow), notice: "Definition saved."
       end

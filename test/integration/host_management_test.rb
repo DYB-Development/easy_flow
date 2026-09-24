@@ -49,5 +49,11 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a host's definition editor does not save into another host's flow" do
+      patch easy_flow.manage_flow_definition_path(console_flow), params: { definition: { "headline" => "Taken over" }.to_json }
+
+      assert_response :not_found
+    end
   end
 end

@@ -26,9 +26,9 @@ module EasyFlow
     end
 
     def permitted?(flow)
-      return false unless EasyFlow.visitor_authorization_method
+      return false unless flow_host.visitor_authorization_method
 
-      send(EasyFlow.visitor_authorization_method, flow)
+      send(flow_host.visitor_authorization_method, flow)
     end
 
     def refuse(refusal)

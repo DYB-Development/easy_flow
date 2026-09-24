@@ -46,5 +46,15 @@ module EasyFlow
 
       assert_select "title", "EasyFlow"
     end
+
+    test "a host that names no visitor check lets no visitor into its flows" do
+      EasyFlow.host_named(:console).visitor_authorization_method = nil
+
+      get console_flows.flow_path(console_published.slug)
+
+      assert_response :not_found
+    ensure
+      EasyFlow.host_named(:console).visitor_authorization_method = :easy_flow_visitor_permitted?
+    end
   end
 end

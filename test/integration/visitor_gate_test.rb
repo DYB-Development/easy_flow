@@ -15,11 +15,11 @@ module EasyFlow
     end
 
     def without_host_configuration
-      permission = EasyFlow.visitor_authorization_method
-      EasyFlow.visitor_authorization_method = nil
+      permission = EasyFlow.host_named(:dummy).visitor_authorization_method
+      EasyFlow.host_named(:dummy).visitor_authorization_method = nil
       yield
     ensure
-      EasyFlow.visitor_authorization_method = permission
+      EasyFlow.host_named(:dummy).visitor_authorization_method = permission
     end
 
     test "a visitor cannot reach a flow the host has not authorized" do

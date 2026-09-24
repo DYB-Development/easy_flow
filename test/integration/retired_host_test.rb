@@ -24,5 +24,13 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a run of a host no longer set up is never opened" do
+      run = Run.start(retired)
+
+      get easy_flow.run_path(run)
+
+      assert_response :not_found
+    end
   end
 end

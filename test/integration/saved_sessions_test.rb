@@ -102,7 +102,7 @@ module EasyFlow
     end
 
     test "a visitor part way through a withdrawn version is told it was withdrawn" do
-      EasyFlow.refusal_method = :note_the_refusal
+      EasyFlow.host_named(:dummy).refusal_method = :note_the_refusal
       run = Run.start(saved)
       run.definition_version.update!(status: :withdrawn)
 
@@ -110,7 +110,7 @@ module EasyFlow
 
       assert_equal "EasyFlow::Withdrawn", response.headers["X-Refusal"]
     ensure
-      EasyFlow.refusal_method = nil
+      EasyFlow.host_named(:dummy).refusal_method = nil
     end
 
     test "a withdrawn version keeps the answers already recorded" do

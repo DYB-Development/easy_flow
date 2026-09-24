@@ -24,7 +24,6 @@ module EasyFlow
 
   class << self
     attr_writer :base_controller
-    attr_accessor :refusal_method
 
     def base_controller
       @base_controller || "ActionController::Base"

@@ -32,9 +32,9 @@ module EasyFlow
     end
 
     def refuse(refusal)
-      return head :not_found unless EasyFlow.refusal_method
+      return head :not_found unless flow_host.refusal_method
 
-      send(EasyFlow.refusal_method, refusal)
+      send(flow_host.refusal_method, refusal)
     end
   end
 end

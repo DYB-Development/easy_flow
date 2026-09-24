@@ -56,5 +56,18 @@ module EasyFlow
     ensure
       EasyFlow.host_named(:console).visitor_authorization_method = :easy_flow_visitor_permitted?
     end
+
+    test "a host answers a refused visitor with the method that host names" do
+      console = EasyFlow.host_named(:console)
+      console.visitor_authorization_method = nil
+      console.refusal_method = :note_the_refusal
+
+      get console_flows.flow_path(console_published.slug)
+
+      assert_equal "EasyFlow::NotPermitted", response.headers["X-Refusal"]
+    ensure
+      console.visitor_authorization_method = :easy_flow_visitor_permitted?
+      console.refusal_method = nil
+    end
   end
 end

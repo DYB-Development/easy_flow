@@ -105,7 +105,7 @@ module EasyFlow
     end
 
     test "a host can answer a refusal its own way instead of the plain not found" do
-      EasyFlow.refusal_method = :send_a_refused_visitor_to_login
+      EasyFlow.host_named(:dummy).refusal_method = :send_a_refused_visitor_to_login
 
       without_host_configuration do
         get easy_flow.flow_path(published.slug)
@@ -113,11 +113,11 @@ module EasyFlow
         assert_redirected_to "/host-login"
       end
     ensure
-      EasyFlow.refusal_method = nil
+      EasyFlow.host_named(:dummy).refusal_method = nil
     end
 
     test "a host is told which refusal it is answering" do
-      EasyFlow.refusal_method = :note_the_refusal
+      EasyFlow.host_named(:dummy).refusal_method = :note_the_refusal
 
       without_host_configuration do
         get easy_flow.flow_path(published.slug)
@@ -125,7 +125,7 @@ module EasyFlow
         assert_equal "EasyFlow::NotPermitted", response.headers["X-Refusal"]
       end
     ensure
-      EasyFlow.refusal_method = nil
+      EasyFlow.host_named(:dummy).refusal_method = nil
     end
   end
 end

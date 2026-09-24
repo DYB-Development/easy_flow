@@ -1,0 +1,13 @@
+# Omakase Ruby styling for Rails
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+# The dummy app and generated schema are not source we hand-write — don't lint them.
+AllCops:
+  Exclude:
+    - "test/dummy/**/*"
+
+# Overwrite or add rules to create your own house style
+#
+# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
+# Layout/SpaceInsideArrayLiteralBrackets:
+#   Enabled: false

@@ -1,0 +1,20 @@
+_fixture:
+  model_class: EasyFlow::Definition
+
+business_scorecard:
+  slug: business-scorecard
+  title: Business Blind-Spot Scorecard
+  kind: scored
+  status: active
+
+stats_ladder:
+  slug: stats-system-ladder
+  title: The Stats System Ladder
+  kind: guide
+  status: active
+
+db_guide:
+  slug: db-guide
+  title: Database Guide Record
+  kind: guide
+  status: active

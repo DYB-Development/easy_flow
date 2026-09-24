@@ -1,0 +1,50 @@
+require "json"
+require "easy_flow/version"
+require "easy_flow/engine"
+
+module EasyFlow
+  FIELD_TYPES = %i[string integer float boolean select multi_select previous_step from_step list].freeze
+
+  OUTPUT_TYPES = %i[string integer float boolean].freeze
+  OPTIONAL_CHECKS = %i[unrouted_value unfollowed_path dead_end].freeze
+
+  class UnknownFieldType < ArgumentError; end
+  class UnknownOutputType < ArgumentError; end
+  class UnknownStepType < KeyError; end
+  class UnknownCheck < ArgumentError; end
+  class InvalidEdit < StandardError; end
+  class NotPublished < StandardError; end
+  class NotPermitted < StandardError; end
+  class OutOfService < StandardError; end
+  class Withdrawn < StandardError; end
+
+  DRAWING = "easy_flow/steps/choosing".freeze
+
+  class << self
+    def draws_with(template)
+      @drawing = template
+    end
+
+    def drawing
+      @drawing.presence || DRAWING
+    end
+
+    def step(id, &declaration)
+      registry.register(StepType.define(id, &declaration))
+    end
+
+    def registry
+      @registry ||= Registry.new
+    end
+
+    def check(name)
+      raise UnknownCheck, "#{name} is not one of #{OPTIONAL_CHECKS.join(', ')}" unless OPTIONAL_CHECKS.include?(name)
+
+      checks << name unless checks.include?(name)
+    end
+
+    def checks
+      @checks ||= []
+    end
+  end
+end

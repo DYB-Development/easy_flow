@@ -11,11 +11,11 @@ module EasyFlow
       private
 
       def flow_start_path(_slug)
-        easy_flow.manage_flow_preview_path(previewed)
+        manage_flow_preview_path(previewed)
       end
 
       def flow_step_path(_slug)
-        easy_flow.step_manage_flow_preview_path(previewed)
+        step_manage_flow_preview_path(previewed)
       end
 
       def previewing?

@@ -79,5 +79,11 @@ module EasyFlow
 
       assert_select "form[action=?]", "/console/manage/flows"
     end
+
+    test "a second host's preview starts on that host's own path" do
+      get console_flows.manage_flow_preview_path(console_flow)
+
+      assert_select "a[href=?]", "/console/manage/flows/#{console_flow.id}/preview/step"
+    end
   end
 end

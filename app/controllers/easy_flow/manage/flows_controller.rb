@@ -23,7 +23,7 @@ module EasyFlow
       end
 
       def edit
-        @flow = Definition.find(params[:id])
+        @flow = flow_host.flows.find(params[:id])
       end
 
       def update

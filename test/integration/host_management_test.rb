@@ -25,5 +25,11 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a host's pages do not open another host's flow for editing" do
+      get easy_flow.edit_manage_flow_path(console_flow)
+
+      assert_response :not_found
+    end
   end
 end

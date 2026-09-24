@@ -32,15 +32,6 @@ module EasyFlow
       EasyFlow.draws_with(nil)
     end
 
-    test "renders the visitor pages in its own layout when the host names none" do
-      host_layout = EasyFlow.layout
-      EasyFlow.layout = nil
-
-      assert_equal "easy_flow/application", EasyFlow.layout
-    ensure
-      EasyFlow.layout = host_layout
-    end
-
     test "builds its controllers on a plain controller when the host names none" do
       host_controller = EasyFlow.base_controller
       EasyFlow.base_controller = nil

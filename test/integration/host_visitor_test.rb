@@ -14,6 +14,13 @@ module EasyFlow
       end
     end
 
+    def console_published
+      @console_published ||= Definition.create!(host: "console", slug: "console-fee").tap do |flow|
+        flow.record_definition(published.definition.merge("slug" => "console-fee"))
+        flow.publish
+      end
+    end
+
     test "a visitor on one host's path does not reach another host's flow" do
       get console_flows.flow_path(published.slug)
 
@@ -29,14 +36,15 @@ module EasyFlow
     end
 
     test "a visitor who starts a second host's flow stays on that host's path" do
-      console = Definition.create!(host: "console", slug: "console-fee").tap do |flow|
-        flow.record_definition(published.definition.merge("slug" => "console-fee"))
-        flow.publish
-      end
-
-      post console_flows.flow_runs_path(console.slug)
+      post console_flows.flow_runs_path(console_published.slug)
 
       assert_redirected_to "/console/runs/#{Run.sole.id}"
+    end
+
+    test "a visitor sees a host's flow in the layout that host names" do
+      get console_flows.flow_path(console_published.slug)
+
+      assert_select "title", "EasyFlow"
     end
   end
 end

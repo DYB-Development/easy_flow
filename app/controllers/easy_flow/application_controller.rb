@@ -2,7 +2,7 @@ module EasyFlow
   class ApplicationController < EasyFlow.base_controller.constantize
     include Hosted
 
-    layout -> { EasyFlow.layout }
+    layout -> { flow_host.layout }
     helper KeystoneUiHelper
 
     rescue_from NotPublished, NotPermitted, Withdrawn, with: :refuse

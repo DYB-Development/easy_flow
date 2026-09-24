@@ -14,5 +14,9 @@ module EasyFlow
     def admin_layout
       @admin_layout || "application"
     end
+
+    def flows
+      Definition.where(host: name)
+    end
   end
 end

@@ -27,5 +27,16 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a visitor who starts a second host's flow stays on that host's path" do
+      console = Definition.create!(host: "console", slug: "console-fee").tap do |flow|
+        flow.record_definition(published.definition.merge("slug" => "console-fee"))
+        flow.publish
+      end
+
+      post console_flows.flow_runs_path(console.slug)
+
+      assert_redirected_to "/console/runs/#{Run.sole.id}"
+    end
   end
 end

@@ -7,12 +7,18 @@ module EasyFlow
 
     rescue_from NotPublished, NotPermitted, Withdrawn, with: :refuse
 
-    helper_method :flow_start_path
+    helper_method :flow_start_path, :flow_routes
 
     private
 
+    def flow_routes
+      return easy_flow unless request.routes.equal?(EasyFlow::Engine.routes)
+
+      @flow_routes ||= ActionDispatch::Routing::RoutesProxy.new(_routes, self, _routes.url_helpers)
+    end
+
     def flow_start_path(slug)
-      easy_flow.flow_path(slug)
+      flow_routes.flow_path(slug)
     end
 
     def admit(flow)

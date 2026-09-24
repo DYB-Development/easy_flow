@@ -11,7 +11,7 @@ module EasyFlow
     end
 
     def step
-      @guide = QuestionRunner.new(running_definition)
+      @guide = runner_for(running_definition)
       @progress = progress
       @guide.run(@progress)
       @answers = @progress.recorded
@@ -28,6 +28,10 @@ module EasyFlow
     end
 
     private
+
+    def runner_for(definition)
+      QuestionRunner.new(definition)
+    end
 
     def flow_start_path(slug)
       easy_flow.flow_path(slug)
@@ -97,7 +101,7 @@ module EasyFlow
     end
 
     def asked
-      QuestionRunner.new(run.pinned_definition).steps.map(&:id)
+      runner_for(run.pinned_definition).steps.map(&:id)
     end
   end
 end

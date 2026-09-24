@@ -21,6 +21,17 @@ module EasyFlow
   DRAWING = "easy_flow/steps/choosing".freeze
 
   class << self
+    attr_writer :layout, :base_controller
+    attr_accessor :visitor_authorization_method, :refusal_method
+
+    def layout
+      @layout || "easy_flow/application"
+    end
+
+    def base_controller
+      @base_controller || "ActionController::Base"
+    end
+
     def draws_with(template)
       @drawing = template
     end

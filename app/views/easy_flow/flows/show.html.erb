@@ -1,0 +1,17 @@
+<% content_for(:title, @flow.title.presence || @flow.slug) %>
+
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: @flow.title.presence || @flow.slug) %>
+
+  <%= ui_section do %>
+    <div class="flex flex-wrap items-center gap-3">
+      <% if @flow.each_step? && @flow.definition.present? && !previewing? %>
+        <%= ui_form(action: easy_flow.flow_runs_path(@flow.slug), method: :post) do %>
+          <%= ui_button(label: @flow.start_label.presence || "Start", type: :submit) %>
+        <% end %>
+      <% else %>
+        <%= ui_button(label: @flow.start_label.presence || "Start", href: flow_step_path(@flow.slug)) %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

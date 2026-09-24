@@ -1,0 +1,22 @@
+<% content_for(:title, "Complete") %>
+
+<% starting_over = flow_start_path(@guide.slug) %>
+
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: "That's everything", subtitle: "Thanks — here's what you told us") do |header| %>
+    <% header.action do %>
+      <%= ui_button(label: "Start over", href: starting_over, variant: :secondary) %>
+    <% end %>
+  <% end %>
+
+  <%= ui_section do %>
+    <ul class="divide-y divide-gray-100 border-y border-gray-100">
+      <% @answered.each do |step, value| %>
+        <li data-answer="<%= step %>" class="flex items-baseline justify-between gap-6 py-3">
+          <span class="text-gray-600"><%= @guide.question_text(step) %></span>
+          <span class="shrink-0 font-medium text-gray-900"><%= @guide.choice_label(step, value) %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

@@ -24,4 +24,12 @@ class HostFlowTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/host/runs/#{EasyFlow::Run.sole.id}"
   end
+
+  test "a host brings a visitor back to its own page for the run after each answer" do
+    run = EasyFlow::Run.start(flow)
+
+    patch "/host/runs/#{run.id}", params: { answers: { annual_fee: "yes" } }
+
+    assert_redirected_to "/host/runs/#{run.id}"
+  end
 end

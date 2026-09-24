@@ -24,7 +24,7 @@ module EasyFlow
 
     def update
       params[:back] ? progress.discard_last : record_submitted
-      redirect_to easy_flow.run_path(run)
+      redirect_to run_location(run)
     end
 
     private

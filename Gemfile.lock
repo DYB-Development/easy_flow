@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    easy_flow (0.2.0)
+    easy_flow (0.3.0)
       keystone_ui-react (>= 0.1.2)
       rails (>= 8.1.3)
 

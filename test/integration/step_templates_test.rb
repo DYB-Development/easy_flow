@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class StepTemplatesTest < ActionDispatch::IntegrationTest
     def notifying
-      @notifying ||= Definition.create!(slug: "notifying").tap do |flow|
+      @notifying ||= Definition.create!(host: "dummy", slug: "notifying").tap do |flow|
         flow.record_definition(flowing({ "slug" => "notifying", "entry" => "tell",
           "nodes" => [ { "id" => "tell", "type" => "notify", "message" => "We will be in touch" } ] }))
         flow.publish
@@ -11,7 +11,7 @@ module EasyFlow
     end
 
     def asking
-      @asking ||= Definition.create!(slug: "asking").tap do |flow|
+      @asking ||= Definition.create!(host: "dummy", slug: "asking").tap do |flow|
         flow.record_definition(flowing({ "slug" => "asking", "entry" => "budget",
           "nodes" => [ { "id" => "budget", "type" => "question", "question" => "Budget?",
                          "answers" => [ { "value" => "low" } ] } ] }))

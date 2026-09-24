@@ -6,7 +6,7 @@
   <%= ui_section do %>
     <div class="flex flex-wrap items-center gap-3">
       <% if @flow.each_step? && @flow.definition.present? && !previewing? %>
-        <%= ui_form(action: easy_flow.flow_runs_path(@flow.slug), method: :post) do %>
+        <%= ui_form(action: flow_routes.flow_runs_path(@flow.slug), method: :post) do %>
           <%= ui_button(label: @flow.start_label.presence || "Start", type: :submit) %>
         <% end %>
       <% else %>

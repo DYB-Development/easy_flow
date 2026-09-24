@@ -1,16 +1,24 @@
 module EasyFlow
   class ApplicationController < EasyFlow.base_controller.constantize
-    layout -> { EasyFlow.layout }
+    include Hosted
+
+    layout -> { flow_host.layout }
     helper KeystoneUiHelper
 
     rescue_from NotPublished, NotPermitted, Withdrawn, with: :refuse
 
-    helper_method :flow_start_path
+    helper_method :flow_start_path, :flow_routes
 
     private
 
+    def flow_routes
+      return easy_flow unless request.routes.equal?(EasyFlow::Engine.routes)
+
+      @flow_routes ||= ActionDispatch::Routing::RoutesProxy.new(_routes, self, _routes.url_helpers)
+    end
+
     def flow_start_path(slug)
-      easy_flow.flow_path(slug)
+      flow_routes.flow_path(slug)
     end
 
     def admit(flow)
@@ -18,15 +26,15 @@ module EasyFlow
     end
 
     def permitted?(flow)
-      return false unless EasyFlow.visitor_authorization_method
+      return false unless flow_host.visitor_authorization_method
 
-      send(EasyFlow.visitor_authorization_method, flow)
+      send(flow_host.visitor_authorization_method, flow)
     end
 
     def refuse(refusal)
-      return head :not_found unless EasyFlow.refusal_method
+      return head :not_found unless flow_host.refusal_method
 
-      send(EasyFlow.refusal_method, refusal)
+      send(flow_host.refusal_method, refusal)
     end
   end
 end

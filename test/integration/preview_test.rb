@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class PreviewTest < ActionDispatch::IntegrationTest
     def unpublished
-      @unpublished ||= Definition.create!(slug: "unpublished").tap do |flow|
+      @unpublished ||= Definition.create!(host: "dummy", slug: "unpublished").tap do |flow|
         flow.edit_history.edit_document(flowing(
           "slug" => "unpublished", "entry" => "budget",
           "nodes" => [ { "id" => "budget", "type" => "question", "question" => "Budget?",

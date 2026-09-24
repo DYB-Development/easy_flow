@@ -15,7 +15,7 @@ module EasyFlow
     end
 
     def saved
-      @saved ||= Definition.create!(slug: "saved", persists: :each_step).tap { |flow| flow.record_definition(flowing(branching)); flow.publish }
+      @saved ||= Definition.create!(host: "dummy", slug: "saved", persists: :each_step).tap { |flow| flow.record_definition(flowing(branching)); flow.publish }
     end
 
     test "starting a saved session sends the visitor to its durable URL" do
@@ -102,7 +102,7 @@ module EasyFlow
     end
 
     test "a visitor part way through a withdrawn version is told it was withdrawn" do
-      EasyFlow.refusal_method = :note_the_refusal
+      EasyFlow.host_named(:dummy).refusal_method = :note_the_refusal
       run = Run.start(saved)
       run.definition_version.update!(status: :withdrawn)
 
@@ -110,7 +110,7 @@ module EasyFlow
 
       assert_equal "EasyFlow::Withdrawn", response.headers["X-Refusal"]
     ensure
-      EasyFlow.refusal_method = nil
+      EasyFlow.host_named(:dummy).refusal_method = nil
     end
 
     test "a withdrawn version keeps the answers already recorded" do

@@ -10,9 +10,9 @@ module EasyFlow
       private
 
       def authenticate_admin
-        return unless EasyFlow.admin_authentication_method
+        return unless flow_host.admin_authentication_method
 
-        send(EasyFlow.admin_authentication_method)
+        send(flow_host.admin_authentication_method)
       end
     end
   end

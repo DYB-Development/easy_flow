@@ -2,7 +2,7 @@ require "test_helper"
 
 class HostFlowTest < ActionDispatch::IntegrationTest
   def flow
-    @flow ||= EasyFlow::Definition.create!(slug: "fee").tap do |flow|
+    @flow ||= EasyFlow::Definition.create!(host: "dummy", slug: "fee").tap do |flow|
       flow.record_definition(flowing(
         "slug" => "fee", "entry" => "annual_fee",
         "nodes" => [ { "id" => "annual_fee", "type" => "question", "text" => "Does the card have an annual fee?",
@@ -51,5 +51,16 @@ class HostFlowTest < ActionDispatch::IntegrationTest
     get "/host/#{flow.slug}/step", params: { answers: { annual_fee: "yes" } }
 
     assert_equal "The host takes it from here: yes", response.body
+  end
+
+  test "a host's own controller does not run another host's flow" do
+    console = EasyFlow::Definition.create!(host: "console", slug: "console-fee").tap do |other|
+      other.record_definition(flow.definition.merge("slug" => "console-fee"))
+      other.publish
+    end
+
+    get "/host/#{console.slug}/step"
+
+    assert_response :not_found
   end
 end

@@ -23,9 +23,5 @@ module EasyFlow
     def step_ids
       all("[data-step]").map { |card| card["data-step"] }
     end
-
-    def easy_flow
-      EasyFlow::Engine.routes.url_helpers
-    end
   end
 end

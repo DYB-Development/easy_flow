@@ -1,4 +1,6 @@
 class HostFlowsController < EasyFlow::FlowsController
+  hosted_by :dummy
+
   class Runner < EasyFlow::QuestionRunner
     def headline = "Chosen by the host"
   end

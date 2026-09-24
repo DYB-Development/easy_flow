@@ -34,7 +34,7 @@ module EasyFlow
     end
 
     def run_location(run)
-      easy_flow.run_path(run)
+      flow_routes.run_path(run)
     end
 
     def start_run(flow)
@@ -42,11 +42,11 @@ module EasyFlow
     end
 
     def flow_start_path(slug)
-      easy_flow.flow_path(slug)
+      flow_routes.flow_path(slug)
     end
 
     def flow_step_path(slug)
-      easy_flow.flow_step_path(slug)
+      flow_routes.flow_step_path(slug)
     end
 
     def previewing?
@@ -89,13 +89,13 @@ module EasyFlow
     end
 
     def admitted_run
-      found = Run.find(params[:id])
+      found = Run.where(flow: flow_host.flows).find(params[:id])
 
       Admission.of_run(found, permitted: permitted?(found.flow))
     end
 
     def flow
-      @stored_flow ||= admit(Definition.find_by(slug: params[:slug]))
+      @stored_flow ||= admit(flow_host.flows.find_by(slug: params[:slug]))
     end
 
     def flowing_definition(flow)

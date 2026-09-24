@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class VisitorGateTest < ActionDispatch::IntegrationTest
     def published
-      @published ||= Definition.create!(slug: "gated").tap do |flow|
+      @published ||= Definition.create!(host: "dummy", slug: "gated").tap do |flow|
         flow.record_definition(
           "slug" => "gated", "entry" => "ask",
           "nodes" => [ { "id" => "ask", "type" => "question", "text" => "Ready?",
@@ -15,11 +15,11 @@ module EasyFlow
     end
 
     def without_host_configuration
-      permission = EasyFlow.visitor_authorization_method
-      EasyFlow.visitor_authorization_method = nil
+      permission = EasyFlow.host_named(:dummy).visitor_authorization_method
+      EasyFlow.host_named(:dummy).visitor_authorization_method = nil
       yield
     ensure
-      EasyFlow.visitor_authorization_method = permission
+      EasyFlow.host_named(:dummy).visitor_authorization_method = permission
     end
 
     test "a visitor cannot reach a flow the host has not authorized" do
@@ -37,7 +37,7 @@ module EasyFlow
     end
 
     test "a visitor cannot reach a flow with nothing published even when the host authorizes it" do
-      unpublished = Definition.create!(slug: "unpublished")
+      unpublished = Definition.create!(host: "dummy", slug: "unpublished")
 
       get easy_flow.flow_path(unpublished.slug)
 
@@ -105,7 +105,7 @@ module EasyFlow
     end
 
     test "a host can answer a refusal its own way instead of the plain not found" do
-      EasyFlow.refusal_method = :send_a_refused_visitor_to_login
+      EasyFlow.host_named(:dummy).refusal_method = :send_a_refused_visitor_to_login
 
       without_host_configuration do
         get easy_flow.flow_path(published.slug)
@@ -113,11 +113,11 @@ module EasyFlow
         assert_redirected_to "/host-login"
       end
     ensure
-      EasyFlow.refusal_method = nil
+      EasyFlow.host_named(:dummy).refusal_method = nil
     end
 
     test "a host is told which refusal it is answering" do
-      EasyFlow.refusal_method = :note_the_refusal
+      EasyFlow.host_named(:dummy).refusal_method = :note_the_refusal
 
       without_host_configuration do
         get easy_flow.flow_path(published.slug)
@@ -125,7 +125,7 @@ module EasyFlow
         assert_equal "EasyFlow::NotPermitted", response.headers["X-Refusal"]
       end
     ensure
-      EasyFlow.refusal_method = nil
+      EasyFlow.host_named(:dummy).refusal_method = nil
     end
   end
 end

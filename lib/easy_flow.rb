@@ -1,5 +1,7 @@
 require "json"
 require "easy_flow/version"
+require "easy_flow/host"
+require "easy_flow/unset_host"
 require "easy_flow/engine"
 
 module EasyFlow
@@ -21,19 +23,24 @@ module EasyFlow
   DRAWING = "easy_flow/steps/choosing".freeze
 
   class << self
-    attr_writer :layout, :base_controller, :admin_layout
-    attr_accessor :visitor_authorization_method, :refusal_method, :admin_authentication_method
-
-    def layout
-      @layout || "easy_flow/application"
-    end
+    attr_writer :base_controller
 
     def base_controller
       @base_controller || "ActionController::Base"
     end
 
-    def admin_layout
-      @admin_layout || "application"
+    def host(name)
+      raise ArgumentError, "a host needs a name" if name.blank?
+
+      hosts[name.to_s] = Host.new(name).tap { |host| yield host if block_given? }
+    end
+
+    def hosts
+      @hosts ||= {}
+    end
+
+    def host_named(name)
+      hosts.fetch(name.to_s) { UnsetHost.new }
     end
 
     def draws_with(template)

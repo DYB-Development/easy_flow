@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class DefinitionEditorTest < ActionDispatch::IntegrationTest
     test "a branching definition saved in the builder runs in the stepper" do
-      flow = Definition.create!(slug: "flow")
+      flow = Definition.create!(host: "dummy", slug: "flow")
       flow.record_definition("slug" => "flow")
 
       patch easy_flow.manage_flow_definition_path(flow), params: { definition: flowing({
@@ -29,7 +29,7 @@ module EasyFlow
     end
 
     test "the definition editor shows the current definition" do
-      flow = Definition.create!(slug: "doc")
+      flow = Definition.create!(host: "dummy", slug: "doc")
       flow.record_definition("slug" => "doc", "questions" => [ { "id" => "need", "text" => "Need?" } ])
 
       get easy_flow.edit_manage_flow_definition_path(flow)
@@ -38,7 +38,7 @@ module EasyFlow
     end
 
     test "the editor shows the flow being edited, not the last version cut" do
-      fresh = Definition.create!(slug: "fresh")
+      fresh = Definition.create!(host: "dummy", slug: "fresh")
 
       get easy_flow.edit_manage_flow_definition_path(fresh)
 
@@ -46,7 +46,7 @@ module EasyFlow
     end
 
     test "editing the definition changes the flow without cutting a version" do
-      fresh = Definition.create!(slug: "fresh-edit")
+      fresh = Definition.create!(host: "dummy", slug: "fresh-edit")
       edited = fresh.document.merge("headline" => "Edited by hand")
 
       assert_no_difference -> { fresh.definition_versions.count } do
@@ -57,7 +57,7 @@ module EasyFlow
     end
 
     test "editing the definition records that it changed" do
-      fresh = Definition.create!(slug: "fresh-change")
+      fresh = Definition.create!(host: "dummy", slug: "fresh-change")
 
       patch easy_flow.manage_flow_definition_path(fresh), params: { definition: fresh.document.to_json }
 

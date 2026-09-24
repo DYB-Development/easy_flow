@@ -7,7 +7,7 @@ module EasyFlow
       end
 
       def create
-        @flow = Definition.new(create_params)
+        @flow = flow_host.flows.new(create_params)
 
         if @flow.save
           redirect_to manage_flow_path(@flow), notice: "Flow created."
@@ -18,29 +18,29 @@ module EasyFlow
       end
 
       def show
-        @flow = Definition.find(params[:id])
+        @flow = flow_host.flows.find(params[:id])
         @canvas = canvas_payload(@flow)
       end
 
       def edit
-        @flow = Definition.find(params[:id])
+        @flow = flow_host.flows.find(params[:id])
       end
 
       def update
-        @flow = Definition.find(params[:id])
+        @flow = flow_host.flows.find(params[:id])
         @flow.update!(flow_params)
         redirect_to manage_flow_path(@flow), notice: "Saved."
       end
 
       def destroy
-        Definition.find(params[:id]).destroy!
+        flow_host.flows.find(params[:id]).destroy!
         redirect_to manage_flows_path, notice: "Flow removed."
       end
 
       private
 
       def ordered_flows
-        Definition.order(:slug)
+        flow_host.flows.order(:slug)
       end
 
       def create_params

@@ -3,7 +3,7 @@ require "test_helper"
 module EasyFlow
   class FlowRunTest < ActionDispatch::IntegrationTest
     def flowed
-      @flowed ||= Definition.create!(slug: "flowed").tap do |flow|
+      @flowed ||= Definition.create!(host: "dummy", slug: "flowed").tap do |flow|
         flow.record_definition(flowing(
           "slug" => "flowed", "entry" => "budget",
           "nodes" => [ { "id" => "budget", "type" => "question", "text" => "What is your budget?", "tag" => "money",

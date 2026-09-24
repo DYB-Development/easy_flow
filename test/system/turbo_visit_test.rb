@@ -3,7 +3,7 @@ require "application_system_test_case"
 module EasyFlow
   class TurboVisitTest < ApplicationSystemTestCase
     test "the flow editor listens for a renamed flow once however often it is visited" do
-      Definition.create!(slug: "intake", title: "Intake")
+      Definition.create!(host: "dummy", slug: "intake", title: "Intake")
       visit easy_flow.manage_flows_path
       page.execute_script(<<~COUNTING)
         window.ksNamedListeners = 0

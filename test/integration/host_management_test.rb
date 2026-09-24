@@ -2,8 +2,12 @@ require "test_helper"
 
 module EasyFlow
   class HostManagementTest < ActionDispatch::IntegrationTest
+    def console_flow
+      @console_flow ||= Definition.create!(host: "console", slug: "console-setup", title: "Console setup")
+    end
+
     test "a host's flow list leaves out another host's flows" do
-      Definition.create!(host: "console", slug: "console-setup", title: "Console setup")
+      console_flow
 
       get easy_flow.manage_flows_path
 
@@ -14,6 +18,12 @@ module EasyFlow
       post easy_flow.manage_flows_path, params: { flow: { slug: "made-here", kind: "guide" } }
 
       assert_equal "dummy", Definition.find_by!(slug: "made-here").host
+    end
+
+    test "a host's pages do not show another host's flow" do
+      get easy_flow.manage_flow_path(console_flow)
+
+      assert_response :not_found
     end
   end
 end

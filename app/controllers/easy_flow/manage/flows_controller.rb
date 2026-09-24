@@ -18,7 +18,7 @@ module EasyFlow
       end
 
       def show
-        @flow = Definition.find(params[:id])
+        @flow = flow_host.flows.find(params[:id])
         @canvas = canvas_payload(@flow)
       end
 

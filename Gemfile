@@ -7,6 +7,8 @@ gem "puma"
 
 gem "sqlite3"
 
+gem "propshaft"
+
 # UI components for every view the engine renders itself. The host app
 # provides this at runtime; here it's for the dummy app and view tests.
 gem "keystone_ui"

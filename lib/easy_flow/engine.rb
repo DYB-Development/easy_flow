@@ -7,6 +7,8 @@ module EasyFlow
 
       require "keystone_ui"
       KeystoneUi.configuration.tailwind_sources << root.join("app/views/**/*.erb").to_s
+      KeystoneUi.configuration.tailwind_sources << root.join("app/javascript/**/*.{js,jsx}").to_s
+      KeystoneUi.configuration.tailwind_sources << root.join("app/assets/builds/easy_flow/*.js").to_s
     end
 
     initializer "easy_flow.step_types" do |app|

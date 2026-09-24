@@ -15,6 +15,10 @@ module EasyFlow
       assert flow.errors.of_kind?(:host, :blank)
     end
 
+    test "the database refuses a flow stored without a host" do
+      assert_raises(ActiveRecord::NotNullViolation) { Definition.insert_all([ { slug: "raw" } ]) }
+    end
+
     test "keeps nothing of a run until it is told to" do
       assert_predicate Definition.create!(host: "dummy", slug: "fresh"), :unsaved?
     end

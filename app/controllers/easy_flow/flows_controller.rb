@@ -65,7 +65,10 @@ module EasyFlow
 
     def render_completion
       @answered = @guide.state_on_path(@answers)
-      @progress.finish(@answered)
+      finished(@answered, @progress.finish(@answered))
+    end
+
+    def finished(_answers, _run)
       render :complete
     end
 

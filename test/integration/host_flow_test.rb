@@ -46,4 +46,10 @@ class HostFlowTest < ActionDispatch::IntegrationTest
 
     assert_equal "Started by the host", EasyFlow::Run.sole.label
   end
+
+  test "a host takes over once a visitor finishes a flow" do
+    get "/host/#{flow.slug}/step", params: { answers: { annual_fee: "yes" } }
+
+    assert_equal "The host takes it from here: yes", response.body
+  end
 end

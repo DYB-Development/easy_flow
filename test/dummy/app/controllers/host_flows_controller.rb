@@ -6,4 +6,6 @@ class HostFlowsController < EasyFlow::FlowsController
   private
 
   def runner_for(definition) = Runner.new(definition)
+
+  def run_location(run) = main_app.host_run_path(run)
 end

@@ -18,4 +18,10 @@ class HostFlowTest < ActionDispatch::IntegrationTest
 
     assert_select "title", "Chosen by the host"
   end
+
+  test "a host sends a visitor who starts a flow to its own page for the run" do
+    post "/host/#{flow.slug}/runs"
+
+    assert_redirected_to "/host/runs/#{EasyFlow::Run.sole.id}"
+  end
 end

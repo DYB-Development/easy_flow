@@ -7,7 +7,7 @@ module EasyFlow
     end
 
     def start
-      redirect_to easy_flow.run_path(Run.start(flow))
+      redirect_to run_location(Run.start(flow))
     end
 
     def step
@@ -31,6 +31,10 @@ module EasyFlow
 
     def runner_for(definition)
       QuestionRunner.new(definition)
+    end
+
+    def run_location(run)
+      easy_flow.run_path(run)
     end
 
     def flow_start_path(slug)

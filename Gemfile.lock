@@ -103,6 +103,11 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (3.0.2)
+    keystone_ui (0.14.0)
+      keystone_ui-styles (>= 0.3.0)
+      view_component (>= 2.0, < 5)
+    keystone_ui-styles (0.3.0)
+      railties (>= 7.0)
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
     logger (1.7.0)
@@ -257,6 +262,10 @@ GEM
     unicode-emoji (4.3.0)
     uri (1.1.1)
     useragent (0.16.11)
+    view_component (4.15.0)
+      actionview (>= 7.1.0)
+      activesupport (>= 7.1.0)
+      concurrent-ruby (~> 1)
     websocket-driver (0.8.2)
       base64
       websocket-extensions (>= 0.1.0)
@@ -277,6 +286,7 @@ PLATFORMS
 
 DEPENDENCIES
   easy_flow!
+  keystone_ui
   puma
   rubocop-rails-omakase
   sqlite3

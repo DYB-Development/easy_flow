@@ -1,6 +1,7 @@
 require "json"
 require "easy_flow/version"
 require "easy_flow/host"
+require "easy_flow/unset_host"
 require "easy_flow/engine"
 
 module EasyFlow
@@ -43,6 +44,10 @@ module EasyFlow
 
     def hosts
       @hosts ||= {}
+    end
+
+    def host_named(name)
+      hosts.fetch(name.to_s) { UnsetHost.new }
     end
 
     def draws_with(template)

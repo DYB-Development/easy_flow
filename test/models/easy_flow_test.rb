@@ -10,6 +10,12 @@ module EasyFlow
       EasyFlow.hosts.delete("alembic")
     end
 
+    test "finds no flows for a host that is not set up, even flows that name it" do
+      Definition.create!(host: "retired", slug: "old")
+
+      assert_empty EasyFlow.host_named("retired").flows
+    end
+
     test "draws a step with the template it ships when nothing replaces it" do
       assert_equal "easy_flow/steps/choosing", EasyFlow.drawing
     end

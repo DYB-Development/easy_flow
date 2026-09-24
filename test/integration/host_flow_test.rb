@@ -32,4 +32,12 @@ class HostFlowTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/host/runs/#{run.id}"
   end
+
+  test "a host's page for a run sends each answer back to itself" do
+    run = EasyFlow::Run.start(flow)
+
+    get "/host/runs/#{run.id}"
+
+    assert_select "form[action=?]", "/host/runs/#{run.id}"
+  end
 end

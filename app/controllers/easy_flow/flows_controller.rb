@@ -50,7 +50,7 @@ module EasyFlow
     end
 
     def step_form
-      return { url: easy_flow.run_path(run), method: :patch } if run
+      return { url: run_location(run), method: :patch } if run
 
       { url: flow_step_path(@guide.slug), method: :get }
     end

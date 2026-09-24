@@ -14,6 +14,14 @@ module EasyFlow
       EasyFlow.draws_with(nil)
     end
 
+    test "renders the visitor pages in its own layout when the host names none" do
+      assert_equal "easy_flow/application", EasyFlow.layout
+    end
+
+    test "builds its controllers on a plain controller when the host names none" do
+      assert_equal "ActionController::Base", EasyFlow.base_controller
+    end
+
     test "refuses a check it does not ship" do
       assert_raises(UnknownCheck) { EasyFlow.check(:invented) }
     end

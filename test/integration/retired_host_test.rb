@@ -32,5 +32,13 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a flow of a host no longer set up is left out of another host's flow list" do
+      retired
+
+      get easy_flow.manage_flows_path
+
+      assert_select "td", text: "retired-survey", count: 0
+    end
   end
 end

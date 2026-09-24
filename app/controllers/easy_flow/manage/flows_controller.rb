@@ -40,7 +40,7 @@ module EasyFlow
       private
 
       def ordered_flows
-        Definition.order(:slug)
+        flow_host.flows.order(:slug)
       end
 
       def create_params

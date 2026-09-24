@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  mount EasyFlow::Engine => "/easy_flow"
+  mount EasyFlow::Engine => "/easy_flow", defaults: { easy_flow_host: "dummy" }
 
   get "host/:slug/step", to: "host_flows#step"
   post "host/:slug/runs", to: "host_flows#start"

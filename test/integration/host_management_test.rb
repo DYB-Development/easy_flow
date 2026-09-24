@@ -55,5 +55,11 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a host's pages do not list another host's versions" do
+      get easy_flow.manage_flow_versions_path(console_flow)
+
+      assert_response :not_found
+    end
   end
 end

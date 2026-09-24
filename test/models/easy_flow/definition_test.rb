@@ -146,26 +146,32 @@ module EasyFlow
       assert_equal({ "slug" => "second" }, flow.definition)
     end
 
+    test "upserting records the host the flow is seeded for" do
+      Definition.upsert_definition({ "slug" => "seeded" }, host: "alembic")
+
+      assert_equal "alembic", Definition.find_by(slug: "seeded").host
+    end
+
     test "upserting records the imported definition as a version" do
-      Definition.upsert_definition({ "slug" => "seeded", "headline" => "Hi" })
+      Definition.upsert_definition({ "slug" => "seeded", "headline" => "Hi" }, host: "dummy")
 
       assert_equal({ "slug" => "seeded", "headline" => "Hi" }, Definition.find_by(slug: "seeded").definition_versions.last.definition)
     end
 
     test "upserting an unchanged definition records no new version" do
-      2.times { Definition.upsert_definition({ "slug" => "seeded", "headline" => "Hi" }) }
+      2.times { Definition.upsert_definition({ "slug" => "seeded", "headline" => "Hi" }, host: "dummy") }
 
       assert_equal 1, Definition.find_by(slug: "seeded").definition_versions.count
     end
 
     test "upserts a flow storing the definition keyed by its slug" do
-      Definition.upsert_definition({ "slug" => "seeded", "headline" => "Hi" })
+      Definition.upsert_definition({ "slug" => "seeded", "headline" => "Hi" }, host: "dummy")
 
       assert_equal({ "slug" => "seeded", "headline" => "Hi" }, Definition.find_by(slug: "seeded").definition)
     end
 
     test "upserting the same slug twice keeps a single flow" do
-      2.times { Definition.upsert_definition({ "slug" => "seeded" }) }
+      2.times { Definition.upsert_definition({ "slug" => "seeded" }, host: "dummy") }
 
       assert_equal 1, Definition.where(slug: "seeded").count
     end

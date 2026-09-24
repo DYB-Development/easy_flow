@@ -17,8 +17,8 @@ module EasyFlow
     has_many :runs, class_name: "EasyFlow::Run", foreign_key: :flow_id, dependent: :destroy
     has_many :definition_versions, class_name: "EasyFlow::Version", foreign_key: :flow_id, dependent: :destroy
 
-    def self.upsert_definition(definition)
-      find_or_initialize_by(slug: definition["slug"]).tap do |flow|
+    def self.upsert_definition(definition, host:)
+      find_or_initialize_by(host: host, slug: definition["slug"]).tap do |flow|
         flow.save!
         flow.record_definition(definition) unless flow.definition == definition
       end

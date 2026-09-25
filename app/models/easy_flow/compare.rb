@@ -2,7 +2,7 @@ module EasyFlow
   class Compare
     include Step
 
-    COMPARISONS = { "more than" => :>, "less than" => :< }.freeze
+    COMPARISONS = { "more than" => :>, "less than" => :<, "at least" => :>= }.freeze
 
     step_name "Compare"
 

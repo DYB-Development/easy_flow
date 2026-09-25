@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  helper Rails.application.routes.url_helpers
+
   def note_the_refusal(refusal)
     response.headers["X-Refusal"] = refusal.class.name
     head :forbidden

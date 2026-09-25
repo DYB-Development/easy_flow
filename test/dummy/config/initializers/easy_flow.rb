@@ -7,6 +7,8 @@ end
 
 EasyFlow.host(:console) { |host| host.visitor_authorization_method = :easy_flow_visitor_permitted? }
 
+EasyFlow.host(:branded) { |host| host.admin_layout = "branded" }
+
 Rails.application.config.to_prepare do
   Steps::Notify.register
   Steps::Deliver.register

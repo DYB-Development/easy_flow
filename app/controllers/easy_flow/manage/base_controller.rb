@@ -13,7 +13,9 @@ module EasyFlow
 
       helper KeystoneUiHelper
       helper KeystoneUi::React::MountHelper
-      helper EasyFlow::Engine.routes.url_helpers
+      helper AppRoutesHelper
+
+      before_action { AppRoutesHelper.define_app_route_helpers }
 
       helper_method :flow_routes
 

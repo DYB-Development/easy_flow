@@ -41,5 +41,11 @@ module EasyFlow
 
       assert_equal true, Compare.step_type.route(node, { "rainy_day" => { "account" => "Savings", "amount" => 200 } })
     end
+
+    test "compares a typed answer as the number it spells" do
+      node = compare({ "step" => "budget", "comparison" => "more than", "amount" => 2000 })
+
+      assert_equal true, Compare.step_type.route(node, { "budget" => "2500" })
+    end
   end
 end

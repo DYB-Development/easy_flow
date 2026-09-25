@@ -14,9 +14,10 @@ module EasyFlow
     def route(node, state)
       answer = state[node.config["step"]]
       answer = answer[node.config["output"]] if answer.is_a?(Hash)
-      return false if answer.nil?
+      number = Float(answer.to_s, exception: false)
+      return false if number.nil?
 
-      answer.public_send(COMPARISONS.fetch(node.config["comparison"]), node.config["amount"])
+      number.public_send(COMPARISONS.fetch(node.config["comparison"]), node.config["amount"])
     end
   end
 end

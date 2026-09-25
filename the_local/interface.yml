@@ -1,0 +1,40 @@
+scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
+
+install:
+  - bin/rails easy_flow:install:migrations
+  - mount EasyFlow::Engine
+  - EasyFlow.base_controller=
+  - EasyFlow.host
+  - EasyFlow.draws_with
+  - EasyFlow.check
+  - /manage/flows
+
+develop:
+  - EasyFlow::Step
+  - EasyFlow.step
+  - EasyFlow::FlowsController
+  - hosted_by
+  - routed_by
+  - EasyFlow::Run
+  - EasyFlow::QuestionRunner
+
+sources:
+  - lib/easy_flow.rb
+  - lib/easy_flow/engine.rb
+  - lib/easy_flow/host.rb
+  - lib/easy_flow/host_routes.rb
+  - app/controllers/concerns/easy_flow/hosted.rb
+  - app/controllers/easy_flow/application_controller.rb
+  - app/controllers/easy_flow/flows_controller.rb
+  - app/controllers/easy_flow/manage/base_controller.rb
+  - app/models/easy_flow/step.rb
+  - app/models/easy_flow/step_type/declaration.rb
+  - app/models/easy_flow/steps/question.rb
+  - app/models/easy_flow/run.rb
+  - app/models/easy_flow/runner.rb
+  - app/models/easy_flow/question_runner.rb
+  - config/routes.rb
+  - db/migrate/20260924120000_create_easy_flow_definitions.rb
+  - db/migrate/20260924120100_create_easy_flow_versions.rb
+  - db/migrate/20260924120200_create_easy_flow_runs.rb
+  - db/migrate/20260924130000_add_host_to_easy_flow_definitions.rb

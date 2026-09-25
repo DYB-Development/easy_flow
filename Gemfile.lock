@@ -7,7 +7,7 @@ GIT
 PATH
   remote: .
   specs:
-    easy_flow (0.4.3)
+    easy_flow (0.4.4)
       keystone_ui-react (>= 0.1.2)
       rails (>= 8.1.3)
 

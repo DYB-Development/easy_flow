@@ -23,5 +23,11 @@ module EasyFlow
 
       assert_equal true, Compare.step_type.route(node, { "surplus" => 2000 })
     end
+
+    test "decides true when the step's number is at most the amount" do
+      node = compare({ "step" => "balance", "comparison" => "at most", "amount" => 5000 })
+
+      assert_equal true, Compare.step_type.route(node, { "balance" => 5000 })
+    end
   end
 end

@@ -2,6 +2,7 @@ require "json"
 require "easy_flow/version"
 require "easy_flow/host"
 require "easy_flow/unset_host"
+require "easy_flow/host_routes"
 require "easy_flow/engine"
 
 module EasyFlow

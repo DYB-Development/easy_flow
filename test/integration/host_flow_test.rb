@@ -63,4 +63,12 @@ class HostFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
   end
+
+  test "a host's own intro page starts a run on the host's own route" do
+    flow.update!(persists: :each_step)
+
+    get "/host/#{flow.slug}"
+
+    assert_select "form[action=?]", "/host/#{flow.slug}/runs"
+  end
 end

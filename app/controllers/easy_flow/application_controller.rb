@@ -12,9 +12,16 @@ module EasyFlow
 
     helper_method :flow_start_path, :flow_routes
 
+    class_attribute :host_route_prefix, instance_accessor: false
+
+    def self.routed_by(prefix)
+      self.host_route_prefix = prefix
+    end
+
     private
 
     def flow_routes
+      return HostRoutes.new(main_app, self.class.host_route_prefix) if self.class.host_route_prefix
       return easy_flow unless request.routes.equal?(EasyFlow::Engine.routes)
 
       @flow_routes ||= ActionDispatch::Routing::RoutesProxy.new(_routes, self, _routes.url_helpers)

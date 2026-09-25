@@ -13,6 +13,7 @@ module EasyFlow
 
       helper KeystoneUiHelper
       helper KeystoneUi::React::MountHelper
+      helper EasyFlow::Engine.routes.url_helpers
 
       private
 

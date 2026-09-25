@@ -4,6 +4,9 @@ module EasyFlow
 
     layout -> { flow_host.layout }
     helper KeystoneUiHelper
+    helper AppRoutesHelper
+
+    before_action { AppRoutesHelper.define_app_route_helpers }
 
     rescue_from NotPublished, NotPermitted, Withdrawn, with: :refuse
 

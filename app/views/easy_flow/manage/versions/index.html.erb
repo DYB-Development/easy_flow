@@ -1,6 +1,6 @@
 <%= ui_page(max_width: :lg) do %>
   <p class="mb-4">
-    <%= link_to "← Back to the flow", manage_flow_path(@flow), class: "text-sm text-accent-600 hover:text-accent-700" %>
+    <%= link_to "← Back to the flow", flow_routes.manage_flow_path(@flow), class: "text-sm text-accent-600 hover:text-accent-700" %>
   </p>
 
   <%= ui_page_header(title: "History", subtitle: @flow.title.presence || @flow.slug) %>
@@ -30,7 +30,7 @@
 
           <% unless version == @versions.first %>
             <%= button_to "Return the flow to this version",
-                  return_manage_flow_version_path(@flow, version),
+                  flow_routes.return_manage_flow_version_path(@flow, version),
                   form: { data: { turbo: false } }, data: { return: true },
                   class: "mt-3 inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 hover:bg-gray-50 cursor-pointer" %>
           <% end %>

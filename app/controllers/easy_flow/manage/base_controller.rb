@@ -15,7 +15,13 @@ module EasyFlow
       helper KeystoneUi::React::MountHelper
       helper EasyFlow::Engine.routes.url_helpers
 
+      helper_method :flow_routes
+
       private
+
+      def flow_routes
+        @flow_routes ||= ActionDispatch::Routing::RoutesProxy.new(_routes, self, _routes.url_helpers)
+      end
 
       def refuse_a_host_not_set_up
         head :not_found unless flow_host.set_up?

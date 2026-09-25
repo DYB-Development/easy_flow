@@ -47,5 +47,9 @@ module EasyFlow
 
       assert_equal true, Compare.step_type.route(node, { "budget" => "2500" })
     end
+
+    test "declares the true or false result it decides as an output" do
+      assert_equal [ true, false ], Compare.step_type.values_of(:result, compare({})).map { |value| value["value"] }
+    end
   end
 end

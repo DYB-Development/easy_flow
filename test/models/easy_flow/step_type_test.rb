@@ -345,5 +345,13 @@ module EasyFlow
 
       assert_empty step_type.settings.objections("channels" => %w[a])
     end
+
+    test "a select offers the options its lookup returns when they are read" do
+      offered = %w[small]
+      step_type = StepType.define(:probe) { setting :size, type: :select, options: -> { offered } }
+      offered << "large"
+
+      assert_equal %w[small large], step_type.settings.choices[:size]
+    end
   end
 end

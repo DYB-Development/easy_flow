@@ -9,7 +9,7 @@ This local follows the steps below exactly and invents none. Where a step names 
 
 ## What easy_flow is
 
-A Rails engine for flows an admin draws on a canvas and a visitor runs one step at a time. Hook it in when a Rails 8.1 app needs questionnaires, intake forms or decision paths that admins change without a deploy.
+A Rails engine for flows an admin draws on a canvas and a visitor runs one step at a time. Hook it in when a Rails 8.1.3 or later app needs questionnaires, intake forms or decision paths that admins change without a deploy.
 
 ## Interface
 

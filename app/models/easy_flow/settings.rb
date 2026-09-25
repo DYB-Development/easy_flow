@@ -1,6 +1,6 @@
 module EasyFlow
   class Settings
-    attr_reader :fields, :labels, :record_fields, :record_labels, :choices, :drawn_from, :outputs_of
+    attr_reader :fields, :labels, :record_fields, :record_labels, :drawn_from, :outputs_of
 
     def initialize(fields: {}, labels: {}, record_fields: {}, record_labels: {}, choices: {},
       limits: {}, checks: {}, required: [], drawn_from: {}, outputs_of: {})
@@ -14,6 +14,10 @@ module EasyFlow
       @required = required
       @drawn_from = drawn_from
       @outputs_of = outputs_of
+    end
+
+    def choices
+      @choices.transform_values { |offered| offered.respond_to?(:call) ? offered.call : offered }
     end
 
     def naming_steps

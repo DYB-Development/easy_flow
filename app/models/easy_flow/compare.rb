@@ -11,7 +11,10 @@ module EasyFlow
     setting :amount, type: :float, required: true
 
     def route(node, state)
-      state[node.config["step"]].public_send(COMPARISONS.fetch(node.config["comparison"]), node.config["amount"])
+      answer = state[node.config["step"]]
+      return false if answer.nil?
+
+      answer.public_send(COMPARISONS.fetch(node.config["comparison"]), node.config["amount"])
     end
   end
 end

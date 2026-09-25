@@ -29,5 +29,11 @@ module EasyFlow
 
       assert_equal true, Compare.step_type.route(node, { "balance" => 5000 })
     end
+
+    test "decides false when the step has not been answered yet" do
+      node = compare({ "step" => "surplus", "comparison" => "more than", "amount" => 2000 })
+
+      assert_equal false, Compare.step_type.route(node, {})
+    end
   end
 end

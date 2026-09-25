@@ -35,5 +35,11 @@ module EasyFlow
 
       assert_equal false, Compare.step_type.route(node, {})
     end
+
+    test "compares the output it names when the step recorded several" do
+      node = compare({ "step" => "rainy_day", "output" => "amount", "comparison" => "less than", "amount" => 500 })
+
+      assert_equal true, Compare.step_type.route(node, { "rainy_day" => { "account" => "Savings", "amount" => 200 } })
+    end
   end
 end

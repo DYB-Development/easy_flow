@@ -1,6 +1,6 @@
 ---
 name: easy_flow-info
-description: Use to learn what easy_flow offers — guided flows an admin draws on a canvas and a visitor runs one step at a time, versioned documents of steps and connections, hosts, runs, the built-in step types including branching on an answer or comparing a number, and step types the host app registers.
+description: Use to learn what easy_flow offers — guided flows an admin draws on a canvas and a visitor runs one step at a time, versioned documents of steps and connections, hosts, runs, the built-in step types including branching on an answer or comparing a number, step types the host app registers, and the settings an admin fills in, including picks whose options come from the app's data.
 tools: Read
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -35,6 +35,9 @@ easy_flow declares no commands of its own for this local. Its surface is split b
 - **Canvas** — the admin screen where steps are added, configured, moved, removed and connected, with undo and redo. Publishing happens there.
 - **Preview** — an admin walking the current flow without starting a stored run.
 - **Step type** — what a kind of step is: its display name, its settings (the fields an admin fills in), its outputs (the values it records), and whether it waits for the visitor or acts on its own. A step that acts on its own may record a value worked out from the answers so far, pick which connection to follow, or both.
+- **Setting** — one field an admin fills in when configuring a step on the canvas. It is text, a whole number, a decimal, a yes or no, a pick from a list, several picks from a list, an earlier step, an earlier step's output, or a list of entries that each hold their own fields. A setting can be required, limited to a number of picks, or checked by a rule the step type supplies.
+- **Options** — the values a pick-from-a-list setting offers. They are either a fixed list written into the step type, or a lookup the app provides that is read each time the canvas or a save asks for them, so they can come from the app's own data. A saved value that is not among the options is refused.
+- **Output** — a value a step records into the run, with a type and a label. Later steps read outputs, and a setting that points at an earlier step offers that step's known values on the canvas.
 - **Start** and **End** — the built-in step types that begin and finish a flow.
 - **Question** — the built-in step type that asks the visitor: a question text and a list of answers, each with a value, a label and a weight.
 - **Condition** — a built-in branching step that checks whether an earlier step's answer is, or is not, a chosen value, and follows the true or the false connection.

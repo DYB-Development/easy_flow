@@ -11,5 +11,11 @@ module EasyFlow
 
       assert_equal true, Compare.step_type.route(node, { "surplus" => 2500 })
     end
+
+    test "decides true when the step's number is less than the amount" do
+      node = compare({ "step" => "balance", "comparison" => "less than", "amount" => 5000 })
+
+      assert_equal true, Compare.step_type.route(node, { "balance" => 4000 })
+    end
   end
 end

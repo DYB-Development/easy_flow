@@ -24,3 +24,5 @@ gem "selenium-webdriver"
 
 # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
 gem "rubocop-rails-omakase", require: false
+
+gem "the_local", github: "DYB-Development/the_local"

@@ -1,3 +1,9 @@
+GIT
+  remote: https://github.com/DYB-Development/the_local.git
+  revision: 092e3c20af27a31377602bf4c0f1c736ec5cd7eb
+  specs:
+    the_local (0.4.1)
+
 PATH
   remote: .
   specs:
@@ -339,6 +345,7 @@ DEPENDENCIES
   selenium-webdriver
   sqlite3
   tailwindcss-rails
+  the_local!
   turbo-rails
 
 BUNDLED WITH

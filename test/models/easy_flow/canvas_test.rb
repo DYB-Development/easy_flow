@@ -254,5 +254,12 @@ module EasyFlow
 
       assert_equal [ "true", "false" ], labelled
     end
+
+    test "carries the options a palette entry's select looks up" do
+      looking_up = Registry.new.tap { |built| built.register(StepType.define(:pick) { setting :size, type: :select, options: -> { %w[small large] } }) }
+      entry = Canvas.new(Document.new(flowing(flow)), registry: looking_up).to_h["palette"].find { |held| held["type"] == "pick" }
+
+      assert_equal %w[small large], entry["choices"]["size"]
+    end
   end
 end

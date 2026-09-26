@@ -7,6 +7,10 @@
     <%= ui_progress(value: @answers.size, max: [ @guide.steps_on_path(@answers).size, 1 ].max, label: "Question #{@answers.size + 1}") %>
   </div>
 
+  <% if flash[:alert] %>
+    <div class="mb-6"><%= ui_alert(message: flash[:alert], type: :error) %></div>
+  <% end %>
+
   <%= form_with url: step_form[:url], method: step_form[:method], data: { turbo: false } do %>
     <% if carries_answers? %>
       <% @answers.each do |key, value| %>

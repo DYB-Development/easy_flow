@@ -145,5 +145,14 @@ module EasyFlow
 
       assert_select "legend", text: /What is your budget\?/
     end
+
+    test "a saved session tells the visitor to answer when they leave the answer blank" do
+      run = Run.start(flowed)
+
+      patch easy_flow.run_path(run), params: { answers: { budget: "" } }
+      follow_redirect!
+
+      assert_match "Answer this question to go on.", response.body
+    end
   end
 end

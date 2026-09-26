@@ -1,5 +1,7 @@
 module EasyFlow
   class FlowsController < ApplicationController
+    UNANSWERED = "Answer this question to go on.".freeze
+
     helper_method :flow_start_path, :flow_step_path, :previewing?, :step_form, :carries_answers?
 
     def show
@@ -108,7 +110,9 @@ module EasyFlow
 
     def record_submitted
       id, value = params.fetch(:answers, {}).permit(*asked).to_h.first
-      progress.record(id, value) if value.present?
+      return flash[:alert] = UNANSWERED if value.blank?
+
+      progress.record(id, value)
     end
 
     def asked

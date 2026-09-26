@@ -6,7 +6,7 @@ module EasyFlow
       @flowed ||= Definition.create!(host: "dummy", slug: "flowed").tap do |flow|
         flow.record_definition(flowing(
           "slug" => "flowed", "entry" => "budget",
-          "nodes" => [ { "id" => "budget", "type" => "question", "text" => "What is your budget?", "tag" => "money",
+          "nodes" => [ { "id" => "budget", "type" => "question", "text" => "What is your budget?", "tag" => "money", "required" => true,
                          "options" => [ { "value" => "low", "label" => "Modest", "weight" => 1 },
                                         { "value" => "high", "label" => "Generous", "weight" => 5 } ] },
                        { "id" => "gate", "type" => "condition", "step" => "budget", "output" => "answer", "comparison" => "is", "answer" => "high" },
@@ -130,6 +130,60 @@ module EasyFlow
       get easy_flow.flow_step_path(flow.slug)
 
       assert_response :not_found
+    end
+
+    test "a saved session records nothing when the answer is left blank" do
+      run = Run.start(flowed)
+
+      patch easy_flow.run_path(run), params: { answers: { budget: "" } }
+
+      assert_empty run.reload.recorded
+    end
+
+    test "a visitor is asked the same step again when they leave its answer blank" do
+      get easy_flow.flow_step_path(flowed.slug), params: { asked: "budget", answers: { budget: "" } }
+
+      assert_select "legend", text: /What is your budget\?/
+    end
+
+    test "a saved session tells the visitor to answer when they leave the answer blank" do
+      run = Run.start(flowed)
+
+      patch easy_flow.run_path(run), params: { answers: { budget: "" } }
+      follow_redirect!
+
+      assert_match "Fill this in to go on.", response.body
+    end
+
+    test "a visitor is told to answer when they leave a step's answer blank" do
+      get easy_flow.flow_step_path(flowed.slug), params: { asked: "budget" }
+
+      assert_match "Fill this in to go on.", response.body
+    end
+
+    test "a saved session records a blank answer to a step that is not required and moves on" do
+      run = Run.start(flowed)
+
+      patch easy_flow.run_path(run), params: { answers: { budget: "high" } }
+      patch easy_flow.run_path(run), params: { answers: { posh: "" } }
+
+      assert_equal({ budget: "high", posh: "" }, run.reload.recorded)
+    end
+
+    test "a saved session records nothing when nothing is chosen on a required step" do
+      run = Run.start(flowed)
+
+      patch easy_flow.run_path(run), params: { asked: "budget" }
+
+      assert_empty run.reload.recorded
+    end
+
+    test "a visitor moves on when they leave a step that is not required blank" do
+      flowed.update!(persists: :on_finish)
+
+      assert_difference -> { Run.count }, 1 do
+        get easy_flow.flow_step_path(flowed.slug), params: { asked: "plain", answers: { budget: "low" } }
+      end
     end
   end
 end

@@ -40,6 +40,10 @@ module EasyFlow
         @routing = routing
       end
 
+      def answer_check(&check)
+        @answer_check = check
+      end
+
       def step_name(value)
         @step_name = value
       end
@@ -103,7 +107,7 @@ module EasyFlow
         StepType.new(id: @id, step_name: @step_name, settings: settings, awaits_input: @awaits_input,
           ends_here: @ends_here, begins_here: @begins_here, behaviour: @behaviour, routing: @routing,
           display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming,
-          outputs: @declared_outputs)
+          outputs: @declared_outputs, answer_check: @answer_check)
       end
 
       def settings

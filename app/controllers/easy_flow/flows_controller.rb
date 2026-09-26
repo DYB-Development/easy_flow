@@ -19,6 +19,7 @@ module EasyFlow
       @answers = @progress.recorded
       @question = @guide.next_step(@answers)
       @drawing = @guide.drawing_at(@answers)
+      flash.now[:alert] = UNANSWERED if run.nil? && @question && params[:asked] == @question.id.to_s
       return render :step if @question
 
       render_completion

@@ -13,6 +13,7 @@
 
   <%= form_with url: step_form[:url], method: step_form[:method], data: { turbo: false } do %>
     <% if carries_answers? %>
+      <%= hidden_field_tag :asked, @question.id %>
       <% @answers.each do |key, value| %>
         <%= hidden_field_tag "answers[#{key}]", value %>
       <% end %>

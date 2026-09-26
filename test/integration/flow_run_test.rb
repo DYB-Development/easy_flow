@@ -154,5 +154,11 @@ module EasyFlow
 
       assert_match "Answer this question to go on.", response.body
     end
+
+    test "a visitor is told to answer when they leave a step's answer blank" do
+      get easy_flow.flow_step_path(flowed.slug), params: { asked: "budget" }
+
+      assert_match "Answer this question to go on.", response.body
+    end
   end
 end

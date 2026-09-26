@@ -1,7 +1,5 @@
 module EasyFlow
   class FlowsController < ApplicationController
-    UNANSWERED = "Answer this question to go on.".freeze
-
     helper_method :flow_start_path, :flow_step_path, :previewing?, :step_form, :carries_answers?
 
     def show
@@ -19,7 +17,7 @@ module EasyFlow
       @answers = @progress.recorded
       @question = @guide.next_step(@answers)
       @drawing = @guide.drawing_at(@answers)
-      flash.now[:alert] = UNANSWERED if run.nil? && @question && params[:asked] == @question.id.to_s
+      flash.now[:alert] = @refused if @refused
       return render :step if @question
 
       render_completion
@@ -106,20 +104,30 @@ module EasyFlow
     end
 
     def submitted_answers
-      params.fetch(:answers, {}).permit(*@guide.steps.map(&:id)).to_h.symbolize_keys.compact_blank
+      answers = params.fetch(:answers, {}).permit(*@guide.steps.map(&:id)).to_h.symbolize_keys
+      asked = @guide.step(params[:asked].to_s)
+      return answers unless asked
+
+      answer = answers.fetch(asked.id.to_sym, "")
+      @refused = answer_problem(asked, answer)
+      @refused ? answers.except(asked.id.to_sym) : answers.merge(asked.id.to_sym => answer)
     end
 
     def record_submitted
       id, value = params.fetch(:answers, {}).permit(*asked).to_h.first
       id ||= params[:asked].presence_in(asked)
       return if id.nil?
-      return flash[:alert] = UNANSWERED if value.blank? && required?(id)
+
+      problem = answer_problem(runner_for(run.pinned_definition).step(id.to_s), value)
+      return flash[:alert] = problem if problem
 
       progress.record(id, value.to_s)
     end
 
-    def required?(id)
-      runner_for(run.pinned_definition).step(id.to_s)&.config&.dig("required").present?
+    def answer_problem(step, answer)
+      return unless step && EasyFlow.registry.registered?(step.type)
+
+      EasyFlow.registry.fetch(step.type).answer_problem(step, answer)
     end
 
     def asked

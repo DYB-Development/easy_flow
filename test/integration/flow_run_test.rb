@@ -141,7 +141,7 @@ module EasyFlow
     end
 
     test "a visitor is asked the same step again when they leave its answer blank" do
-      get easy_flow.flow_step_path(flowed.slug), params: { answers: { budget: "" } }
+      get easy_flow.flow_step_path(flowed.slug), params: { asked: "budget", answers: { budget: "" } }
 
       assert_select "legend", text: /What is your budget\?/
     end
@@ -152,13 +152,13 @@ module EasyFlow
       patch easy_flow.run_path(run), params: { answers: { budget: "" } }
       follow_redirect!
 
-      assert_match "Answer this question to go on.", response.body
+      assert_match "Fill this in to go on.", response.body
     end
 
     test "a visitor is told to answer when they leave a step's answer blank" do
       get easy_flow.flow_step_path(flowed.slug), params: { asked: "budget" }
 
-      assert_match "Answer this question to go on.", response.body
+      assert_match "Fill this in to go on.", response.body
     end
 
     test "a saved session records a blank answer to a step that is not required and moves on" do

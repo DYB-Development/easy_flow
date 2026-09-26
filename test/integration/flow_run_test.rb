@@ -139,5 +139,11 @@ module EasyFlow
 
       assert_empty run.reload.recorded
     end
+
+    test "a visitor is asked the same step again when they leave its answer blank" do
+      get easy_flow.flow_step_path(flowed.slug), params: { answers: { budget: "" } }
+
+      assert_select "legend", text: /What is your budget\?/
+    end
   end
 end

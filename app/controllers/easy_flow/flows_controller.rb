@@ -103,7 +103,7 @@ module EasyFlow
     end
 
     def submitted_answers
-      params.fetch(:answers, {}).permit(*@guide.steps.map(&:id)).to_h.symbolize_keys
+      params.fetch(:answers, {}).permit(*@guide.steps.map(&:id)).to_h.symbolize_keys.compact_blank
     end
 
     def record_submitted

@@ -177,5 +177,13 @@ module EasyFlow
 
       assert_empty run.reload.recorded
     end
+
+    test "a visitor moves on when they leave a step that is not required blank" do
+      flowed.update!(persists: :on_finish)
+
+      assert_difference -> { Run.count }, 1 do
+        get easy_flow.flow_step_path(flowed.slug), params: { asked: "plain", answers: { budget: "low" } }
+      end
+    end
   end
 end

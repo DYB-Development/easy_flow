@@ -131,5 +131,13 @@ module EasyFlow
 
       assert_response :not_found
     end
+
+    test "a saved session records nothing when the answer is left blank" do
+      run = Run.start(flowed)
+
+      patch easy_flow.run_path(run), params: { answers: { budget: "" } }
+
+      assert_empty run.reload.recorded
+    end
   end
 end

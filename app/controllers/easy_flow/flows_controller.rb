@@ -108,7 +108,7 @@ module EasyFlow
 
     def record_submitted
       id, value = params.fetch(:answers, {}).permit(*asked).to_h.first
-      progress.record(id, value)
+      progress.record(id, value) if value.present?
     end
 
     def asked

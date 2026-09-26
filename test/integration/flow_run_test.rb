@@ -6,7 +6,7 @@ module EasyFlow
       @flowed ||= Definition.create!(host: "dummy", slug: "flowed").tap do |flow|
         flow.record_definition(flowing(
           "slug" => "flowed", "entry" => "budget",
-          "nodes" => [ { "id" => "budget", "type" => "question", "text" => "What is your budget?", "tag" => "money",
+          "nodes" => [ { "id" => "budget", "type" => "question", "text" => "What is your budget?", "tag" => "money", "required" => true,
                          "options" => [ { "value" => "low", "label" => "Modest", "weight" => 1 },
                                         { "value" => "high", "label" => "Generous", "weight" => 5 } ] },
                        { "id" => "gate", "type" => "condition", "step" => "budget", "output" => "answer", "comparison" => "is", "answer" => "high" },
@@ -159,6 +159,15 @@ module EasyFlow
       get easy_flow.flow_step_path(flowed.slug), params: { asked: "budget" }
 
       assert_match "Answer this question to go on.", response.body
+    end
+
+    test "a saved session records a blank answer to a step that is not required and moves on" do
+      run = Run.start(flowed)
+
+      patch easy_flow.run_path(run), params: { answers: { budget: "high" } }
+      patch easy_flow.run_path(run), params: { answers: { posh: "" } }
+
+      assert_equal({ budget: "high", posh: "" }, run.reload.recorded)
     end
   end
 end

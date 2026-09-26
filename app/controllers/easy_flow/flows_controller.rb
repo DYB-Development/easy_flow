@@ -111,9 +111,13 @@ module EasyFlow
 
     def record_submitted
       id, value = params.fetch(:answers, {}).permit(*asked).to_h.first
-      return flash[:alert] = UNANSWERED if value.blank?
+      return flash[:alert] = UNANSWERED if value.blank? && required?(id)
 
-      progress.record(id, value)
+      progress.record(id, value.to_s)
+    end
+
+    def required?(id)
+      runner_for(run.pinned_definition).step(id.to_s)&.config&.dig("required").present?
     end
 
     def asked

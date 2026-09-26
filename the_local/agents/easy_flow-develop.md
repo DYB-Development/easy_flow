@@ -105,7 +105,11 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    <%= number_field_tag "answers[#{step.id}]", nil, in: 1..step.scale %>
    ```
 
+   The input must submit one value. An input that submits an array or a hash, such as checkboxes named `answers[<step id>][]`, is dropped and treated as blank.
+
    An answer is recorded as the string the visitor submitted. A compare step still reads a typed answer such as `"12"` as the number it spells, and an answer that is missing or is not a number makes it follow its `false` connection.
+
+   Every step that awaits input must be answered. When the visitor submits it blank, nothing is recorded and the same step is shown again with the message "Answer this question to go on." This holds whether the flow keeps a stored run or carries its answers in the page, and the page supplies what it needs for both, so the partial adds nothing for it. A type cannot mark its answer optional, so if the developer wants a step the visitor may skip, ask them what the partial should submit when nothing is chosen, such as a "none" value.
 7. Restart the server, open a flow on the canvas and check the type is offered, its settings show, and a preview walks through it.
 
 ### Serve a host's flows from the app's own controller
@@ -175,6 +179,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - A type that routes declares the values its output takes, or the canvas offers no connections to label.
 - Always read a run against `run.pinned_definition`, never the flow's live version, since a run keeps the version it started on after a new one is published.
 - Always look flows and runs up through a host.
-- A step's input field is named `answers[<step id>]`. Any other name is ignored.
+- A step's input field is named `answers[<step id>]` and submits one value. Any other name is ignored, and an array or hash is treated as blank.
+- A blank answer is never recorded. The visitor is asked the same step again until they answer it.
 - A `FlowsController` subclass needs all four named routes for its prefix; a missing one raises when the visitor is linked or redirected to it.
 - The engine installs, mounts and configures hosts, layouts, the default drawing and checks through `easy_flow-install`, not here.

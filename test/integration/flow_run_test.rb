@@ -169,5 +169,13 @@ module EasyFlow
 
       assert_equal({ budget: "high", posh: "" }, run.reload.recorded)
     end
+
+    test "a saved session records nothing when nothing is chosen on a required step" do
+      run = Run.start(flowed)
+
+      patch easy_flow.run_path(run), params: { asked: "budget" }
+
+      assert_empty run.reload.recorded
+    end
   end
 end

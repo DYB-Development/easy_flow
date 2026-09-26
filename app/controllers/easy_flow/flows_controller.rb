@@ -111,6 +111,8 @@ module EasyFlow
 
     def record_submitted
       id, value = params.fetch(:answers, {}).permit(*asked).to_h.first
+      id ||= params[:asked].presence_in(asked)
+      return if id.nil?
       return flash[:alert] = UNANSWERED if value.blank? && required?(id)
 
       progress.record(id, value.to_s)

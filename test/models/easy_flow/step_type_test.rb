@@ -353,5 +353,11 @@ module EasyFlow
 
       assert_equal %w[small large], step_type.settings.choices[:size]
     end
+
+    test "a step type says what is wrong with an answer its check refuses" do
+      step_type = StepType.define(:probe) { answer_check { |_node, value| "Too short" if value.to_s.size < 3 } }
+
+      assert_equal "Too short", step_type.answer_problem(Node.new(id: "a", type: "probe", config: {}), "ab")
+    end
   end
 end

@@ -7,6 +7,7 @@ module EasyFlow
 
       setting :question, type: :string
       setting :category, type: :string
+      setting :required, type: :boolean
       setting :answers, type: :list, required: true do
         setting :value, type: :string
         setting :label, type: :string
@@ -17,6 +18,7 @@ module EasyFlow
 
       names_by :question
       awaits_input
+      answer_check { |node, value| "Fill this in to go on." if node.config["required"] && value.blank? }
 
       displays_by { |node| Asked.new(id: node.id.to_sym, text: asked(node.config), choices: choices_in(node)) }
 

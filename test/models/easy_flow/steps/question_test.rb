@@ -59,6 +59,12 @@ module EasyFlow
       test "cannot run without the answers it offers" do
         assert_equal [ :answers ], Question.step_type.settings.required
       end
+
+      test "a required question refuses a blank answer" do
+        node = Node.new(id: "budget", type: "question", config: { "required" => true })
+
+        assert_equal "Fill this in to go on.", Question.step_type.answer_problem(node, "")
+      end
     end
   end
 end

@@ -172,5 +172,23 @@ module EasyFlow
     test "reports the steps walked so far" do
       assert_equal({ "a" => "yes" }, pinned.walked("a" => "yes"))
     end
+
+    test "advancing a run carries it past a waiting step once what it waits for has happened" do
+      flow = Definition.create!(host: "dummy", slug: "awaiting").tap do |built|
+        built.record_definition(flowing({ "slug" => "awaiting", "entry" => "hold",
+          "nodes" => [ { "id" => "hold", "type" => "await_signal" },
+                       { "id" => "after", "type" => "question", "question" => "Next?", "answers" => [ { "value" => "ok" } ] } ],
+          "edges" => [ { "from" => "hold", "to" => "after" } ] }))
+        built.publish
+      end
+      run = Run.start(flow)
+      ::Steps::AwaitSignal.signalled = true
+
+      run.advance
+
+      assert_equal({ hold: true }, run.reload.recorded)
+    ensure
+      ::Steps::AwaitSignal.signalled = false
+    end
   end
 end

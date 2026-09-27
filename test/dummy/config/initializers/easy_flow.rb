@@ -16,4 +16,5 @@ end
 Rails.application.config.to_prepare do
   Steps::Notify.register
   Steps::Deliver.register
+  Steps::AwaitSignal.register
 end

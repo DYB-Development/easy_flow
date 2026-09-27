@@ -27,8 +27,8 @@ module EasyFlow
     end
 
     def run(progress)
-      while (node = @digest.next_step(named(progress.recorded))) && acts?(node)
-        progress.record(node.id, @registry.fetch(node.type).process(node, named(progress.recorded)))
+      while (node = @digest.next_step(named(progress.recorded))) && goes_on?(node, named(progress.recorded))
+        progress.record(node.id, result_of(node, named(progress.recorded)))
       end
     end
 
@@ -48,6 +48,18 @@ module EasyFlow
 
     def acts?(node)
       @registry.registered?(node.type) && @registry.fetch(node.type).acts?
+    end
+
+    def goes_on?(node, state)
+      acts?(node) || ready?(node, state)
+    end
+
+    def ready?(node, state)
+      @registry.registered?(node.type) && @registry.fetch(node.type).waits? && @registry.fetch(node.type).ready?(node, state)
+    end
+
+    def result_of(node, state)
+      acts?(node) ? @registry.fetch(node.type).process(node, state) : true
     end
 
     def shown(node)

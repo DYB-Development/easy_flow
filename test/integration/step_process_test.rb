@@ -41,5 +41,18 @@ module EasyFlow
 
       assert_select "input[name=?][value=?]", "answers[send]", "true"
     end
+
+    test "a visitor on a run paused at a waiting step is told it is waiting" do
+      flow = Definition.create!(host: "dummy", slug: "awaiting", persists: :each_step).tap do |built|
+        built.record_definition(flowing({ "slug" => "awaiting", "entry" => "hold",
+          "nodes" => [ { "id" => "hold", "type" => "await_signal" } ],
+          "edges" => [] }))
+        built.publish
+      end
+
+      get easy_flow.run_path(Run.start(flow))
+
+      assert_select "p", text: "Waiting for Await signal."
+    end
   end
 end

@@ -11,22 +11,26 @@
     <div class="mb-6"><%= ui_alert(message: flash[:alert], type: :error) %></div>
   <% end %>
 
-  <%= form_with url: step_form[:url], method: step_form[:method], data: { turbo: false } do %>
-    <%= hidden_field_tag :asked, @question.id %>
-    <% if carries_answers? %>
-      <% @answers.each do |key, value| %>
-        <%= hidden_field_tag "answers[#{key}]", value %>
+  <% if @waiting %>
+    <p class="text-gray-700">Waiting for <%= @waiting %>.</p>
+  <% else %>
+    <%= form_with url: step_form[:url], method: step_form[:method], data: { turbo: false } do %>
+      <%= hidden_field_tag :asked, @question.id %>
+      <% if carries_answers? %>
+        <% @answers.each do |key, value| %>
+          <%= hidden_field_tag "answers[#{key}]", value %>
+        <% end %>
       <% end %>
+
+      <%= render @drawing, step: @question %>
+
+      <div class="mt-8 flex items-center gap-4">
+        <%= ui_button(label: "Next", type: :submit) %>
+
+        <% if @answers.any? %>
+          <button type="submit" name="back" value="1" formnovalidate class="cursor-pointer text-sm text-gray-500 underline underline-offset-2 hover:text-gray-900">← Back</button>
+        <% end %>
+      </div>
     <% end %>
-
-    <%= render @drawing, step: @question %>
-
-    <div class="mt-8 flex items-center gap-4">
-      <%= ui_button(label: "Next", type: :submit) %>
-
-      <% if @answers.any? %>
-        <button type="submit" name="back" value="1" formnovalidate class="cursor-pointer text-sm text-gray-500 underline underline-offset-2 hover:text-gray-900">← Back</button>
-      <% end %>
-    </div>
   <% end %>
 <% end %>

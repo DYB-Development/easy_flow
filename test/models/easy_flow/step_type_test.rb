@@ -359,5 +359,11 @@ module EasyFlow
 
       assert_equal "Too short", step_type.answer_problem(Node.new(id: "a", type: "probe", config: {}), "ab")
     end
+
+    test "a step type that waits says whether what it waits for has happened" do
+      step_type = StepType.define(:probe) { waits_until { |_node, state| state["paid"] == "yes" } }
+
+      assert step_type.ready?(Node.new(id: "a", type: "probe", config: {}), { "paid" => "yes" })
+    end
   end
 end

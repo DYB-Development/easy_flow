@@ -26,5 +26,12 @@ module EasyFlow
 
       assert_not host.offers?(:question)
     end
+
+    test "offers a step type on the list it names" do
+      host = Host.new(:alembic)
+      host.offers = %i[compare]
+
+      assert host.offers?("compare")
+    end
   end
 end

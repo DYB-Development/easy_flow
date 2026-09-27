@@ -24,8 +24,8 @@ module EasyFlow
       true
     end
 
-    def offers?(_step_type)
-      @offers.nil?
+    def offers?(step_type)
+      @offers.nil? || @offers.map(&:to_s).include?(step_type.to_s)
     end
   end
 end

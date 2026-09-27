@@ -13,6 +13,7 @@ module EasyFlow
         end)
         built.register(StepType.define(:act) { process { |node, _state| "ran #{node.id}" } })
         built.register(StepType.define(:approve) { process { |_node, _state| "yes" } })
+        built.register(StepType.define(:hold) { waits_until { |node, _state| node.config["ready"] } })
         built.register(StepType.define(:gate) do
           setting :of, type: :string
           route { |node, state| state[node.config["of"]] == "yes" ? "yes" : "no" }
@@ -45,6 +46,14 @@ module EasyFlow
                      { "id" => "after", "type" => "ask", "text" => "After?" } ],
         "edges" => [ { "from" => "opening", "to" => "work" },
                      { "from" => "work", "to" => "after" } ] }
+    end
+
+    def holding(ready)
+      { "nodes" => [ { "id" => "opening", "type" => "opening" },
+                     { "id" => "hold", "type" => "hold", "ready" => ready },
+                     { "id" => "work", "type" => "act" } ],
+        "edges" => [ { "from" => "opening", "to" => "hold" },
+                     { "from" => "hold", "to" => "work" } ] }
     end
 
     def runner(document = branching)
@@ -116,6 +125,13 @@ module EasyFlow
       wandered = { first: "yes", no_step: "stale", yes_step: "kept" }
 
       assert_equal({ first: "yes", yes_step: "kept" }, runner.state_on_path(wandered))
+    end
+
+    test "stops at a step that waits until what it waits for has happened" do
+      kept = Progress::Loose.new(nil, {}, holding(false))
+      runner(holding(false)).run(kept)
+
+      assert_not kept.recorded.key?(:work)
     end
   end
 end

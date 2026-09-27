@@ -92,7 +92,7 @@ module EasyFlow
     def pending?(node, state)
       return false if state.key?(node.id)
 
-      step_type(node)&.awaits_input? || acts?(node)
+      step_type(node)&.awaits_input? || acts?(node) || step_type(node)&.waits? || false
     end
 
     def acts?(node)

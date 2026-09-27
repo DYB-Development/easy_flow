@@ -42,6 +42,10 @@ module EasyFlow
       @answer_check&.call(node, value)
     end
 
+    def waits?
+      @readiness.present?
+    end
+
     def ready?(node, state)
       @readiness.call(node, state)
     end

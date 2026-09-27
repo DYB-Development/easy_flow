@@ -15,5 +15,23 @@ module EasyFlow
 
       assert_empty Host.new(:alembic).flows
     end
+
+    test "offers every step type when it names none" do
+      assert Host.new(:alembic).offers?(:question)
+    end
+
+    test "does not offer a step type left off the list it names" do
+      host = Host.new(:alembic)
+      host.offers = %i[compare]
+
+      assert_not host.offers?(:question)
+    end
+
+    test "offers a step type on the list it names" do
+      host = Host.new(:alembic)
+      host.offers = %i[compare]
+
+      assert host.offers?("compare")
+    end
   end
 end

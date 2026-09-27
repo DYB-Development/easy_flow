@@ -261,5 +261,21 @@ module EasyFlow
 
       assert_equal %w[small large], entry["choices"]["size"]
     end
+
+    test "leaves out of the palette a step type its host does not offer" do
+      host = Host.new(:alembic)
+      host.offers = %i[ask]
+      palette = Canvas.new(Document.new(flowing(flow)), registry: registry, host: host).to_h["palette"]
+
+      assert_not_includes palette.map { |entry| entry["label"] }, "Switch"
+    end
+
+    test "keeps the step that ends a flow in the palette whatever its host offers" do
+      host = Host.new(:alembic)
+      host.offers = %i[ask]
+      palette = Canvas.new(Document.new(flowing(flow)), registry: registry, host: host).to_h["palette"]
+
+      assert_includes palette.map { |entry| entry["label"] }, "End"
+    end
   end
 end

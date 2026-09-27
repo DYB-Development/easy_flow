@@ -73,18 +73,19 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    ```
 
    A step whose type is not registered is neither shown nor run as that type.
-4. Use these words to declare the type. Each is called once at class level (or inside the `EasyFlow.step` block):
+4. Ask the developer which hosts' admins should be able to add the type. A registered type is in a host's palette, the step types an admin can add on that host's canvas, only when the host names no list of offered step types or its list includes the type's id. A type that declares `ends_here` is in every host's palette, and a type that declares `begins_here` is in none. When a host that names a list should offer the new type, add the type's id to that host's list through `easy_flow-install`. Leaving a type off a host's list only keeps admins from adding it there, and a step of that type already in one of the host's flows is still drawn and run.
+5. Use these words to declare the type. Each is called once at class level (or inside the `EasyFlow.step` block):
    - `step_name "<label>"` — the name admins see on the canvas. Defaults to the id.
    - `setting :name, type:, label:, options:, required:, limit:, check:, from:, outputs_of:` — a field the admin fills in on the canvas. `type` is one of `:string`, `:integer`, `:float`, `:boolean`, `:select`, `:multi_select`, `:previous_step`, `:from_step`, `:list`, or boot raises `EasyFlow::UnknownFieldType`. A `:select` or `:multi_select` must pass `options:`, or boot raises the same error. `options:` is either an array of strings, or a lambda taking no arguments that returns one; the lambda is called each time the canvas is opened and each time an admin saves the step's settings, so the options follow the app's data without a restart (`options: -> { Region.order(:name).pluck(:code) }`). A saved setting whose value is no longer among the options is refused the next time the admin saves that step. When the options come from the app's records, ask the developer which records, which column is stored as the value, and whether the list must differ by account or host, since the lambda is passed nothing and the same list is offered everywhere the type is used. A `:list` must take a block of `setting` calls describing one entry. `:previous_step` lets the admin pick an earlier step, and is always required. `outputs_of: :<setting>` offers the outputs of the step chosen in that setting, and `from: :<setting>` offers the values of the output chosen in that setting; either one makes the type `:from_step`. `limit:` is the most values a `:multi_select` takes. `check:` is a lambda given the value that returns an error message, or `nil` when the value is acceptable. `label:` defaults to the name humanized.
    - `output :name, type:, label:, values:, from:` — a value the step records. `type` is one of `:string`, `:integer`, `:float`, `:boolean`, or boot raises `EasyFlow::UnknownOutputType`. `values:` is an array or a lambda taking the node, listing the values the output can take; the canvas offers these as the connections leaving the step, so a type that routes must declare them. `from: :<setting>` takes the values from the step chosen in that setting.
    - `names_by :setting` or `names_by { |node| ... }` — what the step is called on the canvas, from a setting or computed.
    - `awaits_input` — the visitor is shown this step and submits an answer to it.
-   - `waits_until { |node, state| ... }` — the run stops at this step until the block returns a truthy value. See step 7.
+   - `waits_until { |node, state| ... }` — the run stops at this step until the block returns a truthy value. See step 8.
    - `answer_check { |node, value| ... }` — checks a submitted answer before it is recorded. `value` is the submitted string, or `nil` when the input sent nothing. Return a message to refuse the answer, or `nil` to accept it. Without it every answer is accepted, including a blank one.
    - `ends_here` / `begins_here` — marks the type as an end or a start of a flow.
    - `displays_by { |node| ... }` — builds the object handed to the step's partial as the local `step`. Without it the partial receives the node itself.
    - `drawn_by "<partial>"` — the partial that draws this type for a visitor. Without it the host's default drawing is used, which expects `step.id`, `step.text` and `step.choices`, so a type with its own display shape needs its own partial.
-5. For a type that computes or routes, define instance methods on the class (or `process { |node, state| ... }` / `route { |node, state| ... }` in the block form):
+6. For a type that computes or routes, define instance methods on the class (or `process { |node, state| ... }` / `route { |node, state| ... }` in the block form):
 
    ```ruby
    def process(node, state)
@@ -101,7 +102,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - `process` returns the value recorded under this step's id. It runs as soon as a visitor reaches the step, before the next step is shown.
    - A type that declares more than one `output` returns a hash from `process`, keyed by each output's name as a string. A later compare step reads the output the admin picks from that hash.
    - `route` returns the value that picks the connection to follow; it is compared as a string with the value each leaving connection is labelled with, so `false` follows the connection labelled `false`. Returning `nil` follows the first connection. A route that returns `true` or `false` declares `output :result, type: :boolean, values: [true, false]`.
-6. For a type that awaits input, write the partial named in `drawn_by`, for example `app/views/flow_steps/_rating.html.erb`. It receives the display object as `step`. It renders only the input, since the page supplies the form, the Next button and the Back button. The input must be named `answers[<step id>]`, or the answer is not recorded:
+7. For a type that awaits input, write the partial named in `drawn_by`, for example `app/views/flow_steps/_rating.html.erb`. It receives the display object as `step`. It renders only the input, since the page supplies the form, the Next button and the Back button. The input must be named `answers[<step id>]`, or the answer is not recorded:
 
    ```erb
    <%= label_tag "answers[#{step.id}]", step.text %>
@@ -118,7 +119,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    setting :required, type: :boolean
    answer_check { |node, value| "Fill this in to go on." if node.config["required"] && value.blank? }
    ```
-7. For a type that waits, declare `waits_until` with a block that says whether what the step waits for has happened:
+8. For a type that waits, declare `waits_until` with a block that says whether what the step waits for has happened:
 
    ```ruby
    module FlowSteps
@@ -142,7 +143,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - The page does not reload itself. Ask the developer how the run should move on when what it waits for happens:
      - The visitor reloads the page. This needs nothing more, and works whether or not the flow keeps a stored run.
      - The app calls `run.advance` where the event is handled, such as a webhook or a job. See "Read a run and its answers". This needs a stored run, so it only applies to a flow the admin set to save each step.
-8. Restart the server, open a flow on the canvas and check the type is offered, its settings show, and a preview walks through it.
+9. Restart the server, open a flow on the canvas of each host that should offer the type, and check the type is in the palette, its settings show, and a preview walks through it. On a host that names a list of offered step types without the type's id, check the type is not in the palette.
 
 ### Serve a host's flows from the app's own controller
 
@@ -208,6 +209,8 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - A step type's id comes from its class name or the id passed to `EasyFlow.step`, and it is stored in flow documents, so renaming the class or id breaks every flow that uses it.
 - Never give a step type one of the built-in ids: `start`, `terminal`, `question`, `condition`, `switch`, `compare`.
 - Register class-based step types inside `to_prepare`. A type registered anywhere else is lost on code reload in development.
+- Registering a type does not put it in the palette of a host that names a list of offered step types without the type's id. Which step types a host offers is set through `easy_flow-install`, not here.
+- A type that declares `ends_here` is in every host's palette, and a type that declares `begins_here` is in no host's palette.
 - An `options:` lambda is passed nothing, and one list is offered on every host's canvas, so it cannot narrow the options by admin, account or host.
 - A type that routes declares the values its output takes, or the canvas offers no connections to label.
 - Always read a run against `run.pinned_definition`, never the flow's live version, since a run keeps the version it started on after a new one is published.
@@ -218,4 +221,4 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - A type that waits never also declares `awaits_input`.
 - `run.advance` only moves a stored run, and never finishes it; the visitor's next page load does.
 - A `FlowsController` subclass needs all four named routes for its prefix; a missing one raises when the visitor is linked or redirected to it.
-- The engine installs, mounts and configures hosts, layouts, the default drawing and checks through `easy_flow-install`, not here.
+- The engine installs, mounts and configures hosts, the step types each host offers, layouts, the default drawing and checks through `easy_flow-install`, not here.

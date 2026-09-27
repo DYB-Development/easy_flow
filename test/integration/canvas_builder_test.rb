@@ -481,5 +481,15 @@ module EasyFlow
 
       assert_predicate JSON.parse(css_select("[data-react-ui]").first["data-props"])["token"], :present?
     end
+
+    test "the canvas screen leaves out the step types its host does not offer" do
+      EasyFlow.host_named(:dummy).offers = %i[compare]
+
+      get "#{canvas_path}.json"
+
+      assert_not_includes response.parsed_body["palette"].map { |entry| entry["type"] }, "question"
+    ensure
+      EasyFlow.host_named(:dummy).offers = nil
+    end
   end
 end

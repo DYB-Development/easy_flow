@@ -269,5 +269,13 @@ module EasyFlow
 
       assert_not_includes palette.map { |entry| entry["label"] }, "Switch"
     end
+
+    test "keeps the step that ends a flow in the palette whatever its host offers" do
+      host = Host.new(:alembic)
+      host.offers = %i[ask]
+      palette = Canvas.new(Document.new(flowing(flow)), registry: registry, host: host).to_h["palette"]
+
+      assert_includes palette.map { |entry| entry["label"] }, "End"
+    end
   end
 end

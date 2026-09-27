@@ -133,5 +133,12 @@ module EasyFlow
 
       assert_not kept.recorded.key?(:work)
     end
+
+    test "carries on past a waiting step once what it waits for has happened" do
+      kept = Progress::Loose.new(nil, {}, holding(true))
+      runner(holding(true)).run(kept)
+
+      assert_equal "ran work", kept.recorded[:work]
+    end
   end
 end

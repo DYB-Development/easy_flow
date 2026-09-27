@@ -15,5 +15,9 @@ module EasyFlow
 
       assert_empty Host.new(:alembic).flows
     end
+
+    test "offers every step type when it names none" do
+      assert Host.new(:alembic).offers?(:question)
+    end
   end
 end

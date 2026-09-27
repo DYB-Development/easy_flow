@@ -23,5 +23,9 @@ module EasyFlow
     def set_up?
       true
     end
+
+    def offers?(_step_type)
+      true
+    end
   end
 end

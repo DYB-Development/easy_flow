@@ -1,6 +1,6 @@
 ---
 name: easy_flow-info
-description: Use to learn what easy_flow offers — guided flows an admin draws on a canvas and a visitor runs one step at a time, versioned documents of steps and connections, hosts, runs, the built-in step types including questions that can require an answer and branching on an answer or comparing a number, step types the host app registers, the checks they make on an answer, and steps that hold a run until something outside the flow has happened, and the settings an admin fills in, including picks whose options come from the app's data.
+description: Use to learn what easy_flow offers — guided flows an admin draws on a canvas and a visitor runs one step at a time, versioned documents of steps and connections, hosts and the step types each offers its admins, runs, the built-in step types including questions that can require an answer and branching on an answer or comparing a number, step types the host app registers, the checks they make on an answer, and steps that hold a run until something outside the flow has happened, and the settings an admin fills in, including picks whose options come from the app's data.
 tools: Read
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -17,12 +17,12 @@ Reach for it when an app needs a questionnaire, an intake form, or any decision 
 
 easy_flow declares no commands of its own for this local. Its surface is split between the other two:
 
-- **easy_flow-install** owns putting the engine into an app: its migrations, mounting it, choosing the controller it inherits from, naming hosts, choosing the default step drawing, the flow checks, and the admin pages.
+- **easy_flow-install** owns putting the engine into an app: its migrations, mounting it, choosing the controller it inherits from, naming hosts and the step types each one offers, choosing the default step drawing, the flow checks, and the admin pages.
 - **easy_flow-develop** owns building on it: declaring and registering step types, including ones that wait, moving a run on once what it waits for has happened, serving a host's flows from the app's own controllers and routes, and reading a visitor's run and answers.
 
 ## How to use it
 
-- To get easy_flow running in an app, or to change how it is configured, use **easy_flow-install**.
+- To get easy_flow running in an app, or to change how it is configured, including which step types a host's admins can add, use **easy_flow-install**.
 - To add a step type, give a step type its own rule for refusing an answer, hold a run until something outside the flow has happened, put a flow on the app's own pages, or act on what a visitor answered, use **easy_flow-develop**.
 - To branch a flow on an answer or on a number the visitor gave, no code is needed: an admin places one of the built-in branching steps on the canvas.
 - To make a visitor answer a question before going on, no code is needed: an admin marks that question step as required on the canvas.
@@ -48,7 +48,9 @@ easy_flow declares no commands of its own for this local. Its surface is split b
 - **Compare** — a built-in branching step that reads an earlier step's answer as a number and checks it against an amount by more than, less than, at least or at most, then follows the true or the false connection. When the earlier step recorded several outputs, the admin picks which one. An answer that is missing or is not a number decides false.
 - **Waiting step** — a step whose type carries a rule saying whether what it waits for has happened, such as a payment clearing or a document being signed. A run that reaches it stops there, and the visitor sees "Waiting for" followed by the step's name, with no form to submit. Once the rule says it has happened, the run moves past the step the next time the visitor's page is loaded or the app moves the run on, and the step is recorded as `true`.
 - **Registry** — the list of step types the app has registered, alongside the built-in ones. A step whose type is not registered is not shown or run as that type, and its answers are not checked.
-- **Host** — a named part of the app that owns a set of flows. A host sets the visitor layout and the admin layout, how admins are authenticated, how visitors are authorized, and how a refusal is answered. Flows are always looked up through a host, so one host never sees another's flows.
+- **Host** — a named part of the app that owns a set of flows. A host sets the visitor layout and the admin layout, how admins are authenticated, how visitors are authorized, how a refusal is answered, and optionally which step types it offers. Flows are always looked up through a host, so one host never sees another's flows.
+- **Offered step types** — the list of step types a host names for its admins to add. A host that names no list offers every registered step type. The list only narrows the palette.
+- **Palette** — the step types an admin can add on a host's canvas. It never holds the start step, always holds the end step, and otherwise holds the step types the host offers. A step already in a flow whose type the host does not offer is still drawn and run.
 - **Run** — one visitor's pass through a flow. A run is pinned to the version that was live when it started, so publishing a new version does not change a run already under way. It records each answer by step id, and going back discards the last answer on the path.
 - **Answers** — the recorded state of a run, keyed by step id. The next step is always worked out from these answers and the connections in the pinned version.
 - **Refused answer** — an answer the step's answer check turned down. Nothing is recorded for that step, and the visitor is shown the same step again with the check's message. This works the same whether the flow keeps a stored run or carries its answers in the page.

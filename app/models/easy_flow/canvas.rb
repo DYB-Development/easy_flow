@@ -1,8 +1,9 @@
 module EasyFlow
   class Canvas
-    def initialize(document, registry: EasyFlow.registry)
+    def initialize(document, registry: EasyFlow.registry, host: nil)
       @document = document
       @registry = registry
+      @host = host
     end
 
     def to_h
@@ -81,7 +82,7 @@ module EasyFlow
     end
 
     def palette
-      @registry.step_types.reject(&:begins_here?).map do |step_type|
+      @registry.step_types.reject(&:begins_here?).select { |step_type| @host.nil? || @host.offers?(step_type.id) }.map do |step_type|
         { "type" => step_type.id.to_s, "label" => step_type.step_name,
           "fields" => step_type.settings.fields.transform_keys(&:to_s).transform_values(&:to_s),
           "labels" => step_type.settings.labels.transform_keys(&:to_s),

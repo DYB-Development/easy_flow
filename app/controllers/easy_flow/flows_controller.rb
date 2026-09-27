@@ -18,6 +18,7 @@ module EasyFlow
       @question = @guide.next_step(@answers)
       @drawing = @guide.drawing_at(@answers)
       flash.now[:alert] = @refused if @refused
+      @waiting = waiting_on(@question)
       return render :step if @question
 
       render_completion
@@ -122,6 +123,13 @@ module EasyFlow
       return flash[:alert] = problem if problem
 
       progress.record(id, value.to_s)
+    end
+
+    def waiting_on(step)
+      return unless step.respond_to?(:type) && EasyFlow.registry.registered?(step.type)
+
+      step_type = EasyFlow.registry.fetch(step.type)
+      step_type.name_of(step).presence || step_type.step_name if step_type.waits?
     end
 
     def answer_problem(step, answer)

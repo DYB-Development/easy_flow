@@ -60,7 +60,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    ```
 
    A mount whose host name is not declared serves no flows, and its admin pages return `404 Not Found`.
-8. Ask the developer whether visitors' steps should be drawn with the engine's own partial or with one from the app. For the app's own, create a partial, for example `app/views/steps/_step.html.erb`, which receives the step as the local `step`. Then add to the initializer:
+8. Ask the developer whether visitors' steps should be drawn with the engine's own partial or with one from the app. For the app's own, create a partial, for example `app/views/steps/_step.html.erb`, which receives the step as the local `step`. It is rendered inside the engine's form, so it draws only the fields, and the visitor's answer must be submitted as `answers[<%= step.id %>]`. Then add to the initializer:
 
    ```ruby
    EasyFlow.draws_with("steps/step")

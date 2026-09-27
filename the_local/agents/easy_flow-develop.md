@@ -1,6 +1,6 @@
 ---
 name: easy_flow-develop
-description: Use PROACTIVELY for adding a step type to easy_flow flows (a step that asks the visitor something, computes a value from earlier answers, or picks the next branch), refusing a blank or invalid answer to a step with a message, offering an admin a step setting whose options are read from the app's own records, serving a host's flows from the app's own controller and routes, acting when a visitor finishes a flow, and reading a run's recorded answers and question labels — MUST BE USED instead of hand-rolling questionnaire steps, branching logic, number comparisons, hard-coded setting options, answer validation, flow controllers or answer lookups.
+description: Use PROACTIVELY for adding a step type to easy_flow flows (a step that asks the visitor something, computes a value from earlier answers, picks the next branch, or holds the visitor until something outside the flow has happened), moving a paused run on once what it waits for has happened, refusing a blank or invalid answer to a step with a message, offering an admin a step setting whose options are read from the app's own records, serving a host's flows from the app's own controller and routes, acting when a visitor finishes a flow, and reading a run's recorded answers and question labels — MUST BE USED instead of hand-rolling questionnaire steps, branching logic, number comparisons, hard-coded setting options, answer validation, polling or "come back later" pages, flow controllers or answer lookups.
 tools: Read, Write, Edit, Grep
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -18,7 +18,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - `EasyFlow::FlowsController` — the visitor controller; the app subclasses it to serve one host's flows from its own routes and to change what happens at the start, on each step and at the finish.
 - `hosted_by` — class method on a `FlowsController` subclass naming the host whose flows it serves.
 - `routed_by` — class method on a `FlowsController` subclass naming the prefix of the app's own route names that the controller redirects and links to.
-- `EasyFlow::Run` — the stored record of one visitor's pass through a flow, pinned to the version that was live when it started.
+- `EasyFlow::Run` — the stored record of one visitor's pass through a flow, pinned to the version that was live when it started, and moved on past a waiting step with `advance`.
 - `EasyFlow::QuestionRunner` — reads a flow document: its steps, the next step for a set of answers, the answers on the path taken, and a question's text and an answer's label.
 
 ## How to use it
@@ -29,7 +29,8 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - It asks the visitor for input — declare `awaits_input`.
    - It computes a value from earlier answers with no visitor input — define `process`.
    - It only picks which connection to follow — define `route`.
-   A type may both `process` and `route`. A type that does none of the three is passed through without stopping when a visitor reaches it.
+   - It holds the visitor until something outside the flow has happened, such as a payment arriving or a reviewer approving — declare `waits_until`.
+   A type may both `process` and `route`. A type that does none of the four is passed through without stopping when a visitor reaches it.
 2. Create the class in the app, for example `app/models/flow_steps/rating.rb`. The class name, underscored, is the type's id (`Rating` becomes `:rating`), and that id is stored in every flow that uses it, so it must not change after admins start using the type. It must not be one of the built-in ids `start`, `terminal`, `question`, `condition`, `switch` or `compare`:
 
    ```ruby
@@ -78,6 +79,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - `output :name, type:, label:, values:, from:` — a value the step records. `type` is one of `:string`, `:integer`, `:float`, `:boolean`, or boot raises `EasyFlow::UnknownOutputType`. `values:` is an array or a lambda taking the node, listing the values the output can take; the canvas offers these as the connections leaving the step, so a type that routes must declare them. `from: :<setting>` takes the values from the step chosen in that setting.
    - `names_by :setting` or `names_by { |node| ... }` — what the step is called on the canvas, from a setting or computed.
    - `awaits_input` — the visitor is shown this step and submits an answer to it.
+   - `waits_until { |node, state| ... }` — the run stops at this step until the block returns a truthy value. See step 7.
    - `answer_check { |node, value| ... }` — checks a submitted answer before it is recorded. `value` is the submitted string, or `nil` when the input sent nothing. Return a message to refuse the answer, or `nil` to accept it. Without it every answer is accepted, including a blank one.
    - `ends_here` / `begins_here` — marks the type as an end or a start of a flow.
    - `displays_by { |node| ... }` — builds the object handed to the step's partial as the local `step`. Without it the partial receives the node itself.
@@ -116,7 +118,31 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    setting :required, type: :boolean
    answer_check { |node, value| "Fill this in to go on." if node.config["required"] && value.blank? }
    ```
-7. Restart the server, open a flow on the canvas and check the type is offered, its settings show, and a preview walks through it.
+7. For a type that waits, declare `waits_until` with a block that says whether what the step waits for has happened:
+
+   ```ruby
+   module FlowSteps
+     class AwaitPayment
+       include EasyFlow::Step
+
+       step_name "Payment"
+
+       setting :invoice_step, type: :previous_step
+
+       waits_until { |node, state| Invoice.paid?(state[node.config["invoice_step"]]) }
+     end
+   end
+   ```
+
+   - The block is given `node` and `state` only, the same as `process`, and is not given the run or its owner. Ask the developer what the step waits for, and how the block finds it from the step's settings and the answers recorded before it. If it cannot be found from those, stop and ask, since the block has nothing else to read.
+   - The block is called each time the visitor loads the step page, and each time the app calls `run.advance`. Keep it to a single lookup.
+   - While the block returns a falsy value, the visitor is shown `Waiting for <name>.` and no form, no Next button and no Back button. `<name>` is what `names_by` gives, or the `step_name` when there is none, so give the type a name a visitor can read.
+   - Once the block returns a truthy value, `true` is recorded under the step's id, or the value `process` returns when the type also defines `process`, and the run goes on to the next step.
+   - Do not declare `awaits_input` on a type that waits. The waiting message replaces the form, so the input is never shown.
+   - The page does not reload itself. Ask the developer how the run should move on when what it waits for happens:
+     - The visitor reloads the page. This needs nothing more, and works whether or not the flow keeps a stored run.
+     - The app calls `run.advance` where the event is handled, such as a webhook or a job. See "Read a run and its answers". This needs a stored run, so it only applies to a flow the admin set to save each step.
+8. Restart the server, open a flow on the canvas and check the type is offered, its settings show, and a preview walks through it.
 
 ### Serve a host's flows from the app's own controller
 
@@ -162,6 +188,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - `run.owner` — the optional record the run belongs to, polymorphic, set by the app. `run.label` and `run.status` are free string columns for the app's own use.
    - `run.pinned_definition` — the flow document of the version the run started on.
    - `run.next_step(answers)` and `run.walked(answers)` — the next step, and the answers on the path taken, for a set of answers against that pinned version.
+   - `run.advance` — moves the run past every waiting step whose `waits_until` block now returns a truthy value, and past every step that computes a value, and records each result on the run. It stops at the next step that asks the visitor for input, the next waiting step that is not ready, or the end. It does not call `finished`; that is called the next time the visitor loads the run's page.
 3. To show answers with their question text and answer labels, build a runner from the run's pinned document:
 
    ```ruby
@@ -187,5 +214,8 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - Always look flows and runs up through a host.
 - A step's input field is named `answers[<step id>]` and submits one value. Any other name is ignored, and an array or hash is treated as blank.
 - An answer the type's `answer_check` refuses is never recorded, and the visitor is shown the same step with the check's message. An answer no check refuses is recorded, a blank one as `""`.
+- A `waits_until` block is given only the step and the answers recorded so far, so what it waits for must be findable from those.
+- A type that waits never also declares `awaits_input`.
+- `run.advance` only moves a stored run, and never finishes it; the visitor's next page load does.
 - A `FlowsController` subclass needs all four named routes for its prefix; a missing one raises when the visitor is linked or redirected to it.
 - The engine installs, mounts and configures hosts, layouts, the default drawing and checks through `easy_flow-install`, not here.

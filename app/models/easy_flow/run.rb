@@ -18,6 +18,10 @@ module EasyFlow
       super.to_h.symbolize_keys
     end
 
+    def advance
+      Runner.new(pinned_definition).run(Progress::Kept.new(self))
+    end
+
     def pinned_definition
       definition_version.definition.to_h
     end

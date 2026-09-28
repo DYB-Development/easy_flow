@@ -173,5 +173,9 @@ module EasyFlow
 
       assert_equal answers, digest(asking_again).state_on_path(answers)
     end
+
+    test "finds a question by the key of a later visit to it" do
+      assert_equal "name", digest(asking_again).step("name@2").id
+    end
   end
 end

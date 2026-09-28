@@ -10,7 +10,7 @@ module EasyFlow
     end
 
     def step(id)
-      @document.node(id)
+      @document.node(id.to_s.split("@").first)
     end
 
     def steps

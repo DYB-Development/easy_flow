@@ -177,5 +177,14 @@ module EasyFlow
 
       assert_select "input[name=?]", "answers[job@2]"
     end
+
+    test "a finished session that looped lists what was said on every visit" do
+      run = Run.start(looping)
+      { job: "mow", more: "yes", "job@2": "edge", "more@2": "no", done: "ok" }.each { |key, value| run.record(key, value) }
+
+      get easy_flow.run_path(run)
+
+      assert_select "[data-answer=?]", "job@2"
+    end
   end
 end

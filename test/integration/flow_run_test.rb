@@ -22,6 +22,29 @@ module EasyFlow
       end
     end
 
+    def looping
+      @looping ||= Definition.create!(host: "dummy", slug: "looping").tap do |flow|
+        flow.record_definition(flowing(
+          "slug" => "looping", "entry" => "job",
+          "nodes" => [ { "id" => "job", "type" => "question", "text" => "Which job?", "options" => [ "mow", "edge" ] },
+                       { "id" => "more", "type" => "question", "text" => "Another?", "options" => [ "yes", "no" ] },
+                       { "id" => "again", "type" => "condition", "step" => "more", "output" => "answer", "comparison" => "is", "answer" => "yes" },
+                       { "id" => "done", "type" => "question", "text" => "Done?", "options" => [ "ok" ] } ],
+          "edges" => [ { "from" => "job", "to" => "more" },
+                       { "from" => "more", "to" => "again" },
+                       { "from" => "again", "to" => "job", "on" => true },
+                       { "from" => "again", "to" => "done", "on" => false } ]
+        ))
+        flow.publish
+      end
+    end
+
+    test "a flow keeping nothing carries the answer to a question asked again on to the next step" do
+      get easy_flow.flow_step_path(looping.slug), params: { answers: { job: "mow", more: "yes", "job@2": "edge" }, asked: "job@2" }
+
+      assert_select "input[type=hidden][name=?][value=?]", "answers[job@2]", "edge"
+    end
+
     test "a flow keeping a run at the end stores it once the flow finishes" do
       flowed.update!(persists: :on_finish)
 

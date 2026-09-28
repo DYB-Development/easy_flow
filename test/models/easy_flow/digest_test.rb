@@ -167,5 +167,11 @@ module EasyFlow
     test "a branch in a loop reads the latest answer to the question it checks" do
       assert_equal "done", digest(asking_again).next_step({ "name" => "Mowing", "more" => "yes", "name@2" => "Edging", "more@2" => "no" }).id
     end
+
+    test "the answers on a looping flow's path keep every visit" do
+      answers = { "name" => "Mowing", "more" => "yes", "name@2" => "Edging", "more@2" => "no", "done" => "ok" }
+
+      assert_equal answers, digest(asking_again).state_on_path(answers)
+    end
   end
 end

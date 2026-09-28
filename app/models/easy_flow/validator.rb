@@ -17,7 +17,7 @@ module EasyFlow
     end
 
     def malformations
-      missing_edge_targets + missing_edge_sources + duplicate_ids + no_beginning
+      missing_edge_targets + missing_edge_sources + duplicate_ids + reserved_ids + no_beginning
     end
 
     private
@@ -39,6 +39,11 @@ module EasyFlow
     def duplicate_ids
       @document.nodes.map(&:id).tally.select { |_id, count| count > 1 }
         .map { |id, _count| Violation.new(node: id, problem: :duplicate_id) }
+    end
+
+    def reserved_ids
+      @document.nodes.map(&:id).select { |id| id.to_s.include?("@") }
+        .map { |id| Violation.new(node: id, problem: :reserved_id) }
     end
 
     def no_beginning

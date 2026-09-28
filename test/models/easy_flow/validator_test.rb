@@ -349,5 +349,12 @@ module EasyFlow
 
       assert_includes beginnings(document).map(&:problem), :before_the_beginning
     end
+
+    test "reports a step id holding the mark that numbers a later visit" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "start" }, { "id" => "cost@2", "type" => "terminal" } ],
+                   "edges" => [ { "from" => "a", "to" => "cost@2" } ] }
+
+      assert_includes violations(document).map(&:problem), :reserved_id
+    end
   end
 end

@@ -1,6 +1,6 @@
 ---
 name: easy_flow-info
-description: Use to learn what easy_flow offers — guided flows an admin draws on a canvas and a visitor runs one step at a time, versioned documents of steps and connections, hosts and the step types each offers its admins, runs, the built-in step types including questions that can require an answer and branching on an answer or comparing a number, step types the host app registers, the checks they make on an answer, and steps that hold a run until something outside the flow has happened, and the settings an admin fills in, including picks whose options come from the app's data.
+description: Use to learn what easy_flow offers — guided flows an admin draws on a canvas and a visitor runs one step at a time, versioned documents of steps and connections, flows that loop back to ask a step again, hosts and the step types each offers its admins, runs, the built-in step types including questions that can require an answer and branching on an answer or comparing a number, step types the host app registers, the checks they make on an answer, and steps that hold a run until something outside the flow has happened, and the settings an admin fills in, including picks whose options come from the app's data.
 tools: Read
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -26,6 +26,7 @@ easy_flow declares no commands of its own for this local. Its surface is split b
 - To add a step type, give a step type its own rule for refusing an answer, hold a run until something outside the flow has happened, put a flow on the app's own pages, or act on what a visitor answered, use **easy_flow-develop**.
 - To branch a flow on an answer or on a number the visitor gave, no code is needed: an admin places one of the built-in branching steps on the canvas.
 - To make a visitor answer a question before going on, no code is needed: an admin marks that question step as required on the canvas.
+- To ask a step again, such as repeating a question until the visitor says they are done, no code is needed: an admin connects a later step back to an earlier one on the canvas.
 - If the question is only what a word below means, this page is the answer.
 
 ## Conventions
@@ -51,8 +52,12 @@ easy_flow declares no commands of its own for this local. Its surface is split b
 - **Host** — a named part of the app that owns a set of flows. A host sets the visitor layout and the admin layout, how admins are authenticated, how visitors are authorized, how a refusal is answered, and optionally which step types it offers. Flows are always looked up through a host, so one host never sees another's flows.
 - **Offered step types** — the list of step types a host names for its admins to add. A host that names no list offers every registered step type. The list only narrows the palette.
 - **Palette** — the step types an admin can add on a host's canvas. It never holds the start step, always holds the end step, and otherwise holds the step types the host offers. A step already in a flow whose type the host does not offer is still drawn and run.
-- **Run** — one visitor's pass through a flow. A run is pinned to the version that was live when it started, so publishing a new version does not change a run already under way. It records each answer by step id, and going back discards the last answer on the path.
-- **Answers** — the recorded state of a run, keyed by step id. The next step is always worked out from these answers and the connections in the pinned version.
+- **Run** — one visitor's pass through a flow. A run is pinned to the version that was live when it started, so publishing a new version does not change a run already under way. It records each answer by visit, and going back discards the last answer on the path.
+- **Answers** — the recorded state of a run, keyed by visit. The next step is always worked out from these answers and the connections in the pinned version.
+- **Loop** — a connection that leads back to a step the run has already passed, so that step is visited again. Branching steps read the most recent answer to a step, so a loop ends when an answer sends the run down a different connection.
+- **Visit** — one time a run reaches a step. The first visit is keyed by the step id alone, and each later visit is keyed by the step id, an `@`, and the visit number, such as `size@2`. Every visit's answer is kept, and a finished run lists each one.
+- **Stopped loop** — a run that comes back to a step with no new answer given since its last visit there ends at that point rather than cycling forever. Only answers the visitor gives count, so a loop made only of steps that act on their own stops the first time it comes round.
+- **Reserved `@`** — a step id may not contain `@`, since that mark numbers later visits. A flow holding such a step id is reported as invalid.
 - **Refused answer** — an answer the step's answer check turned down. Nothing is recorded for that step, and the visitor is shown the same step again with the check's message. This works the same whether the flow keeps a stored run or carries its answers in the page.
 - **Blank answer** — a step the visitor leaves blank. On a step whose answer check does not refuse it, such as a question that is not required, the blank is recorded and the visitor moves on to the next step.
 - **Checks** — warnings on a flow's shape: an answer value no connection routes, a path nothing follows, and a step that leads nowhere. The engine turns all three on by default. These are separate from answer checks, which look at what a visitor submits.

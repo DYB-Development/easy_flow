@@ -92,6 +92,28 @@ module EasyFlow
       assert_equal "yes_step", built.next_step(kept.recorded).id
     end
 
+    def working_again
+      { "nodes" => [ { "id" => "opening", "type" => "opening" },
+                     { "id" => "name", "type" => "ask", "text" => "Name?" },
+                     { "id" => "work", "type" => "act" },
+                     { "id" => "more", "type" => "ask", "text" => "More?" },
+                     { "id" => "gate", "type" => "gate", "of" => "more" },
+                     { "id" => "done", "type" => "ask", "text" => "Done?" } ],
+        "edges" => [ { "from" => "opening", "to" => "name" },
+                     { "from" => "name", "to" => "work" },
+                     { "from" => "work", "to" => "more" },
+                     { "from" => "more", "to" => "gate" },
+                     { "from" => "gate", "to" => "name", "on" => "yes" },
+                     { "from" => "gate", "to" => "done", "on" => "no" } ] }
+    end
+
+    test "records a process in a loop against the visit it ran on, as the step it is" do
+      kept = Progress::Loose.new(nil, { name: "Mowing", work: "ran work", more: "yes", "name@2": "Edging" }, working_again)
+      runner(working_again).run(kept)
+
+      assert_equal "ran work", kept.recorded[:"work@2"]
+    end
+
     test "records what a step's process returned against that step" do
       kept = Progress::Loose.new(nil, {}, acting)
       runner(acting).run(kept)

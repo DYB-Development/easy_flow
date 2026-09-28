@@ -1,6 +1,6 @@
 ---
 name: easy_flow-develop
-description: Use PROACTIVELY for adding a step type to easy_flow flows (a step that asks the visitor something, computes a value from earlier answers, picks the next branch, or holds the visitor until something outside the flow has happened), moving a paused run on once what it waits for has happened, refusing a blank or invalid answer to a step with a message, offering an admin a step setting whose options are read from the app's own records, serving a host's flows from the app's own controller and routes, acting when a visitor finishes a flow, and reading a run's recorded answers and question labels — MUST BE USED instead of hand-rolling questionnaire steps, branching logic, number comparisons, hard-coded setting options, answer validation, polling or "come back later" pages, flow controllers or answer lookups.
+description: Use PROACTIVELY for adding a step type to easy_flow flows (a step that asks the visitor something, computes a value from earlier answers, picks the next branch, or holds the visitor until something outside the flow has happened), moving a paused run on once what it waits for has happened, refusing a blank or invalid answer to a step with a message, offering an admin a step setting whose options are read from the app's own records, serving a host's flows from the app's own controller and routes, acting when a visitor finishes a flow, and reading a run's recorded answers and question labels, including every visit's answer when a flow loops back to a question already asked — MUST BE USED instead of hand-rolling questionnaire steps, branching logic, number comparisons, hard-coded setting options, answer validation, polling or "come back later" pages, flow controllers or answer lookups.
 tools: Read, Write, Edit, Grep
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -9,7 +9,7 @@ This local follows the steps below exactly and invents none. Where a step names 
 
 ## What easy_flow is
 
-A Rails engine for flows an admin draws on a canvas and a visitor runs one step at a time. Each step is an instance of a step type. The engine ships six: start (`:start`), end (`:terminal`), question (`:question`, a question with a list of answers, which the admin can mark required so a blank answer is refused), and three that pick a branch from an earlier answer with no code — condition (`:condition`, is or is not a chosen value), switch (`:switch`, follows the connection labelled with the answer) and compare (`:compare`, reads the answer as a number and checks it by more than, less than, at least or at most against an amount). Before writing a step type to branch on an answer or a number, ask the developer whether an admin placing one of those three on the canvas is enough. Use this local when the app needs a step type of its own, needs a host's flows on its own pages with its own behaviour when a visitor finishes, or needs to read what a visitor answered. It assumes easy_flow is already installed and a host is declared; if not, hand off to `easy_flow-install` first.
+A Rails engine for flows an admin draws on a canvas and a visitor runs one step at a time. Each step is an instance of a step type. The engine ships six: start (`:start`), end (`:terminal`), question (`:question`, a question with a list of answers, which the admin can mark required so a blank answer is refused), and three that pick a branch from an earlier answer with no code — condition (`:condition`, is or is not a chosen value), switch (`:switch`, follows the connection labelled with the answer) and compare (`:compare`, reads the answer as a number and checks it by more than, less than, at least or at most against an amount). An admin may connect a step back to an earlier one, so a flow can ask the same question more than once, and each visit's answer is kept. Before writing a step type to branch on an answer or a number, ask the developer whether an admin placing one of those three on the canvas is enough. Use this local when the app needs a step type of its own, needs a host's flows on its own pages with its own behaviour when a visitor finishes, or needs to read what a visitor answered. It assumes easy_flow is already installed and a host is declared; if not, hand off to `easy_flow-install` first.
 
 ## Interface
 
@@ -102,12 +102,15 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - `process` returns the value recorded under this step's id. It runs as soon as a visitor reaches the step, before the next step is shown.
    - A type that declares more than one `output` returns a hash from `process`, keyed by each output's name as a string. A later compare step reads the output the admin picks from that hash.
    - `route` returns the value that picks the connection to follow; it is compared as a string with the value each leaving connection is labelled with, so `false` follows the connection labelled `false`. Returning `nil` follows the first connection. A route that returns `true` or `false` declares `output :result, type: :boolean, values: [true, false]`.
+   - In a flow that loops, the first visit to a step is recorded under its id and each later visit under `<id>@<n>`, where `n` counts from 2. `route` is given the latest visit's answer under the plain step id. `process` and `waits_until` are given the answers as recorded, so the plain id holds the first visit's answer and later visits are under `<id>@2`, `<id>@3` and on. A `process` step reached again records its result under its own `<id>@<n>`. When a computing or waiting type reads an earlier step that can be asked again, ask the developer whether it should read the first visit or the latest.
 7. For a type that awaits input, write the partial named in `drawn_by`, for example `app/views/flow_steps/_rating.html.erb`. It receives the display object as `step`. It renders only the input, since the page supplies the form, the Next button and the Back button. The input must be named `answers[<step id>]`, or the answer is not recorded:
 
    ```erb
    <%= label_tag "answers[#{step.id}]", step.text %>
    <%= number_field_tag "answers[#{step.id}]", nil, in: 1..step.scale %>
    ```
+
+   Name the input from `step.id`, never from a stored or hard-coded id. On a later visit to the step in a loop, the node's id is `<id>@<n>`, and the answer is only recorded against that visit when the input is named with it. A `displays_by` block must pass `node.id` through as the display object's `id` for the same reason.
 
    The input must submit one value. An input that submits an array or a hash, such as checkboxes named `answers[<step id>][]`, is dropped and treated as blank.
 
@@ -199,10 +202,11 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    end
    ```
 
-   - `state_on_path(answers)` — only the answers on the path the visitor actually took, dropping answers left behind by going back.
-   - `question_text(id)` — the text of a question step. It returns `nil` for a step of any other type.
-   - `choice_label(id, value)` — the label of the chosen answer, or the value itself when there is no label.
-   - `steps`, `step(id)`, `next_step(answers)`, `steps_on_path(answers)`, `slug` and `headline` read the rest of the document.
+   - `state_on_path(answers)` — only the answers on the path the visitor actually took, in the order they were given, dropping answers left behind by going back. In a flow that loops, it holds every visit: the first under the step id and each later one under `:"<id>@<n>"`, such as `:"job@2"`. Ask the developer whether each visit is shown as its own line or the visits to one question are grouped together; to group them, take the part of the key before `@`.
+   - `question_text(id)` — the text of a question step, given either its id or a visit key such as `"job@2"`. It returns `nil` for a step of any other type.
+   - `choice_label(id, value)` — the label of the chosen answer, or the value itself when there is no label. It takes a visit key the same way as `question_text`.
+   - `step(id)` finds the step for either its id or a visit key.
+   - `steps`, `next_step(answers)`, `steps_on_path(answers)`, `slug` and `headline` read the rest of the document.
 
 ## Conventions
 
@@ -215,7 +219,9 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - A type that routes declares the values its output takes, or the canvas offers no connections to label.
 - Always read a run against `run.pinned_definition`, never the flow's live version, since a run keeps the version it started on after a new one is published.
 - Always look flows and runs up through a host.
-- A step's input field is named `answers[<step id>]` and submits one value. Any other name is ignored, and an array or hash is treated as blank.
+- In a flow that loops, a later visit's answer is keyed `<id>@<n>`, so code that reads answers never assumes one answer per step id. A step id may not contain `@`, and a flow with one is refused when published.
+- A loop that comes back to a step with no answer given since the last visit to it ends the flow there, so every loop needs a step that awaits input.
+- A step's input field is named `answers[<step.id>]` and submits one value. Any other name is ignored, and an array or hash is treated as blank.
 - An answer the type's `answer_check` refuses is never recorded, and the visitor is shown the same step with the check's message. An answer no check refuses is recorded, a blank one as `""`.
 - A `waits_until` block is given only the step and the answers recorded so far, so what it waits for must be findable from those.
 - A type that waits never also declares `awaits_input`.

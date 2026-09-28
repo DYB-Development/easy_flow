@@ -147,5 +147,35 @@ module EasyFlow
 
       assert_equal [ { "value" => "high" } ], digest(document).values_of("a", "answer")
     end
+
+    def asking_again
+      { "entry" => "name",
+        "nodes" => [ { "id" => "name", "type" => "ask" },
+                     { "id" => "more", "type" => "ask" },
+                     { "id" => "again", "type" => "branch", "answer" => "more" },
+                     { "id" => "done", "type" => "ask" } ],
+        "edges" => [ { "from" => "name", "to" => "more" },
+                     { "from" => "more", "to" => "again" },
+                     { "from" => "again", "to" => "name", "on" => "yes" },
+                     { "from" => "again", "to" => "done", "on" => "no" } ] }
+    end
+
+    test "a flow that branches back to a question already answered asks it again under its next visit" do
+      assert_equal "name@2", digest(asking_again).next_step({ "name" => "Mowing", "more" => "yes" }).id
+    end
+
+    test "a branch in a loop reads the latest answer to the question it checks" do
+      assert_equal "done", digest(asking_again).next_step({ "name" => "Mowing", "more" => "yes", "name@2" => "Edging", "more@2" => "no" }).id
+    end
+
+    test "the answers on a looping flow's path keep every visit" do
+      answers = { "name" => "Mowing", "more" => "yes", "name@2" => "Edging", "more@2" => "no", "done" => "ok" }
+
+      assert_equal answers, digest(asking_again).state_on_path(answers)
+    end
+
+    test "finds a question by the key of a later visit to it" do
+      assert_equal "name", digest(asking_again).step("name@2").id
+    end
   end
 end

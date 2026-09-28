@@ -105,13 +105,15 @@ module EasyFlow
     end
 
     def submitted_answers
-      answers = params.fetch(:answers, {}).permit(*@guide.steps.map(&:id)).to_h.symbolize_keys
-      asked = @guide.step(params[:asked].to_s)
+      given = params.fetch(:answers, {})
+      answers = given.permit(*given.keys.select { |key| @guide.step(key) }).to_h.symbolize_keys
+      key = params[:asked].to_s.to_sym
+      asked = @guide.step(key)
       return answers unless asked
 
-      answer = answers.fetch(asked.id.to_sym, "")
+      answer = answers.fetch(key, "")
       @refused = answer_problem(asked, answer)
-      @refused ? answers.except(asked.id.to_sym) : answers.merge(asked.id.to_sym => answer)
+      @refused ? answers.except(key) : answers.merge(key => answer)
     end
 
     def record_submitted
@@ -139,7 +141,8 @@ module EasyFlow
     end
 
     def asked
-      runner_for(run.pinned_definition).steps.map(&:id)
+      guide = runner_for(run.pinned_definition)
+      guide.steps.map(&:id) | [ guide.next_step(run.recorded)&.id ].compact
     end
   end
 end

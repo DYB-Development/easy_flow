@@ -28,7 +28,7 @@ module EasyFlow
 
     def run(progress)
       while (node = @digest.next_step(named(progress.recorded))) && goes_on?(node, named(progress.recorded))
-        progress.record(node.id, result_of(node, named(progress.recorded)))
+        progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded)))
       end
     end
 

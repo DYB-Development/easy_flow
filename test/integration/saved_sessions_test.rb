@@ -18,6 +18,22 @@ module EasyFlow
       @saved ||= Definition.create!(host: "dummy", slug: "saved", persists: :each_step).tap { |flow| flow.record_definition(flowing(branching)); flow.publish }
     end
 
+    def repeating
+      { "slug" => "repeating", "entry" => "job",
+        "nodes" => [ { "id" => "job", "type" => "question", "text" => "Which job?", "options" => [ "mow", "edge" ] },
+                     { "id" => "more", "type" => "question", "text" => "Another?", "options" => [ "yes", "no" ] },
+                     { "id" => "again", "type" => "condition", "step" => "more", "output" => "answer", "comparison" => "is", "answer" => "yes" },
+                     { "id" => "done", "type" => "question", "text" => "Done?", "options" => [ "ok" ] } ],
+        "edges" => [ { "from" => "job", "to" => "more" },
+                     { "from" => "more", "to" => "again" },
+                     { "from" => "again", "to" => "job", "on" => true },
+                     { "from" => "again", "to" => "done", "on" => false } ] }
+    end
+
+    def looping
+      @looping ||= Definition.create!(host: "dummy", slug: "repeating", persists: :each_step).tap { |flow| flow.record_definition(flowing(repeating)); flow.publish }
+    end
+
     test "starting a saved session sends the visitor to its durable URL" do
       post easy_flow.flow_runs_path(saved.slug)
 
@@ -140,6 +156,35 @@ module EasyFlow
       get easy_flow.run_path(run)
 
       assert_response :success
+    end
+
+    test "answering a question asked again stores the answer against that visit" do
+      run = Run.start(looping)
+      run.record(:job, "mow")
+      run.record(:more, "yes")
+
+      patch easy_flow.run_path(run), params: { answers: { "job@2": "edge" } }
+
+      assert_equal "edge", run.reload.recorded[:"job@2"]
+    end
+
+    test "a question asked again is shown with its answer field keyed to that visit" do
+      run = Run.start(looping)
+      run.record(:job, "mow")
+      run.record(:more, "yes")
+
+      get easy_flow.run_path(run)
+
+      assert_select "input[name=?]", "answers[job@2]"
+    end
+
+    test "a finished session that looped lists what was said on every visit" do
+      run = Run.start(looping)
+      { job: "mow", more: "yes", "job@2": "edge", "more@2": "no", done: "ok" }.each { |key, value| run.record(key, value) }
+
+      get easy_flow.run_path(run)
+
+      assert_select "[data-answer=?]", "job@2"
     end
   end
 end

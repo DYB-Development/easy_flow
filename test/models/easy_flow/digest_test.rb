@@ -147,5 +147,22 @@ module EasyFlow
 
       assert_equal [ { "value" => "high" } ], digest(document).values_of("a", "answer")
     end
+
+    def asking_again
+      { "entry" => "name",
+        "nodes" => [ { "id" => "name", "type" => "ask" },
+                     { "id" => "more", "type" => "ask" },
+                     { "id" => "again", "type" => "branch", "answer" => "more" },
+                     { "id" => "done", "type" => "ask" } ],
+        "edges" => [ { "from" => "name", "to" => "more" },
+                     { "from" => "more", "to" => "again" },
+                     { "from" => "again", "to" => "name", "on" => "yes" },
+                     { "from" => "again", "to" => "done", "on" => "no" } ] }
+    end
+
+    test "a flow that branches back to a question already answered asks it again under its next visit" do
+      assert_equal "name@2", digest(asking_again).next_step({ "name" => "Mowing", "more" => "yes" }).id
+    end
+
   end
 end

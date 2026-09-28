@@ -75,22 +75,37 @@ module EasyFlow
 
     def walk(state)
       recorded = []
-      visited = []
+      latest = {}
+      visits = Hash.new(0)
+      answers_at_visit = {}
+      answered = 0
       cursor = entry
 
-      while cursor && !visited.include?(cursor.id)
-        return [ recorded, cursor ] if pending?(cursor, state)
+      while cursor
+        return [ recorded, nil ] if visits[cursor.id].positive? && answers_at_visit[cursor.id] == answered
 
-        recorded << cursor.id if state.key?(cursor.id)
-        visited << cursor.id
-        cursor = successor(cursor, state)
+        visits[cursor.id] += 1
+        answers_at_visit[cursor.id] = answered
+        key = visit_key(cursor.id, visits[cursor.id])
+        return [ recorded, cursor.with(id: key) ] if pending?(cursor, key, state)
+
+        if state.key?(key)
+          recorded << key
+          latest[cursor.id] = state[key]
+          answered += 1 if step_type(cursor)&.awaits_input?
+        end
+        cursor = successor(cursor, state.merge(latest))
       end
 
       [ recorded, nil ]
     end
 
-    def pending?(node, state)
-      return false if state.key?(node.id)
+    def visit_key(id, visit)
+      visit == 1 ? id : "#{id}@#{visit}"
+    end
+
+    def pending?(node, key, state)
+      return false if state.key?(key)
 
       step_type(node)&.awaits_input? || acts?(node) || step_type(node)&.waits? || false
     end

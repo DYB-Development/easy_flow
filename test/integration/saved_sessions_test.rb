@@ -167,5 +167,15 @@ module EasyFlow
 
       assert_equal "edge", run.reload.recorded[:"job@2"]
     end
+
+    test "a question asked again is shown with its answer field keyed to that visit" do
+      run = Run.start(looping)
+      run.record(:job, "mow")
+      run.record(:more, "yes")
+
+      get easy_flow.run_path(run)
+
+      assert_select "input[name=?]", "answers[job@2]"
+    end
   end
 end

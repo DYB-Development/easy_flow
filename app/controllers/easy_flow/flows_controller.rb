@@ -139,7 +139,8 @@ module EasyFlow
     end
 
     def asked
-      runner_for(run.pinned_definition).steps.map(&:id)
+      guide = runner_for(run.pinned_definition)
+      guide.steps.map(&:id) | [ guide.next_step(run.recorded)&.id ].compact
     end
   end
 end

@@ -51,7 +51,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - `admin_authentication_method` — a method on the base controller, called with no arguments before every admin page. With none set, the admin pages are open to anyone.
    - `visitor_authorization_method` — a method on the base controller, called with the flow, returning true when the visitor may run it. With none set, every visitor is refused.
    - `refusal_method` — a method on the base controller, called with the refusal error when a visitor is refused or a flow is unpublished or withdrawn. With none set, the response is `404 Not Found`.
-   - `offers` — the step types this host's admins can add from the canvas palette, as a list of step type names. With none set, every registered step type is offered. The engine's own names are `question`, `condition`, `switch` and `compare`, A step type the app declares is named by the id passed to `EasyFlow.step`, or after its class when it is a step class, so `Steps::Notify` is `notify`. The End step is offered whether it is listed or not, and the Start step is never offered. Ask the developer which step types each host should offer.
+   - `offers` — the step types this host's admins can add from the canvas palette, as a list of step type names. With none set, every registered step type is offered. The engine's own names are `question`, `condition`, `switch` and `compare`. A step type the app declares is named by the id passed to `EasyFlow.step`, or after its class when it is a step class, so `Steps::Notify` is `notify`. The End step is offered whether it is listed or not, and the Start step is never offered. Ask the developer which step types each host should offer.
 
    Each method named here must exist on the base controller. Ask the developer to point at it or write it. Do not invent its logic.
 7. Mount the engine in `config/routes.rb`, once per host. The host name in `defaults` must match a name declared in step 6. When there is more than one mount, give each an `as:` name:
@@ -62,7 +62,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    ```
 
    A mount whose host name is not declared serves no flows, and its admin pages return `404 Not Found`.
-8. Ask the developer whether visitors' steps should be drawn with the engine's own partial or with one from the app. For the app's own, create a partial, for example `app/views/steps/_step.html.erb`, which receives the step as the local `step`. It is rendered inside the engine's form, so it draws only the fields, and the visitor's answer must be submitted as `answers[<%= step.id %>]`. Then add to the initializer:
+8. Ask the developer whether visitors' steps should be drawn with the engine's own partial or with one from the app. For the app's own, create a partial, for example `app/views/steps/_step.html.erb`, which receives the step as the local `step`. It is rendered inside the engine's form, so it draws only the fields, and the visitor's answer must be submitted as `answers[<%= step.id %>]`. Always build the field name from `step.id` and never from a fixed id. When a flow loops back and asks a question again, `step.id` names that visit, so each visit's answer is stored apart. Then add to the initializer:
 
    ```ruby
    EasyFlow.draws_with("steps/step")

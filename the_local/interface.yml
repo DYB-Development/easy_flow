@@ -32,6 +32,8 @@ sources:
   - app/models/easy_flow/steps/question.rb
   - app/models/easy_flow/run.rb
   - app/models/easy_flow/runner.rb
+  - app/models/easy_flow/digest.rb
+  - app/models/easy_flow/validator.rb
   - app/models/easy_flow/question_runner.rb
   - config/routes.rb
   - db/migrate/20260924120000_create_easy_flow_definitions.rb

@@ -163,6 +163,5 @@ module EasyFlow
     test "a flow that branches back to a question already answered asks it again under its next visit" do
       assert_equal "name@2", digest(asking_again).next_step({ "name" => "Mowing", "more" => "yes" }).id
     end
-
   end
 end

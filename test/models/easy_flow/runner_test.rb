@@ -90,6 +90,10 @@ module EasyFlow
       assert_equal 2, Runner.new(forking, registry: registry).questions_left({})
     end
 
+    test "counts past a choice the answers so far have decided" do
+      assert_equal 2, Runner.new(forking, registry: registry).questions_left({ "first" => "yes" })
+    end
+
     test "counts the question being asked and every question after it" do
       assert_equal 2, Runner.new(straight, registry: registry).questions_left({ "first" => "a" })
     end

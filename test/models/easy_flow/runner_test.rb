@@ -47,6 +47,19 @@ module EasyFlow
                      { "from" => "second", "to" => "third" } ] }
     end
 
+    def forking
+      { "nodes" => [ { "id" => "opening", "type" => "opening" },
+                     { "id" => "first", "type" => "ask", "text" => "First?" },
+                     { "id" => "second", "type" => "ask", "text" => "Second?" },
+                     { "id" => "fork", "type" => "fork", "of" => "first" },
+                     { "id" => "yes_step", "type" => "ask", "text" => "Yes?" },
+                     { "id" => "no_step", "type" => "ask", "text" => "No?" } ],
+        "edges" => [ { "from" => "opening", "to" => "first" }, { "from" => "first", "to" => "second" },
+                     { "from" => "second", "to" => "fork" },
+                     { "from" => "fork", "to" => "yes_step", "on" => "yes" },
+                     { "from" => "fork", "to" => "no_step", "on" => "no" } ] }
+    end
+
     def showing
       { "nodes" => [ { "id" => "opening", "type" => "opening" },
                      { "id" => "shown", "type" => "shown", "text" => "Budget?" } ],
@@ -71,6 +84,10 @@ module EasyFlow
 
     def runner(document = branching)
       Runner.new(document, registry: registry)
+    end
+
+    test "stops counting at a choice the answers so far have not decided" do
+      assert_equal 2, Runner.new(forking, registry: registry).questions_left({})
     end
 
     test "counts the question being asked and every question after it" do

@@ -71,6 +71,16 @@ module EasyFlow
       state.slice(*walk(state).first)
     end
 
+    def questions_left(state)
+      cursor = next_step(state) && step(next_step(state).id)
+      left = 0
+      while cursor
+        left += 1 if step_type(cursor)&.awaits_input?
+        cursor = successor(cursor, state)
+      end
+      left
+    end
+
     private
 
     def walk(state)

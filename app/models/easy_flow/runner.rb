@@ -40,6 +40,10 @@ module EasyFlow
       @digest.state_on_path(named(state)).symbolize_keys
     end
 
+    def questions_left(state)
+      @digest.questions_left(named(state))
+    end
+
     def steps_on_path(state)
       state_on_path(state).keys.map { |id| shown(@digest.step(id.to_s)) }
     end

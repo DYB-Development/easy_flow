@@ -12,6 +12,7 @@ module EasyFlow
         setting :value, type: :string
         setting :label, type: :string
         setting :weight, type: :integer
+        setting :hint, type: :string
       end
 
       output :answer, type: :string, label: "Answer", values: ->(node) { Question.offered(node.config) }

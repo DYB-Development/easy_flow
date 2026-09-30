@@ -71,6 +71,16 @@ module EasyFlow
       state.slice(*walk(state).first)
     end
 
+    def questions_left(state)
+      cursor = next_step(state) && step(next_step(state).id)
+      left = 0
+      while cursor && decided?(cursor, state)
+        left += 1 if step_type(cursor)&.awaits_input?
+        cursor = successor(cursor, state)
+      end
+      left
+    end
+
     private
 
     def walk(state)
@@ -98,6 +108,12 @@ module EasyFlow
       end
 
       [ recorded, nil ]
+    end
+
+    def decided?(node, state)
+      return true unless step_type(node)&.routes?
+
+      step_type(node).settings.naming_steps.all? { |setting| state.key?(node.config[setting.to_s].to_s) }
     end
 
     def visit_key(id, visit)

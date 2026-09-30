@@ -21,6 +21,10 @@ module EasyFlow
         assert_equal :integer, Question.step_type.settings.record_fields[:answers][:weight]
       end
 
+      test "an answer carries a hint the canvas offers for editing" do
+        assert_equal :string, Question.step_type.settings.record_fields[:answers][:hint]
+      end
+
       test "declares a category a host can group it by" do
         assert_equal :string, Question.step_type.settings.fields[:category]
       end

@@ -14,6 +14,10 @@ module EasyFlow
         built.register(StepType.define(:act) { process { |node, _state| "ran #{node.id}" } })
         built.register(StepType.define(:approve) { process { |_node, _state| "yes" } })
         built.register(StepType.define(:hold) { waits_until { |node, _state| node.config["ready"] } })
+        built.register(StepType.define(:fork) do
+          setting :of, type: :previous_step
+          route { |node, state| state[node.config["of"]] == "yes" ? "yes" : "no" }
+        end)
         built.register(StepType.define(:gate) do
           setting :of, type: :string
           route { |node, state| state[node.config["of"]] == "yes" ? "yes" : "no" }
@@ -32,6 +36,28 @@ module EasyFlow
                      { "from" => "first", "to" => "gate" },
                      { "from" => "gate", "to" => "yes_step", "on" => "yes" },
                      { "from" => "gate", "to" => "no_step", "on" => "no" } ] }
+    end
+
+    def straight
+      { "nodes" => [ { "id" => "opening", "type" => "opening" },
+                     { "id" => "first", "type" => "ask", "text" => "First?" },
+                     { "id" => "second", "type" => "ask", "text" => "Second?" },
+                     { "id" => "third", "type" => "ask", "text" => "Third?" } ],
+        "edges" => [ { "from" => "opening", "to" => "first" }, { "from" => "first", "to" => "second" },
+                     { "from" => "second", "to" => "third" } ] }
+    end
+
+    def forking
+      { "nodes" => [ { "id" => "opening", "type" => "opening" },
+                     { "id" => "first", "type" => "ask", "text" => "First?" },
+                     { "id" => "second", "type" => "ask", "text" => "Second?" },
+                     { "id" => "fork", "type" => "fork", "of" => "first" },
+                     { "id" => "yes_step", "type" => "ask", "text" => "Yes?" },
+                     { "id" => "no_step", "type" => "ask", "text" => "No?" } ],
+        "edges" => [ { "from" => "opening", "to" => "first" }, { "from" => "first", "to" => "second" },
+                     { "from" => "second", "to" => "fork" },
+                     { "from" => "fork", "to" => "yes_step", "on" => "yes" },
+                     { "from" => "fork", "to" => "no_step", "on" => "no" } ] }
     end
 
     def showing
@@ -58,6 +84,18 @@ module EasyFlow
 
     def runner(document = branching)
       Runner.new(document, registry: registry)
+    end
+
+    test "stops counting at a choice the answers so far have not decided" do
+      assert_equal 2, Runner.new(forking, registry: registry).questions_left({})
+    end
+
+    test "counts past a choice the answers so far have decided" do
+      assert_equal 2, Runner.new(forking, registry: registry).questions_left({ "first" => "yes" })
+    end
+
+    test "counts the question being asked and every question after it" do
+      assert_equal 2, Runner.new(straight, registry: registry).questions_left({ "first" => "a" })
     end
 
     test "stops at the first step awaiting input" do

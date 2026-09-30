@@ -39,6 +39,18 @@ module EasyFlow
       end
     end
 
+    test "pressing Back on a flow keeping nothing asks the previous question again" do
+      get easy_flow.flow_step_path(flowed.slug), params: { answers: { budget: "high" }, asked: "posh", back: "1" }
+
+      assert_select "input[type=hidden][name=asked][value=?]", "budget"
+    end
+
+    test "pressing Back on a flow keeping nothing keeps the answers before the previous question" do
+      get easy_flow.flow_step_path(looping.slug), params: { answers: { job: "mow", more: "no" }, asked: "done", back: "1" }
+
+      assert_select "input[type=hidden][name=?][value=?]", "answers[job]", "mow"
+    end
+
     test "a flow keeping nothing carries the answer to a question asked again on to the next step" do
       get easy_flow.flow_step_path(looping.slug), params: { answers: { job: "mow", more: "yes", "job@2": "edge" }, asked: "job@2" }
 

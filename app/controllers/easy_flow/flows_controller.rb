@@ -107,6 +107,8 @@ module EasyFlow
     def submitted_answers
       given = params.fetch(:answers, {})
       answers = given.permit(*given.keys.select { |key| @guide.step(key) }).to_h.symbolize_keys
+      return one_answer_back(answers) if params[:back].present?
+
       key = params[:asked].to_s.to_sym
       asked = @guide.step(key)
       return answers unless asked
@@ -114,6 +116,11 @@ module EasyFlow
       answer = answers.fetch(key, "")
       @refused = answer_problem(asked, answer)
       @refused ? answers.except(key) : answers.merge(key => answer)
+    end
+
+    def one_answer_back(answers)
+      answered = @guide.state_on_path(answers)
+      answered.except(answered.keys.last)
     end
 
     def record_submitted

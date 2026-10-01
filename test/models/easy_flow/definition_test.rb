@@ -2,6 +2,12 @@ require "test_helper"
 
 module EasyFlow
   class DefinitionTest < ActiveSupport::TestCase
+    test "the database still refuses two shared flows with the same slug in one host" do
+      Definition.create!(host: "dummy", slug: "checkup")
+
+      assert_raises(ActiveRecord::RecordNotUnique) { Definition.new(host: "dummy", slug: "checkup").save!(validate: false) }
+    end
+
     test "lets two owners each hold a flow with the same slug" do
       first, second = Customer.create!(name: "First"), Customer.create!(name: "Second")
       Definition.create!(host: "dummy", slug: "checkup", owner: first)

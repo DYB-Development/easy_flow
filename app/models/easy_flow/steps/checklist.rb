@@ -10,6 +10,7 @@ module EasyFlow
       setting :answers, type: :list, required: true do
         setting :value, type: :string
         setting :label, type: :string
+        setting :info, type: :string
       end
 
       names_by :question

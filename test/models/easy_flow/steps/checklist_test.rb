@@ -17,6 +17,10 @@ module EasyFlow
 
         assert_equal "Tick at least one to go on.", Checklist.step_type.answer_problem(node, [ "" ])
       end
+
+      test "an answer carries info the canvas offers for editing" do
+        assert_equal :string, Checklist.step_type.settings.record_fields[:answers][:info]
+      end
     end
   end
 end

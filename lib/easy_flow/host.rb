@@ -2,7 +2,7 @@ module EasyFlow
   class Host
     attr_reader :name
     attr_writer :layout, :admin_layout, :offers
-    attr_accessor :admin_authentication_method, :visitor_authorization_method, :refusal_method
+    attr_accessor :admin_authentication_method, :visitor_authorization_method, :refusal_method, :owner_method
 
     def initialize(name)
       @name = name.to_s

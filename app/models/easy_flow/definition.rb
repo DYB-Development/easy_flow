@@ -6,6 +6,8 @@ module EasyFlow
     enum :kind, { scored: "scored", guide: "guide" }
     enum :persists, { unsaved: "unsaved", each_step: "each_step", on_finish: "on_finish" }
 
+    belongs_to :owner, polymorphic: true, optional: true
+
     validates :host, :slug, presence: true
 
     after_initialize :begin_the_flow, if: :new_record?
@@ -18,7 +20,7 @@ module EasyFlow
     has_many :definition_versions, class_name: "EasyFlow::Version", foreign_key: :flow_id, dependent: :destroy
 
     def self.upsert_definition(definition, host:)
-      find_or_initialize_by(host: host, slug: definition["slug"]).tap do |flow|
+      find_or_initialize_by(host: host, owner: nil, slug: definition["slug"]).tap do |flow|
         flow.save!
         flow.record_definition(definition) unless flow.definition == definition
       end

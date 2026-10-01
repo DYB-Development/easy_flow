@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   mount EasyFlow::Engine => "/easy_flow", defaults: { easy_flow_host: "dummy" }
   mount EasyFlow::Engine => "/console", as: :console_flows, defaults: { easy_flow_host: "console" }
   mount EasyFlow::Engine => "/retired", as: :retired_flows, defaults: { easy_flow_host: "retired" }
+  mount EasyFlow::Engine => "/owned", as: :owned_flows, defaults: { easy_flow_host: "owned" }
   mount EasyFlow::Engine => "/branded", as: :branded_flows, defaults: { easy_flow_host: "branded" }
 
   get "home", to: redirect("/"), as: :home

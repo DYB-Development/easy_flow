@@ -91,13 +91,13 @@ module EasyFlow
     end
 
     def admitted_run
-      found = Run.where(flow: flow_host.flows).find(params[:id])
+      found = Run.where(flow: hosted_flows).find(params[:id])
 
       Admission.of_run(found, permitted: permitted?(found.flow))
     end
 
     def flow
-      @stored_flow ||= admit(flow_host.flows.find_by(slug: params[:slug]))
+      @stored_flow ||= admit(hosted_flows.find_by(slug: params[:slug]))
     end
 
     def flowing_definition(flow)

@@ -2,6 +2,19 @@ require "test_helper"
 
 module EasyFlow
   class DefinitionTest < ActiveSupport::TestCase
+    test "the database still refuses two shared flows with the same slug in one host" do
+      Definition.create!(host: "dummy", slug: "checkup")
+
+      assert_raises(ActiveRecord::RecordNotUnique) { Definition.new(host: "dummy", slug: "checkup").save!(validate: false) }
+    end
+
+    test "lets two owners each hold a flow with the same slug" do
+      first, second = Customer.create!(name: "First"), Customer.create!(name: "Second")
+      Definition.create!(host: "dummy", slug: "checkup", owner: first)
+
+      assert Definition.create!(host: "dummy", slug: "checkup", owner: second).persisted?
+    end
+
     test "two hosts can each hold a flow under the same slug" do
       Definition.create!(host: "alembic", slug: "intake")
       Definition.create!(host: "console", slug: "intake")
@@ -178,6 +191,14 @@ module EasyFlow
       Definition.upsert_definition({ "slug" => "seeded", "headline" => "Hi" }, host: "dummy")
 
       assert_equal({ "slug" => "seeded", "headline" => "Hi" }, Definition.find_by(slug: "seeded").definition)
+    end
+
+    test "upserting a shared flow leaves an owner's flow with the same slug alone" do
+      owned = Definition.create!(host: "dummy", slug: "checkup", owner: Customer.create!(name: "Ours"))
+
+      shared = Definition.upsert_definition({ "slug" => "checkup", "nodes" => [] }, host: "dummy")
+
+      assert_not_equal owned, shared
     end
 
     test "upserting the same slug twice keeps a single flow" do

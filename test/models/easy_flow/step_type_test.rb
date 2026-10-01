@@ -30,6 +30,12 @@ module EasyFlow
       assert_equal "Budget?", step_type.display_of(Node.new(id: "a", type: "ask", config: { "text" => "Budget?" }))
     end
 
+    test "hands its display the run when the display asks for it" do
+      step_type = StepType.define(:ask) { displays_by { |node, run| "#{node.config['text']} #{run}" } }
+
+      assert_equal "Budget? run 7", step_type.display_of(Node.new(id: "a", type: "ask", config: { "text" => "Budget?" }), "run 7")
+    end
+
     test "carries the behaviour it declares" do
       step_type = StepType.define(:agent) { process { |node, state| { "out" => state["in"] } } }
 

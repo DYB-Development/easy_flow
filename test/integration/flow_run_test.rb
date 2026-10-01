@@ -195,6 +195,23 @@ module EasyFlow
       assert_equal [ "proof", "on_time" ], css_select("input[type=hidden][name='answers[conditions][]']").map { |field| field["value"] }
     end
 
+    test "a flow keeping nothing moves past a checklist left with nothing ticked" do
+      flow = Definition.create!(host: "dummy", slug: "ticking-nothing").tap do |defined|
+        defined.record_definition(flowing("slug" => "ticking-nothing", "entry" => "conditions",
+          "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?", "answers" => [ "proof" ] },
+                       { "id" => "name", "type" => "question", "question" => "Which name?", "answers" => [ "plain" ] },
+                       { "id" => "colour", "type" => "question", "question" => "Which colour?", "answers" => [ "red" ] } ],
+          "edges" => [ { "from" => "conditions", "to" => "name" }, { "from" => "name", "to" => "colour" } ]))
+        defined.publish
+      end
+      get easy_flow.flow_step_path(flow.slug), params: { answers: { conditions: [ "" ] }, asked: "conditions" }
+      carried = css_select("form input[type=hidden][name^=answers]").map { |field| [ field["name"], field["value"] ] }
+
+      get easy_flow.flow_step_path(flow.slug), params: { answers: carried.group_by(&:first).transform_keys { |name| name[/answers\[(.+?)\]/, 1] }.transform_values { |pairs| pairs.map(&:last) }.merge("name" => "plain"), asked: "name" }
+
+      assert_select "legend", text: /Which colour\?/
+    end
+
     test "a saved session walks the same flow" do
       run = Run.start(flowed)
 

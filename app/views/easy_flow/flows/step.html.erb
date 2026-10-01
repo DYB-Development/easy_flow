@@ -19,7 +19,7 @@
       <% if carries_answers? %>
         <% @answers.each do |key, value| %>
           <% if value.is_a?(Array) %>
-            <% value.each do |ticked| %>
+            <% (value.presence || [ "" ]).each do |ticked| %>
               <%= hidden_field_tag "answers[#{key}][]", ticked, id: nil %>
             <% end %>
           <% else %>

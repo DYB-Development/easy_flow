@@ -30,11 +30,19 @@ sources:
   - app/models/easy_flow/step.rb
   - app/models/easy_flow/step_type/declaration.rb
   - app/models/easy_flow/steps/question.rb
+  - app/models/easy_flow/steps/checklist.rb
+  - app/models/easy_flow/step_type.rb
+  - app/models/easy_flow/choice.rb
   - app/models/easy_flow/run.rb
   - app/models/easy_flow/runner.rb
   - app/models/easy_flow/digest.rb
   - app/models/easy_flow/validator.rb
   - app/models/easy_flow/question_runner.rb
+  - app/views/easy_flow/flows/step.html.erb
+  - app/views/easy_flow/flows/complete.html.erb
+  - app/views/easy_flow/steps/_choosing.html.erb
+  - app/views/easy_flow/steps/_ticking.html.erb
+  - app/controllers/easy_flow/manage/previews_controller.rb
   - config/routes.rb
   - db/migrate/20260924120000_create_easy_flow_definitions.rb
   - db/migrate/20260924120100_create_easy_flow_versions.rb

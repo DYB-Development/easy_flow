@@ -124,14 +124,14 @@ module EasyFlow
     end
 
     def record_submitted
-      id, value = params.fetch(:answers, {}).permit(*asked).to_h.first
+      id, value = params.fetch(:answers, {}).permit(*asked, **asked.index_with { [] }).to_h.first
       id ||= params[:asked].presence_in(asked)
       return if id.nil?
 
       problem = answer_problem(runner_for(run.pinned_definition).step(id.to_s), value)
       return flash[:alert] = problem if problem
 
-      progress.record(id, value.to_s)
+      progress.record(id, value.is_a?(Array) ? value.compact_blank : value.to_s)
     end
 
     def waiting_on(step)

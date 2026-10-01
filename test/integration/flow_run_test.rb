@@ -131,6 +131,23 @@ module EasyFlow
       assert_select "[data-drawn-by=notify] p", text: "Asked in run #{run.id}"
     end
 
+    def ticking
+      @ticking ||= Definition.create!(host: "dummy", slug: "ticking").tap do |flow|
+        flow.record_definition(flowing("slug" => "ticking", "entry" => "conditions",
+          "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?",
+                         "answers" => [ { "value" => "proof", "label" => "Shows proof" }, { "value" => "on_time", "label" => "Pays on time" } ] } ]))
+        flow.publish
+      end
+    end
+
+    test "a saved session keeps every answer ticked on a checklist" do
+      run = Run.start(ticking)
+
+      patch easy_flow.run_path(run), params: { answers: { conditions: [ "", "proof", "on_time" ] } }
+
+      assert_equal [ "proof", "on_time" ], run.reload.recorded[:conditions]
+    end
+
     test "a saved session walks the same flow" do
       run = Run.start(flowed)
 

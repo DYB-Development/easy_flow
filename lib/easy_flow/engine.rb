@@ -19,6 +19,7 @@ module EasyFlow
         EasyFlow::Terminal.register
 
         EasyFlow::Steps::Question.register
+        EasyFlow::Steps::Checklist.register
         EasyFlow::Condition.register
         EasyFlow::Switch.register
         EasyFlow::Compare.register

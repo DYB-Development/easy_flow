@@ -6,6 +6,7 @@ module EasyFlow
       step_name "Checklist"
 
       setting :question, type: :string
+      setting :required, type: :boolean
       setting :answers, type: :list, required: true do
         setting :value, type: :string
         setting :label, type: :string
@@ -13,6 +14,7 @@ module EasyFlow
 
       names_by :question
       awaits_input
+      answer_check { |node, value| "Tick at least one to go on." if node.config["required"] && Array(value).compact_blank.empty? }
 
       displays_by { |node| Asked.new(id: node.id.to_sym, text: node.config["question"], choices: Question.choices_in(node)) }
     end

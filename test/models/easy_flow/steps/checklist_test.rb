@@ -11,6 +11,12 @@ module EasyFlow
 
         assert_equal [ "What must they do?", [ "proof", "on_time" ] ], [ displayed.text, displayed.choices.map(&:value) ]
       end
+
+      test "a required checklist refuses an answer with nothing ticked" do
+        node = Node.new(id: "conditions", type: "checklist", config: { "required" => true })
+
+        assert_equal "Tick at least one to go on.", Checklist.step_type.answer_problem(node, [ "" ])
+      end
     end
   end
 end

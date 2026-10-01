@@ -10,11 +10,11 @@
   <% end %>
 
   <%= ui_section do %>
-    <ul class="divide-y divide-gray-100 border-y border-gray-100">
+    <ul class="divide-y border-y divide-[var(--ks-color-divider)] border-[var(--ks-color-divider)] dark:divide-[var(--ks-color-divider-dark)] dark:border-[var(--ks-color-divider-dark)]">
       <% @answered.each do |step, value| %>
         <li data-answer="<%= step %>" class="flex items-baseline justify-between gap-6 py-3">
-          <span class="text-gray-600"><%= @guide.question_text(step) %></span>
-          <span class="shrink-0 font-medium text-gray-900"><%= @guide.choice_label(step, value) %></span>
+          <span class="text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]"><%= @guide.question_text(step) %></span>
+          <span class="shrink-0 font-medium text-[var(--ks-color-text)] dark:text-[var(--ks-color-text-dark)]"><%= @guide.choice_label(step, value) %></span>
         </li>
       <% end %>
     </ul>

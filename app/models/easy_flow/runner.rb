@@ -22,8 +22,8 @@ module EasyFlow
       @digest.step(id.to_s)
     end
 
-    def next_step(state)
-      shown(@digest.next_step(named(state)))
+    def next_step(state, run: nil)
+      shown(@digest.next_step(named(state)), run)
     end
 
     def run(progress)
@@ -66,10 +66,10 @@ module EasyFlow
       acts?(node) ? @registry.fetch(node.type).process(node, state) : true
     end
 
-    def shown(node)
+    def shown(node, run = nil)
       return node unless node && @registry.registered?(node.type)
 
-      @registry.fetch(node.type).display_of(node) || node
+      @registry.fetch(node.type).display_of(node, run) || node
     end
 
     def named(state)

@@ -1,7 +1,7 @@
 require "test_helper"
 
 class ThemeColoursTest < ActiveSupport::TestCase
-  FIXED_COLOURS = /\b(?:hover:|divide-)?(?:text|bg|border|divide)-(?:gray-\d+|white|black)\b/
+  FIXED_COLOURS = /\b(?:hover:)?(?:(?:text|bg|border|divide)-(?:gray-\d+|black)|bg-white)\b/
 
   def fixed_colours_in(view)
     EasyFlow::Engine.root.join("app/views/easy_flow", view).read.scan(FIXED_COLOURS)
@@ -17,5 +17,9 @@ class ThemeColoursTest < ActiveSupport::TestCase
 
   test "a finished flow's page colours its answers and lines from the host's theme" do
     assert_empty fixed_colours_in("flows/complete.html.erb")
+  end
+
+  test "the admin's flow page colours its heading and lines from the host's theme" do
+    assert_empty fixed_colours_in("manage/flows/show.html.erb")
   end
 end

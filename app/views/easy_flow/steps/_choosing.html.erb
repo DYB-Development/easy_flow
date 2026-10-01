@@ -3,7 +3,7 @@
 
   <div class="space-y-3">
     <% step.choices.each do |choice| %>
-      <%= ui_radio_card(name: "answers[#{step.id}]", value: choice.value, label: choice.label.presence || choice.value, hint: choice.hint) %>
+      <%= ui_radio_card(name: "answers[#{step.id}]", value: choice.value, label: choice.label.presence || choice.value, hint: choice.hint, info: choice.info) %>
     <% end %>
   </div>
 </fieldset>

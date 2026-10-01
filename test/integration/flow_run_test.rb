@@ -154,6 +154,19 @@ module EasyFlow
       assert_equal [ "proof", "on_time" ], run.reload.recorded[:conditions]
     end
 
+    test "a question's answer given info shows it behind an info button" do
+      flow = Definition.create!(host: "dummy", slug: "explained").tap do |defined|
+        defined.record_definition(flowing("slug" => "explained", "entry" => "kind",
+          "nodes" => [ { "id" => "kind", "type" => "question", "question" => "Which kind?",
+                         "answers" => [ { "value" => "anti", "label" => "Anti-guarantee", "info" => "No refunds, said as a reason to buy" } ] } ]))
+        defined.publish
+      end
+
+      get easy_flow.run_path(Run.start(flow))
+
+      assert_select ".ks-radio-card-disclosure", text: "No refunds, said as a reason to buy"
+    end
+
     test "a saved session walks the same flow" do
       run = Run.start(flowed)
 

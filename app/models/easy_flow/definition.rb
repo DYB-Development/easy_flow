@@ -20,7 +20,7 @@ module EasyFlow
     has_many :definition_versions, class_name: "EasyFlow::Version", foreign_key: :flow_id, dependent: :destroy
 
     def self.upsert_definition(definition, host:)
-      find_or_initialize_by(host: host, slug: definition["slug"]).tap do |flow|
+      find_or_initialize_by(host: host, owner: nil, slug: definition["slug"]).tap do |flow|
         flow.save!
         flow.record_definition(definition) unless flow.definition == definition
       end

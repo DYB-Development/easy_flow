@@ -193,6 +193,14 @@ module EasyFlow
       assert_equal({ "slug" => "seeded", "headline" => "Hi" }, Definition.find_by(slug: "seeded").definition)
     end
 
+    test "upserting a shared flow leaves an owner's flow with the same slug alone" do
+      owned = Definition.create!(host: "dummy", slug: "checkup", owner: Customer.create!(name: "Ours"))
+
+      shared = Definition.upsert_definition({ "slug" => "checkup", "nodes" => [] }, host: "dummy")
+
+      assert_not_equal owned, shared
+    end
+
     test "upserting the same slug twice keeps a single flow" do
       2.times { Definition.upsert_definition({ "slug" => "seeded" }, host: "dummy") }
 

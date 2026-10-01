@@ -11,6 +11,10 @@ module EasyFlow
           awaits_input
           displays_by { |node| "Asked: #{node.config['text']}" }
         end)
+        built.register(StepType.define(:run_shown) do
+          awaits_input
+          displays_by { |_node, run| "For #{run}" }
+        end)
         built.register(StepType.define(:act) { process { |node, _state| "ran #{node.id}" } })
         built.register(StepType.define(:approve) { process { |_node, _state| "yes" } })
         built.register(StepType.define(:hold) { waits_until { |node, _state| node.config["ready"] } })
@@ -96,6 +100,13 @@ module EasyFlow
 
     test "counts the question being asked and every question after it" do
       assert_equal 2, Runner.new(straight, registry: registry).questions_left({ "first" => "a" })
+    end
+
+    test "shows the next step for the run it is given" do
+      flow = { "nodes" => [ { "id" => "opening", "type" => "opening" }, { "id" => "asked", "type" => "run_shown" } ],
+               "edges" => [ { "from" => "opening", "to" => "asked" } ] }
+
+      assert_equal "For run 7", Runner.new(flow, registry: registry).next_step({}, run: "run 7")
     end
 
     test "stops at the first step awaiting input" do

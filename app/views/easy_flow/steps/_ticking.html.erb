@@ -1,9 +1,10 @@
 <fieldset>
   <legend class="ks-section-title mb-5 text-xl font-semibold leading-snug"><%= step.text %></legend>
 
+  <%= hidden_field_tag "answers[#{step.id}][]", "", id: nil %>
   <div class="space-y-3">
     <% step.choices.each do |choice| %>
-      <%= ui_radio_card(name: "answers[#{step.id}]", value: choice.value, label: choice.label.presence || choice.value, hint: choice.hint, info: choice.info) %>
+      <%= ui_checkbox_row(name: "answers[#{step.id}][]", value: choice.value, label: choice.label.presence || choice.value, info: choice.info) %>
     <% end %>
   </div>
 </fieldset>

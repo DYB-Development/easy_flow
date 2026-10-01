@@ -39,5 +39,13 @@ module EasyFlow
     test "reads back a taken value no choice offers as itself" do
       assert_equal "unknown", runner.choice_label("first", "unknown")
     end
+
+    test "reads back the labels of every answer ticked on a checklist" do
+      ticking = { "slug" => "t", "entry" => "conditions",
+                  "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?",
+                                 "answers" => [ { "value" => "proof", "label" => "Shows proof" }, { "value" => "on_time", "label" => "Pays on time" } ] } ] }
+
+      assert_equal "Shows proof and Pays on time", runner(ticking).choice_label("conditions", [ "proof", "on_time" ])
+    end
   end
 end

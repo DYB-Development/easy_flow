@@ -13,6 +13,7 @@ module EasyFlow
         setting :label, type: :string
         setting :weight, type: :integer
         setting :hint, type: :string
+        setting :info, type: :string
       end
 
       output :answer, type: :string, label: "Answer", values: ->(node) { Question.offered(node.config) }
@@ -44,7 +45,7 @@ module EasyFlow
       def self.choice_from(answer)
         return Choice.new(value: answer) unless answer.is_a?(Hash)
 
-        Choice.new(value: answer["value"], label: answer["label"], hint: answer["hint"])
+        Choice.new(value: answer["value"], label: answer["label"], hint: answer["hint"], info: answer["info"])
       end
 
       def self.category_of(step)

@@ -15,7 +15,7 @@ module EasyFlow
       @progress = progress
       @guide.run(@progress)
       @answers = @progress.recorded
-      @question = @guide.next_step(@answers)
+      @question = @guide.next_step(@answers, run: run)
       @drawing = @guide.drawing_at(@answers)
       flash.now[:alert] = @refused if @refused
       @waiting = waiting_on(@question)
@@ -106,7 +106,8 @@ module EasyFlow
 
     def submitted_answers
       given = params.fetch(:answers, {})
-      answers = given.permit(*given.keys.select { |key| @guide.step(key) }).to_h.symbolize_keys
+      keys = given.keys.select { |key| @guide.step(key) }
+      answers = given.permit(*keys, **keys.index_with { [] }).to_h.symbolize_keys.transform_values { |value| value.is_a?(Array) ? value.compact_blank : value }
       return one_answer_back(answers) if params[:back].present?
 
       key = params[:asked].to_s.to_sym
@@ -124,14 +125,14 @@ module EasyFlow
     end
 
     def record_submitted
-      id, value = params.fetch(:answers, {}).permit(*asked).to_h.first
+      id, value = params.fetch(:answers, {}).permit(*asked, **asked.index_with { [] }).to_h.first
       id ||= params[:asked].presence_in(asked)
       return if id.nil?
 
       problem = answer_problem(runner_for(run.pinned_definition).step(id.to_s), value)
       return flash[:alert] = problem if problem
 
-      progress.record(id, value.to_s)
+      progress.record(id, value.is_a?(Array) ? value.compact_blank : value.to_s)
     end
 
     def waiting_on(step)

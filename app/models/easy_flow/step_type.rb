@@ -26,8 +26,10 @@ module EasyFlow
       @readiness = readiness
     end
 
-    def display_of(node)
-      @display&.call(node)
+    def display_of(node, run = nil)
+      return unless @display
+
+      @display.arity == 1 ? @display.call(node) : @display.call(node, run)
     end
 
     def process(node, state)

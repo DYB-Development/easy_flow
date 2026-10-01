@@ -26,7 +26,7 @@ module EasyFlow
       find("[data-open-panel]").click
       page.execute_script(%(document.documentElement.dataset.theme = "dark"))
 
-      assert_equal color_of_variable("--color-zinc-900"), background_of(find("[data-builder-panel]"))
+      assert_equal color_of_variable("--ks-color-surface-dark"), background_of(find("[data-builder-panel]"))
     end
 
     private

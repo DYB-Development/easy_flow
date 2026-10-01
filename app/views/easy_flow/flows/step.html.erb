@@ -18,7 +18,13 @@
       <%= hidden_field_tag :asked, @question.id %>
       <% if carries_answers? %>
         <% @answers.each do |key, value| %>
-          <%= hidden_field_tag "answers[#{key}]", value %>
+          <% if value.is_a?(Array) %>
+            <% (value.presence || [ "" ]).each do |ticked| %>
+              <%= hidden_field_tag "answers[#{key}][]", ticked, id: nil %>
+            <% end %>
+          <% else %>
+            <%= hidden_field_tag "answers[#{key}]", value %>
+          <% end %>
         <% end %>
       <% end %>
 

@@ -119,6 +119,99 @@ module EasyFlow
       assert_response :success
     end
 
+    test "a step drawn for a saved session is shown the run it is asked in" do
+      flow = Definition.create!(host: "dummy", slug: "for-the-run").tap do |defined|
+        defined.record_definition(flowing("slug" => "for-the-run", "entry" => "asked", "nodes" => [ { "id" => "asked", "type" => "for_the_run" } ]))
+        defined.publish
+      end
+      run = Run.start(flow)
+
+      get easy_flow.run_path(run)
+
+      assert_select "[data-drawn-by=notify] p", text: "Asked in run #{run.id}"
+    end
+
+    def ticking
+      @ticking ||= Definition.create!(host: "dummy", slug: "ticking").tap do |flow|
+        flow.record_definition(flowing("slug" => "ticking", "entry" => "conditions",
+          "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?",
+                         "answers" => [ { "value" => "proof", "label" => "Shows proof" }, { "value" => "on_time", "label" => "Pays on time" } ] } ]))
+        flow.publish
+      end
+    end
+
+    test "a checklist is drawn as a box to tick for each answer" do
+      get easy_flow.run_path(Run.start(ticking))
+
+      assert_equal [ "proof", "on_time" ], css_select("input[type=checkbox][name='answers[conditions][]']").map { |box| box["value"] }
+    end
+
+    test "a saved session keeps every answer ticked on a checklist" do
+      run = Run.start(ticking)
+
+      patch easy_flow.run_path(run), params: { answers: { conditions: [ "", "proof", "on_time" ] } }
+
+      assert_equal [ "proof", "on_time" ], run.reload.recorded[:conditions]
+    end
+
+    test "a question's answer given info shows it behind an info button" do
+      flow = Definition.create!(host: "dummy", slug: "explained").tap do |defined|
+        defined.record_definition(flowing("slug" => "explained", "entry" => "kind",
+          "nodes" => [ { "id" => "kind", "type" => "question", "question" => "Which kind?",
+                         "answers" => [ { "value" => "anti", "label" => "Anti-guarantee", "info" => "No refunds, said as a reason to buy" } ] } ]))
+        defined.publish
+      end
+
+      get easy_flow.run_path(Run.start(flow))
+
+      assert_select ".ks-radio-card-disclosure", text: "No refunds, said as a reason to buy"
+    end
+
+    test "a checklist's answer given info shows it behind an info button" do
+      flow = Definition.create!(host: "dummy", slug: "explained-checklist").tap do |defined|
+        defined.record_definition(flowing("slug" => "explained-checklist", "entry" => "conditions",
+          "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?",
+                         "answers" => [ { "value" => "proof", "label" => "Shows proof", "info" => "They send photos of the work" } ] } ]))
+        defined.publish
+      end
+
+      get easy_flow.run_path(Run.start(flow))
+
+      assert_select ".ks-radio-card-disclosure", text: "They send photos of the work"
+    end
+
+    test "a flow keeping nothing carries every answer ticked on a checklist on to the next step" do
+      flow = Definition.create!(host: "dummy", slug: "ticking-then-asking").tap do |defined|
+        defined.record_definition(flowing("slug" => "ticking-then-asking", "entry" => "conditions",
+          "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?",
+                         "answers" => [ { "value" => "proof", "label" => "Shows proof" }, { "value" => "on_time", "label" => "Pays on time" } ] },
+                       { "id" => "name", "type" => "question", "question" => "Which name?", "answers" => [ "plain" ] } ],
+          "edges" => [ { "from" => "conditions", "to" => "name" } ]))
+        defined.publish
+      end
+
+      get easy_flow.flow_step_path(flow.slug), params: { answers: { conditions: [ "", "proof", "on_time" ] }, asked: "conditions" }
+
+      assert_equal [ "proof", "on_time" ], css_select("input[type=hidden][name='answers[conditions][]']").map { |field| field["value"] }
+    end
+
+    test "a flow keeping nothing moves past a checklist left with nothing ticked" do
+      flow = Definition.create!(host: "dummy", slug: "ticking-nothing").tap do |defined|
+        defined.record_definition(flowing("slug" => "ticking-nothing", "entry" => "conditions",
+          "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?", "answers" => [ "proof" ] },
+                       { "id" => "name", "type" => "question", "question" => "Which name?", "answers" => [ "plain" ] },
+                       { "id" => "colour", "type" => "question", "question" => "Which colour?", "answers" => [ "red" ] } ],
+          "edges" => [ { "from" => "conditions", "to" => "name" }, { "from" => "name", "to" => "colour" } ]))
+        defined.publish
+      end
+      get easy_flow.flow_step_path(flow.slug), params: { answers: { conditions: [ "" ] }, asked: "conditions" }
+      carried = css_select("form input[type=hidden][name^=answers]").map { |field| [ field["name"], field["value"] ] }
+
+      get easy_flow.flow_step_path(flow.slug), params: { answers: carried.group_by(&:first).transform_keys { |name| name[/answers\[(.+?)\]/, 1] }.transform_values { |pairs| pairs.map(&:last) }.merge("name" => "plain"), asked: "name" }
+
+      assert_select "legend", text: /Which colour\?/
+    end
+
     test "a saved session walks the same flow" do
       run = Run.start(flowed)
 

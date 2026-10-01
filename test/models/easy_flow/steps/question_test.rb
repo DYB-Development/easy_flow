@@ -25,6 +25,17 @@ module EasyFlow
         assert_equal :string, Question.step_type.settings.record_fields[:answers][:hint]
       end
 
+      test "an answer carries info explaining it" do
+        node = Node.new(id: "kind", type: "question", config: { "question" => "Which kind?",
+          "answers" => [ { "value" => "anti", "label" => "Anti-guarantee", "info" => "No refunds, said as a reason to buy" } ] })
+
+        assert_equal [ "No refunds, said as a reason to buy" ], Question.step_type.display_of(node).choices.map(&:info)
+      end
+
+      test "an answer carries info the canvas offers for editing" do
+        assert_equal :string, Question.step_type.settings.record_fields[:answers][:info]
+      end
+
       test "declares a category a host can group it by" do
         assert_equal :string, Question.step_type.settings.fields[:category]
       end

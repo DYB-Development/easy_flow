@@ -22,4 +22,8 @@ class ThemeColoursTest < ActiveSupport::TestCase
   test "the admin's flow page colours its heading and lines from the host's theme" do
     assert_empty fixed_colours_in("manage/flows/show.html.erb")
   end
+
+  test "the admin's versions page colours its text, lines and button from the host's theme" do
+    assert_empty fixed_colours_in("manage/versions/index.html.erb")
+  end
 end

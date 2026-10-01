@@ -6,12 +6,12 @@
   <%= ui_page_header(title: "History", subtitle: @flow.title.presence || @flow.slug) %>
 
   <%= ui_section do %>
-    <ul class="divide-y divide-gray-100 border-y border-gray-100">
+    <ul class="divide-y border-y divide-[var(--ks-color-divider)] border-[var(--ks-color-divider)] dark:divide-[var(--ks-color-divider-dark)] dark:border-[var(--ks-color-divider-dark)]">
       <% @versions.each do |version| %>
         <li data-version="<%= version.number %>" class="py-4">
           <div class="flex items-baseline justify-between gap-4">
-            <span class="font-medium text-gray-900">Version <%= version.number %></span>
-            <span class="text-sm text-gray-500"><%= version.created_at.to_fs(:long) %></span>
+            <span class="font-medium text-[var(--ks-color-text)] dark:text-[var(--ks-color-text-dark)]">Version <%= version.number %></span>
+            <span class="text-sm text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]"><%= version.created_at.to_fs(:long) %></span>
           </div>
 
           <% if version == @flow.live_version %>
@@ -21,18 +21,18 @@
           <% if version.changes.any? %>
             <ul class="mt-2 space-y-0.5">
               <% version.changes.each do |change| %>
-                <li data-captured class="text-sm text-gray-600"><%= EasyFlow::Change.phrase(change) %></li>
+                <li data-captured class="text-sm text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]"><%= EasyFlow::Change.phrase(change) %></li>
               <% end %>
             </ul>
           <% else %>
-            <p class="mt-2 text-sm text-gray-500">Nothing was recorded against this version.</p>
+            <p class="mt-2 text-sm text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]">Nothing was recorded against this version.</p>
           <% end %>
 
           <% unless version == @versions.first %>
             <%= button_to "Return the flow to this version",
                   flow_routes.return_manage_flow_version_path(@flow, version),
                   form: { data: { turbo: false } }, data: { return: true },
-                  class: "mt-3 inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 hover:bg-gray-50 cursor-pointer" %>
+                  class: "ks-button ks-button-secondary ks-button-sm mt-3" %>
           <% end %>
         </li>
       <% end %>

@@ -119,6 +119,18 @@ module EasyFlow
       assert_response :success
     end
 
+    test "a step drawn for a saved session is shown the run it is asked in" do
+      flow = Definition.create!(host: "dummy", slug: "for-the-run").tap do |defined|
+        defined.record_definition(flowing("slug" => "for-the-run", "entry" => "asked", "nodes" => [ { "id" => "asked", "type" => "for_the_run" } ]))
+        defined.publish
+      end
+      run = Run.start(flow)
+
+      get easy_flow.run_path(run)
+
+      assert_select "[data-drawn-by=notify] p", text: "Asked in run #{run.id}"
+    end
+
     test "a saved session walks the same flow" do
       run = Run.start(flowed)
 

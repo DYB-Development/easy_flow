@@ -15,7 +15,7 @@ module EasyFlow
       @progress = progress
       @guide.run(@progress)
       @answers = @progress.recorded
-      @question = @guide.next_step(@answers)
+      @question = @guide.next_step(@answers, run: run)
       @drawing = @guide.drawing_at(@answers)
       flash.now[:alert] = @refused if @refused
       @waiting = waiting_on(@question)

@@ -10,4 +10,8 @@ class ThemeColoursTest < ActiveSupport::TestCase
   test "a choice step colours its question from the host's theme" do
     assert_empty fixed_colours_in("steps/_choosing.html.erb")
   end
+
+  test "a step page colours its waiting note and back link from the host's theme" do
+    assert_empty fixed_colours_in("flows/step.html.erb")
+  end
 end

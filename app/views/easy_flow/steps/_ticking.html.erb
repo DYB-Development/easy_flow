@@ -4,7 +4,7 @@
   <%= hidden_field_tag "answers[#{step.id}][]", "", id: nil %>
   <div class="space-y-3">
     <% step.choices.each do |choice| %>
-      <%= ui_checkbox_row(name: "answers[#{step.id}][]", value: choice.value, label: choice.label.presence || choice.value) %>
+      <%= ui_checkbox_row(name: "answers[#{step.id}][]", value: choice.value, label: choice.label.presence || choice.value, info: choice.info) %>
     <% end %>
   </div>
 </fieldset>

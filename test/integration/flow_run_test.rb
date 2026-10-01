@@ -167,6 +167,19 @@ module EasyFlow
       assert_select ".ks-radio-card-disclosure", text: "No refunds, said as a reason to buy"
     end
 
+    test "a checklist's answer given info shows it behind an info button" do
+      flow = Definition.create!(host: "dummy", slug: "explained-checklist").tap do |defined|
+        defined.record_definition(flowing("slug" => "explained-checklist", "entry" => "conditions",
+          "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?",
+                         "answers" => [ { "value" => "proof", "label" => "Shows proof", "info" => "They send photos of the work" } ] } ]))
+        defined.publish
+      end
+
+      get easy_flow.run_path(Run.start(flow))
+
+      assert_select ".ks-radio-card-disclosure", text: "They send photos of the work"
+    end
+
     test "a saved session walks the same flow" do
       run = Run.start(flowed)
 

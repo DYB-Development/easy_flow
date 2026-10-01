@@ -140,6 +140,12 @@ module EasyFlow
       end
     end
 
+    test "a checklist is drawn as a box to tick for each answer" do
+      get easy_flow.run_path(Run.start(ticking))
+
+      assert_equal [ "proof", "on_time" ], css_select("input[type=checkbox][name='answers[conditions][]']").map { |box| box["value"] }
+    end
+
     test "a saved session keeps every answer ticked on a checklist" do
       run = Run.start(ticking)
 

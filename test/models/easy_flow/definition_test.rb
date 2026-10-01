@@ -2,6 +2,13 @@ require "test_helper"
 
 module EasyFlow
   class DefinitionTest < ActiveSupport::TestCase
+    test "lets two owners each hold a flow with the same slug" do
+      first, second = Customer.create!(name: "First"), Customer.create!(name: "Second")
+      Definition.create!(host: "dummy", slug: "checkup", owner: first)
+
+      assert Definition.create!(host: "dummy", slug: "checkup", owner: second).persisted?
+    end
+
     test "two hosts can each hold a flow under the same slug" do
       Definition.create!(host: "alembic", slug: "intake")
       Definition.create!(host: "console", slug: "intake")

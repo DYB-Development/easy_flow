@@ -14,6 +14,10 @@ class ApplicationController < ActionController::Base
     head :forbidden
   end
 
+  def current_customer
+    Customer.find_by(id: request.headers["X-Customer"])
+  end
+
   def easy_flow_visitor_permitted?(flow)
     flow.present?
   end

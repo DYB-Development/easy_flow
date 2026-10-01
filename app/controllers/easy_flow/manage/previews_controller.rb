@@ -27,7 +27,7 @@ module EasyFlow
       end
 
       def previewed
-        @previewed ||= flow_host.flows.find(params[:flow_id])
+        @previewed ||= hosted_flows.find(params[:flow_id])
       end
 
       def admit(_flow)

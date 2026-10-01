@@ -15,7 +15,7 @@ module EasyFlow
       private
 
       def flow
-        @flow ||= flow_host.flows.find(params[:flow_id])
+        @flow ||= hosted_flows.find(params[:flow_id])
       end
     end
   end

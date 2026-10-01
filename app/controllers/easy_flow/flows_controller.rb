@@ -106,7 +106,8 @@ module EasyFlow
 
     def submitted_answers
       given = params.fetch(:answers, {})
-      answers = given.permit(*given.keys.select { |key| @guide.step(key) }).to_h.symbolize_keys
+      keys = given.keys.select { |key| @guide.step(key) }
+      answers = given.permit(*keys, **keys.index_with { [] }).to_h.symbolize_keys.transform_values { |value| value.is_a?(Array) ? value.compact_blank : value }
       return one_answer_back(answers) if params[:back].present?
 
       key = params[:asked].to_s.to_sym

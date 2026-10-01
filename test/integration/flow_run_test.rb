@@ -180,6 +180,21 @@ module EasyFlow
       assert_select ".ks-radio-card-disclosure", text: "They send photos of the work"
     end
 
+    test "a flow keeping nothing carries every answer ticked on a checklist on to the next step" do
+      flow = Definition.create!(host: "dummy", slug: "ticking-then-asking").tap do |defined|
+        defined.record_definition(flowing("slug" => "ticking-then-asking", "entry" => "conditions",
+          "nodes" => [ { "id" => "conditions", "type" => "checklist", "question" => "What must they do?",
+                         "answers" => [ { "value" => "proof", "label" => "Shows proof" }, { "value" => "on_time", "label" => "Pays on time" } ] },
+                       { "id" => "name", "type" => "question", "question" => "Which name?", "answers" => [ "plain" ] } ],
+          "edges" => [ { "from" => "conditions", "to" => "name" } ]))
+        defined.publish
+      end
+
+      get easy_flow.flow_step_path(flow.slug), params: { answers: { conditions: [ "", "proof", "on_time" ] }, asked: "conditions" }
+
+      assert_equal [ "proof", "on_time" ], css_select("input[type=hidden][name='answers[conditions][]']").map { |field| field["value"] }
+    end
+
     test "a saved session walks the same flow" do
       run = Run.start(flowed)
 

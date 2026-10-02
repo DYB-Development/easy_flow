@@ -6,6 +6,10 @@ module EasyFlow
         @flows = ordered_flows
       end
 
+      def new
+        @flow = hosted_flows.new
+      end
+
       def create
         @flow = hosted_flows.new(create_params)
 

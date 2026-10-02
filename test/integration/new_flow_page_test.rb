@@ -19,5 +19,11 @@ module EasyFlow
 
       assert_select "form[action=?][method=post]", easy_flow.manage_flows_path, count: 0
     end
+
+    test "a flow that cannot be created is shown again on the new flow page" do
+      post easy_flow.manage_flows_path, params: { flow: { slug: "", kind: "guide" } }
+
+      assert_select "form[action=?][method=post]", easy_flow.manage_flows_path
+    end
   end
 end

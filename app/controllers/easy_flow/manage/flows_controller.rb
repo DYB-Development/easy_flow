@@ -16,8 +16,7 @@ module EasyFlow
         if @flow.save
           redirect_to manage_flow_path(@flow), notice: "Flow created."
         else
-          @flows = ordered_flows
-          render :index, status: :unprocessable_entity
+          render :new, status: :unprocessable_entity
         end
       end
 

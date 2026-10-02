@@ -6,14 +6,17 @@ module EasyFlow
         @flows = ordered_flows
       end
 
+      def new
+        @flow = hosted_flows.new
+      end
+
       def create
         @flow = hosted_flows.new(create_params)
 
         if @flow.save
           redirect_to manage_flow_path(@flow), notice: "Flow created."
         else
-          @flows = ordered_flows
-          render :index, status: :unprocessable_entity
+          render :new, status: :unprocessable_entity
         end
       end
 

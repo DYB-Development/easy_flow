@@ -1,6 +1,6 @@
 EasyFlow::Engine.routes.draw do
   namespace :manage do
-    resources :flows, only: [ :index, :create, :show, :edit, :update, :destroy ] do
+    resources :flows, only: [ :index, :new, :create, :show, :edit, :update, :destroy ] do
       resource :definition, only: [ :edit, :update ]
       resource :preview, only: :show, controller: "previews" do
         get :step

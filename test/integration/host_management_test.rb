@@ -75,7 +75,7 @@ module EasyFlow
     end
 
     test "a second host's pages send their forms to that host's own path" do
-      get console_flows.manage_flows_path
+      get console_flows.new_manage_flow_path
 
       assert_select "form[action=?]", "/console/manage/flows"
     end

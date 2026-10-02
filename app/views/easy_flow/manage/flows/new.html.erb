@@ -1,0 +1,17 @@
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: "New flow") %>
+
+  <% if @flow.errors.any? %>
+    <%= ui_alert(message: @flow.errors.full_messages.to_sentence, type: :error) %>
+  <% end %>
+
+  <%= ui_form(action: flow_routes.manage_flows_path, method: :post) do %>
+    <label class="block text-sm font-medium mb-1">Slug</label>
+    <%= ui_input(name: "flow[slug]", value: @flow.slug, placeholder: "e.g. business-scorecard") %>
+
+    <label class="block text-sm font-medium mb-1 mt-4">Kind</label>
+    <%= ui_select(name: "flow[kind]", options: [ [ "Scored", "scored" ], [ "Guide", "guide" ] ], selected: @flow.kind) %>
+
+    <%= ui_button(label: "Create", type: :submit) %>
+  <% end %>
+<% end %>

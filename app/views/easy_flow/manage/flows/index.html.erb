@@ -1,5 +1,9 @@
 <%= ui_page(max_width: :xl) do %>
-  <%= ui_page_header(title: "Flows", subtitle: "Build and edit your flows") %>
+  <%= ui_page_header(title: "Flows", subtitle: "Build and edit your flows") do |header| %>
+    <% header.action do %>
+      <%= ui_button(label: "Create", href: flow_routes.new_manage_flow_path) %>
+    <% end %>
+  <% end %>
 
   <%= ui_data_table(
     items: @flows,

@@ -13,5 +13,11 @@ module EasyFlow
 
       assert_select "a[href=?]", easy_flow.new_manage_flow_path
     end
+
+    test "the flow list has no form that creates a flow" do
+      get easy_flow.manage_flows_path
+
+      assert_select "form[action=?][method=post]", easy_flow.manage_flows_path, count: 0
+    end
   end
 end

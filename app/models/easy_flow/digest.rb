@@ -69,9 +69,9 @@ module EasyFlow
 
     def output(state)
       ended = nil
-      _recorded, pending = walk(state) { |cursor| ended = cursor }
+      walk(state) { |cursor| ended = cursor }
 
-      ended.config["output"] if pending.nil? && step_type(ended)&.ends_here?
+      ended.config["output"] if step_type(ended)&.ends_here?
     end
 
     def state_on_path(state)

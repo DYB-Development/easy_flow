@@ -29,6 +29,9 @@ sources:
   - app/controllers/easy_flow/manage/base_controller.rb
   - app/models/easy_flow/step.rb
   - app/models/easy_flow/step_type/declaration.rb
+  - app/models/easy_flow/settings.rb
+  - app/models/easy_flow/canvas.rb
+  - app/controllers/easy_flow/manage/canvas_controller.rb
   - app/models/easy_flow/steps/question.rb
   - app/models/easy_flow/steps/checklist.rb
   - app/models/easy_flow/step_type.rb

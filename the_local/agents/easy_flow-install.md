@@ -84,10 +84,11 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After install, check that `<mount path>/manage/flows` shows the flow list and that a new flow opens on the canvas. If the canvas is blank, check that the admin layout calls `yield :head`.
 - After publishing a flow, check that `<mount path>/<slug>` shows it to a visitor who passes the host's visitor authorization method.
 - After publishing a flow with a question or a checklist whose answer has info text, check that the visitor's page shows an info button on that answer. If it does not, compare the app's `keystone_ui` version with the one in step 2.
+- After install, check that an End step selected on the canvas shows an output setting. An admin fills it in on each End step, and it needs no migration and no setting in the initializer.
 - After publishing a flow with a checklist, check that a visitor can tick several answers and go on, and that a checklist marked required refuses to go on with nothing ticked.
 - After upgrading easy_flow, run `bin/rails easy_flow:install:migrations` again and then `bin/rails db:migrate`. Only migrations the app does not already have are copied.
 - After setting a host's `owner_method`, check that two different owners each see only their own flows on `<mount path>/manage/flows`.
 - After setting a host's `offers`, check that the canvas palette on that host's `<mount path>/manage/flows` lists only those step types and End.
 - Taking a step type off a host's `offers` removes it from the palette only. Steps of that type already in the host's flows stay in them and keep running.
 - The initializer runs once at boot, so a change to it needs a server restart.
-- Declaring step types, including settings kept on the app's own records, serving a host's flows from the app's own controllers and routes, and reading runs and answers are out of scope here. They belong to the `easy_flow-develop` local.
+- Declaring step types, including settings kept on the app's own records, serving a host's flows from the app's own controllers and routes, and reading runs, answers and the output a flow ended with are out of scope here. They belong to the `easy_flow-develop` local.

@@ -178,7 +178,7 @@ module EasyFlow
           raise InvalidEdit, objections.join(", ") if objections.any?
 
           step_type.settings.keep(values)
-        end
+        end.then { |values| step_type.settings.unkept(values) }
       end
     end
   end

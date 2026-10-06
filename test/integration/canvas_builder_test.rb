@@ -500,5 +500,14 @@ module EasyFlow
 
       assert_equal "Dana Reyes", customer.reload.name
     end
+
+    test "saving a step's settings leaves a setting kept on a host record out of the flow's document" do
+      customer = Customer.create!(name: "Dana")
+      post "#{canvas_path}/steps", params: { id: "c", type: "name_customer" }
+
+      patch "#{canvas_path}/steps/c", params: { config: { customer: customer.id.to_s, customer_name: "Dana Reyes" } }
+
+      assert_equal({ "id" => "c", "type" => "name_customer", "customer" => customer.id.to_s }, flow.reload.document["nodes"].find { |node| node["id"] == "c" })
+    end
   end
 end

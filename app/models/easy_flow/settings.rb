@@ -30,12 +30,17 @@ module EasyFlow
     end
 
     def keep(config)
-      @kept.filter_map do |name, kept|
-        record = kept[:finder].call(config.to_h)
-        next if record.nil? || record.update(kept[:attribute] => config.to_h[name.to_s])
+      refused = []
+      ActiveRecord::Base.transaction do
+        refused = @kept.filter_map do |name, kept|
+          record = kept[:finder].call(config.to_h)
+          next if record.nil? || record.update(kept[:attribute] => config.to_h[name.to_s])
 
-        "#{labels[name]} #{record.errors.messages_for(kept[:attribute]).to_sentence}"
+          "#{labels[name]} #{record.errors.messages_for(kept[:attribute]).to_sentence}"
+        end
+        raise ActiveRecord::Rollback if refused.any?
       end
+      refused
     end
 
     def naming_steps

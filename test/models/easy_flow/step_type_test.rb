@@ -425,5 +425,17 @@ module EasyFlow
 
       assert_equal "Dana", first.reload.name
     end
+
+    test "keeping a step's settings inside the host's own transaction writes none of them when a host record refuses one" do
+      first, second = Customer.create!(name: "Dana"), Customer.create!(name: "Sam")
+      step_type = StepType.define(:probe) do
+        setting :first_name, type: :string, kept_on: ->(_config) { first }, attribute: :name
+        setting :second_name, type: :string, kept_on: ->(_config) { second }, attribute: :name
+      end
+
+      ActiveRecord::Base.transaction { step_type.settings.keep("first_name" => "Dana Reyes", "second_name" => "S" * 41) }
+
+      assert_equal "Dana", first.reload.name
+    end
   end
 end

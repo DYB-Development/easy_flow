@@ -22,6 +22,23 @@ module EasyFlow
       assert_equal({ a: "x", c: "x" }, response.reload.recorded)
     end
 
+    test "gives the output its flow wrote when it ended" do
+      flow = Definition.create!(host: "dummy", slug: "sale")
+      flow.definition_versions.create!(number: 1, definition: flowing({
+        "slug" => "sale", "entry" => "a",
+        "nodes" => [
+          { "id" => "a", "type" => "question", "text" => "Buy?", "options" => [ "yes" ] },
+          { "id" => "done", "type" => "terminal", "output" => "bought" }
+        ],
+        "edges" => [ { "from" => "a", "to" => "done" } ]
+      }))
+      flow.publish_version(flow.definition_versions.first)
+      response = Run.start(flow)
+      response.record("a", "yes")
+
+      assert_equal "bought", response.output
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

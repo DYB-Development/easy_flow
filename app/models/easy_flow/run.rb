@@ -30,6 +30,10 @@ module EasyFlow
       digest.next_step(state.transform_keys(&:to_s))
     end
 
+    def output
+      digest.output(recorded.transform_keys(&:to_s))
+    end
+
     def walked(state)
       digest.state_on_path(state.transform_keys(&:to_s))
     end

@@ -18,7 +18,7 @@ module EasyFlow
 
     def drawn_step(node)
       { "id" => node.id, "type" => node.type, "label" => label_for(node),
-        "config" => node.config, "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
+        "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
         "loose" => loose?(node), "choices" => choices_for(node), "placeholder" => false, **placed[node.id] }
     end
 
@@ -103,6 +103,10 @@ module EasyFlow
       Validator.new(@document, registry: @registry).violations.map do |violation|
         { "node" => violation.node, "problem" => violation.problem.to_s, "detail" => violation.detail }
       end
+    end
+
+    def kept_values(node)
+      step_type_for(node)&.settings&.kept_values(node.config).to_h
     end
 
     def label_for(node)

@@ -176,6 +176,8 @@ module EasyFlow
         step_type.settings.coerce(configuration).tap do |values|
           objections = step_type.settings.objections(values)
           raise InvalidEdit, objections.join(", ") if objections.any?
+
+          step_type.settings.keep(values)
         end
       end
     end

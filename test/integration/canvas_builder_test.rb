@@ -491,5 +491,14 @@ module EasyFlow
     ensure
       EasyFlow.host_named(:dummy).offers = nil
     end
+
+    test "saving a step's settings writes a setting kept on a host record to that record" do
+      customer = Customer.create!(name: "Dana")
+      post "#{canvas_path}/steps", params: { id: "c", type: "name_customer" }
+
+      patch "#{canvas_path}/steps/c", params: { config: { customer: customer.id.to_s, customer_name: "Dana Reyes" } }
+
+      assert_equal "Dana Reyes", customer.reload.name
+    end
   end
 end

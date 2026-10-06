@@ -23,4 +23,5 @@ Rails.application.config.to_prepare do
   Steps::Deliver.register
   Steps::AwaitSignal.register
   Steps::ForTheRun.register
+  Steps::NameCustomer.register
 end

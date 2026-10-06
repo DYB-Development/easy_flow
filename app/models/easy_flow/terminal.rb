@@ -6,6 +6,8 @@ module EasyFlow
 
     ends_here
 
+    setting :output, type: :string
+
     names_by { |_node| "End" }
   end
 end

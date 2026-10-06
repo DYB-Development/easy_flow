@@ -509,5 +509,15 @@ module EasyFlow
 
       assert_equal({ "id" => "c", "type" => "name_customer", "customer" => customer.id.to_s }, flow.reload.document["nodes"].find { |node| node["id"] == "c" })
     end
+
+    test "a value the host record refuses is shown as an error on the setting and nothing is saved" do
+      customer = Customer.create!(name: "Dana")
+      post "#{canvas_path}/steps", params: { id: "c", type: "name_customer" }
+
+      patch "#{canvas_path}/steps/c", params: { config: { customer: customer.id.to_s, customer_name: "D" * 41 } }
+
+      assert_equal [ 422, "Customer name is too long (maximum is 40 characters)", "Dana", nil ],
+        [ response.status, response.parsed_body["error"], customer.reload.name, flow.reload.document["nodes"].find { |node| node["id"] == "c" }["customer"] ]
+    end
   end
 end

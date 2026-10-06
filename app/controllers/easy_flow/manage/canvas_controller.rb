@@ -177,7 +177,8 @@ module EasyFlow
           objections = step_type.settings.objections(values)
           raise InvalidEdit, objections.join(", ") if objections.any?
 
-          step_type.settings.keep(values)
+          refused = step_type.settings.keep(values)
+          raise InvalidEdit, refused.join(", ") if refused.any?
         end.then { |values| step_type.settings.unkept(values) }
       end
     end

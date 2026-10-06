@@ -25,6 +25,10 @@ module EasyFlow
       @kept.to_h { |name, kept| [ name.to_s, kept[:finder].call(config.to_h)&.public_send(kept[:attribute]) ] }
     end
 
+    def keep(config)
+      @kept.each { |name, kept| kept[:finder].call(config.to_h)&.update(kept[:attribute] => config.to_h[name.to_s]) }
+    end
+
     def naming_steps
       fields.select { |_name, type| type == :previous_step }.keys
     end

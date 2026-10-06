@@ -393,5 +393,15 @@ module EasyFlow
 
       assert_equal "Dana Reyes", customer.reload.name
     end
+
+    test "keeping a step's settings says what the host record refuses" do
+      customer = Customer.create!(name: "Dana")
+      step_type = StepType.define(:probe) do
+        setting :customer, type: :string
+        setting :customer_name, type: :string, kept_on: ->(config) { Customer.find_by(id: config["customer"]) }, attribute: :name
+      end
+
+      assert_equal [ "Customer name is too long (maximum is 40 characters)" ], step_type.settings.keep("customer" => customer.id.to_s, "customer_name" => "D" * 41)
+    end
   end
 end

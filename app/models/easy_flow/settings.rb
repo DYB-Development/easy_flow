@@ -26,7 +26,12 @@ module EasyFlow
     end
 
     def keep(config)
-      @kept.each { |name, kept| kept[:finder].call(config.to_h)&.update(kept[:attribute] => config.to_h[name.to_s]) }
+      @kept.filter_map do |name, kept|
+        record = kept[:finder].call(config.to_h)
+        next if record.nil? || record.update(kept[:attribute] => config.to_h[name.to_s])
+
+        "#{labels[name]} #{record.errors.messages_for(kept[:attribute]).to_sentence}"
+      end
     end
 
     def naming_steps

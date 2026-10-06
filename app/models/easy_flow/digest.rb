@@ -67,6 +67,13 @@ module EasyFlow
       walk(state).last
     end
 
+    def output(state)
+      ended = nil
+      _recorded, pending = walk(state) { |cursor| ended = cursor }
+
+      ended.config["output"] if pending.nil? && step_type(ended)&.ends_here?
+    end
+
     def state_on_path(state)
       state.slice(*walk(state).first)
     end
@@ -94,6 +101,7 @@ module EasyFlow
       while cursor
         return [ recorded, nil ] if visits[cursor.id].positive? && answers_at_visit[cursor.id] == answered
 
+        yield cursor if block_given?
         visits[cursor.id] += 1
         answers_at_visit[cursor.id] = answered
         key = visit_key(cursor.id, visits[cursor.id])

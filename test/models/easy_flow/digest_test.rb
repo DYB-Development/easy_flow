@@ -5,6 +5,7 @@ module EasyFlow
     def registry
       @registry ||= Registry.new.tap do |built|
         built.register(StepType.define(:ask) { setting :text, type: :string; awaits_input })
+        built.register(Terminal.step_type)
         built.register(StepType.define(:pick) { output :answer, values: ->(node) { Array(node.config["options"]) } })
         built.register(StepType.define(:check) do
           output :result, type: :boolean, values: [ true, false ]
@@ -23,6 +24,17 @@ module EasyFlow
         "nodes" => [ { "id" => "work", "type" => "act" },
                      { "id" => "after", "type" => "ask" } ],
         "edges" => [ { "from" => "work", "to" => "after" } ] }
+    end
+
+    def ending
+      { "entry" => "q",
+        "nodes" => [ { "id" => "q", "type" => "ask" },
+                     { "id" => "done", "type" => "terminal", "output" => "bought" } ],
+        "edges" => [ { "from" => "q", "to" => "done" } ] }
+    end
+
+    test "gives the output of the End step a finished walk ends on" do
+      assert_equal "bought", digest(ending).output({ "q" => "yes" })
     end
 
     test "stops at a step whose process has not run" do

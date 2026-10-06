@@ -37,6 +37,12 @@ module EasyFlow
       assert_equal "bought", digest(ending).output({ "q" => "yes" })
     end
 
+    test "gives no output when the End step a finished walk ends on was left blank" do
+      blank = ending.merge("nodes" => [ { "id" => "q", "type" => "ask" }, { "id" => "done", "type" => "terminal", "output" => "" } ])
+
+      assert_nil digest(blank).output({ "q" => "yes" })
+    end
+
     test "stops at a step whose process has not run" do
       assert_equal "work", digest(acting).next_step({}).id
     end

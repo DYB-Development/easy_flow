@@ -31,7 +31,7 @@ module EasyFlow
 
     def keep(config)
       refused = []
-      ActiveRecord::Base.transaction do
+      ActiveRecord::Base.transaction(requires_new: true) do
         refused = @kept.filter_map do |name, kept|
           record = kept[:finder].call(config.to_h)
           next if record.nil? || record.update(kept[:attribute] => config.to_h[name.to_s])

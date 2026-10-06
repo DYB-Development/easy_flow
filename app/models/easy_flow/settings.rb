@@ -25,6 +25,10 @@ module EasyFlow
       @kept.to_h { |name, kept| [ name.to_s, kept[:finder].call(config.to_h)&.public_send(kept[:attribute]) ] }
     end
 
+    def unkept(config)
+      config.to_h.except(*@kept.keys.map(&:to_s))
+    end
+
     def keep(config)
       @kept.filter_map do |name, kept|
         record = kept[:finder].call(config.to_h)

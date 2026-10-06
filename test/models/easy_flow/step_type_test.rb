@@ -371,5 +371,71 @@ module EasyFlow
 
       assert step_type.ready?(Node.new(id: "a", type: "probe", config: {}), { "paid" => "yes" })
     end
+
+    test "a setting kept on a host record reads its value from that record" do
+      customer = Customer.create!(name: "Dana")
+      step_type = StepType.define(:probe) do
+        setting :customer, type: :string
+        setting :customer_name, type: :string, kept_on: ->(config) { Customer.find_by(id: config["customer"]) }, attribute: :name
+      end
+
+      assert_equal({ "customer_name" => "Dana" }, step_type.settings.kept_values("customer" => customer.id.to_s))
+    end
+
+    test "keeping a step's settings writes a setting kept on a host record to that record" do
+      customer = Customer.create!(name: "Dana")
+      step_type = StepType.define(:probe) do
+        setting :customer, type: :string
+        setting :customer_name, type: :string, kept_on: ->(config) { Customer.find_by(id: config["customer"]) }, attribute: :name
+      end
+
+      step_type.settings.keep("customer" => customer.id.to_s, "customer_name" => "Dana Reyes")
+
+      assert_equal "Dana Reyes", customer.reload.name
+    end
+
+    test "keeping a step's settings says what the host record refuses" do
+      customer = Customer.create!(name: "Dana")
+      step_type = StepType.define(:probe) do
+        setting :customer, type: :string
+        setting :customer_name, type: :string, kept_on: ->(config) { Customer.find_by(id: config["customer"]) }, attribute: :name
+      end
+
+      assert_equal [ "Customer name is too long (maximum is 40 characters)" ], step_type.settings.keep("customer" => customer.id.to_s, "customer_name" => "D" * 41)
+    end
+
+    test "a step's settings without those kept on a host record are what the flow keeps" do
+      customer = Customer.create!(name: "Dana")
+      step_type = StepType.define(:probe) do
+        setting :customer, type: :string
+        setting :customer_name, type: :string, kept_on: ->(config) { Customer.find_by(id: config["customer"]) }, attribute: :name
+      end
+
+      assert_equal({ "customer" => customer.id.to_s }, step_type.settings.unkept("customer" => customer.id.to_s, "customer_name" => "Dana Reyes"))
+    end
+
+    test "keeping a step's settings writes none of them when a host record refuses one" do
+      first, second = Customer.create!(name: "Dana"), Customer.create!(name: "Sam")
+      step_type = StepType.define(:probe) do
+        setting :first_name, type: :string, kept_on: ->(_config) { first }, attribute: :name
+        setting :second_name, type: :string, kept_on: ->(_config) { second }, attribute: :name
+      end
+
+      step_type.settings.keep("first_name" => "Dana Reyes", "second_name" => "S" * 41)
+
+      assert_equal "Dana", first.reload.name
+    end
+
+    test "keeping a step's settings inside the host's own transaction writes none of them when a host record refuses one" do
+      first, second = Customer.create!(name: "Dana"), Customer.create!(name: "Sam")
+      step_type = StepType.define(:probe) do
+        setting :first_name, type: :string, kept_on: ->(_config) { first }, attribute: :name
+        setting :second_name, type: :string, kept_on: ->(_config) { second }, attribute: :name
+      end
+
+      ActiveRecord::Base.transaction { step_type.settings.keep("first_name" => "Dana Reyes", "second_name" => "S" * 41) }
+
+      assert_equal "Dana", first.reload.name
+    end
   end
 end

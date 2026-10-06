@@ -277,5 +277,19 @@ module EasyFlow
 
       assert_includes palette.map { |entry| entry["label"] }, "End"
     end
+
+    test "a step's drawn settings show the value kept on its host record" do
+      customer = Customer.create!(name: "Dana")
+      keeping = Registry.new.tap do |built|
+        built.register(StepType.define(:name_customer) do
+          setting :customer, type: :string
+          setting :customer_name, type: :string, kept_on: ->(config) { Customer.find_by(id: config["customer"]) }, attribute: :name
+        end)
+      end
+
+      drawn = Canvas.new(Document.new(flowing("entry" => "a", "nodes" => [ { "id" => "a", "type" => "name_customer", "customer" => customer.id.to_s } ], "edges" => [])), registry: keeping).to_h
+
+      assert_equal "Dana", drawn["nodes"].find { |node| node["id"] == "a" }["config"]["customer_name"]
+    end
   end
 end

@@ -3,7 +3,7 @@ module EasyFlow
     attr_reader :fields, :labels, :record_fields, :record_labels, :drawn_from, :outputs_of
 
     def initialize(fields: {}, labels: {}, record_fields: {}, record_labels: {}, choices: {},
-      limits: {}, checks: {}, required: [], drawn_from: {}, outputs_of: {})
+      limits: {}, checks: {}, required: [], drawn_from: {}, outputs_of: {}, kept: {})
       @fields = fields
       @labels = labels
       @record_fields = record_fields
@@ -14,10 +14,33 @@ module EasyFlow
       @required = required
       @drawn_from = drawn_from
       @outputs_of = outputs_of
+      @kept = kept
     end
 
     def choices
       @choices.transform_values { |offered| offered.respond_to?(:call) ? offered.call : offered }
+    end
+
+    def kept_values(config)
+      @kept.to_h { |name, kept| [ name.to_s, kept[:finder].call(config.to_h)&.public_send(kept[:attribute]) ] }
+    end
+
+    def unkept(config)
+      config.to_h.except(*@kept.keys.map(&:to_s))
+    end
+
+    def keep(config)
+      refused = []
+      ActiveRecord::Base.transaction(requires_new: true) do
+        refused = @kept.filter_map do |name, kept|
+          record = kept[:finder].call(config.to_h)
+          next if record.nil? || record.update(kept[:attribute] => config.to_h[name.to_s])
+
+          "#{labels[name]} #{record.errors.messages_for(kept[:attribute]).to_sentence}"
+        end
+        raise ActiveRecord::Rollback if refused.any?
+      end
+      refused
     end
 
     def naming_steps

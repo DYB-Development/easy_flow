@@ -13,6 +13,7 @@ module EasyFlow
         @checks = {}
         @drawn_from = {}
         @outputs_of = {}
+        @kept = {}
         @declared_outputs = []
         @required = []
         @awaits_input = false
@@ -69,13 +70,14 @@ module EasyFlow
         @naming = naming
       end
 
-      def setting(name, type: nil, from: nil, outputs_of: nil, label: nil, options: nil, limit: nil, check: nil, required: false, &entries)
+      def setting(name, type: nil, from: nil, outputs_of: nil, label: nil, options: nil, limit: nil, check: nil, required: false, kept_on: nil, attribute: nil, &entries)
         type ||= :from_step if from
         type ||= :from_step if outputs_of
         raise UnknownFieldType, "#{type} is not one of #{FIELD_TYPES.join(', ')}" unless FIELD_TYPES.include?(type)
 
         @drawn_from[name] = from if from
         @outputs_of[name] = outputs_of if outputs_of
+        @kept[name] = { finder: kept_on, attribute: attribute || name } if kept_on
         @required += [ name ] if required
 
         declare_entries(name, entries) if type == :list
@@ -117,7 +119,7 @@ module EasyFlow
       def settings
         Settings.new(fields: @fields, labels: @labels, record_fields: @record_fields,
           record_labels: @record_labels, choices: @choices, limits: @limits, checks: @checks,
-          required: @required, drawn_from: @drawn_from, outputs_of: @outputs_of)
+          required: @required, drawn_from: @drawn_from, outputs_of: @outputs_of, kept: @kept)
       end
     end
   end

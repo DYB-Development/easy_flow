@@ -371,5 +371,15 @@ module EasyFlow
 
       assert step_type.ready?(Node.new(id: "a", type: "probe", config: {}), { "paid" => "yes" })
     end
+
+    test "a setting kept on a host record reads its value from that record" do
+      customer = Customer.create!(name: "Dana")
+      step_type = StepType.define(:probe) do
+        setting :customer, type: :string
+        setting :customer_name, type: :string, kept_on: ->(config) { Customer.find_by(id: config["customer"]) }, attribute: :name
+      end
+
+      assert_equal({ "customer_name" => "Dana" }, step_type.settings.kept_values("customer" => customer.id.to_s))
+    end
   end
 end

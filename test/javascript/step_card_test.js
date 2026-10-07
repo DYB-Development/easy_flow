@@ -49,3 +49,7 @@ test("writes each of the step's problems in red", () => {
 
   assert.ok(classes(problem).includes("text-red-600"))
 })
+
+test("marks a step that runs another flow", () => {
+  assert.ok(child(card({ starts_a_flow: true }), (element) => element.props?.children === "Runs a flow"))
+})

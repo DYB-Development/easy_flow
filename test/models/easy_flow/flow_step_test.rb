@@ -9,5 +9,9 @@ module EasyFlow
     test "takes the number of the version it runs" do
       assert_equal :integer, FlowStep.step_type.settings.fields[:version]
     end
+
+    test "takes the flow it runs, chosen from the flows the canvas offers" do
+      assert_equal :flow, FlowStep.step_type.settings.fields[:flow]
+    end
   end
 end

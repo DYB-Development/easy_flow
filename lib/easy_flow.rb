@@ -6,7 +6,7 @@ require "easy_flow/host_routes"
 require "easy_flow/engine"
 
 module EasyFlow
-  FIELD_TYPES = %i[string integer float boolean select multi_select previous_step from_step list].freeze
+  FIELD_TYPES = %i[string integer float boolean select multi_select previous_step from_step list flow].freeze
 
   OUTPUT_TYPES = %i[string integer float boolean].freeze
   OPTIONAL_CHECKS = %i[unrouted_value unfollowed_path dead_end].freeze

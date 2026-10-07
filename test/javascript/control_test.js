@@ -19,6 +19,10 @@ test("offers an answer drawn from another step as a choice rather than free text
   assert.match(drawn({ type: "from_step", choices: [ { value: "high", label: "Over $1k" } ] }), /^<select/)
 })
 
+test("offers a flow the step runs as a choice rather than free text", () => {
+  assert.match(drawn({ type: "flow", value: "", choices: [ { value: "7", label: "Onboarding" } ] }), /^<select/)
+})
+
 test("draws free text as a keystone input", () => {
   assert.match(firstTag(drawn({ type: "string", value: "" })), /class="ks-input[ "]/)
 })

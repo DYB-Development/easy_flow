@@ -519,5 +519,19 @@ module EasyFlow
       assert_equal [ 422, "Customer name is too long (maximum is 40 characters)", "Dana", nil ],
         [ response.status, response.parsed_body["error"], customer.reload.name, flow.reload.document["nodes"].find { |node| node["id"] == "c" }["customer"] ]
     end
+
+    test "a Flow step on the canvas is offered the flows on its own host and none on another" do
+      parent = Definition.create!(host: "dummy", slug: "parent", title: "Parent").tap do |built|
+        built.record_definition(flowing("slug" => "parent", "entry" => "inner", "nodes" => [ { "id" => "inner", "type" => "flow_step" } ], "edges" => []))
+      end
+      Definition.create!(host: "dummy", slug: "onboarding", title: "Onboarding")
+      Definition.create!(host: "console", slug: "elsewhere", title: "Elsewhere")
+
+      get "#{easy_flow.manage_flow_canvas_path(parent)}.json"
+
+      offered = response.parsed_body["nodes"].find { |node| node["id"] == "inner" }["choices"]["flow"].map { |choice| choice["label"] }
+
+      assert_equal %w[Onboarding], offered & %w[Onboarding Elsewhere]
+    end
   end
 end

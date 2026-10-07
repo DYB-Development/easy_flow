@@ -44,7 +44,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
      host.visitor_authorization_method = :easy_flow_visitor_permitted?
      host.refusal_method = :refuse_flow
      host.owner_method = :current_account
-     host.offers = %i[question checklist condition switch compare]
+     host.offers = %i[question checklist condition switch compare flow_step]
    end
    ```
 
@@ -54,7 +54,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - `visitor_authorization_method` — a method on the base controller, called with the flow, returning true when the visitor may run it. With none set, every visitor is refused.
    - `refusal_method` — a method on the base controller, called with the refusal error when a visitor is refused or a flow is unpublished or withdrawn. With none set, the response is `404 Not Found`.
    - `owner_method` — a method on the base controller, called with no arguments, returning the record whose flows the current request works with, such as the signed-in account. When set, the admin pages list, create and edit only that record's flows, a visitor runs only that record's flows, and two records may each hold a flow with the same slug. With none set, every flow in the host is shared by everyone who reaches it. Ask the developer whether each host's flows belong to one record or are shared.
-   - `offers` — the step types this host's admins can add from the canvas palette, as a list of step type names. With none set, every registered step type is offered. The engine's own names are `question`, `checklist`, `condition`, `switch` and `compare`. A step type the app declares is named by the id passed to `EasyFlow.step`, or after its class when it is a step class, so `Steps::Notify` is `notify`. The End step is offered whether it is listed or not, and the Start step is never offered. Ask the developer which step types each host should offer.
+   - `offers` — the step types this host's admins can add from the canvas palette, as a list of step type names. With none set, every registered step type is offered. The engine's own names are `question`, `checklist`, `condition`, `switch`, `compare` and `flow_step`, the last being the Flow step, which names one of the same host's flows. A step type the app declares is named by the id passed to `EasyFlow.step`, or after its class when it is a step class, so `Steps::Notify` is `notify`. The End step is offered whether it is listed or not, and the Start step is never offered. Ask the developer which step types each host should offer.
 
    Each method named here must exist on the base controller. Ask the developer to point at it or write it. Do not invent its logic.
 8. Mount the engine in `config/routes.rb`, once per host. The host name in `defaults` must match a name declared in step 7. When there is more than one mount, give each an `as:` name:
@@ -88,6 +88,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After publishing a flow with a checklist, check that a visitor can tick several answers and go on, and that a checklist marked required refuses to go on with nothing ticked.
 - After upgrading easy_flow, run `bin/rails easy_flow:install:migrations` again and then `bin/rails db:migrate`. Only migrations the app does not already have are copied.
 - After setting a host's `owner_method`, check that two different owners each see only their own flows on `<mount path>/manage/flows`.
+- After install, check that a Flow step placed on the canvas offers the host's flows by title as its flow setting. With a host's `owner_method` set, it offers only that owner's flows. It needs no migration and no setting in the initializer.
 - After setting a host's `offers`, check that the canvas palette on that host's `<mount path>/manage/flows` lists only those step types and End.
 - Taking a step type off a host's `offers` removes it from the palette only. Steps of that type already in the host's flows stay in them and keep running.
 - The initializer runs once at boot, so a change to it needs a server restart.

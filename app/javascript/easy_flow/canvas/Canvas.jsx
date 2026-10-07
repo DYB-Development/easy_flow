@@ -115,7 +115,7 @@ const Canvas = ({ base, token, initial }) => {
                   armed={armed && armed[0] === node.id ? armed[1] : null}
                   connecting={Boolean(armed)}
                   onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))}
-                onOpen={(path) => window.location.assign(path)}
+                  onOpen={(path) => window.location.assign(path)}
                   onArm={(port, event) => { event.stopPropagation(); setArmed([ node.id, port ]) }}
                   onDragStart={() => setDragging(node.id)}
                   onDragEnd={() => setDragging(null)} />

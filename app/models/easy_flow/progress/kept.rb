@@ -27,8 +27,9 @@ module EasyFlow
 
       def ended
         parent = @run.parent_run or return
+        return if parent.recorded.key?(@run.parent_step.to_sym)
 
-        parent.record(@run.parent_step, @run.output)
+        parent.record(@run.parent_step.to_sym, @run.output)
         AdvanceParentJob.perform_later(parent)
       end
 

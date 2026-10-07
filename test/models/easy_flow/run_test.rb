@@ -166,6 +166,15 @@ module EasyFlow
       assert_equal({ offer: "bought", thank: false }, parent.reload.recorded)
     end
 
+    test "a finished inner run advanced again hands its output back only once" do
+      parent = Run.start(parent_flow)
+      parent.advance
+      inner = parent.inner_runs.sole.tap { |run| run.record(:ask, "yes") }
+      inner.advance
+
+      assert_no_enqueued_jobs(only: AdvanceParentJob) { inner.advance }
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

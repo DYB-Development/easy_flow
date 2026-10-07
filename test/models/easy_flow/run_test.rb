@@ -111,6 +111,18 @@ module EasyFlow
       assert_equal 1, parent.inner_runs.count
     end
 
+    test "an inner run's steps that act without a visitor run as soon as it starts" do
+      acting = published("acting",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "work", "type" => "deliver", "message" => "Hi" }, { "id" => "ask", "type" => "question", "text" => "Buy?", "options" => [ "yes" ] } ],
+        edges: [ { "from" => "start", "to" => "work" }, { "from" => "work", "to" => "ask" } ])
+      parent = Run.start(published("handing", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => acting.id.to_s, "version" => 1 } ],
+                                              edges: [ { "from" => "start", "to" => "offer" } ]))
+
+      parent.advance
+
+      assert_equal({ work: false }, parent.inner_runs.sole.recorded)
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

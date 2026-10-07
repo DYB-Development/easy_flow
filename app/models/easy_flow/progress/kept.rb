@@ -18,6 +18,8 @@ module EasyFlow
       end
 
       def start_inner(node)
+        return if @run.inner_runs.exists?(parent_step: node.id)
+
         flow = Definition.find(node.config["flow"])
         Run.start(flow, version: flow.definition_versions.find_by(number: node.config["version"])).update!(parent_run: @run, parent_step: node.id)
       end

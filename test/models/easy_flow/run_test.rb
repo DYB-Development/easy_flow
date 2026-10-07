@@ -102,6 +102,15 @@ module EasyFlow
       assert_equal [ [ inner_flow, 1 ] ], parent.inner_runs.map { |inner| [ inner.flow, inner.definition_version.number ] }
     end
 
+    test "advancing a parent run again while it waits starts no second inner run" do
+      parent = Run.start(parent_flow)
+      parent.advance
+
+      parent.advance
+
+      assert_equal 1, parent.inner_runs.count
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

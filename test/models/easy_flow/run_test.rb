@@ -39,6 +39,15 @@ module EasyFlow
       assert_equal "bought", response.output
     end
 
+    test "pins to a chosen published version when started on one" do
+      flow = Definition.create!(host: "dummy", slug: "choice")
+      first = flow.definition_versions.create!(number: 1, definition: { "slug" => "choice" })
+      flow.publish_version(first)
+      flow.publish_version(flow.definition_versions.create!(number: 2, definition: { "slug" => "choice" }))
+
+      assert_equal first, Run.start(flow, version: first).definition_version
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

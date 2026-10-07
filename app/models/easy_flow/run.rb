@@ -6,8 +6,8 @@ module EasyFlow
     belongs_to :definition_version, class_name: "EasyFlow::Version"
     belongs_to :owner, polymorphic: true, optional: true
 
-    def self.start(flow)
-      create!(flow: flow, definition_version: flow.live_version)
+    def self.start(flow, version: flow.live_version)
+      create!(flow: flow, definition_version: version)
     end
 
     def record(step_id, value)

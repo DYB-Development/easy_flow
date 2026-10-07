@@ -447,5 +447,12 @@ module EasyFlow
 
       assert_equal({ flow: "flow-of-spring", version: 3 }, offers.flow_chosen_by(Node.new(id: "a", type: "offer", config: { "offer" => "spring" })))
     end
+
+    test "a step type that works out its flow is named after that flow and version" do
+      onboarding = Definition.create!(host: "dummy", slug: "onboarding", title: "Onboarding")
+      offers = StepType.define(:offer) { starts_a_flow; chooses_flow { |_node| { flow: onboarding.id, version: 2 } } }
+
+      assert_equal "Onboarding, version 2", offers.name_of(Node.new(id: "a", type: "offer", config: {}))
+    end
   end
 end

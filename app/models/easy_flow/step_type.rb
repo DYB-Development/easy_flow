@@ -55,7 +55,7 @@ module EasyFlow
     end
 
     def name_of(node)
-      @naming&.call(node).presence || node.config[naming_field.to_s].presence
+      @naming&.call(node).presence || node.config[naming_field.to_s].presence || worked_out_flow_name(node)
     end
 
     def acts?
@@ -88,6 +88,11 @@ module EasyFlow
 
     def flow_chosen_by(node)
       @flow_chooser&.call(node)
+    end
+
+    def worked_out_flow_name(node)
+      chosen = flow_chosen_by(node)
+      ChosenFlow.worked_out(chosen).name if chosen
     end
   end
 end

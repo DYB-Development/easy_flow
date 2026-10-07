@@ -191,6 +191,17 @@ module EasyFlow
       assert_equal customer, parent.inner_runs.sole.owner
     end
 
+    test "an inner run that ends with no output records nothing in its parent" do
+      silent = published("silent", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "done", "type" => "terminal" } ],
+                                   edges: [ { "from" => "start", "to" => "done" } ])
+      parent = Run.start(published("hushed", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => silent.id.to_s, "version" => 1 } ],
+                                             edges: [ { "from" => "start", "to" => "offer" } ]))
+
+      parent.advance
+
+      assert_not parent.reload.recorded.key?(:offer)
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

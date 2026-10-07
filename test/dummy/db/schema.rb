@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
   create_table "customers", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -48,9 +48,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_120000) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "parent_run_id"
+    t.string "parent_step"
     t.index ["definition_version_id"], name: "index_easy_flow_runs_on_definition_version_id"
     t.index ["flow_id"], name: "index_easy_flow_runs_on_flow_id"
     t.index ["owner_type", "owner_id"], name: "index_easy_flow_runs_on_owner"
+    t.index ["parent_run_id"], name: "index_easy_flow_runs_on_parent_run_id"
   end
 
   create_table "easy_flow_versions", force: :cascade do |t|
@@ -66,6 +69,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_120000) do
   end
 
   add_foreign_key "easy_flow_runs", "easy_flow_definitions", column: "flow_id"
+  add_foreign_key "easy_flow_runs", "easy_flow_runs", column: "parent_run_id"
   add_foreign_key "easy_flow_runs", "easy_flow_versions", column: "definition_version_id"
   add_foreign_key "easy_flow_versions", "easy_flow_definitions", column: "flow_id"
 end

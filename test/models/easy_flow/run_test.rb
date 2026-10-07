@@ -66,6 +66,16 @@ module EasyFlow
       assert_raises(ActiveRecord::RecordInvalid) { Run.start(flow, version: theirs) }
     end
 
+    test "an inner run says which run started it and at which step" do
+      flow = Definition.create!(host: "dummy", slug: "nested")
+      flow.publish_version(flow.definition_versions.create!(number: 1, definition: { "slug" => "nested" }))
+      parent = Run.start(flow)
+
+      inner = Run.start(flow).tap { |run| run.update!(parent_run: parent, parent_step: "inner") }
+
+      assert_equal [ parent, "inner" ], [ inner.reload.parent_run, inner.parent_step ]
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

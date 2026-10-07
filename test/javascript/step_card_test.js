@@ -60,3 +60,10 @@ test("opens the flow a step runs when its card is clicked", () => {
 
   assert.equal(opened, "/flows/7")
 })
+
+test("picks a step that runs another flow as a connection's target while connecting", () => {
+  let picked = false
+  card({ starts_a_flow: true, opens: "/flows/7" }, { connecting: true, onSelect: () => { picked = true }, onOpen: () => {} }).props.onClick()
+
+  assert.ok(picked)
+})

@@ -27,7 +27,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
          draggable={!pinned}
          onDragStart={(event) => { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", node.id); onDragStart() }}
          onDragEnd={onDragEnd}
-         onClick={node.opens ? () => onOpen(node.opens) : onSelect}
+         onClick={node.opens && !connecting ? () => onOpen(node.opens) : onSelect}
          className={`bg-white border-2 dark:bg-zinc-900 ${edge(target, node.violations.length > 0, selected)}`}
          style={{
            ...card,

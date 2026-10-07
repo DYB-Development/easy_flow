@@ -563,5 +563,15 @@ module EasyFlow
 
       assert_includes response.parsed_body["error"], "circular"
     end
+
+    test "the canvas flags a Flow step that runs the flow it sits in" do
+      looping = Definition.create!(host: "dummy", slug: "looping", title: "Looping")
+      looping.publish_version(looping.definition_versions.create!(number: 1, definition: { "slug" => "looping" }))
+      looping.update!(document: flowing("slug" => "looping", "entry" => "again", "nodes" => [ { "id" => "again", "type" => "flow_step", "flow" => looping.id.to_s, "version" => 1 } ], "edges" => []))
+
+      get "#{easy_flow.manage_flow_canvas_path(looping)}.json"
+
+      assert_includes response.parsed_body["violations"].map { |violation| [ violation["node"], violation["problem"] ] }, [ "again", "circular" ]
+    end
   end
 end

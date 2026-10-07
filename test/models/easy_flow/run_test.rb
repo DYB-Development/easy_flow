@@ -48,6 +48,14 @@ module EasyFlow
       assert_equal first, Run.start(flow, version: first).definition_version
     end
 
+    test "refuses to start on a version the flow never published" do
+      flow = Definition.create!(host: "dummy", slug: "draft")
+      flow.publish_version(flow.definition_versions.create!(number: 1, definition: { "slug" => "draft" }))
+      draft = flow.definition_versions.create!(number: 2, definition: { "slug" => "draft" })
+
+      assert_raises(ActiveRecord::RecordInvalid) { Run.start(flow, version: draft) }
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

@@ -6,6 +6,8 @@ module EasyFlow
     belongs_to :definition_version, class_name: "EasyFlow::Version"
     belongs_to :owner, polymorphic: true, optional: true
 
+    validate :started_on_a_published_version, on: :create
+
     def self.start(flow, version: flow.live_version)
       create!(flow: flow, definition_version: version)
     end
@@ -49,6 +51,12 @@ module EasyFlow
 
     def pinned_steps
       Array(definition_version.definition.to_h["nodes"]).index_by { |node| node["id"] }
+    end
+
+    private
+
+    def started_on_a_published_version
+      errors.add(:definition_version, "must be a published version of the flow") unless definition_version&.live? || definition_version&.superseded?
     end
   end
 end

@@ -16,7 +16,7 @@ module EasyFlow
     names_by { |node| [ Definition.find_by(id: node.config["flow"])&.title, ("version #{node.config["version"]}" if node.config["version"].present?) ].compact.join(", ").presence }
 
     def self.endings_of(node)
-      version = Definition.find_by(id: node.config["flow"])&.definition_versions&.find_by(number: node.config["version"])
+      version = ChosenFlow.of(node).version
       Array(version&.definition.to_h["nodes"]).select { |step| step["type"] == "terminal" }.filter_map { |step| step["output"].presence }.uniq
     end
 

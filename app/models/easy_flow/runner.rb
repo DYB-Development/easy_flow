@@ -31,6 +31,7 @@ module EasyFlow
         progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded)))
       end
       progress.start_inner(node) if node && starts_a_flow?(node)
+      progress.ended unless node
     end
 
     def drawing_at(state)

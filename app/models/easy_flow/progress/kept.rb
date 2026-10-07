@@ -25,6 +25,10 @@ module EasyFlow
           .tap { |inner| inner.update!(parent_run: @run, parent_step: node.id) }.advance
       end
 
+      def ended
+        @run.parent_run&.record(@run.parent_step, @run.output)
+      end
+
       def finish(_state)
         @run
       end

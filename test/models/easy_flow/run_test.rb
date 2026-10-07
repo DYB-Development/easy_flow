@@ -131,6 +131,17 @@ module EasyFlow
       end
     end
 
+    test "an inner run that reaches an End step records that step's output in its parent at the Flow step" do
+      parent = Run.start(parent_flow)
+      parent.advance
+      inner = parent.inner_runs.sole
+      inner.record(:ask, "yes")
+
+      inner.advance
+
+      assert_equal "bought", parent.reload.recorded[:offer]
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

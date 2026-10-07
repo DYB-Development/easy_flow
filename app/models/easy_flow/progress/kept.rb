@@ -22,7 +22,7 @@ module EasyFlow
 
         flow = Definition.find(node.config["flow"])
         Run.start(flow, version: flow.definition_versions.find_by(number: node.config["version"]))
-          .tap { |inner| inner.update!(parent_run: @run, parent_step: node.id) }.advance
+          .tap { |inner| inner.update!(parent_run: @run, parent_step: node.id, owner: @run.owner) }.advance
       end
 
       def ended

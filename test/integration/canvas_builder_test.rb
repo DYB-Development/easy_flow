@@ -544,5 +544,14 @@ module EasyFlow
 
       assert_equal easy_flow.manage_flow_path(onboarding, from: parent.id), response.parsed_body["nodes"].find { |node| node["id"] == "inner" }["opens"]
     end
+
+    test "an inner flow's canvas opened from a Flow step links back to the parent flow's canvas" do
+      parent = Definition.create!(host: "dummy", slug: "parent", title: "Parent")
+      onboarding = Definition.create!(host: "dummy", slug: "onboarding", title: "Onboarding")
+
+      get easy_flow.manage_flow_path(onboarding, from: parent.id)
+
+      assert_select "a[href=?]", easy_flow.manage_flow_path(parent), text: "Back to Parent"
+    end
   end
 end

@@ -1,9 +1,10 @@
 module EasyFlow
   class Canvas
-    def initialize(document, registry: EasyFlow.registry, host: nil)
+    def initialize(document, registry: EasyFlow.registry, host: nil, flows: [])
       @document = document
       @registry = registry
       @host = host
+      @flows = flows
     end
 
     def to_h
@@ -114,7 +115,16 @@ module EasyFlow
     end
 
     def choices_for(node)
-      naming_steps(node).index_with { earlier_than(node) }.merge(drawn_by(node)).merge(named_outputs_by(node))
+      naming_steps(node).index_with { earlier_than(node) }.merge(naming_flows(node).index_with { offered_flows })
+        .merge(drawn_by(node)).merge(named_outputs_by(node))
+    end
+
+    def naming_flows(node)
+      step_type_for(node)&.settings&.fields.to_h.select { |_name, type| type == :flow }.keys.map(&:to_s)
+    end
+
+    def offered_flows
+      @flows.map { |flow| { "value" => flow.id.to_s, "label" => flow.title } }
     end
 
     def named_outputs_by(node)

@@ -291,5 +291,15 @@ module EasyFlow
 
       assert_equal "Dana", drawn["nodes"].find { |node| node["id"] == "a" }["config"]["customer_name"]
     end
+
+    test "offers the flows it is given as the choices for a step's flow setting" do
+      offering = Registry.new.tap { |built| built.register(StepType.define(:run_flow) { setting :flow, type: :flow }) }
+      document = Document.new({ "nodes" => [ { "id" => "inner", "type" => "run_flow" } ], "edges" => [] }, registry: offering)
+      onboarding = Definition.create!(host: "dummy", slug: "onboarding", title: "Onboarding")
+
+      drawn = Canvas.new(document, registry: offering, flows: [ onboarding ]).to_h["nodes"].first
+
+      assert_equal [ { "value" => onboarding.id.to_s, "label" => "Onboarding" } ], drawn["choices"]["flow"]
+    end
   end
 end

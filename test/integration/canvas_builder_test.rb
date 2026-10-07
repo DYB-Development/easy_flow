@@ -553,5 +553,15 @@ module EasyFlow
 
       assert_select "a[href=?]", easy_flow.manage_flow_path(parent), text: "Back to Parent"
     end
+
+    test "publishing a flow whose Flow step runs that same flow is refused" do
+      looping = Definition.create!(host: "dummy", slug: "looping", title: "Looping")
+      looping.publish_version(looping.definition_versions.create!(number: 1, definition: { "slug" => "looping" }))
+      looping.update!(document: flowing("slug" => "looping", "entry" => "again", "nodes" => [ { "id" => "again", "type" => "flow_step", "flow" => looping.id.to_s, "version" => 1 } ], "edges" => []))
+
+      post "#{easy_flow.manage_flow_canvas_path(looping)}/publish"
+
+      assert_includes response.parsed_body["error"], "circular"
+    end
   end
 end

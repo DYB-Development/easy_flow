@@ -13,10 +13,7 @@ module EasyFlow
 
     waits_until { |_node, _state| false }
 
-    names_by do |node|
-      chosen = ChosenFlow.of(node)
-      [ chosen.flow&.title, ("version #{chosen.number}" if chosen.number) ].compact.join(", ").presence
-    end
+    names_by { |node| ChosenFlow.of(node).name }
 
     def self.endings_of(node)
       version = ChosenFlow.of(node).version

@@ -1,10 +1,11 @@
 module EasyFlow
   class Canvas
-    def initialize(document, registry: EasyFlow.registry, host: nil, flows: [])
+    def initialize(document, registry: EasyFlow.registry, host: nil, flows: [], flow_path: nil)
       @document = document
       @registry = registry
       @host = host
       @flows = flows
+      @flow_path = flow_path
     end
 
     def to_h
@@ -20,7 +21,7 @@ module EasyFlow
     def drawn_step(node)
       { "id" => node.id, "type" => node.type, "label" => label_for(node),
         "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
-        "loose" => loose?(node), "choices" => choices_for(node), "placeholder" => false, **placed[node.id] }
+        "starts_a_flow" => starts_a_flow?(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "placeholder" => false, **placed[node.id] }
     end
 
     def drawn_placeholder(gap)
@@ -167,6 +168,15 @@ module EasyFlow
 
     def begins_here?(node)
       step_type_for(node)&.begins_here? || false
+    end
+
+    def starts_a_flow?(node)
+      step_type_for(node)&.starts_a_flow? || false
+    end
+
+    def opens(node)
+      named = naming_flows(node).filter_map { |name| node.config[name].presence }.first
+      @flow_path.call(named) if @flow_path && starts_a_flow?(node) && named
     end
 
     def ports_for(node)

@@ -49,3 +49,30 @@ test("writes each of the step's problems in red", () => {
 
   assert.ok(classes(problem).includes("text-red-600"))
 })
+
+test("marks a step that runs another flow", () => {
+  assert.ok(child(card({ starts_a_flow: true }), (element) => element.props?.children === "Runs a flow"))
+})
+
+test("opens the flow a step runs when its card is clicked", () => {
+  let opened = null
+  card({ starts_a_flow: true, opens: "/flows/7" }, { onOpen: (path) => { opened = path } }).props.onClick()
+
+  assert.equal(opened, "/flows/7")
+})
+
+test("picks a step that runs another flow as a connection's target while connecting", () => {
+  let picked = false
+  card({ starts_a_flow: true, opens: "/flows/7" }, { connecting: true, onSelect: () => { picked = true }, onOpen: () => {} }).props.onClick()
+
+  assert.ok(picked)
+})
+
+test("a Settings button on a step that runs another flow selects the step", () => {
+  let selected = false
+  const settings = child(card({ starts_a_flow: true, opens: "/flows/7" }, { onSelect: () => { selected = true } }), (element) => element.props?.children === "Settings")
+
+  settings.props.onClick({ stopPropagation: () => {} })
+
+  assert.ok(selected)
+})

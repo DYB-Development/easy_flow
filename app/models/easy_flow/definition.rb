@@ -11,6 +11,7 @@ module EasyFlow
     validates :host, :slug, presence: true
 
     after_initialize :begin_the_flow, if: :new_record?
+    before_destroy :kept_while_a_parent_waits, prepend: true
 
     scope :listable, -> { active }
 
@@ -106,6 +107,15 @@ module EasyFlow
     end
 
     private
+
+    def kept_while_a_parent_waits
+      waiting = runs.where.not(parent_run_id: nil).select { |run| run.parent_run.waiting_on == run }
+      return if waiting.empty?
+
+      names = waiting.map { |run| run.parent_run.flow.title.presence || run.parent_run.flow.slug }.uniq.to_sentence
+      errors.add(:base, "This flow cannot be removed while #{names} waits on one of its runs")
+      throw :abort
+    end
 
     def begin_the_flow
       self.document ||= { "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "end", "type" => "terminal" } ],

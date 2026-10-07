@@ -28,5 +28,13 @@ module EasyFlow
 
       assert_equal %w[bought declined], Digest.new(parent).routing_values("inner")
     end
+
+    test "holds a run that reaches it until its value is recorded" do
+      parent = Document.new({ "entry" => "start",
+        "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "inner", "type" => "flow_step" }, { "id" => "done", "type" => "terminal" } ],
+        "edges" => [ { "from" => "start", "to" => "inner" }, { "from" => "inner", "to" => "done" } ] })
+
+      assert_equal "inner", Digest.new(parent).next_step({}).id
+    end
   end
 end

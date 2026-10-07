@@ -123,6 +123,14 @@ module EasyFlow
       assert_equal({ work: false }, parent.inner_runs.sole.recorded)
     end
 
+    test "trying a parent flow without saving it stops at the Flow step and starts no run" do
+      flow = parent_flow
+
+      assert_no_difference -> { Run.count } do
+        Runner.new(flow.live_definition).run(Progress::Loose.new(flow, {}))
+      end
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

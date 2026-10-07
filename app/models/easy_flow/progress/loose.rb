@@ -19,6 +19,8 @@ module EasyFlow
         @answers = @answers.merge(id.to_sym => value)
       end
 
+      def start_inner(_node); end
+
       def finish(state)
         return unless @flow.on_finish?
 

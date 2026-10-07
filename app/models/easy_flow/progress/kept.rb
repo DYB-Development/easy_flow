@@ -17,6 +17,11 @@ module EasyFlow
         @run.record(id.to_sym, value)
       end
 
+      def start_inner(node)
+        flow = Definition.find(node.config["flow"])
+        Run.start(flow, version: flow.definition_versions.find_by(number: node.config["version"])).update!(parent_run: @run, parent_step: node.id)
+      end
+
       def finish(_state)
         @run
       end

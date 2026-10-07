@@ -76,6 +76,32 @@ module EasyFlow
       assert_equal [ parent, "inner" ], [ inner.reload.parent_run, inner.parent_step ]
     end
 
+    def published(slug, nodes:, edges:, number: 1)
+      Definition.find_or_create_by!(host: "dummy", slug: slug).tap do |flow|
+        flow.publish_version(flow.definition_versions.create!(number: number, definition: { "slug" => slug, "entry" => "start", "nodes" => nodes, "edges" => edges }))
+      end
+    end
+
+    def inner_flow
+      @inner_flow ||= published("inner",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "ask", "type" => "question", "text" => "Buy?", "options" => [ "yes" ] }, { "id" => "done", "type" => "terminal", "output" => "bought" } ],
+        edges: [ { "from" => "start", "to" => "ask" }, { "from" => "ask", "to" => "done" } ])
+    end
+
+    def parent_flow
+      @parent_flow ||= published("parent",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => inner_flow.id.to_s, "version" => 1 }, { "id" => "done", "type" => "terminal" } ],
+        edges: [ { "from" => "start", "to" => "offer" }, { "from" => "offer", "to" => "done", "on" => "bought" } ])
+    end
+
+    test "a stored run that reaches a Flow step starts one run of the chosen flow on the chosen version" do
+      parent = Run.start(parent_flow)
+
+      parent.advance
+
+      assert_equal [ [ inner_flow, 1 ] ], parent.inner_runs.map { |inner| [ inner.flow, inner.definition_version.number ] }
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

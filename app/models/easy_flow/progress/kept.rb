@@ -26,7 +26,10 @@ module EasyFlow
       end
 
       def ended
-        @run.parent_run&.record(@run.parent_step, @run.output)
+        parent = @run.parent_run or return
+
+        parent.record(@run.parent_step, @run.output)
+        AdvanceParentJob.perform_later(parent)
       end
 
       def finish(_state)

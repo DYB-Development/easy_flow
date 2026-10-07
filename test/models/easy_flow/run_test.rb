@@ -2,6 +2,8 @@ require "test_helper"
 
 module EasyFlow
   class RunTest < ActiveSupport::TestCase
+    include ActiveJob::TestHelper
+
     test "going back removes the last answer along the path, not the last in list order" do
       flow = Definition.create!(host: "dummy", slug: "jump")
       flow.definition_versions.create!(number: 1, definition: flowing({
@@ -140,6 +142,15 @@ module EasyFlow
       inner.advance
 
       assert_equal "bought", parent.reload.recorded[:offer]
+    end
+
+    test "an inner run that hands its output to its parent queues a job to move the parent on" do
+      parent = Run.start(parent_flow)
+      parent.advance
+      inner = parent.inner_runs.sole
+      inner.record(:ask, "yes")
+
+      assert_enqueued_with(job: AdvanceParentJob, args: [ parent ]) { inner.advance }
     end
 
     test "pins to the flow's current definition version when started" do

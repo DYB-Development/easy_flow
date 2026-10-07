@@ -38,6 +38,11 @@ module EasyFlow
       digest.output(recorded.transform_keys(&:to_s))
     end
 
+    def waiting_on
+      stopped_at = next_step(recorded)
+      inner_runs.find_by(parent_step: stopped_at.id) if stopped_at
+    end
+
     def walked(state)
       digest.state_on_path(state.transform_keys(&:to_s))
     end

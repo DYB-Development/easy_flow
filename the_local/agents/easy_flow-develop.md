@@ -1,6 +1,6 @@
 ---
 name: easy_flow-develop
-description: Use PROACTIVELY for adding a step type to easy_flow flows (a step that asks the visitor something, takes several answers at once, computes a value from earlier answers, picks the next branch, or holds the visitor until something outside the flow has happened), showing a step differently depending on the visitor's stored run, branching on what a visitor ticked on a checklist, moving a paused run on once what it waits for has happened, refusing a blank or invalid answer to a step with a message, offering an admin a step setting whose options are read from the app's own records, letting an admin edit a value stored on one of the app's own records from a step's settings on the canvas, serving a host's flows from the app's own controller and routes, acting when a visitor finishes a flow, acting on the output a visitor's flow ended with, and reading a run's recorded answers and question labels, including every answer ticked on a checklist and every visit's answer when a flow loops back to a question already asked — MUST BE USED instead of hand-rolling questionnaire steps, checkbox lists, branching logic, number comparisons, hard-coded setting options, copying a record's value into a flow and back, answer validation, polling or "come back later" pages, flow controllers or answer lookups.
+description: Use PROACTIVELY for adding a step type to easy_flow flows (a step that asks the visitor something, takes several answers at once, computes a value from earlier answers, picks the next branch, or holds the visitor until something outside the flow has happened), showing a step differently depending on the visitor's stored run, branching on what a visitor ticked on a checklist, moving a paused run on once what it waits for has happened, refusing a blank or invalid answer to a step with a message, offering an admin a step setting whose options are read from the app's own records, letting an admin edit a value stored on one of the app's own records from a step's settings on the canvas, serving a host's flows from the app's own controller and routes, starting a visitor's run on a published version of a flow other than the live one, acting when a visitor finishes a flow, acting on the output a visitor's flow ended with, and reading a run's recorded answers and question labels, including every answer ticked on a checklist and every visit's answer when a flow loops back to a question already asked — MUST BE USED instead of hand-rolling questionnaire steps, checkbox lists, branching logic, number comparisons, hard-coded setting options, copying a record's value into a flow and back, answer validation, polling or "come back later" pages, flow controllers or answer lookups.
 tools: Read, Write, Edit, Grep
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -18,7 +18,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - `EasyFlow::FlowsController` — the visitor controller; the app subclasses it to serve one host's flows from its own routes and to change what happens at the start, on each step and at the finish.
 - `hosted_by` — class method on a `FlowsController` subclass naming the host whose flows it serves.
 - `routed_by` — class method on a `FlowsController` subclass naming the prefix of the app's own route names that the controller redirects and links to.
-- `EasyFlow::Run` — the stored record of one visitor's pass through a flow, pinned to the version that was live when it started, moved on past a waiting step with `advance`, and read for the output its flow ended with by `output`.
+- `EasyFlow::Run` — the stored record of one visitor's pass through a flow, started with `EasyFlow::Run.start` on the live version or a chosen published one and pinned to that version, moved on past a waiting step with `advance`, and read for the output its flow ended with by `output`.
 - `EasyFlow::QuestionRunner` — reads a flow document: its steps, the next step for a set of answers, the answers on the path taken, and a question's text and an answer's label.
 
 ## How to use it
@@ -222,9 +222,29 @@ Use this when an admin should edit a value that belongs to one of the app's own 
    The controller inherits from the base controller set at install, uses the host's layout, visitor authorization and refusal methods, and only finds flows that belong to the named host. Pages it does not override use the engine's own views.
 4. Override only the private methods the developer's answers call for:
    - `finished(answers, run)` — called when the visitor reaches the end. `answers` is the answers on the path taken, keyed by step id as symbols, each a string or, for a checklist, an array of strings. `run` is the stored `EasyFlow::Run`, or `nil` when the admin set the flow to save nothing. A flow the admin set to save on finish gets its run created at this point. To act on which way the flow ended, read `run.output`; when `run` is `nil` there is no output to read. It must render or redirect. Default: the engine's completion page, which lists each answer on the path taken by its label, a checklist's answer as the labels of everything ticked joined into one sentence.
-   - `start_run(flow)` — creates the run when a visitor starts a flow the admin set to save each step. Call `super` and change the run it returns, for example to set its `owner` or `label`.
+   - `start_run(flow)` — creates the run when a visitor starts a flow the admin set to save each step. Call `super` and change the run it returns, for example to set its `owner` or `label`. To start the run on a version other than the live one, return `EasyFlow::Run.start(flow, version: ...)` instead of calling `super`; see "Start a run on a chosen version".
    - `runner_for(definition)` — returns the runner used for each step. Return a subclass of `EasyFlow::QuestionRunner` to change what the step and completion pages read from it.
 5. Visit `/<path>/<slug>` for a published flow and walk it to the end.
+
+### Start a run on a chosen version
+
+Use this when a visitor's run should follow a published version of a flow other than the live one, such as the version an earlier run of the same owner was on.
+
+1. Ask the developer which version the run should start on and how the app knows it, such as a version number stored on the owner or read from the request. Do not pick it.
+2. Find the version among the flow's own versions, for example `flow.definition_versions.find_by(number: number)`. A version answers `number`, and `live?` or `superseded?` when it is published.
+3. Start the run with `EasyFlow::Run.start(flow, version: version)`. Without `version:` the run starts on the flow's live version. Either way the run is pinned to that version, and publishing another version later does not change it.
+4. The version must be one the flow has published and not taken out of service, which is the live version or one it replaced. A version that is a draft, is retired or withdrawn, belongs to another flow, or is `nil` makes `start` raise `ActiveRecord::RecordInvalid` and no run is created. Ask the developer what the visitor is shown when that happens, such as starting on the live version instead or refusing.
+5. To do this when a visitor starts a flow from the app's own controller, override `start_run(flow)` and return the run:
+
+   ```ruby
+   def start_run(flow)
+     version = flow.definition_versions.find_by(number: current_customer.intake_version)
+     EasyFlow::Run.start(flow, version: version || flow.live_version).tap { |run| run.update!(owner: current_customer) }
+   end
+   ```
+
+   This only applies to a flow the admin set to save each step. A flow set to save on finish, or to save nothing, always runs on the live version.
+6. Start a run on an older published version, walk it, and check the steps shown are that version's. Start one on a draft and check it is refused.
 
 ### Read a run and its answers
 
@@ -265,6 +285,7 @@ Use this when an admin should edit a value that belongs to one of the app's own 
 - A setting declared with `kept_on:` lives only on the app's record, written when the admin saves the step, so a step's code never finds it in `node.config`.
 - A `kept_on:` lambda is given only the step's settings, so it cannot limit which records an admin reaches by admin, account or host.
 - A type that routes declares the values its output takes, or the canvas offers no connections to label.
+- A run starts only on a version its own flow has published and not retired or withdrawn, and any other version raises `ActiveRecord::RecordInvalid`.
 - Always read a run against `run.pinned_definition`, never the flow's live version, since a run keeps the version it started on after a new one is published.
 - Always look flows and runs up through a host.
 - In a flow that loops, a later visit's answer is keyed `<id>@<n>`, so code that reads answers never assumes one answer per step id. A step id may not contain `@`, and a flow with one is refused when published.

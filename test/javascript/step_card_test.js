@@ -53,3 +53,10 @@ test("writes each of the step's problems in red", () => {
 test("marks a step that runs another flow", () => {
   assert.ok(child(card({ starts_a_flow: true }), (element) => element.props?.children === "Runs a flow"))
 })
+
+test("opens the flow a step runs when its card is clicked", () => {
+  let opened = null
+  card({ starts_a_flow: true, opens: "/flows/7" }, { onOpen: (path) => { opened = path } }).props.onClick()
+
+  assert.equal(opened, "/flows/7")
+})

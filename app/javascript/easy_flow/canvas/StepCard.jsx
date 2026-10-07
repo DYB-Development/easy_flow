@@ -15,7 +15,7 @@ const edge = (target, troubled, selected) => {
   return "border-gray-300 shadow-sm dark:border-zinc-700"
 }
 
-const StepCard = ({ node, selected, armed, connecting, onSelect, onArm, onDragEnd, onDragStart }) => {
+const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart }) => {
   const bookend = node.begins_here || node.ends_here
   const pinned = node.begins_here
   const ports = node.ends_here ? [] : node.ports
@@ -27,7 +27,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onArm, onDragEn
          draggable={!pinned}
          onDragStart={(event) => { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", node.id); onDragStart() }}
          onDragEnd={onDragEnd}
-         onClick={onSelect}
+         onClick={node.opens ? () => onOpen(node.opens) : onSelect}
          className={`bg-white border-2 dark:bg-zinc-900 ${edge(target, node.violations.length > 0, selected)}`}
          style={{
            ...card,

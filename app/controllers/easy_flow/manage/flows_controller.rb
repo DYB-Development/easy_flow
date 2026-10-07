@@ -22,6 +22,7 @@ module EasyFlow
 
       def show
         @flow = hosted_flows.find(params[:id])
+        @parent = hosted_flows.find_by(id: params[:from])
         @canvas = canvas_payload(@flow)
       end
 

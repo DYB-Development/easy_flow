@@ -534,7 +534,7 @@ module EasyFlow
       assert_equal %w[Onboarding], offered & %w[Onboarding Elsewhere]
     end
 
-    test "a Flow step on the canvas leads to the canvas of the flow it runs" do
+    test "a Flow step on the canvas leads to the canvas of the flow it runs, saying which flow it came from" do
       onboarding = Definition.create!(host: "dummy", slug: "onboarding", title: "Onboarding")
       parent = Definition.create!(host: "dummy", slug: "parent", title: "Parent").tap do |built|
         built.record_definition(flowing("slug" => "parent", "entry" => "inner", "nodes" => [ { "id" => "inner", "type" => "flow_step", "flow" => onboarding.id.to_s } ], "edges" => []))
@@ -542,7 +542,16 @@ module EasyFlow
 
       get "#{easy_flow.manage_flow_canvas_path(parent)}.json"
 
-      assert_equal easy_flow.manage_flow_path(onboarding), response.parsed_body["nodes"].find { |node| node["id"] == "inner" }["opens"]
+      assert_equal easy_flow.manage_flow_path(onboarding, from: parent.id), response.parsed_body["nodes"].find { |node| node["id"] == "inner" }["opens"]
+    end
+
+    test "an inner flow's canvas opened from a Flow step links back to the parent flow's canvas" do
+      parent = Definition.create!(host: "dummy", slug: "parent", title: "Parent")
+      onboarding = Definition.create!(host: "dummy", slug: "onboarding", title: "Onboarding")
+
+      get easy_flow.manage_flow_path(onboarding, from: parent.id)
+
+      assert_select "a[href=?]", easy_flow.manage_flow_path(parent), text: "Back to Parent"
     end
   end
 end

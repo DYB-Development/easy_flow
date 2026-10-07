@@ -16,6 +16,10 @@
 
       <%= ui_button(label: "Try it", href: flow_routes.manage_flow_preview_path(@flow), variant: :secondary) %>
 
+      <% if @parent %>
+        <%= ui_button(label: "Back to #{@parent.title.presence || @parent.slug}", href: flow_routes.manage_flow_path(@parent), variant: :secondary) %>
+      <% end %>
+
       <%= ui_button(label: "All flows", href: flow_routes.manage_flows_path, variant: :secondary) %>
     </div>
   </header>

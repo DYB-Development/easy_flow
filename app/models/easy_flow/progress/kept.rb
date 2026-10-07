@@ -20,8 +20,8 @@ module EasyFlow
       def start_inner(node)
         return if @run.inner_runs.exists?(parent_step: node.id)
 
-        flow = Definition.find(node.config["flow"])
-        Run.start(flow, version: flow.definition_versions.find_by(number: node.config["version"]))
+        chosen = ChosenFlow.of(node)
+        Run.start(chosen.flow || raise(ActiveRecord::RecordNotFound), version: chosen.version)
           .tap { |inner| inner.update!(parent_run: @run, parent_step: node.id, owner: @run.owner) }.advance
       end
 

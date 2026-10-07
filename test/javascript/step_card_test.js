@@ -67,3 +67,12 @@ test("picks a step that runs another flow as a connection's target while connect
 
   assert.ok(picked)
 })
+
+test("a Settings button on a step that runs another flow selects the step", () => {
+  let selected = false
+  const settings = child(card({ starts_a_flow: true, opens: "/flows/7" }, { onSelect: () => { selected = true } }), (element) => element.props?.children === "Settings")
+
+  settings.props.onClick({ stopPropagation: () => {} })
+
+  assert.ok(selected)
+})

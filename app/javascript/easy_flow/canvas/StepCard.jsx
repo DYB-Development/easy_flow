@@ -1,4 +1,5 @@
 import React from "react"
+import Button from "keystone_ui-react/src/Button.jsx"
 import Port from "./Port"
 import { CARD } from "./styles"
 
@@ -38,6 +39,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
       {!bookend && <div style={named}>{node.label}</div>}
       {!bookend && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{node.type}</div>}
       {node.starts_a_flow && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Runs a flow</div>}
+      {node.opens && <Button variant="secondary" size="sm" className="mt-2" onClick={(event) => { event.stopPropagation(); onSelect() }}>Settings</Button>}
       {node.violations.map((violation) => (
         <div key={violation.problem + violation.detail} className="text-red-600 dark:text-red-400" style={{ fontSize: 11, padding: "0 14px 6px" }}>
           {violation.problem.replace(/_/g, " ")}{violation.detail ? `: ${violation.detail}` : ""}

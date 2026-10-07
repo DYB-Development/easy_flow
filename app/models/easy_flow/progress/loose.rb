@@ -21,6 +21,8 @@ module EasyFlow
 
       def start_inner(_node); end
 
+      def ended; end
+
       def finish(state)
         return unless @flow.on_finish?
 

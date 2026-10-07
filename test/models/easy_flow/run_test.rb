@@ -2,6 +2,8 @@ require "test_helper"
 
 module EasyFlow
   class RunTest < ActiveSupport::TestCase
+    include ActiveJob::TestHelper
+
     test "going back removes the last answer along the path, not the last in list order" do
       flow = Definition.create!(host: "dummy", slug: "jump")
       flow.definition_versions.create!(number: 1, definition: flowing({
@@ -129,6 +131,48 @@ module EasyFlow
       assert_no_difference -> { Run.count } do
         Runner.new(flow.live_definition).run(Progress::Loose.new(flow, {}))
       end
+    end
+
+    test "an inner run that reaches an End step records that step's output in its parent at the Flow step" do
+      parent = Run.start(parent_flow)
+      parent.advance
+      inner = parent.inner_runs.sole
+      inner.record(:ask, "yes")
+
+      inner.advance
+
+      assert_equal "bought", parent.reload.recorded[:offer]
+    end
+
+    test "an inner run that hands its output to its parent queues a job to move the parent on" do
+      parent = Run.start(parent_flow)
+      parent.advance
+      inner = parent.inner_runs.sole
+      inner.record(:ask, "yes")
+
+      assert_enqueued_with(job: AdvanceParentJob, args: [ parent ]) { inner.advance }
+    end
+
+    test "the job moves the parent on along the connection named after the recorded output" do
+      parent = Run.start(published("continuing",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => inner_flow.id.to_s, "version" => 1 },
+                 { "id" => "thank", "type" => "deliver", "message" => "Thanks" }, { "id" => "done", "type" => "terminal" } ],
+        edges: [ { "from" => "start", "to" => "offer" }, { "from" => "offer", "to" => "thank", "on" => "bought" }, { "from" => "thank", "to" => "done" } ]))
+      parent.advance
+      parent.inner_runs.sole.tap { |inner| inner.record(:ask, "yes") }.advance
+
+      perform_enqueued_jobs
+
+      assert_equal({ offer: "bought", thank: false }, parent.reload.recorded)
+    end
+
+    test "a finished inner run advanced again hands its output back only once" do
+      parent = Run.start(parent_flow)
+      parent.advance
+      inner = parent.inner_runs.sole.tap { |run| run.record(:ask, "yes") }
+      inner.advance
+
+      assert_no_enqueued_jobs(only: AdvanceParentJob) { inner.advance }
     end
 
     test "pins to the flow's current definition version when started" do

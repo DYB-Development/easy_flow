@@ -25,6 +25,14 @@ module EasyFlow
           .tap { |inner| inner.update!(parent_run: @run, parent_step: node.id) }.advance
       end
 
+      def ended
+        parent = @run.parent_run or return
+        return if parent.recorded.key?(@run.parent_step.to_sym)
+
+        parent.record(@run.parent_step.to_sym, @run.output)
+        AdvanceParentJob.perform_later(parent)
+      end
+
       def finish(_state)
         @run
       end

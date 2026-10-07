@@ -56,7 +56,7 @@ module EasyFlow
     private
 
     def started_on_a_published_version
-      errors.add(:definition_version, "must be a published version of the flow") unless definition_version&.live? || definition_version&.superseded?
+      errors.add(:definition_version, "must be a published version of the flow") unless definition_version&.flow_id == flow_id && (definition_version.live? || definition_version.superseded?)
     end
   end
 end

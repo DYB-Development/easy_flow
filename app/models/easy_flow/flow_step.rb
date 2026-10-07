@@ -4,6 +4,6 @@ module EasyFlow
 
     step_name "Flow"
 
-    setting :version, type: :integer, required: true
+    setting :version, type: :integer
   end
 end

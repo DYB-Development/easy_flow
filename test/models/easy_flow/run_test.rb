@@ -150,7 +150,7 @@ module EasyFlow
       inner = parent.inner_runs.sole
       inner.record(:ask, "yes")
 
-      assert_enqueued_with(job: AdvanceParentJob, args: [ parent ]) { inner.advance }
+      assert_enqueued_with(job: AdvanceParentJob, args: [ parent, "offer" ]) { inner.advance }
     end
 
     test "the job moves the parent on along the connection named after the recorded output" do
@@ -189,6 +189,35 @@ module EasyFlow
       parent.advance
 
       assert_equal customer, parent.inner_runs.sole.owner
+    end
+
+    test "an inner run that ends with no output records nothing in its parent" do
+      silent = published("silent", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "done", "type" => "terminal" } ],
+                                   edges: [ { "from" => "start", "to" => "done" } ])
+      parent = Run.start(published("hushed", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => silent.id.to_s, "version" => 1 } ],
+                                             edges: [ { "from" => "start", "to" => "offer" } ]))
+
+      parent.advance
+
+      assert_not parent.reload.recorded.key?(:offer)
+    end
+
+    test "the job fails with an error naming the Flow step when nothing was recorded there" do
+      parent = Run.start(parent_flow)
+      parent.advance
+
+      error = assert_raises(InnerFlowError) { AdvanceParentJob.perform_now(parent, "offer") }
+
+      assert_includes error.message, "offer"
+    end
+
+    test "a parent run whose inner version was retired after it was published raises an error naming the Flow step" do
+      parent = Run.start(parent_flow)
+      inner_flow.definition_versions.find_by!(number: 1).update!(status: "retired")
+
+      error = assert_raises(InnerFlowError) { parent.advance }
+
+      assert_includes error.message, "offer"
     end
 
     test "pins to the flow's current definition version when started" do

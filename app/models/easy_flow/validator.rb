@@ -2,14 +2,15 @@ module EasyFlow
   class Validator
     OPTIONAL = { unrouted_value: :unrouted_values, unfollowed_path: :unfollowed_paths, dead_end: :dead_ends }.freeze
 
-    def initialize(document, registry: EasyFlow.registry, checks: EasyFlow.checks)
+    def initialize(document, registry: EasyFlow.registry, checks: EasyFlow.checks, flow: nil)
       @document = document
       @registry = registry
       @checks = checks
+      @flow = flow
     end
 
     def violations
-      structural_violations + unmet_requirements + missing_settings + missing_values + missing_flows + unrunnable_versions + beginnings + asked_for
+      structural_violations + unmet_requirements + missing_settings + missing_values + missing_flows + unrunnable_versions + circular_flows + beginnings + asked_for
     end
 
     def structural_violations
@@ -152,8 +153,24 @@ module EasyFlow
       version&.live? || version&.superseded? || false
     end
 
-    def starting_a_flow
-      @document.nodes.select { |node| @registry.registered?(node.type) && @registry.fetch(node.type).starts_a_flow? }
+    def circular_flows
+      return [] unless @flow
+
+      starting_a_flow.select { |node| leads_back?(node, []) }
+        .map { |node| Violation.new(node: node.id, problem: :circular) }
+    end
+
+    def leads_back?(node, seen)
+      chosen = ChosenFlow.of(node)
+      return true if chosen.flow_id.to_s == @flow.id.to_s
+      return false if chosen.flow_id.nil? || seen.include?(chosen.flow_id.to_s)
+
+      starting_a_flow(Document.new(chosen.version&.definition.to_h, registry: @registry))
+        .any? { |inner| leads_back?(inner, seen + [ chosen.flow_id.to_s ]) }
+    end
+
+    def starting_a_flow(document = @document)
+      document.nodes.select { |node| @registry.registered?(node.type) && @registry.fetch(node.type).starts_a_flow? }
     end
 
     def missing_settings

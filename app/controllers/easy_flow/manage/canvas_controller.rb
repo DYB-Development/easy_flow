@@ -7,7 +7,7 @@ module EasyFlow
       end
 
       def create
-        objections = Validator.new(document).violations
+        objections = Validator.new(document, flow: flow).violations
         return render json: { error: refusal(objections) }, status: :unprocessable_entity if objections.any?
 
         stood_at = flow.current_definition_version&.number
@@ -17,7 +17,7 @@ module EasyFlow
       end
 
       def publish
-        objections = Validator.new(document).violations
+        objections = Validator.new(document, flow: flow).violations
         return render json: { error: refusal(objections) }, status: :unprocessable_entity if objections.any?
 
         ran = flow.live_version&.number

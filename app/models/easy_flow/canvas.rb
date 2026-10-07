@@ -1,7 +1,8 @@
 module EasyFlow
   class Canvas
-    def initialize(document, registry: EasyFlow.registry, host: nil, flows: [], flow_path: nil)
+    def initialize(document, registry: EasyFlow.registry, host: nil, flows: [], flow_path: nil, flow: nil)
       @document = document
+      @flow = flow
       @registry = registry
       @host = host
       @flows = flows
@@ -102,7 +103,7 @@ module EasyFlow
     end
 
     def violations
-      Validator.new(@document, registry: @registry).violations.map do |violation|
+      Validator.new(@document, registry: @registry, flow: @flow).violations.map do |violation|
         { "node" => violation.node, "problem" => violation.problem.to_s, "detail" => violation.detail }
       end
     end

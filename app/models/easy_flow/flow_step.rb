@@ -3,5 +3,7 @@ module EasyFlow
     include Step
 
     step_name "Flow"
+
+    setting :version, type: :integer, required: true
   end
 end

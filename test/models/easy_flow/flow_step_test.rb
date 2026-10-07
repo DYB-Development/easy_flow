@@ -36,5 +36,9 @@ module EasyFlow
 
       assert_equal "inner", Digest.new(parent).next_step({}).id
     end
+
+    test "starts another flow" do
+      assert_predicate FlowStep.step_type, :starts_a_flow?
+    end
   end
 end

@@ -4,6 +4,8 @@ module EasyFlow
 
     step_name "Flow"
 
+    starts_a_flow
+
     setting :flow, type: :flow
     setting :version, type: :integer
 

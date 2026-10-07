@@ -23,6 +23,7 @@ module EasyFlow
         EasyFlow::Condition.register
         EasyFlow::Switch.register
         EasyFlow::Compare.register
+        EasyFlow::FlowStep.register
 
         EasyFlow.check(:unrouted_value)
         EasyFlow.check(:unfollowed_path)

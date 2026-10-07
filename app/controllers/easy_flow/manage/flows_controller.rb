@@ -37,7 +37,9 @@ module EasyFlow
       end
 
       def destroy
-        hosted_flows.find(params[:id]).destroy!
+        flow = hosted_flows.find(params[:id])
+        return redirect_to manage_flows_path, alert: flow.errors.full_messages.to_sentence unless flow.destroy
+
         redirect_to manage_flows_path, notice: "Flow removed."
       end
 

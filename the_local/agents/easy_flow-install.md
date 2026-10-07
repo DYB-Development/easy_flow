@@ -49,7 +49,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    ```
 
    - `layout` — the visitor layout. Defaults to the engine's bare layout, which loads no stylesheet, so a styled app almost always sets it.
-   - `admin_layout` — the admin layout. Defaults to `"application"`. It must call `yield :head` inside `<head>`, or the canvas scripts do not load.
+   - `admin_layout` — the admin layout. Defaults to `"application"`. It must call `yield :head` inside `<head>`, or the canvas scripts do not load. It must also show `flash[:notice]` and `flash[:alert]`, since the flow list does not show them itself and removing a flow reports its result only there.
    - `admin_authentication_method` — a method on the base controller, called with no arguments before every admin page. With none set, the admin pages are open to anyone.
    - `visitor_authorization_method` — a method on the base controller, called with the flow, returning true when the visitor may run it. With none set, every visitor is refused.
    - `refusal_method` — a method on the base controller, called with the refusal error when a visitor is refused or a flow is unpublished or withdrawn. With none set, the response is `404 Not Found`.
@@ -99,6 +99,8 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After publishing a flow with a Flow step, check that when a visitor finishes the chosen flow, the run that holds the Flow step moves on along the connection named after the output that flow ended with. If it stays at the Flow step, check the queue adapter from step 11.
 - When a chosen flow ends at an End step with no output filled in, the engine records nothing at the Flow step, and the job queued on `default` fails with `EasyFlow::InnerFlowError` naming the Flow step. The run that holds the Flow step stays at it. Check that the queue adapter from step 11 keeps or reports failed jobs, and that every End step of a flow chosen on a Flow step has an output.
 - When a run reaches a Flow step whose chosen version was retired or withdrawn after the flow was published, the engine raises `EasyFlow::InnerFlowError` naming the Flow step and starts no run. The engine does not turn this error into a refusal, so the visitor gets the app's error page. Check that the app's error reporting captures it.
+- After install, check that removing a flow from `<mount path>/manage/flows` shows "Flow removed." and takes the flow off the list. Removing a flow deletes its versions and its runs, and needs no setting in the initializer.
+- After publishing a flow with a Flow step, check that while a run of it is stopped at that Flow step, removing the chosen flow is refused and the flow list shows "This flow cannot be removed while" followed by the waiting flow's title, or its slug when it has no title, and "waits on one of its runs". If no message is shown, check that the admin layout shows `flash[:alert]`.
 - After setting a host's `offers`, check that the canvas palette on that host's `<mount path>/manage/flows` lists only those step types and End.
 - Taking a step type off a host's `offers` removes it from the palette only. Steps of that type already in the host's flows stay in them and keep running.
 - The initializer runs once at boot, so a change to it needs a server restart.

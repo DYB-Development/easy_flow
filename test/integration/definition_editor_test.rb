@@ -63,5 +63,21 @@ module EasyFlow
 
       assert_equal "edited", fresh.reload.changes_since_version.last["action"]
     end
+
+    test "removing a flow a waiting parent run depends on is refused with a message naming the parent flow" do
+      inner = Definition.create!(host: "dummy", slug: "inner-offer").tap do |flow|
+        flow.publish_version(flow.definition_versions.create!(number: 1, definition: flowing("slug" => "inner-offer", "entry" => "ask",
+          "nodes" => [ { "id" => "ask", "type" => "question", "text" => "Buy?", "options" => [ "yes" ] } ], "edges" => [])))
+      end
+      parent = Definition.create!(host: "dummy", slug: "stack", title: "Stack").tap do |flow|
+        flow.publish_version(flow.definition_versions.create!(number: 1, definition: flowing("slug" => "stack", "entry" => "offer",
+          "nodes" => [ { "id" => "offer", "type" => "flow_step", "flow" => inner.id.to_s, "version" => 1 } ], "edges" => [])))
+      end
+      Run.start(parent).advance
+
+      delete easy_flow.manage_flow_path(inner)
+
+      assert_equal "This flow cannot be removed while Stack waits on one of its runs", flash[:alert]
+    end
   end
 end

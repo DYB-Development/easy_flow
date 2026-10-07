@@ -1,6 +1,9 @@
 module EasyFlow
   ChosenFlow = Data.define(:flow_id, :number) do
-    def self.of(node)
+    def self.of(node, registry: EasyFlow.registry)
+      chosen = (registry.fetch(node.type).flow_chosen_by(node) if registry.registered?(node.type))
+      return new(flow_id: chosen[:flow].presence, number: chosen[:version].presence) if chosen
+
       new(flow_id: node.config["flow"].presence, number: node.config["version"].presence)
     end
 

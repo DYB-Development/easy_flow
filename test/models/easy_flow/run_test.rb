@@ -220,6 +220,16 @@ module EasyFlow
       assert_includes error.message, "offer"
     end
 
+    test "removing a parent flow leaves the inner runs its runs started, with no parent" do
+      parent = Run.start(parent_flow)
+      parent.advance
+      inner = parent.inner_runs.sole
+
+      parent_flow.destroy!
+
+      assert_nil inner.reload.parent_run
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

@@ -182,6 +182,15 @@ module EasyFlow
       assert_equal parent.inner_runs.sole, parent.waiting_on
     end
 
+    test "an inner run belongs to the same owner as the parent run that started it" do
+      customer = ::Customer.create!(name: "Sam")
+      parent = Run.start(parent_flow).tap { |run| run.update!(owner: customer) }
+
+      parent.advance
+
+      assert_equal customer, parent.inner_runs.sole.owner
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

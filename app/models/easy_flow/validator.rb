@@ -9,7 +9,7 @@ module EasyFlow
     end
 
     def violations
-      structural_violations + unmet_requirements + missing_settings + missing_values + beginnings + asked_for
+      structural_violations + unmet_requirements + missing_settings + missing_values + missing_flows + unrunnable_versions + beginnings + asked_for
     end
 
     def structural_violations
@@ -136,6 +136,24 @@ module EasyFlow
       return {} unless @registry.registered?(node.type)
 
       @registry.fetch(node.type).settings.drawn_from
+    end
+
+    def missing_flows
+      starting_a_flow.reject { |node| ChosenFlow.of(node).flow }
+        .map { |node| Violation.new(node: node.id, problem: :missing_flow) }
+    end
+
+    def unrunnable_versions
+      starting_a_flow.select { |node| ChosenFlow.of(node).flow }.reject { |node| runnable?(ChosenFlow.of(node).version) }
+        .map { |node| Violation.new(node: node.id, problem: :unrunnable_version) }
+    end
+
+    def runnable?(version)
+      version&.live? || version&.superseded? || false
+    end
+
+    def starting_a_flow
+      @document.nodes.select { |node| @registry.registered?(node.type) && @registry.fetch(node.type).starts_a_flow? }
     end
 
     def missing_settings

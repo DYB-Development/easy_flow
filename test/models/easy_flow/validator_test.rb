@@ -356,5 +356,20 @@ module EasyFlow
 
       assert_includes violations(document).map(&:problem), :reserved_id
     end
+
+    def flow_step_document(config)
+      { "entry" => "offer", "nodes" => [ { "id" => "offer", "type" => "flow_step" }.merge(config) ], "edges" => [] }
+    end
+
+    test "flags a Flow step whose flow no longer exists" do
+      assert_includes violations(flow_step_document("flow" => "0", "version" => 1)).map { |violation| [ violation.node, violation.problem ] }, [ "offer", :missing_flow ]
+    end
+
+    test "flags a Flow step whose version was never published" do
+      onboarding = Definition.create!(host: "dummy", slug: "onboarding")
+      onboarding.definition_versions.create!(number: 1, definition: { "slug" => "onboarding" })
+
+      assert_includes violations(flow_step_document("flow" => onboarding.id.to_s, "version" => 1)).map { |violation| [ violation.node, violation.problem ] }, [ "offer", :unrunnable_version ]
+    end
   end
 end

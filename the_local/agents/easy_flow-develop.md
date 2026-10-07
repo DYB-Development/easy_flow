@@ -1,6 +1,6 @@
 ---
 name: easy_flow-develop
-description: Use PROACTIVELY for adding a step type to easy_flow flows (a step that asks the visitor something, takes several answers at once, computes a value from earlier answers, picks the next branch, or holds the visitor until something outside the flow has happened), showing a step differently depending on the visitor's stored run, branching on what a visitor ticked on a checklist, moving a paused run on once what it waits for has happened, refusing a blank or invalid answer to a step with a message, offering an admin a step setting whose options are read from the app's own records, letting an admin pick another flow of the same host in a step's settings, letting an admin edit a value stored on one of the app's own records from a step's settings on the canvas, serving a host's flows from the app's own controller and routes, starting a visitor's run on a published version of a flow other than the live one, acting when a visitor finishes a flow, acting on the output a visitor's flow ended with, finding the run of another flow that a Flow step started and the run that started it, sending a visitor back to the run that started a flow once that flow ends, and reading a run's recorded answers and question labels, including every answer ticked on a checklist and every visit's answer when a flow loops back to a question already asked — MUST BE USED instead of hand-rolling questionnaire steps, checkbox lists, branching logic, number comparisons, hard-coded setting options, copying a record's value into a flow and back, answer validation, polling or "come back later" pages, flow controllers or answer lookups.
+description: Use PROACTIVELY for adding a step type to easy_flow flows (a step that asks the visitor something, takes several answers at once, computes a value from earlier answers, picks the next branch, or holds the visitor until something outside the flow has happened), showing a step differently depending on the visitor's stored run, branching on what a visitor ticked on a checklist, moving a paused run on once what it waits for has happened, refusing a blank or invalid answer to a step with a message, offering an admin a step setting whose options are read from the app's own records, letting an admin pick another flow of the same host in a step's settings, letting an admin edit a value stored on one of the app's own records from a step's settings on the canvas, serving a host's flows from the app's own controller and routes, starting a visitor's run on a published version of a flow other than the live one, acting when a visitor finishes a flow, acting on the output a visitor's flow ended with, finding the run of another flow that a Flow step started, the run a waiting run is waiting on, and the run that started it, sending a visitor back to the run that started a flow once that flow ends, and reading a run's recorded answers and question labels, including every answer ticked on a checklist and every visit's answer when a flow loops back to a question already asked — MUST BE USED instead of hand-rolling questionnaire steps, checkbox lists, branching logic, number comparisons, hard-coded setting options, copying a record's value into a flow and back, answer validation, polling or "come back later" pages, flow controllers or answer lookups.
 tools: Read, Write, Edit, Grep
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -18,7 +18,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - `EasyFlow::FlowsController` — the visitor controller; the app subclasses it to serve one host's flows from its own routes and to change what happens at the start, on each step and at the finish.
 - `hosted_by` — class method on a `FlowsController` subclass naming the host whose flows it serves.
 - `routed_by` — class method on a `FlowsController` subclass naming the prefix of the app's own route names that the controller redirects and links to.
-- `EasyFlow::Run` — the stored record of one visitor's pass through a flow, started with `EasyFlow::Run.start` on the live version or a chosen published one and pinned to that version, moved on past a waiting step with `advance`, read for the output its flow ended with by `output`, and linked to the runs its Flow steps started by `inner_runs` and to the run that started it by `parent_run`.
+- `EasyFlow::Run` — the stored record of one visitor's pass through a flow, started with `EasyFlow::Run.start` on the live version or a chosen published one and pinned to that version, moved on past a waiting step with `advance`, read for the output its flow ended with by `output`, and linked to the runs its Flow steps started by `inner_runs`, to the one it is waiting on by `waiting_on`, and to the run that started it by `parent_run`.
 - `EasyFlow::QuestionRunner` — reads a flow document: its steps, the next step for a set of answers, the answers on the path taken, and a question's text and an answer's label.
 
 ## How to use it
@@ -262,7 +262,7 @@ Use this when a visitor's run reaches a Flow step and the app must take the visi
    - The new run's `parent_run` is the run that reached the step, and its `parent_step` is the step's id as a string, or the visit key such as `"sub@2"` on a later visit in a loop.
    - The new run is moved on at once past every step that acts without the visitor, the same as `run.advance`. When it stops at a Flow step of its own, that starts a further run the same way.
    - It is started once per visit to the step, so loading the page again or calling `advance` again starts no second one.
-   - Its `owner`, `label` and `status` are not copied from the parent run and are left blank.
+   - Its `owner` is the parent run's `owner` at the moment the new run is started, or blank when the parent run has none. Setting or changing the parent run's owner later does not change it. Its `label` and `status` are not copied and are left blank.
    - The parent run shows the visitor `Waiting for Flow.` with no form, no Next button and no Back button, and stays on the Flow step until the new run ends.
    - A flow set to save on finish or to save nothing, and an admin's preview, keep no stored run, so they start no run at a Flow step.
    - A Flow step whose flow is blank or deleted raises `ActiveRecord::RecordNotFound`, and one whose version number is blank, unknown or not a published version in service raises `ActiveRecord::RecordInvalid`, at the moment the run stops there.
@@ -274,8 +274,11 @@ Use this when a visitor's run reaches a Flow step and the app must take the visi
    - When the parent run then ends and was itself started by a Flow step, its own output is handed to its parent the same way.
    - The new run's own `finished` is still called on its visitor's page load. The job does not call `finished` for the parent run, and if the parent run reaches its end, `finished` is called the next time its visitor loads its page.
    - A visitor who presses Back on the step after a Flow step removes the recorded output, and the parent run waits on the Flow step again. No second run is started, and the parent run moves on again only when the new run's page is loaded or `advance` is called on it.
-4. Find the run a parent run started at a step with `run.inner_runs.find_by(parent_step: step_id)`, and the run that started a run with `run.parent_run`.
-5. Nothing takes the visitor from the parent run to the new run. Ask the developer how the visitor gets there, such as a link on the app's own page or a redirect from the app's controller, and where to show the new run, which is the `_run` route of the controller serving its host, such as `main_app.intake_run_path(inner)`. Do not pick.
+4. Find the runs:
+   - `run.waiting_on` — the run started at the step `run` is stopped at, or `nil` when `run` is stopped at a step that started no run, or has reached its end.
+   - `run.inner_runs.find_by(parent_step: step_id)` — the run started at a given step, or visit key such as `"sub@2"`, whether or not `run` is still stopped there.
+   - `run.parent_run` — the run that started `run`.
+5. Nothing takes the visitor from the parent run to the new run. Ask the developer how the visitor gets there, such as a link on the app's own page or a redirect from the app's controller, and where to show the new run, which is the `_run` route of the controller serving its host, such as `main_app.intake_run_path(run.waiting_on)`. Do not pick.
 6. Nothing takes the visitor back to the parent run when the new run ends either. Ask the developer whether the visitor goes back, and if so override `finished(answers, run)` in the controller serving the new run's host to redirect when `run&.parent_run` is present, to the `_run` route of the controller serving the parent run's host:
 
    ```ruby
@@ -286,10 +289,10 @@ Use this when a visitor's run reaches a Flow step and the app must take the visi
    end
    ```
 
-7. Ask the developer whether the new run should belong to the parent run's owner. If so, set it where the app sends the visitor on, for example `inner.update!(owner: run.owner)`.
+7. The new run already belongs to the parent run's owner, so a run that should have an owner needs it set on the parent run before the parent reaches the Flow step, such as in `start_run(flow)`. Ask the developer whether the new run should belong to a different record, and if so set it where the app sends the visitor on, for example `run.waiting_on.update!(owner: ...)`.
 8. Ask the developer what the visitor is shown when the parent run cannot start its new run, since the error is raised on the visitor's page load.
 9. Ask the developer what each output of the named flow should lead to in the parent flow. Each different output on the named version's End steps is a connection leaving the Flow step on the canvas, which an admin connects, so no code is needed unless the app acts on the output itself.
-10. Publish a flow with a Flow step set to save each step, start a run, walk it to the Flow step, and check one run of the named flow exists with that run as its `parent_run`, and that reloading the page starts no second one. Walk the new run to an End step, and check the parent run records that End step's output at the Flow step and moves on along the connection labelled with it.
+10. Publish a flow with a Flow step set to save each step, start a run with an owner, walk it to the Flow step, and check `run.waiting_on` is one run of the named flow with that run as its `parent_run` and the same `owner`, and that reloading the page starts no second one. Walk the new run to an End step, and check the parent run records that End step's output at the Flow step and moves on along the connection labelled with it.
 
 ### Read a run and its answers
 
@@ -300,6 +303,7 @@ Use this when a visitor's run reaches a Flow step and the app must take the visi
    - `run.owner` — the optional record the run belongs to, polymorphic, set by the app. `run.label` and `run.status` are free string columns for the app's own use.
    - `run.parent_run` and `run.parent_step` — the run whose Flow step started this one and that step's id, both `nil` for a run a visitor or the app started. Once this run ends, `run.parent_run.recorded` holds this run's `output` under that step id.
    - `run.inner_runs` — the runs this run's Flow steps started.
+   - `run.waiting_on` — the run started at the step this run is stopped at, or `nil` when no run was started there.
    - `run.pinned_definition` — the flow document of the version the run started on.
    - `run.next_step(answers)` and `run.walked(answers)` — the next step, and the answers on the path taken, for a set of answers against that pinned version.
    - `run.output` — the text the admin wrote into the output setting of the End step the run ended on, read from the run's pinned version. It is `nil` when the run has not reached an End step, or ended on one whose output was left blank. A flow may have several End steps with a different output on each, so the output says which way the flow ended. Ask the developer what the app does with each output, and what it does when there is none.
@@ -349,7 +353,7 @@ Use this when a visitor's run reaches a Flow step and the app must take the visi
 - `run.advance` only moves a stored run, and never finishes it; the visitor's next page load does.
 - A flow's output is free text an admin writes on each End step, so code that acts on it handles `nil` and any value it does not expect.
 - A flow's output is read from a stored run only, so a flow the admin set to save nothing gives none.
-- A run started by a Flow step has no owner until the app sets one, and nothing sends the visitor to it or back from it.
+- A run started by a Flow step takes the owner its parent run had when it was started, and nothing sends the visitor to it or back from it.
 - A run that reaches a Flow step waits there until the run it started ends, then records that run's output, which may be `nil`, and follows the connection labelled with it.
 - A parent run is moved on by an Active Job job, so the app's queue adapter must run jobs for it to move on without its visitor reloading.
 - Only a stored run starts a run at a Flow step.

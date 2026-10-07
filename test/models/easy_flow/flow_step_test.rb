@@ -40,5 +40,12 @@ module EasyFlow
     test "starts another flow" do
       assert_predicate FlowStep.step_type, :starts_a_flow?
     end
+
+    test "is named after the flow and version it runs" do
+      onboarding = Definition.create!(host: "dummy", slug: "onboarding", title: "Onboarding")
+      node = Node.new(id: "inner", type: "flow_step", config: { "flow" => onboarding.id.to_s, "version" => 2 })
+
+      assert_equal "Onboarding, version 2", FlowStep.step_type.name_of(node)
+    end
   end
 end

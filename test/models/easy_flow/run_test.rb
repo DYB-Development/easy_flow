@@ -211,6 +211,15 @@ module EasyFlow
       assert_includes error.message, "offer"
     end
 
+    test "a parent run whose inner version was retired after it was published raises an error naming the Flow step" do
+      parent = Run.start(parent_flow)
+      inner_flow.definition_versions.find_by!(number: 1).update!(status: "retired")
+
+      error = assert_raises(InnerFlowError) { parent.advance }
+
+      assert_includes error.message, "offer"
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

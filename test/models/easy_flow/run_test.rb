@@ -153,6 +153,19 @@ module EasyFlow
       assert_enqueued_with(job: AdvanceParentJob, args: [ parent ]) { inner.advance }
     end
 
+    test "the job moves the parent on along the connection named after the recorded output" do
+      parent = Run.start(published("continuing",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => inner_flow.id.to_s, "version" => 1 },
+                 { "id" => "thank", "type" => "deliver", "message" => "Thanks" }, { "id" => "done", "type" => "terminal" } ],
+        edges: [ { "from" => "start", "to" => "offer" }, { "from" => "offer", "to" => "thank", "on" => "bought" }, { "from" => "thank", "to" => "done" } ]))
+      parent.advance
+      parent.inner_runs.sole.tap { |inner| inner.record(:ask, "yes") }.advance
+
+      perform_enqueued_jobs
+
+      assert_equal({ offer: "bought", thank: false }, parent.reload.recorded)
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

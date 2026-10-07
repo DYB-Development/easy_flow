@@ -70,6 +70,10 @@ module EasyFlow
         @starts_a_flow = true
       end
 
+      def chooses_flow(&chooser)
+        @flow_chooser = chooser
+      end
+
       def names_by(field = nil, &naming)
         @naming_field = field
         @naming = naming
@@ -116,7 +120,7 @@ module EasyFlow
 
       def to_step_type
         StepType.new(id: @id, step_name: @step_name, settings: settings, awaits_input: @awaits_input,
-          ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, behaviour: @behaviour, routing: @routing,
+          ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, flow_chooser: @flow_chooser, behaviour: @behaviour, routing: @routing,
           display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming,
           outputs: @declared_outputs, answer_check: @answer_check, readiness: @readiness)
       end

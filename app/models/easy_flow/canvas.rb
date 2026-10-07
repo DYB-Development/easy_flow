@@ -20,7 +20,7 @@ module EasyFlow
     def drawn_step(node)
       { "id" => node.id, "type" => node.type, "label" => label_for(node),
         "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
-        "loose" => loose?(node), "choices" => choices_for(node), "placeholder" => false, **placed[node.id] }
+        "starts_a_flow" => starts_a_flow?(node), "loose" => loose?(node), "choices" => choices_for(node), "placeholder" => false, **placed[node.id] }
     end
 
     def drawn_placeholder(gap)
@@ -167,6 +167,10 @@ module EasyFlow
 
     def begins_here?(node)
       step_type_for(node)&.begins_here? || false
+    end
+
+    def starts_a_flow?(node)
+      step_type_for(node)&.starts_a_flow? || false
     end
 
     def ports_for(node)

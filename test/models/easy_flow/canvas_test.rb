@@ -301,5 +301,12 @@ module EasyFlow
 
       assert_equal [ { "value" => onboarding.id.to_s, "label" => "Onboarding" } ], drawn["choices"]["flow"]
     end
+
+    test "marks a step that starts another flow" do
+      nesting = Registry.new.tap { |built| built.register(StepType.define(:run_flow) { starts_a_flow }) }
+      document = Document.new({ "nodes" => [ { "id" => "inner", "type" => "run_flow" } ], "edges" => [] }, registry: nesting)
+
+      assert Canvas.new(document, registry: nesting).to_h["nodes"].first["starts_a_flow"]
+    end
   end
 end

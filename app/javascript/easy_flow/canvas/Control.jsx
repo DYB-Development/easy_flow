@@ -10,7 +10,7 @@ const offered = (choices) =>
 const Control = ({ type, value, choices, onChange, onSettle }) => {
   if (type === "boolean") return <Checkbox checked={Boolean(value)} onChange={(e) => onSettle(e.target.checked)} />
 
-  if (type === "select" || type === "previous_step" || type === "from_step") {
+  if (type === "select" || type === "previous_step" || type === "from_step" || type === "flow") {
     return <Select className="mb-3" value={value ?? ""} onChange={(e) => onSettle(e.target.value)}>
       <option value=""></option>
       {offered(choices).map((choice) => <option key={choice.value} value={choice.value}>{choice.label}</option>)}

@@ -2,14 +2,15 @@ module EasyFlow
   class Validator
     OPTIONAL = { unrouted_value: :unrouted_values, unfollowed_path: :unfollowed_paths, dead_end: :dead_ends }.freeze
 
-    def initialize(document, registry: EasyFlow.registry, checks: EasyFlow.checks)
+    def initialize(document, registry: EasyFlow.registry, checks: EasyFlow.checks, flow: nil)
       @document = document
       @registry = registry
       @checks = checks
+      @flow = flow
     end
 
     def violations
-      structural_violations + unmet_requirements + missing_settings + missing_values + missing_flows + unrunnable_versions + beginnings + asked_for
+      structural_violations + unmet_requirements + missing_settings + missing_values + missing_flows + unrunnable_versions + circular_flows + beginnings + asked_for
     end
 
     def structural_violations
@@ -150,6 +151,13 @@ module EasyFlow
 
     def runnable?(version)
       version&.live? || version&.superseded? || false
+    end
+
+    def circular_flows
+      return [] unless @flow
+
+      starting_a_flow.select { |node| ChosenFlow.of(node).flow_id.to_s == @flow.id.to_s }
+        .map { |node| Violation.new(node: node.id, problem: :circular) }
     end
 
     def starting_a_flow

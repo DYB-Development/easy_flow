@@ -371,5 +371,13 @@ module EasyFlow
 
       assert_includes violations(flow_step_document("flow" => onboarding.id.to_s, "version" => 1)).map { |violation| [ violation.node, violation.problem ] }, [ "offer", :unrunnable_version ]
     end
+
+    test "flags a Flow step that names the flow it sits in" do
+      parent = Definition.create!(host: "dummy", slug: "parent")
+      parent.publish_version(parent.definition_versions.create!(number: 1, definition: { "slug" => "parent" }))
+      document = Document.new(flowing(flow_step_document("flow" => parent.id.to_s, "version" => 1)))
+
+      assert_includes Validator.new(document, flow: parent).violations.map { |violation| [ violation.node, violation.problem ] }, [ "offer", :circular ]
+    end
   end
 end

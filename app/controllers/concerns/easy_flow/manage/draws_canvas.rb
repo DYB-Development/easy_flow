@@ -6,7 +6,7 @@ module EasyFlow
       private
 
       def canvas_payload(flow)
-        Canvas.new(canvas_document(flow), host: flow_host).to_h
+        Canvas.new(canvas_document(flow), host: flow_host, flows: hosted_flows.order(:title)).to_h
           .merge("undoable" => flow.edit_history.undoable?, "redoable" => flow.edit_history.redoable?,
                  "changes" => listed_changes(flow), "flow" => flow_details(flow))
       end

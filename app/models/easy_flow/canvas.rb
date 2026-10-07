@@ -175,7 +175,7 @@ module EasyFlow
     end
 
     def opens(node)
-      named = naming_flows(node).filter_map { |name| node.config[name].presence }.first
+      named = ChosenFlow.of(node).flow_id
       @flow_path.call(named) if @flow_path && starts_a_flow?(node) && named
     end
 

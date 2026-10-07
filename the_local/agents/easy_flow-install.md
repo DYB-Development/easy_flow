@@ -1,6 +1,6 @@
 ---
 name: easy_flow-install
-description: Use to hook easy_flow into a project — copying and running its migrations, mounting the engine for each host, setting the controller it inherits from, declaring hosts with their layouts, access methods, the record that owns their flows and the step types each offers, choosing the default step drawing, turning on optional checks, and reaching the admin pages.
+description: Use to hook easy_flow into a project — copying and running its migrations, mounting the engine for each host, setting the controller it inherits from, declaring hosts with their layouts, access methods, the record that owns their flows and the step types each offers, choosing the default step drawing, turning on optional checks, giving the app a job queue that moves a run on once the flow its Flow step started ends, and reaching the admin pages.
 tools: Bash, Read, Edit
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -77,7 +77,8 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - It replaces the engine's drawing of every step whose type names no partial, so it draws each answer's hint and info itself or they are not shown.
    - It is not used for a checklist step. A checklist is always drawn by the engine as one checkbox per answer, each with an info button when the answer has info text, and the visitor may tick several.
 10. Leave `EasyFlow.check` out unless the developer asks for it. The engine already turns on `:unrouted_value`, `:unfollowed_path` and `:dead_end` at boot. Any other name raises `EasyFlow::UnknownCheck` when the app boots.
-11. Start the server and open `<mount path>/manage/flows` for each host.
+11. Check that the app loads Active Job (`require "rails/all"` or `require "active_job/railtie"` in `config/application.rb`) and has a queue adapter that runs jobs from the `default` queue. When a run started by a Flow step ends, the engine records its output in the run it was started from and queues a job on `default` that moves that run on. If no adapter runs that queue, the run that holds the Flow step stays at it. If `config.active_job.queue_adapter` is not set for an environment, ask the developer which adapter to use there.
+12. Start the server and open `<mount path>/manage/flows` for each host.
 
 ## Conventions
 
@@ -90,6 +91,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After setting a host's `owner_method`, check that two different owners each see only their own flows on `<mount path>/manage/flows`.
 - After install, check that a Flow step placed on the canvas offers the host's flows by title as its flow setting. With a host's `owner_method` set, it offers only that owner's flows. It needs no setting in the initializer.
 - When a stored run reaches a Flow step, the engine starts a run of the chosen flow and records the run it was started from. That record needs the migration that adds a parent run to the runs table, so an app upgrading from a version without it runs `bin/rails easy_flow:install:migrations` and `bin/rails db:migrate` before publishing a flow with a Flow step.
+- After publishing a flow with a Flow step, check that when a visitor finishes the chosen flow, the run that holds the Flow step moves on along the connection named after the output that flow ended with. If it stays at the Flow step, check the queue adapter from step 11.
 - After setting a host's `offers`, check that the canvas palette on that host's `<mount path>/manage/flows` lists only those step types and End.
 - Taking a step type off a host's `offers` removes it from the palette only. Steps of that type already in the host's flows stay in them and keep running.
 - The initializer runs once at boot, so a change to it needs a server restart.

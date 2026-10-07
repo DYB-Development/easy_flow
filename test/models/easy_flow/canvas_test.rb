@@ -308,5 +308,14 @@ module EasyFlow
 
       assert Canvas.new(document, registry: nesting).to_h["nodes"].first["starts_a_flow"]
     end
+
+    test "gives a step that starts another flow the path to that flow's canvas" do
+      nesting = Registry.new.tap { |built| built.register(StepType.define(:run_flow) { starts_a_flow; setting :flow, type: :flow }) }
+      document = Document.new({ "nodes" => [ { "id" => "inner", "type" => "run_flow", "flow" => "7" } ], "edges" => [] }, registry: nesting)
+
+      drawn = Canvas.new(document, registry: nesting, flow_path: ->(id) { "/flows/#{id}" }).to_h["nodes"].first
+
+      assert_equal "/flows/7", drawn["opens"]
+    end
   end
 end

@@ -150,7 +150,7 @@ module EasyFlow
       inner = parent.inner_runs.sole
       inner.record(:ask, "yes")
 
-      assert_enqueued_with(job: AdvanceParentJob, args: [ parent ]) { inner.advance }
+      assert_enqueued_with(job: AdvanceParentJob, args: [ parent, "offer" ]) { inner.advance }
     end
 
     test "the job moves the parent on along the connection named after the recorded output" do
@@ -200,6 +200,15 @@ module EasyFlow
       parent.advance
 
       assert_not parent.reload.recorded.key?(:offer)
+    end
+
+    test "the job fails with an error naming the Flow step when nothing was recorded there" do
+      parent = Run.start(parent_flow)
+      parent.advance
+
+      error = assert_raises(InnerFlowError) { AdvanceParentJob.perform_now(parent, "offer") }
+
+      assert_includes error.message, "offer"
     end
 
     test "pins to the flow's current definition version when started" do

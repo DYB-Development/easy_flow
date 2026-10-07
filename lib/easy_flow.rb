@@ -19,6 +19,7 @@ module EasyFlow
   class NotPublished < StandardError; end
   class NotPermitted < StandardError; end
   class OutOfService < StandardError; end
+  class InnerFlowError < StandardError; end
   class Withdrawn < StandardError; end
 
   DRAWING = "easy_flow/steps/choosing".freeze

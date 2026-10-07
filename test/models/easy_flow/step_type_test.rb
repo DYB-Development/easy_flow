@@ -437,5 +437,9 @@ module EasyFlow
 
       assert_equal "Dana", first.reload.name
     end
+
+    test "a step type can declare that its steps start another flow" do
+      assert_predicate StepType.define(:nested) { starts_a_flow }, :starts_a_flow?
+    end
   end
 end

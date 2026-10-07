@@ -26,7 +26,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 1. Confirm the app has Keystone UI installed (`keystone_ui` in the Gemfile). easy_flow's controllers use its helpers and it is not pulled in by easy_flow. If it is missing, stop and hand off to the `keystone_ui-install` local before continuing.
 2. Read the `keystone_ui` version in the app's `Gemfile.lock`. easy_flow's visitor pages pass each answer's info text to Keystone UI's radio cards and checkbox rows, and easy_flow is built against `keystone_ui` 0.27.0. If the app's version is older, ask the developer whether to run `bundle update keystone_ui` before continuing.
 3. Add `gem "easy_flow"` to the host's `Gemfile` and run `bundle install`.
-4. Run `bin/rails easy_flow:install:migrations`, then `bin/rails db:migrate`. This writes five migrations into `db/migrate` and updates `db/schema.rb`.
+4. Run `bin/rails easy_flow:install:migrations`, then `bin/rails db:migrate`. This writes six migrations into `db/migrate` and updates `db/schema.rb`.
 5. Ask the developer which hosts the app needs. A host is one part of the app that owns its own set of flows, and one host never sees another's flows. Ask for each host's name and the path it is served under.
 6. Ask the developer which controller the engine should inherit from. Choosing `"ApplicationController"` gives the engine the app's own authentication methods and helpers. Create `config/initializers/easy_flow.rb` and set it on the first line:
 
@@ -88,7 +88,8 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After publishing a flow with a checklist, check that a visitor can tick several answers and go on, and that a checklist marked required refuses to go on with nothing ticked.
 - After upgrading easy_flow, run `bin/rails easy_flow:install:migrations` again and then `bin/rails db:migrate`. Only migrations the app does not already have are copied.
 - After setting a host's `owner_method`, check that two different owners each see only their own flows on `<mount path>/manage/flows`.
-- After install, check that a Flow step placed on the canvas offers the host's flows by title as its flow setting. With a host's `owner_method` set, it offers only that owner's flows. It needs no migration and no setting in the initializer.
+- After install, check that a Flow step placed on the canvas offers the host's flows by title as its flow setting. With a host's `owner_method` set, it offers only that owner's flows. It needs no setting in the initializer.
+- When a stored run reaches a Flow step, the engine starts a run of the chosen flow and records the run it was started from. That record needs the migration that adds a parent run to the runs table, so an app upgrading from a version without it runs `bin/rails easy_flow:install:migrations` and `bin/rails db:migrate` before publishing a flow with a Flow step.
 - After setting a host's `offers`, check that the canvas palette on that host's `<mount path>/manage/flows` lists only those step types and End.
 - Taking a step type off a host's `offers` removes it from the palette only. Steps of that type already in the host's flows stay in them and keep running.
 - The initializer runs once at boot, so a change to it needs a server restart.

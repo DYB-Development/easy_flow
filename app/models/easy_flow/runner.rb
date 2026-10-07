@@ -30,6 +30,7 @@ module EasyFlow
       while (node = @digest.next_step(named(progress.recorded))) && goes_on?(node, named(progress.recorded))
         progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded)))
       end
+      progress.start_inner(node) if node && starts_a_flow?(node)
     end
 
     def drawing_at(state)
@@ -49,6 +50,10 @@ module EasyFlow
     end
 
     private
+
+    def starts_a_flow?(node)
+      @registry.registered?(node.type) && @registry.fetch(node.type).starts_a_flow?
+    end
 
     def acts?(node)
       @registry.registered?(node.type) && @registry.fetch(node.type).acts?

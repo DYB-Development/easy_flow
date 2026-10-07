@@ -7,7 +7,7 @@ module EasyFlow
     attr_reader :id, :step_name, :settings, :naming_field, :naming, :outputs, :drawn_by
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
-      ends_here: false, begins_here: false, display: nil, drawn_by: nil,
+      ends_here: false, begins_here: false, starts_a_flow: false, display: nil, drawn_by: nil,
       naming_field: nil, naming: nil, outputs: [], answer_check: nil, readiness: nil)
       @id = id
       @step_name = step_name
@@ -15,6 +15,7 @@ module EasyFlow
       @awaits_input = awaits_input
       @ends_here = ends_here
       @begins_here = begins_here
+      @starts_a_flow = starts_a_flow
       @behaviour = behaviour
       @routing = routing
       @display = display
@@ -78,6 +79,10 @@ module EasyFlow
 
     def begins_here?
       @begins_here
+    end
+
+    def starts_a_flow?
+      @starts_a_flow
     end
   end
 end

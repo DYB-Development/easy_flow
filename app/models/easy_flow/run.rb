@@ -5,6 +5,8 @@ module EasyFlow
     belongs_to :flow, class_name: "EasyFlow::Definition"
     belongs_to :definition_version, class_name: "EasyFlow::Version"
     belongs_to :owner, polymorphic: true, optional: true
+    belongs_to :parent_run, class_name: "EasyFlow::Run", optional: true
+    has_many :inner_runs, class_name: "EasyFlow::Run", foreign_key: :parent_run_id, inverse_of: :parent_run
 
     validate :started_on_a_published_version, on: :create
 

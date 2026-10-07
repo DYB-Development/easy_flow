@@ -4,10 +4,14 @@ module EasyFlow
 
     step_name "Flow"
 
+    starts_a_flow
+
     setting :flow, type: :flow
     setting :version, type: :integer
 
     output :result, values: ->(node) { FlowStep.endings_of(node) }
+
+    waits_until { |_node, _state| false }
 
     def self.endings_of(node)
       version = Definition.find_by(id: node.config["flow"])&.definition_versions&.find_by(number: node.config["version"])

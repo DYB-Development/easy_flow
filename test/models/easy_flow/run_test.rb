@@ -66,6 +66,71 @@ module EasyFlow
       assert_raises(ActiveRecord::RecordInvalid) { Run.start(flow, version: theirs) }
     end
 
+    test "an inner run says which run started it and at which step" do
+      flow = Definition.create!(host: "dummy", slug: "nested")
+      flow.publish_version(flow.definition_versions.create!(number: 1, definition: { "slug" => "nested" }))
+      parent = Run.start(flow)
+
+      inner = Run.start(flow).tap { |run| run.update!(parent_run: parent, parent_step: "inner") }
+
+      assert_equal [ parent, "inner" ], [ inner.reload.parent_run, inner.parent_step ]
+    end
+
+    def published(slug, nodes:, edges:, number: 1)
+      Definition.find_or_create_by!(host: "dummy", slug: slug).tap do |flow|
+        flow.publish_version(flow.definition_versions.create!(number: number, definition: { "slug" => slug, "entry" => "start", "nodes" => nodes, "edges" => edges }))
+      end
+    end
+
+    def inner_flow
+      @inner_flow ||= published("inner",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "ask", "type" => "question", "text" => "Buy?", "options" => [ "yes" ] }, { "id" => "done", "type" => "terminal", "output" => "bought" } ],
+        edges: [ { "from" => "start", "to" => "ask" }, { "from" => "ask", "to" => "done" } ])
+    end
+
+    def parent_flow
+      @parent_flow ||= published("parent",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => inner_flow.id.to_s, "version" => 1 }, { "id" => "done", "type" => "terminal" } ],
+        edges: [ { "from" => "start", "to" => "offer" }, { "from" => "offer", "to" => "done", "on" => "bought" } ])
+    end
+
+    test "a stored run that reaches a Flow step starts one run of the chosen flow on the chosen version" do
+      parent = Run.start(parent_flow)
+
+      parent.advance
+
+      assert_equal [ [ inner_flow, 1 ] ], parent.inner_runs.map { |inner| [ inner.flow, inner.definition_version.number ] }
+    end
+
+    test "advancing a parent run again while it waits starts no second inner run" do
+      parent = Run.start(parent_flow)
+      parent.advance
+
+      parent.advance
+
+      assert_equal 1, parent.inner_runs.count
+    end
+
+    test "an inner run's steps that act without a visitor run as soon as it starts" do
+      acting = published("acting",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "work", "type" => "deliver", "message" => "Hi" }, { "id" => "ask", "type" => "question", "text" => "Buy?", "options" => [ "yes" ] } ],
+        edges: [ { "from" => "start", "to" => "work" }, { "from" => "work", "to" => "ask" } ])
+      parent = Run.start(published("handing", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => acting.id.to_s, "version" => 1 } ],
+                                              edges: [ { "from" => "start", "to" => "offer" } ]))
+
+      parent.advance
+
+      assert_equal({ work: false }, parent.inner_runs.sole.recorded)
+    end
+
+    test "trying a parent flow without saving it stops at the Flow step and starts no run" do
+      flow = parent_flow
+
+      assert_no_difference -> { Run.count } do
+        Runner.new(flow.live_definition).run(Progress::Loose.new(flow, {}))
+      end
+    end
+
     test "pins to the flow's current definition version when started" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       version = flow.definition_versions.create!(number: 1, definition: { "slug" => "demo" })

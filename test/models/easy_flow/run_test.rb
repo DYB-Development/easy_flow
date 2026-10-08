@@ -127,6 +127,14 @@ module EasyFlow
       assert_equal [ inner_flow, other ], [ first, second ].map { |run| run.inner_runs.sole.flow }
     end
 
+    test "a run whose step chooses no flow from the run stops with an error naming the step" do
+      parent = Run.start(picking_flow)
+
+      error = assert_raises(InnerFlowError) { parent.advance }
+
+      assert_equal "The step pick chose no flow to run", error.message
+    end
+
     test "a stored run that reaches a Flow step starts one run of the chosen flow on the chosen version" do
       parent = Run.start(parent_flow)
 

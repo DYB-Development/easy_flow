@@ -454,5 +454,11 @@ module EasyFlow
 
       assert_equal "Onboarding, version 2", offers.name_of(Node.new(id: "a", type: "offer", config: {}))
     end
+
+    test "a step type that chooses its flow from the run is handed the run it is in" do
+      pipelines = StepType.define(:run_pipeline) { starts_a_flow; chooses_flow_from_run { |_node, run| { flow: "flow-for-run-#{run}", version: 4 } } }
+
+      assert_equal({ flow: "flow-for-run-7", version: 4 }, pipelines.flow_chosen_from_run(Node.new(id: "a", type: "run_pipeline", config: {}), 7))
+    end
   end
 end

@@ -170,7 +170,7 @@ module EasyFlow
     end
 
     def starting_a_flow(document = @document)
-      document.nodes.select { |node| @registry.registered?(node.type) && @registry.fetch(node.type).starts_a_flow? }
+      document.nodes.select { |node| @registry.registered?(node.type) && @registry.fetch(node.type).starts_a_flow? && !@registry.fetch(node.type).chooses_flow_from_run? }
     end
 
     def missing_settings

@@ -96,6 +96,56 @@ module EasyFlow
         edges: [ { "from" => "start", "to" => "offer" }, { "from" => "offer", "to" => "done", "on" => "bought" } ])
     end
 
+    PICKED = {}
+
+    def picking_flow
+      EasyFlow.step(:pick_from_run) { starts_a_flow; waits_until { |_node, _state| false }; chooses_flow_from_run { |_node, run| PICKED[run.id] } }
+      @picking_flow ||= published("picking",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "pick", "type" => "pick_from_run" }, { "id" => "done", "type" => "terminal" } ],
+        edges: [ { "from" => "start", "to" => "pick" }, { "from" => "pick", "to" => "done" } ])
+    end
+
+    test "a run that reaches a step choosing from the run starts the flow and version chosen from that run" do
+      parent = Run.start(picking_flow)
+      PICKED[parent.id] = { flow: inner_flow.id, version: 1 }
+
+      parent.advance
+
+      assert_equal [ [ inner_flow, 1 ] ], parent.inner_runs.map { |inner| [ inner.flow, inner.definition_version.number ] }
+    end
+
+    test "two runs of one flow reaching a step that chooses from the run start two different inner flows" do
+      other = published("other", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "done", "type" => "terminal", "output" => "done" } ],
+                                 edges: [ { "from" => "start", "to" => "done" } ])
+      first = Run.start(picking_flow)
+      second = Run.start(picking_flow)
+      PICKED[first.id] = { flow: inner_flow.id, version: 1 }
+      PICKED[second.id] = { flow: other.id, version: 1 }
+
+      [ first, second ].each(&:advance)
+
+      assert_equal [ inner_flow, other ], [ first, second ].map { |run| run.inner_runs.sole.flow }
+    end
+
+    test "a run whose step chooses no flow from the run stops with an error naming the step" do
+      parent = Run.start(picking_flow)
+
+      error = assert_raises(InnerFlowError) { parent.advance }
+
+      assert_equal "The step pick chose no flow to run", error.message
+    end
+
+    test "an inner run that ends with no output still moves its parent on past a step that chose from the run" do
+      silent = published("quiet", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "done", "type" => "terminal" } ],
+                                  edges: [ { "from" => "start", "to" => "done" } ])
+      parent = Run.start(picking_flow)
+      PICKED[parent.id] = { flow: silent.id, version: 1 }
+
+      perform_enqueued_jobs { parent.advance }
+
+      assert_equal [ "ended", nil ], [ parent.reload.recorded[:pick], parent.next_step(parent.recorded) ]
+    end
+
     test "a stored run that reaches a Flow step starts one run of the chosen flow on the chosen version" do
       parent = Run.start(parent_flow)
 

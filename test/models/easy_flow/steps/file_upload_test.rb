@@ -10,6 +10,12 @@ module EasyFlow
       test "an admin can set which kinds of file a file step accepts" do
         assert_equal "Accepted file types", EasyFlow.registry.fetch(:file_upload).settings.labels[:accepts]
       end
+
+      test "a required file step refuses a visitor who chose no file" do
+        node = Node.new(id: "guide", type: "file_upload", config: { "required" => true })
+
+        assert_equal "Choose a file to go on.", FileUpload.step_type.answer_problem(node, "")
+      end
     end
   end
 end

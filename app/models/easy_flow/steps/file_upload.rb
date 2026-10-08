@@ -9,10 +9,12 @@ module EasyFlow
 
       setting :question, type: :string
       setting :accepts, type: :string, label: "Accepted file types"
+      setting :required, type: :boolean
 
       names_by :question
       awaits_input
       drawn_by "easy_flow/steps/uploading"
+      answer_check { |node, value| "Choose a file to go on." if node.config["required"] && value.blank? }
 
       displays_by { |node| Asked.new(id: node.id.to_sym, text: node.config["question"], accepts: node.config["accepts"]) }
     end

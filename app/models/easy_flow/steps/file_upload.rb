@@ -21,9 +21,11 @@ module EasyFlow
 
       def self.problem_with(node, value)
         return "Choose a file to go on." if node.config["required"] && value.blank?
+        return if value.blank?
+        return "A file can only be uploaded in a flow that saves its runs." unless value.respond_to?(:original_filename)
 
         kinds = accepted_kinds(node)
-        return if kinds.empty? || !value.respond_to?(:original_filename)
+        return if kinds.empty?
         return if kinds.include?(File.extname(value.original_filename).downcase)
 
         "Choose a #{kinds.to_sentence(two_words_connector: ' or ', last_word_connector: ', or ')} file."

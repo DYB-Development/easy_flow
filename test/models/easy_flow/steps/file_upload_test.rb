@@ -23,6 +23,12 @@ module EasyFlow
 
         assert_equal "Choose a .pdf or .docx file.", FileUpload.step_type.answer_problem(node, notes)
       end
+
+      test "a file step refuses a file name sent without the file" do
+        node = Node.new(id: "guide", type: "file_upload", config: {})
+
+        assert_equal "A file can only be uploaded in a flow that saves its runs.", FileUpload.step_type.answer_problem(node, "guide.pdf")
+      end
     end
   end
 end

@@ -20,7 +20,7 @@ module EasyFlow
       def start_inner(node)
         return if @run.inner_runs.exists?(parent_step: node.id)
 
-        chosen = ChosenFlow.of(node)
+        chosen = ChosenFlow.of(node, run: @run)
         raise InnerFlowError, "The Flow step #{node.id} names a version that cannot run" if chosen.version&.out_of_service?
         Run.start(chosen.flow || raise(ActiveRecord::RecordNotFound), version: chosen.version)
           .tap { |inner| inner.update!(parent_run: @run, parent_step: node.id, owner: @run.owner) }.advance

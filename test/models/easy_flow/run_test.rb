@@ -96,6 +96,24 @@ module EasyFlow
         edges: [ { "from" => "start", "to" => "offer" }, { "from" => "offer", "to" => "done", "on" => "bought" } ])
     end
 
+    PICKED = {}
+
+    def picking_flow
+      EasyFlow.step(:pick_from_run) { starts_a_flow; waits_until { |_node, _state| false }; chooses_flow_from_run { |_node, run| PICKED[run.id] } }
+      @picking_flow ||= published("picking",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "pick", "type" => "pick_from_run" }, { "id" => "done", "type" => "terminal" } ],
+        edges: [ { "from" => "start", "to" => "pick" }, { "from" => "pick", "to" => "done" } ])
+    end
+
+    test "a run that reaches a step choosing from the run starts the flow and version chosen from that run" do
+      parent = Run.start(picking_flow)
+      PICKED[parent.id] = { flow: inner_flow.id, version: 1 }
+
+      parent.advance
+
+      assert_equal [ [ inner_flow, 1 ] ], parent.inner_runs.map { |inner| [ inner.flow, inner.definition_version.number ] }
+    end
+
     test "a stored run that reaches a Flow step starts one run of the chosen flow on the chosen version" do
       parent = Run.start(parent_flow)
 

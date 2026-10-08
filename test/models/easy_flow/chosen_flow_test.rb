@@ -17,5 +17,11 @@ module EasyFlow
 
       assert_equal second, ChosenFlow.of(Node.new(id: "a", type: "offer", config: {}), registry: offers).version
     end
+
+    test "chooses nothing for a step that chooses from the run when there is no run, without calling its chooser" do
+      picks = Registry.new.tap { |built| built.register(StepType.define(:run_pipeline) { starts_a_flow; chooses_flow_from_run { |_node, run| { flow: run.fetch(:flow) } } }) }
+
+      assert_nil ChosenFlow.of(Node.new(id: "a", type: "run_pipeline", config: {}), registry: picks).flow_id
+    end
   end
 end

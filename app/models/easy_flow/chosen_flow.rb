@@ -2,7 +2,7 @@ module EasyFlow
   ChosenFlow = Data.define(:flow_id, :number) do
     def self.of(node, registry: EasyFlow.registry, run: nil)
       step_type = registry.fetch(node.type) if registry.registered?(node.type)
-      return worked_out(step_type.flow_chosen_from_run(node, run) || {}) if step_type&.chooses_flow_from_run?
+      return worked_out((run && step_type.flow_chosen_from_run(node, run)) || {}) if step_type&.chooses_flow_from_run?
 
       chosen = step_type&.flow_chosen_by(node)
       return worked_out(chosen) if chosen

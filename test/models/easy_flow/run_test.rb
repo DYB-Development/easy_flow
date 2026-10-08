@@ -114,6 +114,19 @@ module EasyFlow
       assert_equal [ [ inner_flow, 1 ] ], parent.inner_runs.map { |inner| [ inner.flow, inner.definition_version.number ] }
     end
 
+    test "two runs of one flow reaching a step that chooses from the run start two different inner flows" do
+      other = published("other", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "done", "type" => "terminal", "output" => "done" } ],
+                                 edges: [ { "from" => "start", "to" => "done" } ])
+      first = Run.start(picking_flow)
+      second = Run.start(picking_flow)
+      PICKED[first.id] = { flow: inner_flow.id, version: 1 }
+      PICKED[second.id] = { flow: other.id, version: 1 }
+
+      [ first, second ].each(&:advance)
+
+      assert_equal [ inner_flow, other ], [ first, second ].map { |run| run.inner_runs.sole.flow }
+    end
+
     test "a stored run that reaches a Flow step starts one run of the chosen flow on the chosen version" do
       parent = Run.start(parent_flow)
 

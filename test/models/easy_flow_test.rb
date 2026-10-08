@@ -44,5 +44,13 @@ module EasyFlow
     test "refuses a check it does not ship" do
       assert_raises(UnknownCheck) { EasyFlow.check(:invented) }
     end
+
+    test "refuses to keep an uploaded file when the host has set up no file store" do
+      stored_with, EasyFlow.file_store = EasyFlow.file_store, nil
+
+      assert_raises(NoFileStore) { EasyFlow.keep_file(Rack::Test::UploadedFile.new(file_fixture("guide.pdf"), "application/pdf")) }
+    ensure
+      EasyFlow.file_store = stored_with
+    end
   end
 end

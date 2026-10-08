@@ -21,6 +21,7 @@ module EasyFlow
   class OutOfService < StandardError; end
   class InnerFlowError < StandardError; end
   class Withdrawn < StandardError; end
+  class NoFileStore < StandardError; end
 
   DRAWING = "easy_flow/steps/choosing".freeze
 
@@ -60,6 +61,12 @@ module EasyFlow
 
     def registry
       @registry ||= Registry.new
+    end
+
+    def keep_file(file)
+      raise NoFileStore, "set EasyFlow.file_store to a store that keeps an uploaded file and returns a reference to it" unless file_store
+
+      file_store.keep(file)
     end
 
     def check(name)

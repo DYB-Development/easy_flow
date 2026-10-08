@@ -39,6 +39,15 @@ module EasyFlow
       assert_equal "guide.pdf", EasyFlow.file_store.name_of(run.reload.recorded[:guide])
     end
 
+    test "a run moves on to the next step once its file is uploaded" do
+      run = Run.start(uploading)
+
+      patch easy_flow.run_path(run), params: { asked: "guide", answers: { guide: fixture_file_upload("guide.pdf", "application/pdf") } }
+      follow_redirect!
+
+      assert_select "legend", text: "Anything else?"
+    end
+
     test "a visitor reaching a file step is offered a file to upload" do
       get easy_flow.run_path(Run.start(uploading))
 

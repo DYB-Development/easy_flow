@@ -136,7 +136,7 @@ module EasyFlow
     end
 
     def recorded(value)
-      return value.compact_blank if value.is_a?(Array)
+      return value.compact_blank.map { |each| recorded(each) } if value.is_a?(Array)
       return EasyFlow.keep_file(value) if value.respond_to?(:original_filename)
 
       value.to_s

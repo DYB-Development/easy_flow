@@ -74,6 +74,19 @@ module EasyFlow
       assert_empty EasyFlow.file_store.files
     end
 
+    test "each of several files sent for one step is kept by the host" do
+      flow = Definition.create!(host: "dummy", slug: "several").tap do |defined|
+        defined.record_definition(flowing("slug" => "several", "entry" => "guides",
+          "nodes" => [ { "id" => "guides", "type" => "checklist", "question" => "Upload the guides" } ]))
+        defined.publish
+      end
+      run = Run.start(flow)
+
+      patch easy_flow.run_path(run), params: { asked: "guides", answers: { guides: [ fixture_file_upload("guide.pdf", "application/pdf") ] } }
+
+      assert_equal [ "guide.pdf" ], run.reload.recorded[:guides].map { |reference| EasyFlow.file_store.name_of(reference) }
+    end
+
     test "a visitor reaching a file step is offered a file to upload" do
       get easy_flow.run_path(Run.start(uploading))
 

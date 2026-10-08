@@ -12,6 +12,29 @@ module EasyFlow
       end
     end
 
+    class KeptFiles
+      attr_reader :files
+
+      def initialize = @files = {}
+
+      def keep(file)
+        "kept-#{files.size + 1}".tap { |reference| files[reference] = file.original_filename }
+      end
+
+      def name_of(reference) = files[reference]
+    end
+
+    setup { @stored_with, EasyFlow.file_store = EasyFlow.file_store, KeptFiles.new }
+    teardown { EasyFlow.file_store = @stored_with }
+
+    test "an uploaded file is kept by the host and the run records the reference it gives" do
+      run = Run.start(uploading)
+
+      patch easy_flow.run_path(run), params: { asked: "guide", answers: { guide: fixture_file_upload("guide.pdf", "application/pdf") } }
+
+      assert_equal "guide.pdf", EasyFlow.file_store.name_of(run.reload.recorded[:guide])
+    end
+
     test "a visitor reaching a file step is offered a file to upload" do
       get easy_flow.run_path(Run.start(uploading))
 

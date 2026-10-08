@@ -26,6 +26,7 @@ module EasyFlow
 
   class << self
     attr_writer :base_controller
+    attr_accessor :file_store
 
     def base_controller
       @base_controller || "ActionController::Base"

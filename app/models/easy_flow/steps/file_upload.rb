@@ -6,6 +6,7 @@ module EasyFlow
       step_name "File upload"
 
       setting :question, type: :string
+      setting :accepts, type: :string, label: "Accepted file types"
 
       names_by :question
       awaits_input

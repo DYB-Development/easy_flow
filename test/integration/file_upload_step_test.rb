@@ -57,6 +57,15 @@ module EasyFlow
       assert_select "body", text: /Choose a file to go on\./
     end
 
+    test "a visitor uploading a file of a kind the step does not accept is told which kinds it accepts" do
+      run = Run.start(uploading)
+
+      patch easy_flow.run_path(run), params: { asked: "guide", answers: { guide: fixture_file_upload("notes.txt", "text/plain") } }
+      follow_redirect!
+
+      assert_select "body", text: /Choose a \.pdf file\./
+    end
+
     test "a visitor reaching a file step is offered a file to upload" do
       get easy_flow.run_path(Run.start(uploading))
 

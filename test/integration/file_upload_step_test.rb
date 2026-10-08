@@ -48,6 +48,15 @@ module EasyFlow
       assert_select "legend", text: "Anything else?"
     end
 
+    test "a visitor who continues past a required file step with no file is told to choose one" do
+      run = Run.start(uploading)
+
+      patch easy_flow.run_path(run), params: { asked: "guide" }
+      follow_redirect!
+
+      assert_select "body", text: /Choose a file to go on\./
+    end
+
     test "a visitor reaching a file step is offered a file to upload" do
       get easy_flow.run_path(Run.start(uploading))
 

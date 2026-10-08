@@ -85,8 +85,9 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
     ```
 
     - The store answers `keep(file)`, called with the uploaded file, which responds to `original_filename`. It keeps the file and returns a string reference to it, and that reference is what the run records as the step's answer.
+    - When several files are sent for one step, `keep` is called once for each file, and the run records the list of references it returned, in the order the files were sent.
     - The store answers `name_of(reference)`, called with a reference `keep` returned. It returns the name the visitor's completion page shows for that answer. When it returns nothing, the page shows the reference itself.
-    - With no store set, a visitor who submits a file at a File upload step gets the app's error page, raised as `EasyFlow::NoFileStore`.
+    - With no store set, a visitor who submits a file at any step of a stored run gets the app's error page, raised as `EasyFlow::NoFileStore`.
 11. Leave `EasyFlow.check` out unless the developer asks for it. The engine already turns on `:unrouted_value`, `:unfollowed_path` and `:dead_end` at boot. Any other name raises `EasyFlow::UnknownCheck` when the app boots.
 12. Check that the app loads Active Job (`require "rails/all"` or `require "active_job/railtie"` in `config/application.rb`) and has a queue adapter that runs jobs from the `default` queue. When a run started by a Flow step, or by a step type of the app's own that starts another flow, ends, the engine records its output in the run it was started from and queues a job on `default` that moves that run on. If no adapter runs that queue, the run that holds the step stays at it. If `config.active_job.queue_adapter` is not set for an environment, ask the developer which adapter to use there.
 13. Start the server and open `<mount path>/manage/flows` for each host.

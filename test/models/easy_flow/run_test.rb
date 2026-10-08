@@ -135,6 +135,17 @@ module EasyFlow
       assert_equal "The step pick chose no flow to run", error.message
     end
 
+    test "an inner run that ends with no output still moves its parent on past a step that chose from the run" do
+      silent = published("quiet", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "done", "type" => "terminal" } ],
+                                  edges: [ { "from" => "start", "to" => "done" } ])
+      parent = Run.start(picking_flow)
+      PICKED[parent.id] = { flow: silent.id, version: 1 }
+
+      perform_enqueued_jobs { parent.advance }
+
+      assert_equal [ "ended", nil ], [ parent.reload.recorded[:pick], parent.next_step(parent.recorded) ]
+    end
+
     test "a stored run that reaches a Flow step starts one run of the chosen flow on the chosen version" do
       parent = Run.start(parent_flow)
 

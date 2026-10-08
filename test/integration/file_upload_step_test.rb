@@ -15,13 +15,17 @@ module EasyFlow
     class KeptFiles
       attr_reader :files
 
-      def initialize = @files = {}
+      def initialize
+        @files = {}
+      end
 
       def keep(file)
         "kept-#{files.size + 1}".tap { |reference| files[reference] = file.original_filename }
       end
 
-      def name_of(reference) = files[reference]
+      def name_of(reference)
+        files[reference]
+      end
     end
 
     setup { @stored_with, EasyFlow.file_store = EasyFlow.file_store, KeptFiles.new }

@@ -132,7 +132,14 @@ module EasyFlow
       problem = answer_problem(runner_for(run.pinned_definition).step(id.to_s), value)
       return flash[:alert] = problem if problem
 
-      progress.record(id, value.is_a?(Array) ? value.compact_blank : value.to_s)
+      progress.record(id, recorded(value))
+    end
+
+    def recorded(value)
+      return value.compact_blank.map { |each| recorded(each) } if value.is_a?(Array)
+      return EasyFlow.keep_file(value) if value.respond_to?(:original_filename)
+
+      value.to_s
     end
 
     def waiting_on(step)

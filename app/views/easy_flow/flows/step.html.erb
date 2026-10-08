@@ -14,7 +14,7 @@
   <% if @waiting %>
     <p class="ks-hint">Waiting for <%= @waiting %>.</p>
   <% else %>
-    <%= form_with url: step_form[:url], method: step_form[:method], data: { turbo: false } do %>
+    <%= form_with url: step_form[:url], method: step_form[:method], multipart: true, data: { turbo: false } do %>
       <%= hidden_field_tag :asked, @question.id %>
       <% if carries_answers? %>
         <% @answers.each do |key, value| %>

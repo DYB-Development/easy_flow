@@ -46,6 +46,10 @@ module EasyFlow
         @answer_check = check
       end
 
+      def labels_answer_by(&labelling)
+        @answer_labelling = labelling
+      end
+
       def waits_until(&readiness)
         @readiness = readiness
       end
@@ -122,7 +126,7 @@ module EasyFlow
         StepType.new(id: @id, step_name: @step_name, settings: settings, awaits_input: @awaits_input,
           ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, flow_chooser: @flow_chooser, behaviour: @behaviour, routing: @routing,
           display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming,
-          outputs: @declared_outputs, answer_check: @answer_check, readiness: @readiness)
+          outputs: @declared_outputs, answer_check: @answer_check, answer_labelling: @answer_labelling, readiness: @readiness)
       end
 
       def settings

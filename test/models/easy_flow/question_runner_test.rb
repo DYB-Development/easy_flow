@@ -47,5 +47,19 @@ module EasyFlow
 
       assert_equal "Shows proof and Pays on time", runner(ticking).choice_label("conditions", [ "proof", "on_time" ])
     end
+
+    test "labels a file step's answer by the name of the file the host kept" do
+      stored_with = EasyFlow.file_store
+      EasyFlow.file_store = Class.new do
+        def name_of(reference)
+          "guide.pdf" if reference == "kept-1"
+        end
+      end.new
+      uploading = { "slug" => "u", "entry" => "guide", "nodes" => [ { "id" => "guide", "type" => "file_upload", "question" => "Upload the guide" } ] }
+
+      assert_equal "guide.pdf", runner(uploading).choice_label(:guide, "kept-1")
+    ensure
+      EasyFlow.file_store = stored_with
+    end
   end
 end

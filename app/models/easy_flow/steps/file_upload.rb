@@ -15,6 +15,7 @@ module EasyFlow
       awaits_input
       drawn_by "easy_flow/steps/uploading"
       answer_check { |node, value| FileUpload.problem_with(node, value) }
+      labels_answer_by { |_node, reference| EasyFlow.file_store&.name_of(reference) }
 
       displays_by { |node| Asked.new(id: node.id.to_sym, text: node.config["question"], accepts: node.config["accepts"]) }
 

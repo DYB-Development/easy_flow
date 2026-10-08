@@ -6,12 +6,14 @@ install:
   - EasyFlow.base_controller=
   - EasyFlow.host
   - EasyFlow.draws_with
+  - EasyFlow.file_store
   - EasyFlow.check
   - /manage/flows
 
 develop:
   - EasyFlow::Step
   - EasyFlow.step
+  - labels_answer_by
   - EasyFlow::FlowsController
   - hosted_by
   - routed_by
@@ -35,6 +37,7 @@ sources:
   - app/models/easy_flow/terminal.rb
   - app/models/easy_flow/steps/question.rb
   - app/models/easy_flow/steps/checklist.rb
+  - app/models/easy_flow/steps/file_upload.rb
   - app/models/easy_flow/step_type.rb
   - app/models/easy_flow/choice.rb
   - app/jobs/easy_flow/advance_parent_job.rb
@@ -48,6 +51,7 @@ sources:
   - app/views/easy_flow/flows/complete.html.erb
   - app/views/easy_flow/steps/_choosing.html.erb
   - app/views/easy_flow/steps/_ticking.html.erb
+  - app/views/easy_flow/steps/_uploading.html.erb
   - app/controllers/easy_flow/manage/previews_controller.rb
   - config/routes.rb
   - db/migrate/20260924120000_create_easy_flow_definitions.rb

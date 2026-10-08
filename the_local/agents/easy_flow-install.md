@@ -1,6 +1,6 @@
 ---
 name: easy_flow-install
-description: Use to hook easy_flow into a project — copying and running its migrations, mounting the engine for each host, setting the controller it inherits from, declaring hosts with their layouts, access methods, the record that owns their flows and the step types each offers, choosing the default step drawing, turning on optional checks, giving the app a job queue that moves a run on once the flow its Flow step, or its own step type that starts a flow, started ends, and reaching the admin pages.
+description: Use to hook easy_flow into a project — copying and running its migrations, mounting the engine for each host, setting the controller it inherits from, declaring hosts with their layouts, access methods, the record that owns their flows and the step types each offers, choosing the default step drawing, setting the file store that keeps files visitors upload, turning on optional checks, giving the app a job queue that moves a run on once the flow its Flow step, or its own step type that starts a flow, started ends, and reaching the admin pages.
 tools: Bash, Read, Edit
 scope: guided flows — versioned documents of steps and the connections between them, drawn on a canvas by an admin and run by a visitor one step at a time, with step types the host registers
 ---
@@ -18,6 +18,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - `EasyFlow.base_controller=` — the name, as a string, of the host controller every engine controller inherits from. Defaults to `"ActionController::Base"`.
 - `EasyFlow.host` — declares a named host with its visitor layout, admin layout, admin authentication method, visitor authorization method, refusal method, owner method, and the step types its admins can add on the canvas.
 - `EasyFlow.draws_with` — the partial that draws a visitor's step when the step's type names none. Defaults to the engine's own `easy_flow/steps/choosing`.
+- `EasyFlow.file_store` — the object that keeps a file a visitor uploads at a File upload step and names it again later. Defaults to none, and with none set an uploaded file is refused with `EasyFlow::NoFileStore`.
 - `EasyFlow.check` — turns on an optional flow check: `:unrouted_value`, `:unfollowed_path` or `:dead_end`.
 - `/manage/flows` — the admin pages, under each mount path, where flows are listed, created, drawn on the canvas, previewed and published.
 
@@ -44,7 +45,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
      host.visitor_authorization_method = :easy_flow_visitor_permitted?
      host.refusal_method = :refuse_flow
      host.owner_method = :current_account
-     host.offers = %i[question checklist condition switch compare flow_step]
+     host.offers = %i[question checklist file_upload condition switch compare flow_step]
    end
    ```
 
@@ -54,7 +55,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - `visitor_authorization_method` — a method on the base controller, called with the flow, returning true when the visitor may run it. With none set, every visitor is refused.
    - `refusal_method` — a method on the base controller, called with the refusal error when a visitor is refused or a flow is unpublished or withdrawn. With none set, the response is `404 Not Found`.
    - `owner_method` — a method on the base controller, called with no arguments, returning the record whose flows the current request works with, such as the signed-in account. When set, the admin pages list, create and edit only that record's flows, a visitor runs only that record's flows, and two records may each hold a flow with the same slug. With none set, every flow in the host is shared by everyone who reaches it. Ask the developer whether each host's flows belong to one record or are shared.
-   - `offers` — the step types this host's admins can add from the canvas palette, as a list of step type names. With none set, every registered step type is offered. The engine's own names are `question`, `checklist`, `condition`, `switch`, `compare` and `flow_step`, the last being the Flow step, which names one of the same host's flows. A step type the app declares is named by the id it was declared with, or after its class when it is a step class, so `Steps::Notify` is `notify`. The End step is offered whether it is listed or not, and the Start step is never offered. Ask the developer which step types each host should offer.
+   - `offers` — the step types this host's admins can add from the canvas palette, as a list of step type names. With none set, every registered step type is offered. The engine's own names are `question`, `checklist`, `file_upload`, `condition`, `switch`, `compare` and `flow_step`, `file_upload` being the File upload step, which needs the file store from step 10, and `flow_step` being the Flow step, which names one of the same host's flows. A step type the app declares is named by the id it was declared with, or after its class when it is a step class, so `Steps::Notify` is `notify`. The End step is offered whether it is listed or not, and the Start step is never offered. Ask the developer which step types each host should offer.
 
    Each method named here must exist on the base controller. Ask the developer to point at it or write it. Do not invent its logic.
 8. Mount the engine in `config/routes.rb`, once per host. The host name in `defaults` must match a name declared in step 7. When there is more than one mount, give each an `as:` name:
@@ -76,9 +77,19 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - The visitor's answer must be submitted as `answers[<%= step.id %>]`. Always build the field name from `step.id` and never from a fixed id. When a flow loops back and asks a question again, `step.id` names that visit, so each visit's answer is stored apart.
    - It replaces the engine's drawing of every step whose type names no partial, so it draws each answer's hint and info itself or they are not shown.
    - It is not used for a checklist step. A checklist is always drawn by the engine as one checkbox per answer, each with an info button when the answer has info text, and the visitor may tick several.
-10. Leave `EasyFlow.check` out unless the developer asks for it. The engine already turns on `:unrouted_value`, `:unfollowed_path` and `:dead_end` at boot. Any other name raises `EasyFlow::UnknownCheck` when the app boots.
-11. Check that the app loads Active Job (`require "rails/all"` or `require "active_job/railtie"` in `config/application.rb`) and has a queue adapter that runs jobs from the `default` queue. When a run started by a Flow step, or by a step type of the app's own that starts another flow, ends, the engine records its output in the run it was started from and queues a job on `default` that moves that run on. If no adapter runs that queue, the run that holds the step stays at it. If `config.active_job.queue_adapter` is not set for an environment, ask the developer which adapter to use there.
-12. Start the server and open `<mount path>/manage/flows` for each host.
+   - It is not used for a File upload step. A File upload step is always drawn by the engine as one file field.
+10. Ask the developer whether any host will offer the File upload step, and if so, where the app keeps uploaded files. The engine keeps no file itself and has no default store. Ask the developer to point at the app's store or write one. Do not pick a storage service for them. Set it in the initializer:
+
+    ```ruby
+    EasyFlow.file_store = UploadedFiles.new
+    ```
+
+    - The store answers `keep(file)`, called with the uploaded file, which responds to `original_filename`. It keeps the file and returns a string reference to it, and that reference is what the run records as the step's answer.
+    - The store answers `name_of(reference)`, called with a reference `keep` returned. It returns the name the visitor's completion page shows for that answer. When it returns nothing, the page shows the reference itself.
+    - With no store set, a visitor who submits a file at a File upload step gets the app's error page, raised as `EasyFlow::NoFileStore`.
+11. Leave `EasyFlow.check` out unless the developer asks for it. The engine already turns on `:unrouted_value`, `:unfollowed_path` and `:dead_end` at boot. Any other name raises `EasyFlow::UnknownCheck` when the app boots.
+12. Check that the app loads Active Job (`require "rails/all"` or `require "active_job/railtie"` in `config/application.rb`) and has a queue adapter that runs jobs from the `default` queue. When a run started by a Flow step, or by a step type of the app's own that starts another flow, ends, the engine records its output in the run it was started from and queues a job on `default` that moves that run on. If no adapter runs that queue, the run that holds the step stays at it. If `config.active_job.queue_adapter` is not set for an environment, ask the developer which adapter to use there.
+13. Start the server and open `<mount path>/manage/flows` for each host.
 
 ## Conventions
 
@@ -96,12 +107,15 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After install, check that a Flow step whose chosen flow exists but whose version is not set, does not exist, or was never published or has been retired or withdrawn shows "unrunnable version" in red on its canvas card, and that saving a version or publishing is refused until it names a live or superseded version. This check is always on and is not turned on with `EasyFlow.check`.
 - After install, check that a Flow step whose chosen flow is the flow it sits in, or whose chosen flow leads back to it through the Flow steps of other flows, shows "circular" in red on its canvas card, and that saving a version or publishing is refused until it is fixed. This check is always on and is not turned on with `EasyFlow.check`.
 - When a stored run reaches a Flow step, the engine starts a run of the chosen flow and records the run it was started from. That record needs the migration that adds a parent run to the runs table, so an app upgrading from a version without it runs `bin/rails easy_flow:install:migrations` and `bin/rails db:migrate` before publishing a flow with a Flow step.
-- After publishing a flow with a Flow step, check that when a visitor finishes the chosen flow, the run that holds the Flow step moves on along the connection named after the output that flow ended with. If it stays at the Flow step, check the queue adapter from step 11.
-- When a chosen flow ends at an End step with no output filled in, the engine records nothing at the Flow step, and the job queued on `default` fails with `EasyFlow::InnerFlowError` naming the Flow step. The run that holds the Flow step stays at it. Check that the queue adapter from step 11 keeps or reports failed jobs, and that every End step of a flow chosen on a Flow step has an output.
+- After publishing a flow with a Flow step, check that when a visitor finishes the chosen flow, the run that holds the Flow step moves on along the connection named after the output that flow ended with. If it stays at the Flow step, check the queue adapter from step 12.
+- When a chosen flow ends at an End step with no output filled in, the engine records nothing at the Flow step, and the job queued on `default` fails with `EasyFlow::InnerFlowError` naming the Flow step. The run that holds the Flow step stays at it. Check that the queue adapter from step 12 keeps or reports failed jobs, and that every End step of a flow chosen on a Flow step has an output.
 - When a run reaches a Flow step whose chosen version was retired or withdrawn after the flow was published, the engine raises `EasyFlow::InnerFlowError` naming the Flow step and starts no run. The engine does not turn this error into a refusal, so the visitor gets the app's error page. Check that the app's error reporting captures it.
 - After install, check that removing a flow from `<mount path>/manage/flows` shows "Flow removed." and takes the flow off the list. Removing a flow deletes its versions and its runs, and needs no setting in the initializer.
 - After publishing a flow with a Flow step, check that while a run of it is stopped at that Flow step, removing the chosen flow is refused and the flow list shows "This flow cannot be removed while" followed by the waiting flow's title, or its slug when it has no title, and "waits on one of its runs". If no message is shown, check that the admin layout shows `flash[:alert]`.
 - A step type of the app's own that starts another flow is treated as a Flow step by every check above: the "missing flow", "unrunnable version" and "circular" flags, the refusal to remove a flow a waiting run depends on, and the job on `default`. It runs the flow and version its own settings name, or the ones its declaration works out from its other settings, and needs no setting in the initializer beyond being listed in a host's `offers` when that host sets `offers`.
+- After setting `EasyFlow.file_store`, publish a flow with a File upload step whose "What this keeps of a run" detail is "Every answer as it is given", upload a file as a visitor, and check that the completion page shows the name the store gives it.
+- A File upload step takes a file only in a flow that keeps every answer as it is given. In a flow that keeps nothing or keeps the run only once it finishes, the visitor is told "A file can only be uploaded in a flow that saves its runs." and cannot go on with a file chosen.
+- A File upload step's "Accepted file types" setting is a comma-separated list of extensions, such as `.pdf, .png`. A file of another kind is refused with a message naming the accepted kinds and is never passed to the file store.
 - After setting a host's `offers`, check that the canvas palette on that host's `<mount path>/manage/flows` lists only those step types and End.
 - Taking a step type off a host's `offers` removes it from the palette only. Steps of that type already in the host's flows stay in them and keep running.
 - The initializer runs once at boot, so a change to it needs a server restart.

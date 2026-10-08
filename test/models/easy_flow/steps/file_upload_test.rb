@@ -16,6 +16,13 @@ module EasyFlow
 
         assert_equal "Choose a file to go on.", FileUpload.step_type.answer_problem(node, "")
       end
+
+      test "a file step refuses a file of a kind it does not accept and names the kinds it does" do
+        node = Node.new(id: "guide", type: "file_upload", config: { "accepts" => ".pdf, .docx" })
+        notes = Rack::Test::UploadedFile.new(file_fixture("notes.txt"), "text/plain")
+
+        assert_equal "Choose a .pdf or .docx file.", FileUpload.step_type.answer_problem(node, notes)
+      end
     end
   end
 end

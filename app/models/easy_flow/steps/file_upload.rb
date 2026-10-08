@@ -14,9 +14,23 @@ module EasyFlow
       names_by :question
       awaits_input
       drawn_by "easy_flow/steps/uploading"
-      answer_check { |node, value| "Choose a file to go on." if node.config["required"] && value.blank? }
+      answer_check { |node, value| FileUpload.problem_with(node, value) }
 
       displays_by { |node| Asked.new(id: node.id.to_sym, text: node.config["question"], accepts: node.config["accepts"]) }
+
+      def self.problem_with(node, value)
+        return "Choose a file to go on." if node.config["required"] && value.blank?
+
+        kinds = accepted_kinds(node)
+        return if kinds.empty? || !value.respond_to?(:original_filename)
+        return if kinds.include?(File.extname(value.original_filename).downcase)
+
+        "Choose a #{kinds.to_sentence(two_words_connector: ' or ', last_word_connector: ', or ')} file."
+      end
+
+      def self.accepted_kinds(node)
+        node.config["accepts"].to_s.split(",").map { |kind| kind.strip.downcase }.compact_blank
+      end
     end
   end
 end

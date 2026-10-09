@@ -48,5 +48,15 @@ module EasyFlow
 
       assert_equal [ "download", "good" ], css_select("input[name='answers[sold_as]']").map { |choice| choice["value"] }
     end
+
+    test "a step the host says nothing about offers every answer" do
+      allowing { |step, _answers| [ "download" ] if step.id == "price" }
+      run = Run.start(selling)
+
+      patch easy_flow.run_path(run), params: { answers: { kind: "pdf" } }
+      follow_redirect!
+
+      assert_equal [ "download", "service", "good" ], css_select("input[name='answers[sold_as]']").map { |choice| choice["value"] }
+    end
   end
 end

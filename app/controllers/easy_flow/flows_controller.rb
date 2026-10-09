@@ -32,7 +32,7 @@ module EasyFlow
     private
 
     def runner_for(definition)
-      QuestionRunner.new(definition)
+      QuestionRunner.new(definition, host: flow_host)
     end
 
     def run_location(run)

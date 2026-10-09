@@ -1,8 +1,9 @@
 module EasyFlow
   class Runner
-    def initialize(document, registry: EasyFlow.registry)
+    def initialize(document, registry: EasyFlow.registry, host: nil)
       @document = document.to_h
       @registry = registry
+      @host = host
       @digest = Digest.new(Document.new(@document, registry: registry), registry: registry)
     end
 
@@ -61,7 +62,15 @@ module EasyFlow
     end
 
     def goes_on?(node, state)
-      acts?(node) || ready?(node, state)
+      acts?(node) || ready?(node, state) || decided?(node, state)
+    end
+
+    def allowed(node, state)
+      @host&.answers_allowed(node, state.symbolize_keys)
+    end
+
+    def decided?(node, state)
+      allowed(node, state)&.empty?
     end
 
     def ready?(node, state)
@@ -69,6 +78,8 @@ module EasyFlow
     end
 
     def result_of(node, state)
+      return allowed(node, state).first.to_s if decided?(node, state)
+
       acts?(node) ? @registry.fetch(node.type).process(node, state) : true
     end
 

@@ -130,7 +130,11 @@ module EasyFlow
 
     def one_answer_back(answers)
       answered = @guide.state_on_path(answers)
-      answered.except(answered.keys.last)
+      loop do
+        answered = answered.except(answered.keys.last)
+        break if answered.empty? || !@guide.fills_in_next?(answered)
+      end
+      answered
     end
 
     def record_submitted

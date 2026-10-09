@@ -80,5 +80,13 @@ module EasyFlow
 
       assert_equal "download", run.reload.recorded[:sold_as]
     end
+
+    test "going back in a flow that keeps nothing returns past a step the host filled in" do
+      allowing { |step, _answers| [ "download" ] if step.id == "sold_as" }
+
+      get easy_flow.flow_step_path(selling.slug), params: { answers: { kind: "pdf", sold_as: "download" }, asked: "price", back: "1" }
+
+      assert_select "input[type=hidden][name=asked][value=?]", "kind"
+    end
   end
 end

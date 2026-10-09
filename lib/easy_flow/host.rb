@@ -1,7 +1,7 @@
 module EasyFlow
   class Host
     attr_reader :name
-    attr_writer :layout, :admin_layout, :offers
+    attr_writer :layout, :admin_layout, :offers, :allowed_answers
     attr_accessor :admin_authentication_method, :visitor_authorization_method, :refusal_method, :owner_method
 
     def initialize(name)
@@ -22,6 +22,10 @@ module EasyFlow
 
     def set_up?
       true
+    end
+
+    def answers_allowed(step, answers)
+      @allowed_answers&.call(step, answers)
     end
 
     def offers?(step_type)

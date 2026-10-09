@@ -70,7 +70,8 @@ module EasyFlow
     end
 
     def decided?(node, state)
-      allowed(node, state)&.empty?
+      choices = allowed(node, state)
+      !choices.nil? && choices.size <= 1
     end
 
     def ready?(node, state)

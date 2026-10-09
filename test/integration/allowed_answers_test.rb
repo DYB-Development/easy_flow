@@ -28,5 +28,15 @@ module EasyFlow
 
       assert_select "legend", text: "What price?"
     end
+
+    test "a step the host allows one answer for records that answer without showing it" do
+      allowing { |step, answers| [ "download" ] if step.id == "sold_as" && answers[:kind] == "pdf" }
+      run = Run.start(selling)
+
+      patch easy_flow.run_path(run), params: { answers: { kind: "pdf" } }
+      get easy_flow.run_path(run)
+
+      assert_equal "download", run.reload.recorded[:sold_as]
+    end
   end
 end

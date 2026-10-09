@@ -24,7 +24,8 @@ module EasyFlow
     end
 
     def next_step(state, run: nil)
-      shown(@digest.next_step(named(state)), run)
+      node = @digest.next_step(named(state))
+      narrowed(shown(node, run), node, state)
     end
 
     def run(progress)
@@ -67,6 +68,13 @@ module EasyFlow
 
     def allowed(node, state)
       @host&.answers_allowed(node, state.symbolize_keys)
+    end
+
+    def narrowed(display, node, state)
+      choices = node && allowed(node, state)
+      return display unless choices && display.respond_to?(:choices)
+
+      display.with(choices: display.choices.select { |choice| choices.include?(choice.value) })
     end
 
     def decided?(node, state)

@@ -38,5 +38,15 @@ module EasyFlow
 
       assert_equal "download", run.reload.recorded[:sold_as]
     end
+
+    test "a step the host allows several answers for offers only those answers" do
+      allowing { |step, _answers| [ "download", "good" ] if step.id == "sold_as" }
+      run = Run.start(selling)
+
+      patch easy_flow.run_path(run), params: { answers: { kind: "pdf" } }
+      follow_redirect!
+
+      assert_equal [ "download", "good" ], css_select("input[name='answers[sold_as]']").map { |choice| choice["value"] }
+    end
   end
 end

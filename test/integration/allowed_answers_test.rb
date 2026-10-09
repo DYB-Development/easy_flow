@@ -70,5 +70,15 @@ module EasyFlow
 
       assert_select "legend", text: "What kind?"
     end
+
+    test "a run moved on outside a request fills in a step the host allows one answer for" do
+      allowing { |step, _answers| [ "download" ] if step.id == "sold_as" }
+      run = Run.start(selling)
+      run.record(:kind, "pdf")
+
+      run.advance
+
+      assert_equal "download", run.reload.recorded[:sold_as]
+    end
   end
 end

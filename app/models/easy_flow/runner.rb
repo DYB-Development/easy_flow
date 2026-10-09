@@ -1,8 +1,9 @@
 module EasyFlow
   class Runner
-    def initialize(document, registry: EasyFlow.registry)
+    def initialize(document, registry: EasyFlow.registry, host: nil)
       @document = document.to_h
       @registry = registry
+      @host = host
       @digest = Digest.new(Document.new(@document, registry: registry), registry: registry)
     end
 
@@ -23,7 +24,8 @@ module EasyFlow
     end
 
     def next_step(state, run: nil)
-      shown(@digest.next_step(named(state)), run)
+      node = @digest.next_step(named(state))
+      narrowed(shown(node, run), node, state)
     end
 
     def run(progress)
@@ -32,6 +34,11 @@ module EasyFlow
       end
       progress.start_inner(node) if node && starts_a_flow?(node)
       progress.ended unless node
+    end
+
+    def fills_in_next?(state)
+      node = @digest.next_step(named(state))
+      node.present? && decided?(node, state)
     end
 
     def drawing_at(state)
@@ -61,7 +68,23 @@ module EasyFlow
     end
 
     def goes_on?(node, state)
-      acts?(node) || ready?(node, state)
+      acts?(node) || ready?(node, state) || decided?(node, state)
+    end
+
+    def allowed(node, state)
+      @host&.answers_allowed(node, state.symbolize_keys)
+    end
+
+    def narrowed(display, node, state)
+      choices = node && allowed(node, state)
+      return display unless choices && display.respond_to?(:choices)
+
+      display.with(choices: display.choices.select { |choice| choices.include?(choice.value) })
+    end
+
+    def decided?(node, state)
+      choices = allowed(node, state)
+      !choices.nil? && choices.size <= 1
     end
 
     def ready?(node, state)
@@ -69,6 +92,8 @@ module EasyFlow
     end
 
     def result_of(node, state)
+      return allowed(node, state).first.to_s if decided?(node, state)
+
       acts?(node) ? @registry.fetch(node.type).process(node, state) : true
     end
 

@@ -23,7 +23,7 @@ module EasyFlow
     end
 
     def advance
-      Runner.new(pinned_definition).run(Progress::Kept.new(self))
+      Runner.new(pinned_definition, host: EasyFlow.host_named(flow.host)).run(Progress::Kept.new(self))
     end
 
     def pinned_definition

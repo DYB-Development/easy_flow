@@ -33,5 +33,12 @@ module EasyFlow
 
       assert host.offers?("compare")
     end
+
+    test "asks the object it names which answers a step allows in a run" do
+      host = Host.new(:shop)
+      host.allowed_answers = ->(step, answers) { [ "download" ] if step.id == "sold_as" && answers[:kind] == "pdf" }
+
+      assert_equal [ "download" ], host.answers_allowed(Node.new(id: "sold_as", type: "question", config: {}), { kind: "pdf" })
+    end
   end
 end

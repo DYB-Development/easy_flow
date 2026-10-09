@@ -25,14 +25,23 @@ module EasyFlow
     end
 
     def update
-      params[:back] ? progress.discard_last : record_submitted
+      params[:back] ? go_back : record_submitted
       redirect_to run_location(run)
     end
 
     private
 
+    def go_back
+      guide = runner_for(running_definition)
+      loop do
+        before = progress.recorded
+        progress.discard_last
+        break if progress.recorded == before || !guide.fills_in_next?(progress.recorded)
+      end
+    end
+
     def runner_for(definition)
-      QuestionRunner.new(definition)
+      QuestionRunner.new(definition, host: flow_host)
     end
 
     def run_location(run)
@@ -121,7 +130,11 @@ module EasyFlow
 
     def one_answer_back(answers)
       answered = @guide.state_on_path(answers)
-      answered.except(answered.keys.last)
+      loop do
+        answered = answered.except(answered.keys.last)
+        break if answered.empty? || !@guide.fills_in_next?(answered)
+      end
+      answered
     end
 
     def record_submitted

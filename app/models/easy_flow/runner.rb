@@ -36,6 +36,11 @@ module EasyFlow
       progress.ended unless node
     end
 
+    def fills_in_next?(state)
+      node = @digest.next_step(named(state))
+      node.present? && decided?(node, state)
+    end
+
     def drawing_at(state)
       Drawing.of(@digest.next_step(named(state)), @registry)
     end

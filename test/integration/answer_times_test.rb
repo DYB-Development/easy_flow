@@ -22,5 +22,15 @@ module EasyFlow
 
       assert_select "legend", text: "Evening plans?"
     end
+
+    test "a finished run lists the answers along the route the times of its answers took" do
+      run = Run.start(evening)
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { run.record("a", "yes") }
+      run.record("night", "out")
+
+      get easy_flow.run_path(run)
+
+      assert_select "li[data-answer=night]"
+    end
   end
 end

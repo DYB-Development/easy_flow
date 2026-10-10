@@ -45,8 +45,8 @@ module EasyFlow
       Drawing.of(@digest.next_step(named(state), named(times)), @registry)
     end
 
-    def state_on_path(state)
-      @digest.state_on_path(named(state)).symbolize_keys
+    def state_on_path(state, times: {})
+      @digest.state_on_path(named(state), named(times)).symbolize_keys
     end
 
     def questions_left(state)

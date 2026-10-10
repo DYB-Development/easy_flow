@@ -75,7 +75,7 @@ module EasyFlow
     end
 
     def render_completion
-      @answered = @guide.state_on_path(@answers)
+      @answered = @guide.state_on_path(@answers, times: @progress.answered_at)
       finished(@answered, @progress.finish(@answered))
     end
 

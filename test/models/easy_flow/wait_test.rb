@@ -65,5 +65,9 @@ module EasyFlow
     test "is offered to every host's flows" do
       assert EasyFlow.registry.registered?(:wait)
     end
+
+    test "is named after how long it waits and the step it counts from" do
+      assert_equal "30 minutes after deploy", Wait.step_type.name_of(wait({ "step" => "deploy", "minutes" => 30 }))
+    end
   end
 end

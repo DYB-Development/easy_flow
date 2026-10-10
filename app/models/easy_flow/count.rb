@@ -17,6 +17,7 @@ module EasyFlow
     end
 
     def counted?(node, answer)
+      answer = answer[node.config["output"]] if answer.is_a?(Hash)
       node.config["answer"].blank? || answer.to_s == node.config["answer"].to_s
     end
   end

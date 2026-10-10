@@ -17,5 +17,11 @@ module EasyFlow
 
       assert_equal 2, Count.step_type.process(node, { "tests" => "failed", "tests@2" => "passed", "tests@3" => "failed" })
     end
+
+    test "reads the answer from the output picked when the earlier step recorded several" do
+      node = count({ "step" => "tests", "output" => "result", "answer" => "failed" })
+
+      assert_equal 1, Count.step_type.process(node, { "tests" => { "result" => "failed", "took" => 4 }, "tests@2" => { "result" => "passed", "took" => 3 } })
+    end
   end
 end

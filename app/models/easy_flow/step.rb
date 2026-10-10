@@ -24,8 +24,12 @@ module EasyFlow
       end
 
       def behaviours
-        BEHAVIOURS.select { |word| method_defined?(word) }
-          .map { |word| [ word, [], {}, ->(node, state) { new.public_send(word, node, state) } ] }
+        BEHAVIOURS.select { |word| method_defined?(word) }.map { |word| [ word, [], {}, behaviour(word) ] }
+      end
+
+      def behaviour(word)
+        asks_for_times = instance_method(word).arity.abs >= 3
+        ->(node, state, times = {}) { asks_for_times ? new.public_send(word, node, state, times) : new.public_send(word, node, state) }
       end
 
       def register(registry = EasyFlow.registry)

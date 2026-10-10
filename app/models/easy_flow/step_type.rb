@@ -41,8 +41,8 @@ module EasyFlow
       @behaviour&.call(node, state)
     end
 
-    def route(node, state)
-      @routing&.call(node, state)
+    def route(node, state, times = {})
+      @routing&.call(node, state, times)
     end
 
     def answer_problem(node, value)

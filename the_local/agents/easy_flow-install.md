@@ -25,7 +25,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 ## How to use it
 
 1. Confirm the app has Keystone UI installed (`keystone_ui` in the Gemfile). easy_flow's controllers use its helpers and it is not pulled in by easy_flow. If it is missing, stop and hand off to the `keystone_ui-install` local before continuing.
-2. Read the `keystone_ui` version in the app's `Gemfile.lock`. easy_flow's visitor pages pass each answer's info text to Keystone UI's radio cards and checkbox rows, and easy_flow is built against `keystone_ui` 0.27.0. If the app's version is older, ask the developer whether to run `bundle update keystone_ui` before continuing.
+2. Read the `keystone_ui` version in the app's `Gemfile.lock`. easy_flow's visitor pages pass each answer's info text to Keystone UI's radio cards and checkbox rows and draw a File upload step with Keystone UI's file upload control, and easy_flow is built against `keystone_ui` 0.27.0. If the app's version is older, ask the developer whether to run `bundle update keystone_ui` before continuing.
 3. Add `gem "easy_flow"` to the host's `Gemfile` and run `bundle install`.
 4. Run `bin/rails easy_flow:install:migrations`, then `bin/rails db:migrate`. This writes six migrations into `db/migrate` and updates `db/schema.rb`.
 5. Ask the developer which hosts the app needs. A host is one part of the app that owns its own set of flows, and one host never sees another's flows. Ask for each host's name and the path it is served under.
@@ -77,7 +77,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - The visitor's answer must be submitted as `answers[<%= step.id %>]`. Always build the field name from `step.id` and never from a fixed id. When a flow loops back and asks a question again, `step.id` names that visit, so each visit's answer is stored apart.
    - It replaces the engine's drawing of every step whose type names no partial, so it draws each answer's hint and info itself or they are not shown.
    - It is not used for a checklist step. A checklist is always drawn by the engine as one checkbox per answer, each with an info button when the answer has info text, and the visitor may tick several.
-   - It is not used for a File upload step. A File upload step is always drawn by the engine as one file field.
+   - It is not used for a File upload step. A File upload step is always drawn by the engine as Keystone UI's file upload control, labelled with the step's question text. When the step has accepted file types, the visitor's file picker offers only those types, and a line under the control reads "Accepts" followed by the types as the admin wrote them.
 10. Ask the developer whether any host will offer the File upload step, and if so, where the app keeps uploaded files. The engine keeps no file itself and has no default store. Ask the developer to point at the app's store or write one. Do not pick a storage service for them. Set it in the initializer:
 
     ```ruby
@@ -118,6 +118,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After setting `EasyFlow.file_store`, publish a flow with a File upload step whose "What this keeps of a run" detail is "Every answer as it is given", upload a file as a visitor, and check that the completion page shows the name the store gives it.
 - A File upload step takes a file only in a flow that keeps every answer as it is given. In a flow that keeps nothing or keeps the run only once it finishes, the visitor is told "A file can only be uploaded in a flow that saves its runs." and cannot go on with a file chosen.
 - A File upload step's "Accepted file types" setting is a comma-separated list of extensions, such as `.pdf, .png`. A file of another kind is refused with a message naming the accepted kinds and is never passed to the file store.
+- After publishing a flow with a File upload step whose accepted file types are set, check that the visitor's page shows the styled file upload control labelled with the question text, and the line "Accepts .pdf, .png" or the step's own list under it. If the page raises an undefined method error for `ui_file_upload`, compare the app's `keystone_ui` version with the one in step 2.
 - After setting a host's `offers`, check that the canvas palette on that host's `<mount path>/manage/flows` lists only those step types and End.
 - Taking a step type off a host's `offers` removes it from the palette only. Steps of that type already in the host's flows stay in them and keep running.
 - The initializer runs once at boot, so a change to it needs a server restart.

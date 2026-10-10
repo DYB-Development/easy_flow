@@ -92,5 +92,17 @@ module EasyFlow
 
       assert_select "form[enctype='multipart/form-data'] input[type=file][name='answers[guide]']"
     end
+
+    test "a file step is drawn with a styled file control labelled with its question" do
+      get easy_flow.run_path(Run.start(uploading))
+
+      assert_select "[data-controller=file-upload]", text: /Upload the guide/
+    end
+
+    test "a file step's control shows the kinds of file it accepts" do
+      get easy_flow.run_path(Run.start(uploading))
+
+      assert_select "[data-controller=file-upload]", text: /Accepts \.pdf/
+    end
   end
 end

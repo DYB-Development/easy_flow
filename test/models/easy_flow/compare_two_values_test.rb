@@ -101,7 +101,7 @@ module EasyFlow
                "edges" => [ { "from" => "start", "to" => "spent" }, { "from" => "spent", "to" => "budget" }, { "from" => "budget", "to" => "over" },
                             { "from" => "over", "to" => "warn", "on" => "true" }, { "from" => "over", "to" => "fine", "on" => "false" } ] }
 
-      assert_equal "over budget", Digest.new(Document.new(flow, registry: registry), registry: registry).output({ "spent" => "120", "budget" => "100" })
+      assert_equal "within budget", Digest.new(Document.new(flow, registry: registry), registry: registry).output({ "spent" => "80", "budget" => "100" })
     end
   end
 end

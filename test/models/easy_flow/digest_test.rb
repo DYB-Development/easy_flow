@@ -12,6 +12,10 @@ module EasyFlow
           route { |_node, state| state["a"] == "yes" }
         end)
         built.register(StepType.define(:act) { process { |node, _state| "ran #{node.id}" } })
+        built.register(StepType.define(:report) do
+          setting(:values, type: :list) { setting :name, type: :string }
+          outputs_named_by :values
+        end)
         built.register(StepType.define(:branch) do
           setting :answer, type: :previous_step
           route { |node, state| state[node.config["answer"]] == "yes" ? :yes : :no }
@@ -150,6 +154,12 @@ module EasyFlow
 
     test "reports no directing values for a step that does not route" do
       assert_empty digest(branching).routing_values("first")
+    end
+
+    test "reports the names entered on a step whose list setting names its outputs" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "report", "values" => [ { "name" => "coverage" } ] } ], "edges" => [] }
+
+      assert_equal [ { "value" => "coverage", "label" => "Coverage" } ], digest(document).outputs_of("a")
     end
 
     test "reports the outputs a step names for a later one to read" do

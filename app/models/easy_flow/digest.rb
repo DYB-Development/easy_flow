@@ -48,7 +48,7 @@ module EasyFlow
       named = step(id)
       return [] unless named
 
-      step_type(named)&.outputs.to_a.map { |output| { "value" => output.name.to_s, "label" => output.label } }
+      step_type(named)&.outputs_for(named).to_a.map { |output| { "value" => output.name.to_s, "label" => output.label } }
     end
 
     def values_out_of(id)

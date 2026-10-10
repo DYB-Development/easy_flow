@@ -29,7 +29,7 @@ module EasyFlow
     end
 
     def run(progress)
-      while (node = @digest.next_step(named(progress.recorded), named(progress.answered_at))) && goes_on?(node, named(progress.recorded))
+      while (node = @digest.next_step(named(progress.recorded), named(progress.answered_at))) && goes_on?(node, named(progress.recorded), AnsweredAt.latest(named(progress.answered_at)))
         progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded)))
       end
       progress.start_inner(node) if node && starts_a_flow?(node)
@@ -67,8 +67,8 @@ module EasyFlow
       @registry.registered?(node.type) && @registry.fetch(node.type).acts?
     end
 
-    def goes_on?(node, state)
-      acts?(node) || ready?(node, state) || decided?(node, state)
+    def goes_on?(node, state, times = {})
+      acts?(node) || ready?(node, state, times) || decided?(node, state)
     end
 
     def allowed(node, state)
@@ -87,8 +87,8 @@ module EasyFlow
       !choices.nil? && choices.size <= 1
     end
 
-    def ready?(node, state)
-      @registry.registered?(node.type) && @registry.fetch(node.type).waits? && @registry.fetch(node.type).ready?(node, state)
+    def ready?(node, state, times = {})
+      @registry.registered?(node.type) && @registry.fetch(node.type).waits? && @registry.fetch(node.type).ready?(node, state, times)
     end
 
     def result_of(node, state)

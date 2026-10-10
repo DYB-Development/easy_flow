@@ -16,6 +16,10 @@ module EasyFlow
       READERS.fetch(output).call(time.in_time_zone)
     end
 
+    def self.latest(times)
+      times.sort_by { |key, _time| key.to_s.split("@").last.to_i }.to_h { |key, time| [ key.to_s.split("@").first, time ] }
+    end
+
     def self.outputs
       OUTPUTS.map { |value, label| { "value" => value, "label" => label } }
     end

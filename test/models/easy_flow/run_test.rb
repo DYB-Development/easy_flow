@@ -118,6 +118,26 @@ module EasyFlow
       assert_equal "evening", response.output
     end
 
+    def run_waiting_half_an_hour
+      flow = Definition.create!(host: "dummy", slug: "hold")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "hold", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                     { "id" => "hold", "type" => "wait", "step" => "a", "minutes" => 30 },
+                     { "id" => "b", "type" => "question", "text" => "B", "options" => [ "x" ] } ],
+        "edges" => [ { "from" => "a", "to" => "hold" }, { "from" => "hold", "to" => "b" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      Run.start(flow)
+    end
+
+    test "a run on a Wait step moves past it when moved on once its time has come" do
+      response = run_waiting_half_an_hour
+      travel_to(Time.zone.local(2026, 10, 12, 9, 0)) { response.record("a", "x") }
+
+      travel_to(Time.zone.local(2026, 10, 12, 9, 31)) { response.advance }
+
+      assert_equal "b", response.next_step(response.recorded).id
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

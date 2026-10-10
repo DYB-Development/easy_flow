@@ -91,6 +91,7 @@ module EasyFlow
           "labels" => step_type.settings.labels.transform_keys(&:to_s),
           "choices" => step_type.settings.choices.transform_keys(&:to_s),
           "records" => holdings_of(step_type),
+          "record_choices" => step_type.settings.record_choices.to_h { |name, offered| [ name.to_s, offered.transform_keys(&:to_s) ] },
           "record_labels" => step_type.settings.record_labels.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
           "awaits_input" => step_type.awaits_input? }
       end

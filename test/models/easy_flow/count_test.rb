@@ -23,5 +23,9 @@ module EasyFlow
 
       assert_equal 1, Count.step_type.process(node, { "tests" => { "result" => "failed", "took" => 4 }, "tests@2" => { "result" => "passed", "took" => 3 } })
     end
+
+    test "offers the earlier step's outputs to pick the answer from" do
+      assert_equal :step, Count.step_type.settings.outputs_of[:output]
+    end
   end
 end

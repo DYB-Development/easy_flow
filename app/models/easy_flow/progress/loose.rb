@@ -5,7 +5,10 @@ module EasyFlow
         @flow = flow
         @answers = answers.to_h.symbolize_keys
         @definition = definition
+        @answered_at = {}
       end
+
+      attr_reader :answered_at
 
       def definition
         @definition || @flow.live_definition
@@ -17,6 +20,7 @@ module EasyFlow
 
       def record(id, value)
         @answers = @answers.merge(id.to_sym => value)
+        @answered_at = @answered_at.merge(id.to_sym => Time.current)
       end
 
       def start_inner(_node); end

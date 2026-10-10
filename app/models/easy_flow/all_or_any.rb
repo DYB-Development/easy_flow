@@ -6,6 +6,8 @@ module EasyFlow
 
     def route(node, state, times)
       comparisons = Array(node.config["comparisons"])
+      return false if comparisons.empty?
+
       held = ->(comparison) { holds?(comparison, state, times) }
       node.config["join"] == "any of" ? comparisons.any?(&held) : comparisons.all?(&held)
     end

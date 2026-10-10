@@ -34,5 +34,9 @@ module EasyFlow
 
       assert_equal true, AllOrAny.step_type.route(joined("all of", [ comparison ]), { "tests" => { "coverage" => 91 } })
     end
+
+    test "follows its false route while it holds no comparisons" do
+      assert_equal false, AllOrAny.step_type.route(joined("all of", []), {})
+    end
   end
 end

@@ -1,13 +1,14 @@
 module EasyFlow
   class Settings
-    attr_reader :fields, :labels, :record_fields, :record_labels, :drawn_from, :outputs_of
+    attr_reader :fields, :labels, :record_fields, :record_labels, :record_choices, :drawn_from, :outputs_of
 
-    def initialize(fields: {}, labels: {}, record_fields: {}, record_labels: {}, choices: {},
+    def initialize(fields: {}, labels: {}, record_fields: {}, record_labels: {}, record_choices: {}, choices: {},
       limits: {}, checks: {}, required: [], drawn_from: {}, outputs_of: {}, kept: {})
       @fields = fields
       @labels = labels
       @record_fields = record_fields
       @record_labels = record_labels
+      @record_choices = record_choices
       @choices = choices
       @limits = limits
       @checks = checks

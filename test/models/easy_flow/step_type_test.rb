@@ -484,5 +484,11 @@ module EasyFlow
 
       assert step_type.ready?(Node.new(id: "h", type: "hold", config: {}), {}, { "a" => Time.current })
     end
+
+    test "keeps the options a select inside a list's entries offers" do
+      step_type = StepType.define(:joined) { setting(:rows, type: :list) { setting :comparison, type: :select, options: [ "more than", "less than" ] } }
+
+      assert_equal({ rows: { comparison: [ "more than", "less than" ] } }, step_type.settings.record_choices)
+    end
   end
 end

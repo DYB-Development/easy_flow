@@ -147,6 +147,13 @@ module EasyFlow
       assert_equal "hold", response.next_step(response.recorded).id
     end
 
+    test "says the time a Wait step is holding it until" do
+      response = run_waiting_half_an_hour
+      travel_to(Time.zone.local(2026, 10, 12, 9, 0)) { response.record("a", "x") }
+
+      assert_equal Time.zone.local(2026, 10, 12, 9, 30), response.held_until
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

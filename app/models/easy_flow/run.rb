@@ -42,6 +42,11 @@ module EasyFlow
       digest.output(recorded.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
     end
 
+    def held_until
+      stopped_at = next_step(recorded)
+      Wait.held_until(digest.step(stopped_at.id), AnsweredAt.latest(answered_at)) if stopped_at&.type == "wait"
+    end
+
     def waiting_on
       stopped_at = next_step(recorded)
       inner_runs.find_by(parent_step: stopped_at.id) if stopped_at

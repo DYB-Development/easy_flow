@@ -352,5 +352,11 @@ module EasyFlow
 
       assert_equal [ "start", "a" ], node["record_choices"]["rows"]["step"].map { |offered| offered["value"] }
     end
+
+    test "offers each earlier step's outputs, keyed by step, to an output field inside a step's records" do
+      node = joined_canvas["nodes"].find { |drawn| drawn["id"] == "b" }
+
+      assert_equal %w[answer completed_hour completed_weekday completed_minute], node["record_choices"]["rows"]["output"]["a"].map { |offered| offered["value"] }
+    end
   end
 end

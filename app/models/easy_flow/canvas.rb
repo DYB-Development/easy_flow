@@ -123,10 +123,16 @@ module EasyFlow
     end
 
     def record_choices_for(node)
-      step_type_for(node)&.settings&.record_fields.to_h.to_h do |list, holds|
+      settings = step_type_for(node)&.settings
+      settings&.record_fields.to_h.to_h do |list, holds|
         earlier_fields = holds.select { |_name, type| type == :previous_step }.keys
-        [ list.to_s, earlier_fields.to_h { |name| [ name.to_s, earlier_than(node) ] } ]
+        output_fields = settings.record_outputs_of.fetch(list, {}).keys
+        [ list.to_s, earlier_fields.to_h { |name| [ name.to_s, earlier_than(node) ] }.merge(output_fields.to_h { |name| [ name.to_s, outputs_before(node) ] }) ]
       end
+    end
+
+    def outputs_before(node)
+      digest.preceding(node.id).to_h { |id| [ id, digest.outputs_of(id) ] }
     end
 
     def naming_flows(node)

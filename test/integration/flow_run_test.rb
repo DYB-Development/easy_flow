@@ -39,6 +39,14 @@ module EasyFlow
       end
     end
 
+    test "a flow keeping nothing carries the time the question just answered was answered on to the next step" do
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) do
+        get easy_flow.flow_step_path(flowed.slug), params: { answers: { budget: "high" }, asked: "budget" }
+      end
+
+      assert_select "input[type=hidden][name=?][value=?]", "answered_at[budget]", Time.zone.local(2026, 10, 12, 9, 30).iso8601
+    end
+
     test "pressing Back on a flow keeping nothing asks the previous question again" do
       get easy_flow.flow_step_path(flowed.slug), params: { answers: { budget: "high" }, asked: "posh", back: "1" }
 

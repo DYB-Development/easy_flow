@@ -25,6 +25,9 @@
           <% else %>
             <%= hidden_field_tag "answers[#{key}]", value %>
           <% end %>
+          <% if (answered = @progress.answered_at[key]) %>
+            <%= hidden_field_tag "answered_at[#{key}]", answered.iso8601, id: nil %>
+          <% end %>
         <% end %>
       <% end %>
 

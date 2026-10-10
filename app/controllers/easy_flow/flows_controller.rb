@@ -86,7 +86,8 @@ module EasyFlow
     def progress
       return @progress ||= Progress.for(run.flow, run: run) if run
 
-      @progress ||= Progress.for(flow, answers: submitted_answers, definition: running_definition)
+      answers = submitted_answers
+      @progress ||= Progress.for(flow, answers: answers, answered_at: submitted_times(answers), definition: running_definition)
     end
 
     def running_definition
@@ -126,6 +127,11 @@ module EasyFlow
       answer = answers.fetch(key, "")
       @refused = answer_problem(asked, answer)
       @refused ? answers.except(key) : answers.merge(key => answer)
+    end
+
+    def submitted_times(answers)
+      asked = params[:asked].to_s.to_sym
+      answers.key?(asked) ? { asked => Time.current } : {}
     end
 
     def one_answer_back(answers)

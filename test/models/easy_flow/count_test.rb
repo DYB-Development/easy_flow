@@ -35,5 +35,9 @@ module EasyFlow
     test "declares the count it records as a whole-number output" do
       assert_equal [ [ :count, :integer ] ], Count.step_type.outputs.map { |output| [ output.name, output.type ] }
     end
+
+    test "is offered to every host's flows" do
+      assert EasyFlow.registry.registered?(:count)
+    end
   end
 end

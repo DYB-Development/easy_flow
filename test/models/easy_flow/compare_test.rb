@@ -55,5 +55,11 @@ module EasyFlow
     test "is offered to every host's flows" do
       assert EasyFlow.registry.registered?(:compare)
     end
+
+    test "compares the hour the step was answered at when that is the output it names" do
+      node = compare({ "step" => "tests", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 })
+
+      assert_equal true, Compare.step_type.route(node, { "tests" => "passed" }, { "tests" => Time.zone.local(2026, 10, 12, 18, 5) })
+    end
   end
 end

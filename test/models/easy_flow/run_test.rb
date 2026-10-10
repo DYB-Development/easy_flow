@@ -24,15 +24,28 @@ module EasyFlow
       assert_equal({ a: "x", c: "x" }, response.reload.recorded)
     end
 
-    test "saves the time each answer was recorded" do
+    def timed_run
       flow = Definition.create!(host: "dummy", slug: "timed")
       flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "timed", "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] } ] }))
       flow.publish_version(flow.definition_versions.first)
-      response = Run.start(flow)
+      Run.start(flow)
+    end
+
+    test "saves the time each answer was recorded" do
+      response = timed_run
 
       travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
 
       assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, response.reload.answered_at)
+    end
+
+    test "saves a separate time for each later visit's answer to the same step" do
+      response = timed_run
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
+
+      travel_to(Time.zone.local(2026, 10, 12, 10, 0)) { response.record("a@2", "x") }
+
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30), "a@2": Time.zone.local(2026, 10, 12, 10, 0) }, response.reload.answered_at)
     end
 
     test "gives the output its flow wrote when it ended" do

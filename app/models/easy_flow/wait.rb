@@ -14,6 +14,8 @@ module EasyFlow
     waits_until { |node, _state, times| Wait.held_until(node, times)&.then { |held| held <= Time.current } || false }
 
     def self.named(config)
+      return config["date"] if config["date"].present?
+
       waited = config["time_of_day"].presence || "#{config["minutes"]} minutes"
       "#{waited} after #{config["step"]}"
     end

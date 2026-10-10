@@ -29,5 +29,11 @@ module EasyFlow
 
       assert_equal true, CompareTwoValues.step_type.route(node, { "spent" => 100, "budget" => 100 })
     end
+
+    test "decides true when the first step's number is equal to the second step's" do
+      node = compare({ "step" => "spent", "comparison" => "equal to", "other_step" => "budget" })
+
+      assert_equal true, CompareTwoValues.step_type.route(node, { "spent" => 100, "budget" => 100 })
+    end
   end
 end

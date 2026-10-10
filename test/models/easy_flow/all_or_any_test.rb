@@ -28,5 +28,11 @@ module EasyFlow
 
       assert_equal true, AllOrAny.step_type.route(joined("any of", coverage_and_warnings), state)
     end
+
+    test "compares a comparison that names no second step against its amount alone" do
+      comparison = { "step" => "tests", "output" => "coverage", "comparison" => "at least", "amount" => 80 }
+
+      assert_equal true, AllOrAny.step_type.route(joined("all of", [ comparison ]), { "tests" => { "coverage" => 91 } })
+    end
   end
 end

@@ -17,7 +17,7 @@ module EasyFlow
 
     def route(node, state, times)
       first = number(CompletedAt.value_of(state, times, *node.config.values_at("step", "output")))
-      second = number(CompletedAt.value_of(state, times, *node.config.values_at("other_step", "other_output")))
+      second = node.config["other_step"].present? ? number(CompletedAt.value_of(state, times, *node.config.values_at("other_step", "other_output"))) : 0.0
       return false if first.nil? || second.nil?
 
       first.public_send(COMPARISONS.fetch(node.config["comparison"]), second + node.config["amount"].to_f)

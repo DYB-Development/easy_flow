@@ -4,6 +4,11 @@ module EasyFlow
 
     step_name "Wait"
 
+    setting :step, type: :previous_step, label: "Counting from", required: true
+    setting :minutes, type: :integer, label: "Minutes after it"
+    setting :time_of_day, type: :string, label: "Next time of day after it, as HH:MM"
+    setting :date, type: :string, label: "Date, as YYYY-MM-DD"
+
     waits_until { |node, _state, times| Wait.held_until(node, times)&.then { |held| held <= Time.current } || false }
 
     def self.held_until(node, times)

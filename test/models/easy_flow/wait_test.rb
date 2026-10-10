@@ -55,5 +55,11 @@ module EasyFlow
     test "holds the run while the earlier step it counts from has no recorded time" do
       assert_not Wait.step_type.ready?(wait({ "step" => "deploy", "minutes" => 30 }), {}, {})
     end
+
+    test "asks for the earlier step it counts from and a number of minutes, a time of day or a date" do
+      fields = Wait.step_type.settings.fields
+
+      assert_equal({ step: :previous_step, minutes: :integer, time_of_day: :string, date: :string }, fields)
+    end
   end
 end

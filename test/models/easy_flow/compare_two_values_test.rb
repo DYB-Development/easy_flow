@@ -41,5 +41,11 @@ module EasyFlow
 
       assert_equal false, CompareTwoValues.step_type.route(node, { "spent" => 120, "budget" => 100 })
     end
+
+    test "treats an amount left empty as zero" do
+      node = compare({ "step" => "spent", "comparison" => "at least", "other_step" => "budget", "amount" => "" })
+
+      assert_equal true, CompareTwoValues.step_type.route(node, { "spent" => 100, "budget" => 100 })
+    end
   end
 end

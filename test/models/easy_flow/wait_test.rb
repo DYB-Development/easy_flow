@@ -51,5 +51,9 @@ module EasyFlow
 
       assert_not ready
     end
+
+    test "holds the run while the earlier step it counts from has no recorded time" do
+      assert_not Wait.step_type.ready?(wait({ "step" => "deploy", "minutes" => 30 }), {}, {})
+    end
   end
 end

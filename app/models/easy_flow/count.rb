@@ -10,6 +10,8 @@ module EasyFlow
 
     output :count, type: :integer
 
+    names_by { |node| [ "Count", *node.config.values_at("step", "answer") ].compact_blank.join(" ") }
+
     def process(node, state)
       visits(node, state).count { |answer| counted?(node, answer) }
     end

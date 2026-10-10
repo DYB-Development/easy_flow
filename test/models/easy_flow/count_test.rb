@@ -36,6 +36,10 @@ module EasyFlow
       assert_equal [ [ :count, :integer ] ], Count.step_type.outputs.map { |output| [ output.name, output.type ] }
     end
 
+    test "is named after the step and the answer it counts" do
+      assert_equal "Count tests failed", Count.step_type.name_of(count({ "step" => "tests", "answer" => "failed" }))
+    end
+
     test "is offered to every host's flows" do
       assert EasyFlow.registry.registered?(:count)
     end

@@ -7,7 +7,17 @@ module EasyFlow
     setting :step, type: :previous_step
 
     def process(node, state)
-      state.keys.count { |key| key.to_s.split("@").first == node.config["step"] }
+      visits(node, state).count { |answer| counted?(node, answer) }
+    end
+
+    private
+
+    def visits(node, state)
+      state.select { |key, _| key.to_s.split("@").first == node.config["step"] }.values
+    end
+
+    def counted?(node, answer)
+      node.config["answer"].blank? || answer.to_s == node.config["answer"].to_s
     end
   end
 end

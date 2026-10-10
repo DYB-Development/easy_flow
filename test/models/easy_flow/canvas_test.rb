@@ -346,5 +346,11 @@ module EasyFlow
 
       assert_equal({ "rows" => { "comparison" => [ "more than", "less than" ] } }, entry["record_choices"])
     end
+
+    test "offers the steps before a step to each earlier-step field inside its records" do
+      node = joined_canvas["nodes"].find { |drawn| drawn["id"] == "b" }
+
+      assert_equal [ "start", "a" ], node["record_choices"]["rows"]["step"].map { |offered| offered["value"] }
+    end
   end
 end

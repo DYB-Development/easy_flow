@@ -23,8 +23,8 @@ module EasyFlow
       @digest.step(id.to_s)
     end
 
-    def next_step(state, run: nil)
-      node = @digest.next_step(named(state))
+    def next_step(state, run: nil, times: {})
+      node = @digest.next_step(named(state), named(times))
       narrowed(shown(node, run), node, state)
     end
 
@@ -41,8 +41,8 @@ module EasyFlow
       node.present? && decided?(node, state)
     end
 
-    def drawing_at(state)
-      Drawing.of(@digest.next_step(named(state)), @registry)
+    def drawing_at(state, times: {})
+      Drawing.of(@digest.next_step(named(state), named(times)), @registry)
     end
 
     def state_on_path(state)

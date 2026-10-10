@@ -93,5 +93,11 @@ module EasyFlow
 
       assert_equal true, Condition.step_type.route(node, { "tests" => { "result" => "passed", "coverage" => 91 } })
     end
+
+    test "tests a single answer whole even when it names an output" do
+      node = branch({ "step" => "budget", "output" => "answer", "answer" => "high" })
+
+      assert_equal true, Condition.step_type.route(node, { "budget" => "high" })
+    end
   end
 end

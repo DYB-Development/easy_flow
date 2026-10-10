@@ -136,4 +136,4 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After setting a host's `offers`, check that the canvas palette on that host's `<mount path>/manage/flows` lists only those step types and End.
 - Taking a step type off a host's `offers` removes it from the palette only. Steps of that type already in the host's flows stay in them and keep running.
 - The initializer runs once at boot, so a change to it needs a server restart.
-- Declaring step types, including settings kept on the app's own records, serving a host's flows from the app's own controllers and routes, and reading runs, answers and the output a flow ended with are out of scope here. They belong to the `easy_flow-develop` local.
+- Declaring step types, including settings kept on the app's own records, serving a host's flows from the app's own controllers and routes, and reading runs, answers, the output a flow ended with, whether a run ended at an End step and the step a loop stopped a run at are out of scope here. They belong to the `easy_flow-develop` local.

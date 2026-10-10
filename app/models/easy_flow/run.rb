@@ -15,7 +15,11 @@ module EasyFlow
     end
 
     def record(step_id, value)
-      update!(recorded: recorded.merge(step_id => value))
+      update!(recorded: recorded.merge(step_id => value), answered_at: answered_at.merge(step_id.to_sym => Time.current))
+    end
+
+    def answered_at
+      super.to_h.to_h { |step_id, time| [ step_id.to_sym, Time.zone.parse(time.to_s) ] }
     end
 
     def recorded

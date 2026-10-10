@@ -6,6 +6,11 @@ module EasyFlow
 
     step_name "Compare two values"
 
+    setting :step, type: :previous_step
+    setting :comparison, type: :select, options: COMPARISONS.keys, required: true
+    setting :other_step, type: :previous_step
+    setting :amount, type: :float
+
     def route(node, state)
       first = number(side(state[node.config["step"]], node.config["output"]))
       second = number(side(state[node.config["other_step"]], node.config["other_output"]))

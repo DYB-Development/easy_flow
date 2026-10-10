@@ -71,5 +71,11 @@ module EasyFlow
 
       assert_equal true, CompareTwoValues.step_type.route(node, { "took" => 90, "last_run" => { "result" => "passed", "took" => 60 } })
     end
+
+    test "asks for an earlier step on each side, a comparison and an amount" do
+      fields = CompareTwoValues.step_type.settings.fields
+
+      assert_equal({ step: :previous_step, comparison: :select, other_step: :previous_step, amount: :float }, fields.slice(:step, :comparison, :other_step, :amount))
+    end
   end
 end

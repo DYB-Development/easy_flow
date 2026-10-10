@@ -197,6 +197,21 @@ module EasyFlow
       assert response.ended_at_end?
     end
 
+    test "does not say it ended at an End step when a loop stopped it" do
+      response = run_looping_back_with_nothing_new
+      response.record("a", "x")
+
+      response.advance
+
+      assert_not response.ended_at_end?
+    end
+
+    test "says neither while it is still going" do
+      response = run_routing_to_an_end
+
+      assert_equal [ false, nil ], [ response.ended_at_end?, response.stopped_on_loop ]
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

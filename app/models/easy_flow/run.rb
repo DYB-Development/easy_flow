@@ -57,7 +57,7 @@ module EasyFlow
 
     def discard_last
       last = walked(recorded).keys.map(&:to_sym).last
-      update!(recorded: recorded.except(last)) if last
+      update!(recorded: recorded.except(last), answered_at: answered_at.except(last)) if last
     end
 
     def pinned_steps

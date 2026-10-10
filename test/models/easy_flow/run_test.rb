@@ -48,6 +48,15 @@ module EasyFlow
       assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30), "a@2": Time.zone.local(2026, 10, 12, 10, 0) }, response.reload.answered_at)
     end
 
+    test "going back removes the last answer's time with it" do
+      response = timed_run
+      response.record("a", "x")
+
+      response.discard_last
+
+      assert_empty response.reload.answered_at
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

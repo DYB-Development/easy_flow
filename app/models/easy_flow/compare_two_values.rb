@@ -7,7 +7,7 @@ module EasyFlow
     step_name "Compare two values"
 
     def route(node, state)
-      first = number(state[node.config["step"]])
+      first = number(side(state[node.config["step"]], node.config["output"]))
       second = number(state[node.config["other_step"]])
       return false if first.nil? || second.nil?
 
@@ -15,6 +15,10 @@ module EasyFlow
     end
 
     private
+
+    def side(answer, output)
+      answer.is_a?(Hash) ? answer[output] : answer
+    end
 
     def number(answer)
       Float(answer.to_s, exception: false)

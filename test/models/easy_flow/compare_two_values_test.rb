@@ -59,5 +59,11 @@ module EasyFlow
 
       assert_equal false, CompareTwoValues.step_type.route(node, { "spent" => "plenty", "budget" => 100 })
     end
+
+    test "reads the first side from the output it names when that step recorded several" do
+      node = compare({ "step" => "tests", "output" => "took", "comparison" => "more than", "other_step" => "limit" })
+
+      assert_equal true, CompareTwoValues.step_type.route(node, { "tests" => { "result" => "passed", "took" => 90 }, "limit" => 60 })
+    end
   end
 end

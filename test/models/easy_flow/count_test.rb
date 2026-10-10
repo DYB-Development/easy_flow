@@ -61,14 +61,27 @@ module EasyFlow
                      { "from" => "enough", "to" => "tests", "on" => "false" } ] }
     end
 
-    def run_retry_loop(answers)
-      Progress::Loose.new(nil, answers, retry_loop).tap { |progress| Runner.new(retry_loop, registry: registry).run(progress) }
+    def run_retry_loop(*answers)
+      runner = Runner.new(retry_loop, registry: registry)
+      Progress::Loose.new(nil, {}, retry_loop).tap do |progress|
+        answers.each do |answer|
+          runner.run(progress)
+          progress.record(runner.next_step(progress.recorded).id, answer)
+        end
+        runner.run(progress)
+      end
     end
 
     test "a Compare step routes on the count a Count step recorded" do
-      recorded = run_retry_loop({ tests: "failed", "tests@2": "failed", "tests@3": "failed" }).recorded
+      recorded = run_retry_loop("failed", "failed", "failed").recorded
 
       assert_equal "gave up", Digest.new(Document.new(retry_loop, registry: registry), registry: registry).output(recorded.transform_keys(&:to_s))
+    end
+
+    test "records a new count on each visit to a Count step in a loop" do
+      recorded = run_retry_loop("failed", "passed", "failed", "failed").recorded
+
+      assert_equal [ 1, 1, 2, 3 ], recorded.values_at(:tries, :"tries@2", :"tries@3", :"tries@4")
     end
 
     test "is offered to every host's flows" do

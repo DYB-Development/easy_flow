@@ -53,5 +53,11 @@ module EasyFlow
 
       assert_equal false, CompareTwoValues.step_type.route(node, { "budget" => 100 })
     end
+
+    test "decides false when a side's answer is not a number" do
+      node = compare({ "step" => "spent", "comparison" => "less than", "other_step" => "budget" })
+
+      assert_equal false, CompareTwoValues.step_type.route(node, { "spent" => "plenty", "budget" => 100 })
+    end
   end
 end

@@ -33,6 +33,7 @@ module EasyFlow
 
       def ended
         parent = @run.parent_run or return
+        return if @run.stopped_on_loop
         return if parent.recorded.key?(@run.parent_step.to_sym)
 
         ending = @run.output || ("ended" if chose_from_run?(parent))

@@ -30,7 +30,7 @@ module EasyFlow
       def finish(state)
         return unless @flow.on_finish?
 
-        Run.start(@flow).tap { |run| run.update!(recorded: state) }
+        Run.start(@flow).tap { |run| run.update!(recorded: state, answered_at: @answered_at.slice(*state.keys.map(&:to_sym))) }
       end
 
       def discard_last

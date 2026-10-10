@@ -61,5 +61,9 @@ module EasyFlow
 
       assert_equal({ step: :previous_step, minutes: :integer, time_of_day: :string, date: :string }, fields)
     end
+
+    test "is offered to every host's flows" do
+      assert EasyFlow.registry.registered?(:wait)
+    end
   end
 end

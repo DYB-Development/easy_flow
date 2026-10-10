@@ -16,8 +16,8 @@ module EasyFlow
     def self.named(config)
       return config["date"] if config["date"].present?
 
-      waited = config["time_of_day"].presence || "#{config["minutes"]} minutes"
-      "#{waited} after #{config["step"]}"
+      waited = config["time_of_day"].presence || ("#{config["minutes"]} minutes" if config["minutes"].present?)
+      "#{waited} after #{config["step"]}" if waited
     end
 
     def self.held_until(node, times)

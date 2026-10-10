@@ -77,5 +77,9 @@ module EasyFlow
     test "is named after the date it waits for" do
       assert_equal "2026-10-20", Wait.step_type.name_of(wait({ "step" => "deploy", "date" => "2026-10-20" }))
     end
+
+    test "has no name of its own while nothing says how long it waits" do
+      assert_nil Wait.step_type.name_of(wait({ "step" => "deploy" }))
+    end
   end
 end

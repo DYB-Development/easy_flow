@@ -17,5 +17,11 @@ module EasyFlow
 
       assert_equal Time.zone.local(2026, 10, 13, 9, 0), Wait.held_until(node, { "deploy" => Time.zone.local(2026, 10, 12, 17, 30) })
     end
+
+    test "holds until the given time of day the same day when the earlier step was answered before it" do
+      node = wait({ "step" => "deploy", "time_of_day" => "09:00" })
+
+      assert_equal Time.zone.local(2026, 10, 12, 9, 0), Wait.held_until(node, { "deploy" => Time.zone.local(2026, 10, 12, 7, 45) })
+    end
   end
 end

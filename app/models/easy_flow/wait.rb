@@ -13,7 +13,8 @@ module EasyFlow
 
     def self.next_time_of_day(from, time_of_day)
       hour, minute = time_of_day.split(":").map(&:to_i)
-      from.in_time_zone.tomorrow.change(hour: hour, min: minute)
+      same_day = from.in_time_zone.change(hour: hour, min: minute)
+      same_day > from ? same_day : same_day.tomorrow
     end
   end
 end

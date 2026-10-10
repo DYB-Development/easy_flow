@@ -53,6 +53,12 @@ module EasyFlow
       assert_select "input[type=hidden][name=?][value=?]", "answered_at[job]", Time.zone.parse("2026-10-12T09:30:00Z").iso8601
     end
 
+    test "a flow keeping nothing drops an answer time it cannot read" do
+      get easy_flow.flow_step_path(looping.slug), params: { answers: { job: "mow", more: "no" }, answered_at: { job: "2026-13-45T09:30:00Z" }, asked: "more" }
+
+      assert_select "input[name=?]", "answered_at[job]", count: 0
+    end
+
     test "pressing Back on a flow keeping nothing asks the previous question again" do
       get easy_flow.flow_step_path(flowed.slug), params: { answers: { budget: "high" }, asked: "posh", back: "1" }
 

@@ -131,9 +131,15 @@ module EasyFlow
 
     def submitted_times(answers)
       given = params.fetch(:answered_at, {}).permit(*answers.keys).to_h.symbolize_keys
-      times = given.transform_values { |time| Time.zone.parse(time.to_s) }.compact
+      times = given.transform_values { |time| readable_time(time) }.compact
       asked = params[:asked].to_s.to_sym
       answers.key?(asked) && !times.key?(asked) ? times.merge(asked => Time.current) : times
+    end
+
+    def readable_time(time)
+      Time.zone.parse(time.to_s)
+    rescue ArgumentError
+      nil
     end
 
     def one_answer_back(answers)

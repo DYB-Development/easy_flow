@@ -162,6 +162,12 @@ module EasyFlow
       assert_equal [ { "value" => "coverage", "label" => "Coverage" } ], digest(document).outputs_of("a")
     end
 
+    test "offers the hour, the weekday and the minutes since 1970 a step that records an answer was answered at" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask" } ], "edges" => [] }
+
+      assert_equal %w[answered_hour answered_weekday answered_minute], digest(document).outputs_of("a").map { |output| output["value"] }
+    end
+
     test "reports the outputs a step names for a later one to read" do
       document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "pick" } ], "edges" => [] }
 

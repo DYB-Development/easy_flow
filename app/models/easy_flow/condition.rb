@@ -14,7 +14,9 @@ module EasyFlow
     names_by { |node| node.config.values_at("step", "comparison", "answer").compact_blank.join(" ").presence }
 
     def route(node, state)
-      matched = state[node.config["step"]] == node.config["answer"]
+      answer = state[node.config["step"]]
+      answer = answer[node.config["output"]] if answer.is_a?(Hash)
+      matched = answer == node.config["answer"]
 
       node.config["comparison"] == "is not" ? !matched : matched
     end

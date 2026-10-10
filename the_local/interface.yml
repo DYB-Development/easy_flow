@@ -14,6 +14,7 @@ develop:
   - EasyFlow::Step
   - EasyFlow.step
   - labels_answer_by
+  - outputs_named_by
   - host.allowed_answers=
   - EasyFlow::FlowsController
   - hosted_by

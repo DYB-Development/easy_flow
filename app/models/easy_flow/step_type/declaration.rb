@@ -26,6 +26,10 @@ module EasyFlow
         @declared_outputs += [ Output.new(name: name, type: type, label: label, values: values, from: from) ]
       end
 
+      def outputs_named_by(setting)
+        @outputs_named_by = setting
+      end
+
       def displays_by(&display)
         @display = display
       end
@@ -130,7 +134,7 @@ module EasyFlow
         StepType.new(id: @id, step_name: @step_name, settings: settings, awaits_input: @awaits_input,
           ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, flow_chooser: @flow_chooser, run_chooser: @run_chooser, behaviour: @behaviour, routing: @routing,
           display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming,
-          outputs: @declared_outputs, answer_check: @answer_check, answer_labelling: @answer_labelling, readiness: @readiness)
+          outputs: @declared_outputs, outputs_named_by: @outputs_named_by, answer_check: @answer_check, answer_labelling: @answer_labelling, readiness: @readiness)
       end
 
       def settings

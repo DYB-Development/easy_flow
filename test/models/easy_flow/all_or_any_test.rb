@@ -48,5 +48,9 @@ module EasyFlow
 
       assert_equal({ comparisons: expected }, AllOrAny.step_type.settings.record_fields)
     end
+
+    test "declares the true or false result it decides as an output" do
+      assert_equal [ true, false ], AllOrAny.step_type.values_of(:result, joined("all of", [])).map { |value| value["value"] }
+    end
   end
 end

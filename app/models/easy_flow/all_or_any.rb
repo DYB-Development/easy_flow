@@ -14,6 +14,8 @@ module EasyFlow
       setting :other_output, outputs_of: :other_step, label: "Second step's output"
     end
 
+    output :result, type: :boolean, values: [ true, false ]
+
     def route(node, state, times)
       comparisons = Array(node.config["comparisons"])
       return false if comparisons.empty?

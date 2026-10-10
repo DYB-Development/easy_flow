@@ -460,5 +460,16 @@ module EasyFlow
 
       assert_equal({ flow: "flow-for-run-7", version: 4 }, pipelines.flow_chosen_from_run(Node.new(id: "a", type: "run_pipeline", config: {}), 7))
     end
+
+    test "offers an output for each name entered in the list setting it declares names its outputs" do
+      step_type = StepType.define(:report) do
+        setting(:values, type: :list) { setting :name, type: :string }
+        output :result
+        outputs_named_by :values
+      end
+      node = Node.new(id: "tests", type: "report", config: { "values" => [ { "name" => "coverage" }, { "name" => "warnings" } ] })
+
+      assert_equal %w[result coverage warnings], step_type.outputs_for(node).map { |output| output.name.to_s }
+    end
   end
 end

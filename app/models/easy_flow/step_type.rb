@@ -8,7 +8,7 @@ module EasyFlow
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
       ends_here: false, begins_here: false, starts_a_flow: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,
-      naming_field: nil, naming: nil, outputs: [], answer_check: nil, answer_labelling: nil, readiness: nil)
+      naming_field: nil, naming: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil)
       @id = id
       @step_name = step_name
       @settings = settings
@@ -25,6 +25,7 @@ module EasyFlow
       @naming_field = naming_field
       @naming = naming
       @outputs = outputs
+      @outputs_named_by = outputs_named_by
       @answer_check = answer_check
       @answer_labelling = answer_labelling
       @readiness = readiness
@@ -72,6 +73,10 @@ module EasyFlow
       @routing.present?
     end
 
+    def outputs_for(node)
+      outputs + named_outputs(node)
+    end
+
     def values_of(name, node)
       outputs.find { |output| output.name.to_s == name.to_s }&.values_for(node).to_a
     end
@@ -107,6 +112,14 @@ module EasyFlow
     def worked_out_flow_name(node)
       chosen = flow_chosen_by(node)
       ChosenFlow.worked_out(chosen).name if chosen
+    end
+
+    private
+
+    def named_outputs(node)
+      return [] unless @outputs_named_by
+
+      Array(node.config[@outputs_named_by.to_s]).filter_map { |entry| entry["name"].presence }.map { |name| Output.new(name: name) }
     end
   end
 end

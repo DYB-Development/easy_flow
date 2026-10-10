@@ -1,11 +1,11 @@
 module EasyFlow
   module Progress
     class Loose
-      def initialize(flow, answers, definition = nil)
+      def initialize(flow, answers, definition = nil, answered_at = {})
         @flow = flow
         @answers = answers.to_h.symbolize_keys
         @definition = definition
-        @answered_at = {}
+        @answered_at = answered_at.to_h.symbolize_keys
       end
 
       attr_reader :answered_at

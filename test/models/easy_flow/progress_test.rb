@@ -100,5 +100,11 @@ module EasyFlow
 
       assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, Progress.for(run.flow, run: run).answered_at)
     end
+
+    test "a loose run keeps the answer times it was handed" do
+      given = { a: Time.zone.local(2026, 10, 12, 9, 30) }
+
+      assert_equal given, Progress.for(flow(:unsaved), answers: { a: "yes" }, answered_at: given).answered_at
+    end
   end
 end

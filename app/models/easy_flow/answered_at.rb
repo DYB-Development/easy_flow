@@ -6,6 +6,10 @@ module EasyFlow
       "answered_minute" => "Minutes since 1970 when answered"
     }.freeze
 
+    def self.read(output, time)
+      time.in_time_zone.hour if output == "answered_hour"
+    end
+
     def self.outputs
       OUTPUTS.map { |value, label| { "value" => value, "label" => label } }
     end

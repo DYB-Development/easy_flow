@@ -8,7 +8,8 @@ module EasyFlow
 
     READERS = {
       "answered_hour" => ->(time) { time.hour },
-      "answered_weekday" => ->(time) { time.to_date.cwday }
+      "answered_weekday" => ->(time) { time.to_date.cwday },
+      "answered_minute" => ->(time) { time.to_i / 60 }
     }.freeze
 
     def self.read(output, time)

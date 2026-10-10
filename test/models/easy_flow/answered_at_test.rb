@@ -13,5 +13,9 @@ module EasyFlow
 
       assert_equal 7, weekday
     end
+
+    test "reads the whole minutes since 1 January 1970 an answer was given at" do
+      assert_equal 29_334_780, AnsweredAt.read("answered_minute", Time.utc(2025, 10, 10, 9, 0, 59))
+    end
   end
 end

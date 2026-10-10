@@ -61,5 +61,11 @@ module EasyFlow
 
       assert_equal true, Compare.step_type.route(node, { "tests" => "passed" }, { "tests" => Time.zone.local(2026, 10, 12, 18, 5) })
     end
+
+    test "compares the weekday the step was answered on when that is the output it names" do
+      node = compare({ "step" => "tests", "output" => "answered_weekday", "comparison" => "at most", "amount" => 5 })
+
+      assert_equal false, Compare.step_type.route(node, { "tests" => "passed" }, { "tests" => Time.zone.local(2026, 10, 11, 9, 0) })
+    end
   end
 end

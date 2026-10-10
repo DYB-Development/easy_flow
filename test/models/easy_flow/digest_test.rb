@@ -12,6 +12,7 @@ module EasyFlow
           route { |_node, state| state["a"] == "yes" }
         end)
         built.register(StepType.define(:act) { process { |node, _state| "ran #{node.id}" } })
+        built.register(Compare.step_type)
         built.register(StepType.define(:report) do
           setting(:values, type: :list) { setting :name, type: :string }
           outputs_named_by :values
@@ -166,6 +167,15 @@ module EasyFlow
       document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask" } ], "edges" => [] }
 
       assert_equal %w[answered_hour answered_weekday answered_minute], digest(document).outputs_of("a").map { |output| output["value"] }
+    end
+
+    test "routes on the time an earlier answer was given at" do
+      document = { "entry" => "a",
+                   "nodes" => [ { "id" => "a", "type" => "ask" }, { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                                { "id" => "evening", "type" => "ask" }, { "id" => "day", "type" => "ask" } ],
+                   "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }
+
+      assert_equal "evening", digest(document).next_step({ "a" => "x" }, { "a" => Time.zone.local(2026, 10, 12, 18, 0) }).id
     end
 
     test "reports the outputs a step names for a later one to read" do

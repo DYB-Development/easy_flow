@@ -64,8 +64,8 @@ module EasyFlow
       step_type(node)&.settings&.requirements_for(node.config).to_a
     end
 
-    def next_step(state)
-      walk(state).last
+    def next_step(state, times = {})
+      walk(state, times).last
     end
 
     def output(state)
@@ -91,9 +91,10 @@ module EasyFlow
 
     private
 
-    def walk(state)
+    def walk(state, times = {})
       recorded = []
       latest = {}
+      latest_times = {}
       visits = Hash.new(0)
       answers_at_visit = {}
       answered = 0
@@ -111,9 +112,10 @@ module EasyFlow
         if state.key?(key)
           recorded << key
           latest[cursor.id] = state[key]
+          latest_times[cursor.id] = times[key] if times.key?(key)
           answered += 1 if step_type(cursor)&.awaits_input?
         end
-        cursor = successor(cursor, state.merge(latest))
+        cursor = successor(cursor, state.merge(latest), latest_times)
       end
 
       [ recorded, nil ]
@@ -144,9 +146,9 @@ module EasyFlow
       step_type(node)&.acts? || false
     end
 
-    def successor(node, state)
+    def successor(node, state, times = {})
       leaving = @document.edges_from(node.id)
-      port = step_type(node)&.route(node, state)
+      port = step_type(node)&.route(node, state, times)
       taken = port.nil? ? leaving.first : leaving.find { |edge| edge.on.to_s == port.to_s }
 
       taken && @document.node(taken.to)

@@ -7,7 +7,10 @@ module EasyFlow
     step_name "Compare two values"
 
     def route(node, state)
-      state[node.config["step"]].public_send(COMPARISONS.fetch(node.config["comparison"]), state[node.config["other_step"]])
+      first = state[node.config["step"]]
+      second = state[node.config["other_step"]] + node.config["amount"].to_f
+
+      first.public_send(COMPARISONS.fetch(node.config["comparison"]), second)
     end
   end
 end

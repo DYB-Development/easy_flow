@@ -35,5 +35,11 @@ module EasyFlow
 
       assert_equal true, CompareTwoValues.step_type.route(node, { "spent" => 100, "budget" => 100 })
     end
+
+    test "compares the first number with the second number plus the amount drawn" do
+      node = compare({ "step" => "spent", "comparison" => "more than", "other_step" => "budget", "amount" => 50 })
+
+      assert_equal false, CompareTwoValues.step_type.route(node, { "spent" => 120, "budget" => 100 })
+    end
   end
 end

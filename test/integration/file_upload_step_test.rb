@@ -98,5 +98,11 @@ module EasyFlow
 
       assert_select "[data-controller=file-upload]", text: /Upload the guide/
     end
+
+    test "a file step's control shows the kinds of file it accepts" do
+      get easy_flow.run_path(Run.start(uploading))
+
+      assert_select "[data-controller=file-upload]", text: /Accepts \.pdf/
+    end
   end
 end

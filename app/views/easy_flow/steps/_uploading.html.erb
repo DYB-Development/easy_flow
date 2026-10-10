@@ -1,1 +1,1 @@
-<%= ui_file_upload(name: "answers[#{step.id}]", label: step.text, accept: step.accepts.presence) %>
+<%= ui_file_upload(name: "answers[#{step.id}]", label: step.text, accept: step.accepts.presence, hint: ("Accepts #{step.accepts}" if step.accepts.present?)) %>

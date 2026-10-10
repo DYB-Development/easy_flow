@@ -162,6 +162,15 @@ module EasyFlow
       assert_equal Time.zone.local(2026, 10, 12, 9, 30), response.held_until
     end
 
+    def run_routing_to_an_end
+      flow = Definition.create!(host: "dummy", slug: "finishing")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "finishing", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] }, { "id" => "done", "type" => "terminal" } ],
+        "edges" => [ { "from" => "a", "to" => "done" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      Run.start(flow)
+    end
+
     def run_looping_back_with_nothing_new
       flow = Definition.create!(host: "dummy", slug: "circling")
       flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "circling", "entry" => "a",
@@ -179,6 +188,13 @@ module EasyFlow
       response.advance
 
       assert_equal "tally", response.stopped_on_loop
+    end
+
+    test "says it ended at an End step once it reached one" do
+      response = run_routing_to_an_end
+      response.record("a", "x")
+
+      assert response.ended_at_end?
     end
 
     test "gives the output its flow wrote when it ended" do

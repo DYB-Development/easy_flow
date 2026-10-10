@@ -75,6 +75,13 @@ module EasyFlow
       ended.config["output"].presence if step_type(ended)&.ends_here?
     end
 
+    def ended_at_end?(state, times = {})
+      ended = nil
+      _recorded, waiting, = walk(state, times) { |cursor| ended = cursor }
+
+      waiting.nil? && step_type(ended)&.ends_here? || false
+    end
+
     def stopped_on_loop(state, times = {})
       walk(state, times)[2]
     end

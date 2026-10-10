@@ -89,5 +89,19 @@ module EasyFlow
     test "is offered to every host's flows" do
       assert EasyFlow.registry.registered?(:compare_two_values)
     end
+
+    test "a flow follows the route Compare two values decides from two answers" do
+      registry = Registry.new.tap do |built|
+        [ Start, Terminal, CompareTwoValues ].each { |step| step.register(built) }
+        built.register(StepType.define(:ask) { awaits_input })
+      end
+      flow = { "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "spent", "type" => "ask" }, { "id" => "budget", "type" => "ask" },
+                            { "id" => "over", "type" => "compare_two_values", "step" => "spent", "comparison" => "more than", "other_step" => "budget" },
+                            { "id" => "warn", "type" => "terminal", "output" => "over budget" }, { "id" => "fine", "type" => "terminal", "output" => "within budget" } ],
+               "edges" => [ { "from" => "start", "to" => "spent" }, { "from" => "spent", "to" => "budget" }, { "from" => "budget", "to" => "over" },
+                            { "from" => "over", "to" => "warn", "on" => "true" }, { "from" => "over", "to" => "fine", "on" => "false" } ] }
+
+      assert_equal "over budget", Digest.new(Document.new(flow, registry: registry), registry: registry).output({ "spent" => "120", "budget" => "100" })
+    end
   end
 end

@@ -29,5 +29,13 @@ module EasyFlow
 
       assert_equal({ "a" => { "value" => "x", "completed_at" => "2026-10-12T09:30:00Z" } }, run.reload.read_attribute(:recorded))
     end
+
+    test "running it back unwraps each entry to the value it held" do
+      run = stored_run({ "a" => { "value" => "x", "completed_at" => "2026-10-12T09:30:00Z" } })
+
+      migrate(:down)
+
+      assert_equal({ "a" => "x" }, run.reload.read_attribute(:recorded))
+    end
   end
 end

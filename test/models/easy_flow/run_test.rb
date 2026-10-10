@@ -138,6 +138,15 @@ module EasyFlow
       assert_equal "b", response.next_step(response.recorded).id
     end
 
+    test "a run on a Wait step stays on it when moved on before its time" do
+      response = run_waiting_half_an_hour
+      travel_to(Time.zone.local(2026, 10, 12, 9, 0)) { response.record("a", "x") }
+
+      travel_to(Time.zone.local(2026, 10, 12, 9, 10)) { response.advance }
+
+      assert_equal "hold", response.next_step(response.recorded).id
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

@@ -14,7 +14,7 @@ module EasyFlow
     output :result, type: :boolean, values: [ true, false ]
 
     def route(node, state, times)
-      number = Float(AnsweredAt.answer(state, times, *node.config.values_at("step", "output")).to_s, exception: false)
+      number = Float(CompletedAt.value_of(state, times, *node.config.values_at("step", "output")).to_s, exception: false)
       return false if number.nil?
 
       number.public_send(COMPARISONS.fetch(node.config["comparison"]), node.config["amount"])

@@ -49,7 +49,7 @@ module EasyFlow
       return [] unless named
 
       declared = step_type(named)&.outputs_for(named).to_a.map { |output| { "value" => output.name.to_s, "label" => output.label } }
-      records_answer?(named) ? declared + AnsweredAt.outputs : declared
+      records_a_value?(named) ? declared + CompletedAt.outputs : declared
     end
 
     def values_out_of(id)
@@ -121,7 +121,7 @@ module EasyFlow
       [ recorded, nil ]
     end
 
-    def records_answer?(node)
+    def records_a_value?(node)
       type = step_type(node)
       type.present? && (type.awaits_input? || type.acts? || type.waits?)
     end

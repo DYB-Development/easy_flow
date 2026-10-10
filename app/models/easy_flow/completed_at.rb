@@ -1,22 +1,22 @@
 module EasyFlow
-  module AnsweredAt
+  module CompletedAt
     OUTPUTS = {
-      "answered_hour" => "Hour answered",
-      "answered_weekday" => "Weekday answered",
-      "answered_minute" => "Minutes since 1970 when answered"
+      "completed_hour" => "Hour completed",
+      "completed_weekday" => "Weekday completed",
+      "completed_minute" => "Minutes since 1970 when completed"
     }.freeze
 
     READERS = {
-      "answered_hour" => ->(time) { time.hour },
-      "answered_weekday" => ->(time) { time.to_date.cwday },
-      "answered_minute" => ->(time) { time.to_i / 60 }
+      "completed_hour" => ->(time) { time.hour },
+      "completed_weekday" => ->(time) { time.to_date.cwday },
+      "completed_minute" => ->(time) { time.to_i / 60 }
     }.freeze
 
     def self.read(output, time)
       READERS.fetch(output).call(time.in_time_zone)
     end
 
-    def self.answer(state, times, step, output)
+    def self.value_of(state, times, step, output)
       return times[step] && read(output, times[step]) if OUTPUTS.key?(output)
 
       given = state[step]

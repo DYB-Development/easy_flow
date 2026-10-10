@@ -163,15 +163,15 @@ module EasyFlow
       assert_equal [ { "value" => "coverage", "label" => "Coverage" } ], digest(document).outputs_of("a")
     end
 
-    test "offers the hour, the weekday and the minutes since 1970 a step that records an answer was answered at" do
+    test "offers the hour, the weekday and the minutes since 1970 a step that records a value completed at" do
       document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask" } ], "edges" => [] }
 
-      assert_equal %w[answered_hour answered_weekday answered_minute], digest(document).outputs_of("a").map { |output| output["value"] }
+      assert_equal %w[completed_hour completed_weekday completed_minute], digest(document).outputs_of("a").map { |output| output["value"] }
     end
 
-    test "routes on the time an earlier answer was given at" do
+    test "routes on the time an earlier step completed at" do
       document = { "entry" => "a",
-                   "nodes" => [ { "id" => "a", "type" => "ask" }, { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                   "nodes" => [ { "id" => "a", "type" => "ask" }, { "id" => "late", "type" => "compare", "step" => "a", "output" => "completed_hour", "comparison" => "at least", "amount" => 17 },
                                 { "id" => "evening", "type" => "ask" }, { "id" => "day", "type" => "ask" } ],
                    "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }
 

@@ -44,7 +44,7 @@ module EasyFlow
 
     def held_until
       stopped_at = next_step(recorded)
-      Wait.held_until(digest.step(stopped_at.id), AnsweredAt.latest(completed_at)) if stopped_at&.type == "wait"
+      Wait.held_until(digest.step(stopped_at.id), CompletedAt.latest(completed_at)) if stopped_at&.type == "wait"
     end
 
     def waiting_on

@@ -15,15 +15,15 @@ module EasyFlow
     end
 
     def record(step_id, value)
-      update!(recorded: recorded.merge(step_id => value), answered_at: answered_at.merge(step_id.to_sym => Time.current))
-    end
-
-    def answered_at
-      super.to_h.to_h { |step_id, time| [ step_id.to_sym, Time.zone.parse(time.to_s) ] }
+      update!(recorded: visits.merge(step_id.to_s => { "value" => value, "completed_at" => Time.current.utc.iso8601 }))
     end
 
     def recorded
-      super.to_h.symbolize_keys
+      visits.to_h { |step_id, visit| [ step_id.to_sym, visit["value"] ] }
+    end
+
+    def completed_at
+      visits.select { |_step_id, visit| visit["completed_at"] }.to_h { |step_id, visit| [ step_id.to_sym, Time.zone.parse(visit["completed_at"]) ] }
     end
 
     def advance
@@ -35,16 +35,16 @@ module EasyFlow
     end
 
     def next_step(state)
-      digest.next_step(state.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
+      digest.next_step(state.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
     end
 
     def output
-      digest.output(recorded.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
+      digest.output(recorded.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
     end
 
     def held_until
       stopped_at = next_step(recorded)
-      Wait.held_until(digest.step(stopped_at.id), AnsweredAt.latest(answered_at)) if stopped_at&.type == "wait"
+      Wait.held_until(digest.step(stopped_at.id), AnsweredAt.latest(completed_at)) if stopped_at&.type == "wait"
     end
 
     def waiting_on
@@ -53,7 +53,7 @@ module EasyFlow
     end
 
     def walked(state)
-      digest.state_on_path(state.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
+      digest.state_on_path(state.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
     end
 
     def digest
@@ -62,7 +62,7 @@ module EasyFlow
 
     def discard_last
       last = walked(recorded).keys.map(&:to_sym).last
-      update!(recorded: recorded.except(last), answered_at: answered_at.except(last)) if last
+      update!(recorded: visits.except(last.to_s)) if last
     end
 
     def pinned_steps
@@ -70,6 +70,10 @@ module EasyFlow
     end
 
     private
+
+    def visits
+      read_attribute(:recorded).to_h
+    end
 
     def started_on_a_published_version
       errors.add(:definition_version, "must be a published version of the flow") unless definition_version&.flow_id == flow_id && (definition_version.live? || definition_version.superseded?)

@@ -13,8 +13,8 @@ module EasyFlow
         @run.recorded
       end
 
-      def answered_at
-        @run.answered_at
+      def completed_at
+        @run.completed_at
       end
 
       def record(id, value)

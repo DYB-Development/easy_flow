@@ -17,7 +17,7 @@ module EasyFlow
       }))
       flow.publish_version(flow.definition_versions.first)
       response = Run.start(flow)
-      response.update!(recorded: { a: "x", c: "x", b: "x" })
+      %w[a c b].each { |step| response.record(step, "x") }
 
       response.discard_last
 
@@ -31,12 +31,20 @@ module EasyFlow
       Run.start(flow)
     end
 
+    test "keeps each step visit's value and the time it completed together in one entry" do
+      response = timed_run
+
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
+
+      assert_equal({ "a" => { "value" => "x", "completed_at" => "2026-10-12T09:30:00Z" } }, response.reload.read_attribute(:recorded))
+    end
+
     test "saves the time each answer was recorded" do
       response = timed_run
 
       travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
 
-      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, response.reload.answered_at)
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, response.reload.completed_at)
     end
 
     test "saves a separate time for each later visit's answer to the same step" do
@@ -45,7 +53,7 @@ module EasyFlow
 
       travel_to(Time.zone.local(2026, 10, 12, 10, 0)) { response.record("a@2", "x") }
 
-      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30), "a@2": Time.zone.local(2026, 10, 12, 10, 0) }, response.reload.answered_at)
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30), "a@2": Time.zone.local(2026, 10, 12, 10, 0) }, response.reload.completed_at)
     end
 
     test "going back removes the last answer's time with it" do
@@ -54,7 +62,7 @@ module EasyFlow
 
       response.discard_last
 
-      assert_empty response.reload.answered_at
+      assert_empty response.reload.completed_at
     end
 
     def run_routing_on_time

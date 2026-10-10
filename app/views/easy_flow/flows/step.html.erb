@@ -14,7 +14,7 @@
   <% if @waiting %>
     <p class="ks-hint">Waiting for <%= @waiting %>.</p>
     <% if carries_answers? %>
-      <div class="mt-4"><%= ui_button(label: "Check again", href: "#{flow_step_path(@guide.slug)}?#{{ answers: @answers, answered_at: @progress.answered_at.transform_values(&:iso8601) }.to_query}", variant: :secondary) %></div>
+      <div class="mt-4"><%= ui_button(label: "Check again", href: "#{flow_step_path(@guide.slug)}?#{{ answers: @answers, completed_at: @progress.completed_at.transform_values(&:iso8601) }.to_query}", variant: :secondary) %></div>
     <% end %>
   <% else %>
     <%= form_with url: step_form[:url], method: step_form[:method], multipart: true, data: { turbo: false } do %>
@@ -28,8 +28,8 @@
           <% else %>
             <%= hidden_field_tag "answers[#{key}]", value %>
           <% end %>
-          <% if (answered = @progress.answered_at[key]) %>
-            <%= hidden_field_tag "answered_at[#{key}]", answered.iso8601, id: nil %>
+          <% if (answered = @progress.completed_at[key]) %>
+            <%= hidden_field_tag "completed_at[#{key}]", answered.iso8601, id: nil %>
           <% end %>
         <% end %>
       <% end %>

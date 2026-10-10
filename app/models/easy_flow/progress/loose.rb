@@ -1,14 +1,14 @@
 module EasyFlow
   module Progress
     class Loose
-      def initialize(flow, answers, definition = nil, answered_at = {})
+      def initialize(flow, answers, definition = nil, completed_at = {})
         @flow = flow
         @answers = answers.to_h.symbolize_keys
         @definition = definition
-        @answered_at = answered_at.to_h.symbolize_keys
+        @completed_at = completed_at.to_h.symbolize_keys
       end
 
-      attr_reader :answered_at
+      attr_reader :completed_at
 
       def definition
         @definition || @flow.live_definition
@@ -20,7 +20,7 @@ module EasyFlow
 
       def record(id, value)
         @answers = @answers.merge(id.to_sym => value)
-        @answered_at = @answered_at.merge(id.to_sym => Time.current)
+        @completed_at = @completed_at.merge(id.to_sym => Time.current)
       end
 
       def start_inner(_node); end
@@ -30,15 +30,17 @@ module EasyFlow
       def finish(state)
         return unless @flow.on_finish?
 
-        Run.start(@flow).tap { |run| run.update!(recorded: state, answered_at: @answered_at.slice(*state.keys.map(&:to_sym))) }
+        Run.start(@flow).tap do |run|
+          run.update!(recorded: state.to_h { |step_id, value| [ step_id.to_s, { "value" => value, "completed_at" => @completed_at[step_id.to_sym]&.utc&.iso8601 }.compact ] })
+        end
       end
 
       def discard_last
-        last = Runner.new(@flow.live_definition).state_on_path(@answers, times: @answered_at).keys.last
+        last = Runner.new(@flow.live_definition).state_on_path(@answers, times: @completed_at).keys.last
         return unless last
 
         @answers = @answers.except(last)
-        @answered_at = @answered_at.except(last)
+        @completed_at = @completed_at.except(last)
       end
     end
   end

@@ -21,5 +21,13 @@ module EasyFlow
 
       assert_equal({ "a" => { "value" => "x" }, "b" => { "value" => { "result" => "passed", "coverage" => 91 } } }, run.reload.read_attribute(:recorded))
     end
+
+    test "leaves entries already holding a value and its time as they are, so it is safe to run twice" do
+      run = stored_run({ "a" => { "value" => "x", "completed_at" => "2026-10-12T09:30:00Z" } })
+
+      migrate(:up)
+
+      assert_equal({ "a" => { "value" => "x", "completed_at" => "2026-10-12T09:30:00Z" } }, run.reload.read_attribute(:recorded))
+    end
   end
 end

@@ -13,6 +13,9 @@
 
   <% if @waiting %>
     <p class="ks-hint">Waiting for <%= @waiting %>.</p>
+    <% if carries_answers? %>
+      <div class="mt-4"><%= ui_button(label: "Check again", href: "#{flow_step_path(@guide.slug)}?#{{ answers: @answers, answered_at: @progress.answered_at.transform_values(&:iso8601) }.to_query}", variant: :secondary) %></div>
+    <% end %>
   <% else %>
     <%= form_with url: step_form[:url], method: step_form[:method], multipart: true, data: { turbo: false } do %>
       <%= hidden_field_tag :asked, @question.id %>

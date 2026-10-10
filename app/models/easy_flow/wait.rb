@@ -6,6 +6,7 @@ module EasyFlow
 
     def self.held_until(node, times)
       from = times[node.config["step"]]
+      return Time.zone.parse(node.config["date"]) if node.config["date"].present?
       return next_time_of_day(from, node.config["time_of_day"]) if node.config["time_of_day"].present?
 
       from + node.config["minutes"].to_i.minutes

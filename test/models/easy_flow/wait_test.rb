@@ -23,5 +23,11 @@ module EasyFlow
 
       assert_equal Time.zone.local(2026, 10, 12, 9, 0), Wait.held_until(node, { "deploy" => Time.zone.local(2026, 10, 12, 7, 45) })
     end
+
+    test "holds until the start of a given date in the app's time zone" do
+      node = wait({ "step" => "deploy", "date" => "2026-10-20" })
+
+      assert_equal Time.zone.local(2026, 10, 20), Wait.held_until(node, { "deploy" => Time.zone.local(2026, 10, 12, 9, 0) })
+    end
   end
 end

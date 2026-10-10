@@ -130,8 +130,10 @@ module EasyFlow
     end
 
     def submitted_times(answers)
+      given = params.fetch(:answered_at, {}).permit(*answers.keys).to_h.symbolize_keys
+      times = given.transform_values { |time| Time.zone.parse(time.to_s) }.compact
       asked = params[:asked].to_s.to_sym
-      answers.key?(asked) ? { asked => Time.current } : {}
+      answers.key?(asked) && !times.key?(asked) ? times.merge(asked => Time.current) : times
     end
 
     def one_answer_back(answers)

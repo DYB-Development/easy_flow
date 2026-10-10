@@ -17,5 +17,11 @@ module EasyFlow
     test "reads the whole minutes since 1 January 1970 an answer was given at" do
       assert_equal 29_334_780, AnsweredAt.read("answered_minute", Time.utc(2025, 10, 10, 9, 0, 59))
     end
+
+    test "gives each step the time of its latest visit's answer" do
+      times = { "a@2" => Time.zone.local(2026, 10, 12, 10, 0), "a" => Time.zone.local(2026, 10, 12, 9, 0), "b" => Time.zone.local(2026, 10, 12, 9, 30) }
+
+      assert_equal({ "a" => Time.zone.local(2026, 10, 12, 10, 0), "b" => Time.zone.local(2026, 10, 12, 9, 30) }, AnsweredAt.latest(times))
+    end
   end
 end

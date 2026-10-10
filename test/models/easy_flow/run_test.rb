@@ -312,6 +312,16 @@ module EasyFlow
       assert_not parent.reload.recorded.key?(:pick)
     end
 
+    test "an inner run that stopped on a loop does not move its parent run on" do
+      parent = Run.start(picking_flow)
+      PICKED[parent.id] = { flow: circling_flow.id, version: 1 }
+      parent.advance
+      inner = parent.inner_runs.sole
+      inner.record(:ask, "yes")
+
+      assert_no_enqueued_jobs(only: AdvanceParentJob) { inner.advance }
+    end
+
     test "a run that reaches a step choosing from the run starts the flow and version chosen from that run" do
       parent = Run.start(picking_flow)
       PICKED[parent.id] = { flow: inner_flow.id, version: 1 }

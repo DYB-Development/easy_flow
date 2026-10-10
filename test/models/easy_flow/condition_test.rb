@@ -87,5 +87,11 @@ module EasyFlow
     test "names which output of that step it reads" do
       assert_equal :step, Condition.step_type.settings.outputs_of[:output]
     end
+
+    test "tests the output it names when the step recorded several" do
+      node = branch({ "step" => "tests", "output" => "result", "answer" => "passed" })
+
+      assert_equal true, Condition.step_type.route(node, { "tests" => { "result" => "passed", "coverage" => 91 } })
+    end
   end
 end

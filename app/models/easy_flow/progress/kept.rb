@@ -13,6 +13,10 @@ module EasyFlow
         @run.recorded
       end
 
+      def answered_at
+        @run.answered_at
+      end
+
       def record(id, value)
         @run.record(id.to_sym, value)
       end

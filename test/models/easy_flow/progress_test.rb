@@ -93,5 +93,12 @@ module EasyFlow
 
       assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, progress.answered_at)
     end
+
+    test "a kept run gives the times its run saved for each answer" do
+      run = Run.start(flow(:each_step))
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { run.record(:a, "yes") }
+
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, Progress.for(run.flow, run: run).answered_at)
+    end
   end
 end

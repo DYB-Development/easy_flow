@@ -4,6 +4,11 @@ module EasyFlow
 
     step_name "All of or Any of"
 
+    setting :join, type: :select, options: [ "all of", "any of" ], label: "Must hold", required: true
+    setting :comparisons, type: :list, required: true do
+      setting :step, type: :previous_step, required: true
+    end
+
     def route(node, state, times)
       comparisons = Array(node.config["comparisons"])
       return false if comparisons.empty?

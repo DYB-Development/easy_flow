@@ -38,5 +38,9 @@ module EasyFlow
     test "follows its false route while it holds no comparisons" do
       assert_equal false, AllOrAny.step_type.route(joined("all of", []), {})
     end
+
+    test "asks whether all of or any of its comparisons must hold, and for the comparisons" do
+      assert_equal({ join: :select, comparisons: :list }, AllOrAny.step_type.settings.fields)
+    end
   end
 end

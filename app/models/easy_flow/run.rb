@@ -38,6 +38,10 @@ module EasyFlow
       digest.next_step(state.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
     end
 
+    def stopped_on_loop
+      digest.stopped_on_loop(recorded.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
+    end
+
     def output
       digest.output(recorded.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
     end

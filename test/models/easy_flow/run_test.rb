@@ -162,6 +162,25 @@ module EasyFlow
       assert_equal Time.zone.local(2026, 10, 12, 9, 30), response.held_until
     end
 
+    def run_looping_back_with_nothing_new
+      flow = Definition.create!(host: "dummy", slug: "circling")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "circling", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] }, { "id" => "tally", "type" => "count", "step" => "a" },
+                     { "id" => "again", "type" => "count", "step" => "tally" } ],
+        "edges" => [ { "from" => "a", "to" => "tally" }, { "from" => "tally", "to" => "again" }, { "from" => "again", "to" => "tally" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      Run.start(flow)
+    end
+
+    test "names the step a loop came back to when it stopped the run" do
+      response = run_looping_back_with_nothing_new
+      response.record("a", "x")
+
+      response.advance
+
+      assert_equal "tally", response.stopped_on_loop
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

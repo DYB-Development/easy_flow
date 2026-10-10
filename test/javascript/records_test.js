@@ -36,3 +36,12 @@ test("offers a select inside a record the options its field declares", () => {
 
   assert.match(html, /<option value="more than">more than<\/option><option value="less than">less than<\/option>/)
 })
+
+test("offers an output field inside a record the outputs of the step that record names", () => {
+  const html = drawnWith({
+    holds: { step: "previous_step", output: "from_step" }, rows: [ { step: "tests" } ], outputsOf: { output: "step" },
+    choices: { output: { tests: [ { value: "coverage", label: "Coverage" } ], build: [ { value: "tokens", label: "Tokens" } ] } }
+  })
+
+  assert.match(html, /<option value="coverage">Coverage<\/option>/)
+})

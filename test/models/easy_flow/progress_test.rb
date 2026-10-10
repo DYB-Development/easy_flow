@@ -129,5 +129,13 @@ module EasyFlow
 
       assert_equal({ a: "yes" }, progress.recorded)
     end
+
+    test "a loose run going back removes the last answer's time with it" do
+      progress = Progress.for(flow(:unsaved), answers: { a: "yes" }, answered_at: { a: Time.zone.local(2026, 10, 12, 9, 30) })
+
+      progress.discard_last
+
+      assert_empty progress.answered_at
+    end
   end
 end

@@ -85,5 +85,9 @@ module EasyFlow
     test "declares the true or false result it decides as an output" do
       assert_equal [ true, false ], CompareTwoValues.step_type.values_of(:result, compare({})).map { |value| value["value"] }
     end
+
+    test "is offered to every host's flows" do
+      assert EasyFlow.registry.registered?(:compare_two_values)
+    end
   end
 end

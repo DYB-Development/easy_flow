@@ -4,6 +4,8 @@ module EasyFlow
 
     step_name "Wait"
 
+    waits_until { |node, _state, times| Wait.held_until(node, times) <= Time.current }
+
     def self.held_until(node, times)
       from = times[node.config["step"]]
       return Time.zone.parse(node.config["date"]) if node.config["date"].present?

@@ -35,5 +35,13 @@ module EasyFlow
 
       assert_equal Time.zone.local(2026, 10, 20), Wait.held_until(node, { "deploy" => Time.zone.local(2026, 10, 12, 9, 0) })
     end
+
+    test "lets the run go once the time it holds until has come" do
+      node = wait({ "step" => "deploy", "minutes" => 30 })
+
+      ready = travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { Wait.step_type.ready?(node, {}, { "deploy" => Time.zone.local(2026, 10, 12, 9, 0) }) }
+
+      assert ready
+    end
   end
 end

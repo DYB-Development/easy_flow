@@ -84,6 +84,12 @@ module EasyFlow
       assert_equal [ 1, 1, 2, 3 ], recorded.values_at(:tries, :"tries@2", :"tries@3", :"tries@4")
     end
 
+    test "reading a finished loop again takes the routes it took at the time" do
+      recorded = run_retry_loop("failed", "passed", "failed", "failed").recorded
+
+      assert_equal %i[tests tries tests@2 tries@2 tests@3 tries@3 tests@4 tries@4], Runner.new(retry_loop, registry: registry).state_on_path(recorded).keys
+    end
+
     test "is offered to every host's flows" do
       assert EasyFlow.registry.registered?(:count)
     end

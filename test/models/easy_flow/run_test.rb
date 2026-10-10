@@ -57,6 +57,25 @@ module EasyFlow
       assert_empty response.reload.answered_at
     end
 
+    def run_routing_on_time
+      flow = Definition.create!(host: "dummy", slug: "evening")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "evening", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "evening", "type" => "question", "text" => "E", "options" => [ "x" ] },
+                     { "id" => "day", "type" => "question", "text" => "D", "options" => [ "x" ] } ],
+        "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      Run.start(flow)
+    end
+
+    test "routes its next step on the times its answers were given" do
+      response = run_routing_on_time
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
+
+      assert_equal "evening", response.next_step(response.recorded).id
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

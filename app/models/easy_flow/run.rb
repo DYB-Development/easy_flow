@@ -35,7 +35,7 @@ module EasyFlow
     end
 
     def next_step(state)
-      digest.next_step(state.transform_keys(&:to_s))
+      digest.next_step(state.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
     end
 
     def output

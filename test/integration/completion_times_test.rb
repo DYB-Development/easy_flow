@@ -1,12 +1,12 @@
 require "test_helper"
 
 module EasyFlow
-  class AnswerTimesTest < ActionDispatch::IntegrationTest
+  class CompletionTimesTest < ActionDispatch::IntegrationTest
     def evening
       @evening ||= Definition.create!(host: "dummy", slug: "evening").tap do |flow|
         flow.record_definition(flowing("slug" => "evening", "entry" => "a",
           "nodes" => [ { "id" => "a", "type" => "question", "question" => "Ready?", "options" => [ "yes" ] },
-                       { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                       { "id" => "late", "type" => "compare", "step" => "a", "output" => "completed_hour", "comparison" => "at least", "amount" => 17 },
                        { "id" => "night", "type" => "question", "question" => "Evening plans?", "options" => [ "out" ] },
                        { "id" => "day", "type" => "question", "question" => "Day plans?", "options" => [ "work" ] } ],
           "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "night", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ]))
@@ -25,7 +25,7 @@ module EasyFlow
       end
     end
 
-    test "a stored run asks the step the time of its earlier answer leads to" do
+    test "a stored run asks for the step the time an earlier step completed leads to" do
       run = Run.start(evening)
       travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { run.record("a", "yes") }
 
@@ -34,7 +34,7 @@ module EasyFlow
       assert_select "legend", text: "Evening plans?"
     end
 
-    test "a finished run lists the answers along the route the times of its answers took" do
+    test "a finished run lists its values along the route their completion times took" do
       run = Run.start(evening)
       travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { run.record("a", "yes") }
       run.record("night", "out")

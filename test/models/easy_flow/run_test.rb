@@ -17,7 +17,7 @@ module EasyFlow
       }))
       flow.publish_version(flow.definition_versions.first)
       response = Run.start(flow)
-      response.update!(recorded: { a: "x", c: "x", b: "x" })
+      %w[a c b].each { |step| response.record(step, "x") }
 
       response.discard_last
 
@@ -31,37 +31,45 @@ module EasyFlow
       Run.start(flow)
     end
 
-    test "saves the time each answer was recorded" do
+    test "keeps each step visit's value and the time it completed together in one entry" do
       response = timed_run
 
       travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
 
-      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, response.reload.answered_at)
+      assert_equal({ "a" => { "value" => "x", "completed_at" => "2026-10-12T09:30:00Z" } }, response.reload.read_attribute(:recorded))
     end
 
-    test "saves a separate time for each later visit's answer to the same step" do
+    test "saves the time each step visit completed" do
+      response = timed_run
+
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
+
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, response.reload.completed_at)
+    end
+
+    test "saves a separate time for each later visit to the same step" do
       response = timed_run
       travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
 
       travel_to(Time.zone.local(2026, 10, 12, 10, 0)) { response.record("a@2", "x") }
 
-      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30), "a@2": Time.zone.local(2026, 10, 12, 10, 0) }, response.reload.answered_at)
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30), "a@2": Time.zone.local(2026, 10, 12, 10, 0) }, response.reload.completed_at)
     end
 
-    test "going back removes the last answer's time with it" do
+    test "going back removes the last value's completion time with it" do
       response = timed_run
       response.record("a", "x")
 
       response.discard_last
 
-      assert_empty response.reload.answered_at
+      assert_empty response.reload.completed_at
     end
 
     def run_routing_on_time
       flow = Definition.create!(host: "dummy", slug: "evening")
       flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "evening", "entry" => "a",
         "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
-                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "completed_hour", "comparison" => "at least", "amount" => 17 },
                      { "id" => "evening", "type" => "question", "text" => "E", "options" => [ "x" ] },
                      { "id" => "day", "type" => "question", "text" => "D", "options" => [ "x" ] } ],
         "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
@@ -69,18 +77,18 @@ module EasyFlow
       Run.start(flow)
     end
 
-    test "routes its next step on the times its answers were given" do
+    test "routes its next step on the times its step visits completed" do
       response = run_routing_on_time
       travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
 
       assert_equal "evening", response.next_step(response.recorded).id
     end
 
-    test "moving a run on routes its steps that act on their own by the times its answers were given" do
+    test "moving a run on routes its steps that act on their own by the times its step visits completed" do
       flow = Definition.create!(host: "dummy", slug: "tally")
       flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "tally", "entry" => "a",
         "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
-                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "completed_hour", "comparison" => "at least", "amount" => 17 },
                      { "id" => "evening", "type" => "count", "step" => "a" },
                      { "id" => "day", "type" => "count", "step" => "a" } ],
         "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
@@ -93,7 +101,7 @@ module EasyFlow
       assert_equal %i[a evening], response.reload.recorded.keys
     end
 
-    test "going back removes the last answer along the route its answer times took" do
+    test "going back removes the last value along the route its completion times took" do
       response = run_routing_on_time
       travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
       response.record("evening", "x")
@@ -103,11 +111,11 @@ module EasyFlow
       assert_equal({ a: "x" }, response.reload.recorded)
     end
 
-    test "gives the output of the end its answer times led to" do
+    test "gives the output of the end its completion times led to" do
       flow = Definition.create!(host: "dummy", slug: "ends")
       flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "ends", "entry" => "a",
         "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
-                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "completed_hour", "comparison" => "at least", "amount" => 17 },
                      { "id" => "evening", "type" => "terminal", "output" => "evening" },
                      { "id" => "day", "type" => "terminal", "output" => "day" } ],
         "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))

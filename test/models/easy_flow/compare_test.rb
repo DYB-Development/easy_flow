@@ -56,14 +56,14 @@ module EasyFlow
       assert EasyFlow.registry.registered?(:compare)
     end
 
-    test "compares the hour the step was answered at when that is the output it names" do
-      node = compare({ "step" => "tests", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 })
+    test "compares the hour the step completed at when that is the output it names" do
+      node = compare({ "step" => "tests", "output" => "completed_hour", "comparison" => "at least", "amount" => 17 })
 
       assert_equal true, Compare.step_type.route(node, { "tests" => "passed" }, { "tests" => Time.zone.local(2026, 10, 12, 18, 5) })
     end
 
-    test "compares the weekday the step was answered on when that is the output it names" do
-      node = compare({ "step" => "tests", "output" => "answered_weekday", "comparison" => "at least", "amount" => 6 })
+    test "compares the weekday the step completed on when that is the output it names" do
+      node = compare({ "step" => "tests", "output" => "completed_weekday", "comparison" => "at least", "amount" => 6 })
 
       assert_equal true, Compare.step_type.route(node, { "tests" => "passed" }, { "tests" => Time.zone.local(2026, 10, 11, 9, 0) })
     end

@@ -39,7 +39,7 @@ module EasyFlow
     end
 
     def output
-      digest.output(recorded.transform_keys(&:to_s))
+      digest.output(recorded.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
     end
 
     def waiting_on

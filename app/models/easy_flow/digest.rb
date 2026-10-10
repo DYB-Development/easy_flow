@@ -68,9 +68,9 @@ module EasyFlow
       walk(state, times).last
     end
 
-    def output(state)
+    def output(state, times = {})
       ended = nil
-      walk(state) { |cursor| ended = cursor }
+      walk(state, times) { |cursor| ended = cursor }
 
       ended.config["output"].presence if step_type(ended)&.ends_here?
     end

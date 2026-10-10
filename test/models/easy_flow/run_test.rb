@@ -93,6 +93,21 @@ module EasyFlow
       assert_equal %i[a evening], response.reload.recorded.keys
     end
 
+    test "gives the output of the end its answer times led to" do
+      flow = Definition.create!(host: "dummy", slug: "ends")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "ends", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "evening", "type" => "terminal", "output" => "evening" },
+                     { "id" => "day", "type" => "terminal", "output" => "day" } ],
+        "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      response = Run.start(flow)
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
+
+      assert_equal "evening", response.output
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

@@ -6,8 +6,13 @@ module EasyFlow
       "answered_minute" => "Minutes since 1970 when answered"
     }.freeze
 
+    READERS = {
+      "answered_hour" => ->(time) { time.hour },
+      "answered_weekday" => ->(time) { time.to_date.cwday }
+    }.freeze
+
     def self.read(output, time)
-      time.in_time_zone.hour if output == "answered_hour"
+      READERS.fetch(output).call(time.in_time_zone)
     end
 
     def self.outputs

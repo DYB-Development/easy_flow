@@ -7,5 +7,11 @@ module EasyFlow
 
       assert_equal 7, hour
     end
+
+    test "reads the weekday an answer was given as 1 for Monday through 7 for Sunday in the app's time zone" do
+      weekday = Time.use_zone("Pacific Time (US & Canada)") { AnsweredAt.read("answered_weekday", Time.utc(2026, 10, 12, 3, 0)) }
+
+      assert_equal 7, weekday
+    end
   end
 end

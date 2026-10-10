@@ -27,5 +27,9 @@ module EasyFlow
     test "offers the earlier step's outputs to pick the answer from" do
       assert_equal :step, Count.step_type.settings.outputs_of[:output]
     end
+
+    test "draws the answer it counts from the output picked" do
+      assert_equal :output, Count.step_type.settings.drawn_from[:answer]
+    end
   end
 end

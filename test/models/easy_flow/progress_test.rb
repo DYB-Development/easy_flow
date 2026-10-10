@@ -112,5 +112,22 @@ module EasyFlow
 
       assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, progress.finish({ a: "yes" }).answered_at)
     end
+
+    test "a loose run going back removes the last answer along the route its answer times took" do
+      built = Definition.create!(host: "dummy", slug: "loose-evening").tap do |flow|
+        flow.record_definition(flowing({ "slug" => "loose-evening", "entry" => "a",
+          "nodes" => [ { "id" => "a", "type" => "question", "question" => "A?", "answers" => [ { "value" => "yes" } ] },
+                       { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                       { "id" => "night", "type" => "question", "question" => "N?", "answers" => [ { "value" => "out" } ] },
+                       { "id" => "day", "type" => "question", "question" => "D?", "answers" => [ { "value" => "work" } ] } ],
+          "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "night", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
+        flow.publish
+      end
+      progress = Progress.for(built, answers: { a: "yes", night: "out" }, answered_at: { a: Time.zone.local(2026, 10, 12, 18, 0) })
+
+      progress.discard_last
+
+      assert_equal({ a: "yes" }, progress.recorded)
+    end
   end
 end

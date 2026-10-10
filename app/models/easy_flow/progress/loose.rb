@@ -34,9 +34,11 @@ module EasyFlow
       end
 
       def discard_last
-        last = Runner.new(@flow.live_definition).state_on_path(@answers).keys.last
+        last = Runner.new(@flow.live_definition).state_on_path(@answers, times: @answered_at).keys.last
+        return unless last
 
-        @answers = @answers.except(last) if last
+        @answers = @answers.except(last)
+        @answered_at = @answered_at.except(last)
       end
     end
   end

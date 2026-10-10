@@ -358,5 +358,11 @@ module EasyFlow
 
       assert_equal %w[answer completed_hour completed_weekday completed_minute], node["record_choices"]["rows"]["output"]["a"].map { |offered| offered["value"] }
     end
+
+    test "carries which entry field each output field inside a palette entry's records reads its step from" do
+      entry = joined_canvas["palette"].find { |palette| palette["type"] == "joined" }
+
+      assert_equal({ "rows" => { "output" => "step" } }, entry["record_outputs_of"])
+    end
   end
 end

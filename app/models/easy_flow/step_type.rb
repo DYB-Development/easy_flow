@@ -57,8 +57,8 @@ module EasyFlow
       @readiness.present?
     end
 
-    def ready?(node, state)
-      @readiness.call(node, state)
+    def ready?(node, state, times = {})
+      @readiness.call(node, state, times)
     end
 
     def name_of(node)

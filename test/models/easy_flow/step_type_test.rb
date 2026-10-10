@@ -478,5 +478,11 @@ module EasyFlow
 
       assert_equal given, step_type.route(Node.new(id: "t", type: "timed", config: {}), {}, { "a" => given })
     end
+
+    test "hands a waiting rule that asks for them the times the run's answers were given" do
+      step_type = StepType.define(:hold) { waits_until { |_node, _state, times| times.key?("a") } }
+
+      assert step_type.ready?(Node.new(id: "h", type: "hold", config: {}), {}, { "a" => Time.current })
+    end
   end
 end

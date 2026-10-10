@@ -24,6 +24,7 @@ module EasyFlow
         EasyFlow::Condition.register
         EasyFlow::Switch.register
         EasyFlow::Compare.register
+        EasyFlow::Count.register
         EasyFlow::FlowStep.register
 
         EasyFlow.check(:unrouted_value)

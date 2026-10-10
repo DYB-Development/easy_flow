@@ -45,7 +45,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
      host.visitor_authorization_method = :easy_flow_visitor_permitted?
      host.refusal_method = :refuse_flow
      host.owner_method = :current_account
-     host.offers = %i[question checklist file_upload condition switch compare flow_step]
+     host.offers = %i[question checklist file_upload condition switch compare count flow_step]
    end
    ```
 
@@ -55,7 +55,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
    - `visitor_authorization_method` — a method on the base controller, called with the flow, returning true when the visitor may run it. With none set, every visitor is refused.
    - `refusal_method` — a method on the base controller, called with the refusal error when a visitor is refused or a flow is unpublished or withdrawn. With none set, the response is `404 Not Found`.
    - `owner_method` — a method on the base controller, called with no arguments, returning the record whose flows the current request works with, such as the signed-in account. When set, the admin pages list, create and edit only that record's flows, a visitor runs only that record's flows, and two records may each hold a flow with the same slug. With none set, every flow in the host is shared by everyone who reaches it. Ask the developer whether each host's flows belong to one record or are shared.
-   - `offers` — the step types this host's admins can add from the canvas palette, as a list of step type names. With none set, every registered step type is offered. The engine's own names are `question`, `checklist`, `file_upload`, `condition`, `switch`, `compare` and `flow_step`, `file_upload` being the File upload step, which needs the file store from step 10, and `flow_step` being the Flow step, which names one of the same host's flows. A step type the app declares is named by the id it was declared with, or after its class when it is a step class, so `Steps::Notify` is `notify`. The End step is offered whether it is listed or not, and the Start step is never offered. Ask the developer which step types each host should offer.
+   - `offers` — the step types this host's admins can add from the canvas palette, as a list of step type names. With none set, every registered step type is offered. The engine's own names are `question`, `checklist`, `file_upload`, `condition`, `switch`, `compare`, `count` and `flow_step`, `file_upload` being the File upload step, which needs the file store from step 10, `count` being the Count step, which counts how often an earlier step was answered, and `flow_step` being the Flow step, which names one of the same host's flows. A step type the app declares is named by the id it was declared with, or after its class when it is a step class, so `Steps::Notify` is `notify`. The End step is offered whether it is listed or not, and the Start step is never offered. Ask the developer which step types each host should offer.
 
    Each method named here must exist on the base controller. Ask the developer to point at it or write it. Do not invent its logic.
 8. Mount the engine in `config/routes.rb`, once per host. The host name in `defaults` must match a name declared in step 7. When there is more than one mount, give each an `as:` name:
@@ -101,6 +101,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After publishing a flow with a checklist, check that a visitor can tick several answers and go on, and that a checklist marked required refuses to go on with nothing ticked.
 - After upgrading easy_flow, run `bin/rails easy_flow:install:migrations` again and then `bin/rails db:migrate`. Only migrations the app does not already have are copied.
 - After setting a host's `owner_method`, check that two different owners each see only their own flows on `<mount path>/manage/flows`.
+- After install, check that a Count step placed on the canvas, once its earlier step and answer are picked, is named "Count" followed by that step and that answer. It needs no setting in the initializer beyond being listed in a host's `offers` when that host sets `offers`.
 - After install, check that a Flow step placed on the canvas offers the host's flows by title as its flow setting. With a host's `owner_method` set, it offers only that owner's flows. It needs no setting in the initializer.
 - After choosing a flow on a Flow step, check that its canvas card reads "Runs a flow", that clicking the card opens the chosen flow's canvas under the same mount path, and that its Settings button opens the step's settings instead.
 - After opening a chosen flow's canvas from a Flow step's card, check that its header shows a "Back to" button naming the flow it was opened from, by title or by slug when it has no title, and that the button opens that flow's canvas. A canvas opened from the flow list shows no such button.

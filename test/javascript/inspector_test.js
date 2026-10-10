@@ -31,3 +31,13 @@ test("labels each field with keystone's label", () => {
 test("offers deleting the step as keystone's danger button", () => {
   assert.ok(classesOf(drawn(), "Delete step").includes("ks-button-danger"))
 })
+
+test("offers a record's fields the options the palette and the step give them", () => {
+  const html = drawn({
+    node: { id: "join", type: "joined", label: "Join", config: { rows: [ { step: "tests" } ] }, record_choices: { rows: { step: [ { value: "tests", label: "Run tests" } ] } } },
+    fields: { rows: "list" }, holds: { rows: { step: "previous_step", comparison: "select" } }, recordLabels: { rows: {} },
+    recordChoices: { rows: { comparison: [ "more than" ] } }
+  })
+
+  assert.match(html, /<option value="tests"[^>]*>Run tests<\/option>[\s\S]*<option value="more than">more than<\/option>/)
+})

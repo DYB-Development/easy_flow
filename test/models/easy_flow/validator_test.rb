@@ -395,5 +395,12 @@ module EasyFlow
 
       assert_includes Validator.new(document, flow: parent).violations.map { |violation| [ violation.node, violation.problem ] }, [ "offer", :circular ]
     end
+
+    test "reports a required field left empty in one of a step's list entries, naming the list, the entry and the field" do
+      registry = Registry.new.tap { |built| built.register(StepType.define(:joined) { setting(:rows, type: :list) { setting :step, type: :string, required: true } }) }
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "joined", "rows" => [ { "step" => "b" }, { "step" => "" } ] } ], "edges" => [] }
+
+      assert_equal [ [ :missing_setting, "rows 2 step" ] ], violations(document, registry).map { |violation| [ violation.problem, violation.detail ] }
+    end
   end
 end

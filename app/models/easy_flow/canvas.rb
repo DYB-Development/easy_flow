@@ -22,12 +22,12 @@ module EasyFlow
     def drawn_step(node)
       { "id" => node.id, "type" => node.type, "label" => label_for(node),
         "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
-        "starts_a_flow" => starts_a_flow?(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "placeholder" => false, **placed[node.id] }
+        "starts_a_flow" => starts_a_flow?(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "record_choices" => record_choices_for(node), "placeholder" => false, **placed[node.id] }
     end
 
     def drawn_placeholder(gap)
       { "id" => gap[:id], "type" => "placeholder", "label" => gap[:on], "config" => {}, "ports" => [],
-        "ends_here" => false, "begins_here" => false, "loose" => false, "choices" => {},
+        "ends_here" => false, "begins_here" => false, "loose" => false, "choices" => {}, "record_choices" => {},
         "placeholder" => true, "from" => gap[:from], "on" => gap[:on], **placed[gap[:id]] }
     end
 
@@ -91,6 +91,8 @@ module EasyFlow
           "labels" => step_type.settings.labels.transform_keys(&:to_s),
           "choices" => step_type.settings.choices.transform_keys(&:to_s),
           "records" => holdings_of(step_type),
+          "record_choices" => step_type.settings.record_choices.to_h { |name, offered| [ name.to_s, offered.transform_keys(&:to_s) ] },
+          "record_outputs_of" => step_type.settings.record_outputs_of.to_h { |name, sources| [ name.to_s, sources.to_h { |field, source| [ field.to_s, source.to_s ] } ] },
           "record_labels" => step_type.settings.record_labels.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
           "awaits_input" => step_type.awaits_input? }
       end
@@ -119,6 +121,19 @@ module EasyFlow
     def choices_for(node)
       naming_steps(node).index_with { earlier_than(node) }.merge(naming_flows(node).index_with { offered_flows })
         .merge(drawn_by(node)).merge(named_outputs_by(node))
+    end
+
+    def record_choices_for(node)
+      settings = step_type_for(node)&.settings
+      settings&.record_fields.to_h.to_h do |list, holds|
+        earlier_fields = holds.select { |_name, type| type == :previous_step }.keys
+        output_fields = settings.record_outputs_of.fetch(list, {}).keys
+        [ list.to_s, earlier_fields.to_h { |name| [ name.to_s, earlier_than(node) ] }.merge(output_fields.to_h { |name| [ name.to_s, outputs_before(node) ] }) ]
+      end
+    end
+
+    def outputs_before(node)
+      digest.preceding(node.id).to_h { |id| [ id, digest.outputs_of(id) ] }
     end
 
     def naming_flows(node)

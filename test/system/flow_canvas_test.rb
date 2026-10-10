@@ -483,5 +483,21 @@ module EasyFlow
       field.set(text)
       find("body").click
     end
+
+    test "opening an All of or Any of step offers each comparison the outputs of the step it names" do
+      joined = Definition.create!(host: "dummy", slug: "canvas-joined").tap do |built|
+        built.record_definition(flowing(
+          "slug" => "canvas-joined", "entry" => "first",
+          "nodes" => [ { "id" => "first", "type" => "question", "question" => "First", "answers" => [ { "value" => "yes" } ] },
+                       { "id" => "join", "type" => "all_or_any", "join" => "all of", "comparisons" => [ { "step" => "first" } ] } ],
+          "edges" => [ { "from" => "first", "to" => "join" } ]
+        ))
+      end
+      canvas_for(joined)
+
+      step_card("join").click
+
+      assert_selector "[data-inspector] select option", text: "Hour completed"
+    end
   end
 end

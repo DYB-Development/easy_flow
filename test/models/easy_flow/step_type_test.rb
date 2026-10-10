@@ -484,5 +484,23 @@ module EasyFlow
 
       assert step_type.ready?(Node.new(id: "h", type: "hold", config: {}), {}, { "a" => Time.current })
     end
+
+    test "keeps the options a select inside a list's entries offers" do
+      step_type = StepType.define(:joined) { setting(:rows, type: :list) { setting :comparison, type: :select, options: [ "more than", "less than" ] } }
+
+      assert_equal({ rows: { comparison: [ "more than", "less than" ] } }, step_type.settings.record_choices)
+    end
+
+    test "keeps which field inside a list's entries offers the outputs of the step another entry field names" do
+      step_type = StepType.define(:joined) { setting(:rows, type: :list) { setting :step, type: :previous_step; setting :output, outputs_of: :step } }
+
+      assert_equal({ rows: { output: :step } }, step_type.settings.record_outputs_of)
+    end
+
+    test "keeps which fields inside a list's entries are required" do
+      step_type = StepType.define(:joined) { setting(:rows, type: :list) { setting :step, type: :previous_step, required: true; setting :amount, type: :float } }
+
+      assert_equal({ rows: [ :step ] }, step_type.settings.record_required)
+    end
   end
 end

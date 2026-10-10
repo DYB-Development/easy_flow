@@ -7,7 +7,7 @@ import { Label } from "keystone_ui-react/src/FieldText.jsx"
 
 const panel = { width: 280, padding: 20, overflowY: "auto" }
 
-const Inspector = ({ node, fields, holds, labels, recordLabels, choices, onSave, onDelete, onClose }) => {
+const Inspector = ({ node, fields, holds, labels, recordLabels, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose }) => {
   const [ draft, setDraft ] = useState(node.config)
   useEffect(() => setDraft(node.config), [ node.id, node.config ])
 
@@ -29,6 +29,8 @@ const Inspector = ({ node, fields, holds, labels, recordLabels, choices, onSave,
           <span style={{ display: "block", marginBottom: 3 }}>{labels[name] || name}</span>
           {type === "list"
             ? <Records holds={holds[name] || {}} labels={recordLabels[name] || {}} rows={draft[name]}
+                       choices={{ ...(recordChoices || {})[name], ...(node.record_choices || {})[name] }}
+                       outputsOf={(recordOutputsOf || {})[name]}
                        onChange={(next) => setDraft({ ...draft, [name]: next })}
                        onSettle={(next) => settle({ ...draft, [name]: next })} />
             : <Control type={type} value={draft[name]} choices={choices[name]}

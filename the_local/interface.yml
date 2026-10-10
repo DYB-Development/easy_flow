@@ -42,6 +42,7 @@ sources:
   - app/models/easy_flow/steps/file_upload.rb
   - app/models/easy_flow/count.rb
   - app/models/easy_flow/compare_two_values.rb
+  - app/models/easy_flow/all_or_any.rb
   - app/models/easy_flow/wait.rb
   - app/models/easy_flow/completed_at.rb
   - app/models/easy_flow/step_type.rb

@@ -176,7 +176,18 @@ module EasyFlow
     def missing_settings
       @document.nodes.flat_map do |node|
         required_of(node).reject { |name| node.config[name.to_s].present? }
-          .map { |name| Violation.new(node: node.id, problem: :missing_setting, detail: name.to_s) }
+          .map { |name| Violation.new(node: node.id, problem: :missing_setting, detail: name.to_s) } + missing_entry_settings(node)
+      end
+    end
+
+    def missing_entry_settings(node)
+      return [] unless @registry.registered?(node.type)
+
+      @registry.fetch(node.type).settings.record_required.flat_map do |list, required|
+        Array(node.config[list.to_s]).each_with_index.flat_map do |entry, index|
+          required.reject { |name| entry.to_h[name.to_s].present? }
+            .map { |name| Violation.new(node: node.id, problem: :missing_setting, detail: "#{list} #{index + 1} #{name}") }
+        end
       end
     end
 

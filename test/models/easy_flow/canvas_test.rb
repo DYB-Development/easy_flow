@@ -317,5 +317,52 @@ module EasyFlow
 
       assert_equal "/flows/7", drawn["opens"]
     end
+
+    def joining_registry
+      Registry.new.tap do |built|
+        built.register(StepType.define(:ask) { step_name "Ask"; awaits_input; output :answer })
+        built.register(StepType.define(:joined) do
+          step_name "Joined"
+          setting(:rows, type: :list) do
+            setting :step, type: :previous_step
+            setting :output, outputs_of: :step
+            setting :comparison, type: :select, options: [ "more than", "less than" ]
+          end
+        end)
+      end
+    end
+
+    def joining
+      { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask" }, { "id" => "b", "type" => "joined", "rows" => [ { "step" => "a" } ] } ],
+        "edges" => [ { "from" => "a", "to" => "b" } ] }
+    end
+
+    def joined_canvas
+      Canvas.new(Document.new(flowing(joining)), registry: joining_registry).to_h
+    end
+
+    test "carries the options each select inside a palette entry's records offers" do
+      entry = joined_canvas["palette"].find { |palette| palette["type"] == "joined" }
+
+      assert_equal({ "rows" => { "comparison" => [ "more than", "less than" ] } }, entry["record_choices"])
+    end
+
+    test "offers the steps before a step to each earlier-step field inside its records" do
+      node = joined_canvas["nodes"].find { |drawn| drawn["id"] == "b" }
+
+      assert_equal [ "start", "a" ], node["record_choices"]["rows"]["step"].map { |offered| offered["value"] }
+    end
+
+    test "offers each earlier step's outputs, keyed by step, to an output field inside a step's records" do
+      node = joined_canvas["nodes"].find { |drawn| drawn["id"] == "b" }
+
+      assert_equal %w[answer completed_hour completed_weekday completed_minute], node["record_choices"]["rows"]["output"]["a"].map { |offered| offered["value"] }
+    end
+
+    test "carries which entry field each output field inside a palette entry's records reads its step from" do
+      entry = joined_canvas["palette"].find { |palette| palette["type"] == "joined" }
+
+      assert_equal({ "rows" => { "output" => "step" } }, entry["record_outputs_of"])
+    end
   end
 end

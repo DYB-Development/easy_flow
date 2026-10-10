@@ -15,7 +15,11 @@ module EasyFlow
     end
 
     def record(step_id, value)
-      update!(recorded: recorded.merge(step_id => value))
+      update!(recorded: recorded.merge(step_id => value), answered_at: answered_at.merge(step_id.to_sym => Time.current))
+    end
+
+    def answered_at
+      super.to_h.to_h { |step_id, time| [ step_id.to_sym, Time.zone.parse(time.to_s) ] }
     end
 
     def recorded
@@ -31,11 +35,16 @@ module EasyFlow
     end
 
     def next_step(state)
-      digest.next_step(state.transform_keys(&:to_s))
+      digest.next_step(state.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
     end
 
     def output
-      digest.output(recorded.transform_keys(&:to_s))
+      digest.output(recorded.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
+    end
+
+    def held_until
+      stopped_at = next_step(recorded)
+      Wait.held_until(digest.step(stopped_at.id), AnsweredAt.latest(answered_at)) if stopped_at&.type == "wait"
     end
 
     def waiting_on
@@ -44,7 +53,7 @@ module EasyFlow
     end
 
     def walked(state)
-      digest.state_on_path(state.transform_keys(&:to_s))
+      digest.state_on_path(state.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
     end
 
     def digest
@@ -53,7 +62,7 @@ module EasyFlow
 
     def discard_last
       last = walked(recorded).keys.map(&:to_sym).last
-      update!(recorded: recorded.except(last)) if last
+      update!(recorded: recorded.except(last), answered_at: answered_at.except(last)) if last
     end
 
     def pinned_steps

@@ -15,19 +15,15 @@ module EasyFlow
 
     output :result, type: :boolean, values: [ true, false ]
 
-    def route(node, state)
-      first = number(side(state[node.config["step"]], node.config["output"]))
-      second = number(side(state[node.config["other_step"]], node.config["other_output"]))
+    def route(node, state, times)
+      first = number(AnsweredAt.answer(state, times, *node.config.values_at("step", "output")))
+      second = number(AnsweredAt.answer(state, times, *node.config.values_at("other_step", "other_output")))
       return false if first.nil? || second.nil?
 
       first.public_send(COMPARISONS.fetch(node.config["comparison"]), second + node.config["amount"].to_f)
     end
 
     private
-
-    def side(answer, output)
-      answer.is_a?(Hash) ? answer[output] : answer
-    end
 
     def number(answer)
       Float(answer.to_s, exception: false)

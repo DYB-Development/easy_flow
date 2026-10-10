@@ -85,5 +85,57 @@ module EasyFlow
 
       assert_equal({ a: "yes" }, progress.recorded)
     end
+
+    test "a loose run saves the time each answer was recorded" do
+      progress = Progress.for(flow(:unsaved), answers: {})
+
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { progress.record(:a, "yes") }
+
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, progress.answered_at)
+    end
+
+    test "a kept run gives the times its run saved for each answer" do
+      run = Run.start(flow(:each_step))
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { run.record(:a, "yes") }
+
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, Progress.for(run.flow, run: run).answered_at)
+    end
+
+    test "a loose run keeps the answer times it was handed" do
+      given = { a: Time.zone.local(2026, 10, 12, 9, 30) }
+
+      assert_equal given, Progress.for(flow(:unsaved), answers: { a: "yes" }, answered_at: given).answered_at
+    end
+
+    test "a loose run stored when its flow finishes keeps each answer's time" do
+      progress = Progress.for(flow(:on_finish), answers: { a: "yes" }, answered_at: { a: Time.zone.local(2026, 10, 12, 9, 30) })
+
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, progress.finish({ a: "yes" }).answered_at)
+    end
+
+    test "a loose run going back removes the last answer along the route its answer times took" do
+      built = Definition.create!(host: "dummy", slug: "loose-evening").tap do |flow|
+        flow.record_definition(flowing({ "slug" => "loose-evening", "entry" => "a",
+          "nodes" => [ { "id" => "a", "type" => "question", "question" => "A?", "answers" => [ { "value" => "yes" } ] },
+                       { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                       { "id" => "night", "type" => "question", "question" => "N?", "answers" => [ { "value" => "out" } ] },
+                       { "id" => "day", "type" => "question", "question" => "D?", "answers" => [ { "value" => "work" } ] } ],
+          "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "night", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
+        flow.publish
+      end
+      progress = Progress.for(built, answers: { a: "yes", night: "out" }, answered_at: { a: Time.zone.local(2026, 10, 12, 18, 0) })
+
+      progress.discard_last
+
+      assert_equal({ a: "yes" }, progress.recorded)
+    end
+
+    test "a loose run going back removes the last answer's time with it" do
+      progress = Progress.for(flow(:unsaved), answers: { a: "yes" }, answered_at: { a: Time.zone.local(2026, 10, 12, 9, 30) })
+
+      progress.discard_last
+
+      assert_empty progress.answered_at
+    end
   end
 end

@@ -41,8 +41,8 @@ module EasyFlow
       @behaviour&.call(node, state)
     end
 
-    def route(node, state)
-      @routing&.call(node, state)
+    def route(node, state, times = {})
+      @routing&.call(node, state, times)
     end
 
     def answer_problem(node, value)
@@ -57,8 +57,8 @@ module EasyFlow
       @readiness.present?
     end
 
-    def ready?(node, state)
-      @readiness.call(node, state)
+    def ready?(node, state, times = {})
+      @readiness.call(node, state, times)
     end
 
     def name_of(node)

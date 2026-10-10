@@ -103,5 +103,12 @@ module EasyFlow
 
       assert_equal "within budget", Digest.new(Document.new(flow, registry: registry), registry: registry).output({ "spent" => "80", "budget" => "100" })
     end
+
+    test "compares the minutes two steps were answered at, so it can route on the time between them" do
+      node = compare({ "step" => "finished", "output" => "answered_minute", "comparison" => "more than", "other_step" => "started", "other_output" => "answered_minute", "amount" => 30 })
+      times = { "started" => Time.zone.local(2026, 10, 12, 9, 0), "finished" => Time.zone.local(2026, 10, 12, 9, 45) }
+
+      assert_equal true, CompareTwoValues.step_type.route(node, { "started" => "passed", "finished" => "passed" }, times)
+    end
   end
 end

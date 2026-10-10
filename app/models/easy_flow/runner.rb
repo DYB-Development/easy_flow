@@ -23,13 +23,13 @@ module EasyFlow
       @digest.step(id.to_s)
     end
 
-    def next_step(state, run: nil)
-      node = @digest.next_step(named(state))
+    def next_step(state, run: nil, times: {})
+      node = @digest.next_step(named(state), named(times))
       narrowed(shown(node, run), node, state)
     end
 
     def run(progress)
-      while (node = @digest.next_step(named(progress.recorded))) && goes_on?(node, named(progress.recorded))
+      while (node = @digest.next_step(named(progress.recorded), named(progress.answered_at))) && goes_on?(node, named(progress.recorded), AnsweredAt.latest(named(progress.answered_at)))
         progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded)))
       end
       progress.start_inner(node) if node && starts_a_flow?(node)
@@ -41,12 +41,12 @@ module EasyFlow
       node.present? && decided?(node, state)
     end
 
-    def drawing_at(state)
-      Drawing.of(@digest.next_step(named(state)), @registry)
+    def drawing_at(state, times: {})
+      Drawing.of(@digest.next_step(named(state), named(times)), @registry)
     end
 
-    def state_on_path(state)
-      @digest.state_on_path(named(state)).symbolize_keys
+    def state_on_path(state, times: {})
+      @digest.state_on_path(named(state), named(times)).symbolize_keys
     end
 
     def questions_left(state)
@@ -67,8 +67,8 @@ module EasyFlow
       @registry.registered?(node.type) && @registry.fetch(node.type).acts?
     end
 
-    def goes_on?(node, state)
-      acts?(node) || ready?(node, state) || decided?(node, state)
+    def goes_on?(node, state, times = {})
+      acts?(node) || ready?(node, state, times) || decided?(node, state)
     end
 
     def allowed(node, state)
@@ -87,8 +87,8 @@ module EasyFlow
       !choices.nil? && choices.size <= 1
     end
 
-    def ready?(node, state)
-      @registry.registered?(node.type) && @registry.fetch(node.type).waits? && @registry.fetch(node.type).ready?(node, state)
+    def ready?(node, state, times = {})
+      @registry.registered?(node.type) && @registry.fetch(node.type).waits? && @registry.fetch(node.type).ready?(node, state, times)
     end
 
     def result_of(node, state)

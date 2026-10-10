@@ -15,8 +15,8 @@ module EasyFlow
       @progress = progress
       @guide.run(@progress)
       @answers = @progress.recorded
-      @question = @guide.next_step(@answers, run: run)
-      @drawing = @guide.drawing_at(@answers)
+      @question = @guide.next_step(@answers, run: run, times: @progress.answered_at)
+      @drawing = @guide.drawing_at(@answers, times: @progress.answered_at)
       flash.now[:alert] = @refused if @refused
       @waiting = waiting_on(@question)
       return render :step if @question
@@ -75,7 +75,7 @@ module EasyFlow
     end
 
     def render_completion
-      @answered = @guide.state_on_path(@answers)
+      @answered = @guide.state_on_path(@answers, times: @progress.answered_at)
       finished(@answered, @progress.finish(@answered))
     end
 
@@ -86,7 +86,8 @@ module EasyFlow
     def progress
       return @progress ||= Progress.for(run.flow, run: run) if run
 
-      @progress ||= Progress.for(flow, answers: submitted_answers, definition: running_definition)
+      answers = submitted_answers
+      @progress ||= Progress.for(flow, answers: answers, answered_at: submitted_times(answers), definition: running_definition)
     end
 
     def running_definition
@@ -126,6 +127,19 @@ module EasyFlow
       answer = answers.fetch(key, "")
       @refused = answer_problem(asked, answer)
       @refused ? answers.except(key) : answers.merge(key => answer)
+    end
+
+    def submitted_times(answers)
+      given = params.fetch(:answered_at, {}).permit(*answers.keys).to_h.symbolize_keys
+      times = given.transform_values { |time| readable_time(time) }.compact
+      asked = params[:asked].to_s.to_sym
+      answers.key?(asked) && !times.key?(asked) ? times.merge(asked => Time.current) : times
+    end
+
+    def readable_time(time)
+      Time.zone.parse(time.to_s)
+    rescue ArgumentError
+      nil
     end
 
     def one_answer_back(answers)

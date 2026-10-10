@@ -24,6 +24,136 @@ module EasyFlow
       assert_equal({ a: "x", c: "x" }, response.reload.recorded)
     end
 
+    def timed_run
+      flow = Definition.create!(host: "dummy", slug: "timed")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "timed", "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      Run.start(flow)
+    end
+
+    test "saves the time each answer was recorded" do
+      response = timed_run
+
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
+
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30) }, response.reload.answered_at)
+    end
+
+    test "saves a separate time for each later visit's answer to the same step" do
+      response = timed_run
+      travel_to(Time.zone.local(2026, 10, 12, 9, 30)) { response.record("a", "x") }
+
+      travel_to(Time.zone.local(2026, 10, 12, 10, 0)) { response.record("a@2", "x") }
+
+      assert_equal({ a: Time.zone.local(2026, 10, 12, 9, 30), "a@2": Time.zone.local(2026, 10, 12, 10, 0) }, response.reload.answered_at)
+    end
+
+    test "going back removes the last answer's time with it" do
+      response = timed_run
+      response.record("a", "x")
+
+      response.discard_last
+
+      assert_empty response.reload.answered_at
+    end
+
+    def run_routing_on_time
+      flow = Definition.create!(host: "dummy", slug: "evening")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "evening", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "evening", "type" => "question", "text" => "E", "options" => [ "x" ] },
+                     { "id" => "day", "type" => "question", "text" => "D", "options" => [ "x" ] } ],
+        "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      Run.start(flow)
+    end
+
+    test "routes its next step on the times its answers were given" do
+      response = run_routing_on_time
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
+
+      assert_equal "evening", response.next_step(response.recorded).id
+    end
+
+    test "moving a run on routes its steps that act on their own by the times its answers were given" do
+      flow = Definition.create!(host: "dummy", slug: "tally")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "tally", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "evening", "type" => "count", "step" => "a" },
+                     { "id" => "day", "type" => "count", "step" => "a" } ],
+        "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      response = Run.start(flow)
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
+
+      response.advance
+
+      assert_equal %i[a evening], response.reload.recorded.keys
+    end
+
+    test "going back removes the last answer along the route its answer times took" do
+      response = run_routing_on_time
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
+      response.record("evening", "x")
+
+      response.discard_last
+
+      assert_equal({ a: "x" }, response.reload.recorded)
+    end
+
+    test "gives the output of the end its answer times led to" do
+      flow = Definition.create!(host: "dummy", slug: "ends")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "ends", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "evening", "type" => "terminal", "output" => "evening" },
+                     { "id" => "day", "type" => "terminal", "output" => "day" } ],
+        "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      response = Run.start(flow)
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
+
+      assert_equal "evening", response.output
+    end
+
+    def run_waiting_half_an_hour
+      flow = Definition.create!(host: "dummy", slug: "hold")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "hold", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                     { "id" => "hold", "type" => "wait", "step" => "a", "minutes" => 30 },
+                     { "id" => "b", "type" => "question", "text" => "B", "options" => [ "x" ] } ],
+        "edges" => [ { "from" => "a", "to" => "hold" }, { "from" => "hold", "to" => "b" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      Run.start(flow)
+    end
+
+    test "a run on a Wait step moves past it when moved on once its time has come" do
+      response = run_waiting_half_an_hour
+      travel_to(Time.zone.local(2026, 10, 12, 9, 0)) { response.record("a", "x") }
+
+      travel_to(Time.zone.local(2026, 10, 12, 9, 31)) { response.advance }
+
+      assert_equal "b", response.next_step(response.recorded).id
+    end
+
+    test "a run on a Wait step stays on it when moved on before its time" do
+      response = run_waiting_half_an_hour
+      travel_to(Time.zone.local(2026, 10, 12, 9, 0)) { response.record("a", "x") }
+
+      travel_to(Time.zone.local(2026, 10, 12, 9, 10)) { response.advance }
+
+      assert_equal "hold", response.next_step(response.recorded).id
+    end
+
+    test "says the time a Wait step is holding it until" do
+      response = run_waiting_half_an_hour
+      travel_to(Time.zone.local(2026, 10, 12, 9, 0)) { response.record("a", "x") }
+
+      assert_equal Time.zone.local(2026, 10, 12, 9, 30), response.held_until
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

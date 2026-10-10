@@ -37,5 +37,11 @@ module EasyFlow
 
       assert_equal :yes, Gate.step_type.route(node, { "a" => "picked" })
     end
+
+    test "routes by a two-argument rule as before when handed the times answers were given" do
+      node = Node.new(id: "g", type: "gate", config: { "answer" => "a" })
+
+      assert_equal :yes, Gate.step_type.route(node, { "a" => "x" }, { "a" => Time.current })
+    end
   end
 end

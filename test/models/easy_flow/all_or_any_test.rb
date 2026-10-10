@@ -22,5 +22,11 @@ module EasyFlow
 
       assert_equal false, AllOrAny.step_type.route(joined("all of", coverage_and_warnings), state)
     end
+
+    test "follows its true route under any of when one comparison holds" do
+      state = { "tests" => { "coverage" => 91, "warnings" => 9 }, "baseline" => { "coverage" => 85, "warnings" => 5 } }
+
+      assert_equal true, AllOrAny.step_type.route(joined("any of", coverage_and_warnings), state)
+    end
   end
 end

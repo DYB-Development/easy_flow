@@ -26,3 +26,13 @@ test("offers removing a record as keystone's secondary button", () => {
 test("offers adding a record as keystone's secondary button", () => {
   assert.ok(classesOf(drawn(), "Add").includes("ks-button-secondary"))
 })
+
+const drawnWith = (props) => renderToStaticMarkup(React.createElement(Records, {
+  labels: {}, onChange: () => {}, onSettle: () => {}, ...props
+}))
+
+test("offers a select inside a record the options its field declares", () => {
+  const html = drawnWith({ holds: { comparison: "select" }, rows: [ {} ], choices: { comparison: [ "more than", "less than" ] } })
+
+  assert.match(html, /<option value="more than">more than<\/option><option value="less than">less than<\/option>/)
+})

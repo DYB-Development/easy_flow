@@ -3,7 +3,7 @@ import Control from "./Control"
 import { amended } from "./rows"
 import Button from "keystone_ui-react/src/Button.jsx"
 
-const Records = ({ holds, labels, rows, onChange, onSettle }) => {
+const Records = ({ holds, labels, rows, choices, onChange, onSettle }) => {
   const kept = Array.isArray(rows) ? rows : []
   const amend = (index, name, next, settle) => {
     const updated = amended(kept, index, name, next)
@@ -17,7 +17,7 @@ const Records = ({ holds, labels, rows, onChange, onSettle }) => {
           {Object.entries(holds).map(([ name, type ]) => (
             <label key={name} style={{ display: "block" }}>
               <span className="text-gray-500 dark:text-gray-400" style={{ display: "block", marginBottom: 2, fontSize: 11 }}>{(labels || {})[name] || name}</span>
-              <Control type={type} value={row[name]}
+              <Control type={type} value={row[name]} choices={(choices || {})[name]}
                        onChange={(next) => amend(index, name, next, false)}
                        onSettle={(next) => amend(index, name, next, true)} />
             </label>

@@ -9,9 +9,14 @@ module EasyFlow
     setting :time_of_day, type: :string, label: "Next time of day after it, as HH:MM"
     setting :date, type: :string, label: "Date, as YYYY-MM-DD"
 
-    names_by { |node| "#{node.config["minutes"]} minutes after #{node.config["step"]}" }
+    names_by { |node| Wait.named(node.config) }
 
     waits_until { |node, _state, times| Wait.held_until(node, times)&.then { |held| held <= Time.current } || false }
+
+    def self.named(config)
+      waited = config["time_of_day"].presence || "#{config["minutes"]} minutes"
+      "#{waited} after #{config["step"]}"
+    end
 
     def self.held_until(node, times)
       from = times[node.config["step"]]

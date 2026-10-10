@@ -69,5 +69,9 @@ module EasyFlow
     test "is named after how long it waits and the step it counts from" do
       assert_equal "30 minutes after deploy", Wait.step_type.name_of(wait({ "step" => "deploy", "minutes" => 30 }))
     end
+
+    test "is named after the time of day it waits for and the step it counts from" do
+      assert_equal "09:00 after deploy", Wait.step_type.name_of(wait({ "step" => "deploy", "time_of_day" => "09:00" }))
+    end
   end
 end

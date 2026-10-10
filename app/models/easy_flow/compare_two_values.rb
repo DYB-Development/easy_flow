@@ -7,8 +7,10 @@ module EasyFlow
     step_name "Compare two values"
 
     setting :step, type: :previous_step
+    setting :output, outputs_of: :step
     setting :comparison, type: :select, options: COMPARISONS.keys, required: true
     setting :other_step, type: :previous_step
+    setting :other_output, outputs_of: :other_step
     setting :amount, type: :float
 
     def route(node, state)

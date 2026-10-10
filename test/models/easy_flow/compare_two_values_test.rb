@@ -77,5 +77,9 @@ module EasyFlow
 
       assert_equal({ step: :previous_step, comparison: :select, other_step: :previous_step, amount: :float }, fields.slice(:step, :comparison, :other_step, :amount))
     end
+
+    test "offers each side's step outputs to pick from" do
+      assert_equal({ output: :step, other_output: :other_step }, CompareTwoValues.step_type.settings.outputs_of)
+    end
   end
 end

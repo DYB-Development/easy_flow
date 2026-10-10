@@ -76,6 +76,23 @@ module EasyFlow
       assert_equal "evening", response.next_step(response.recorded).id
     end
 
+    test "moving a run on routes its steps that act on their own by the times its answers were given" do
+      flow = Definition.create!(host: "dummy", slug: "tally")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "tally", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                     { "id" => "late", "type" => "compare", "step" => "a", "output" => "answered_hour", "comparison" => "at least", "amount" => 17 },
+                     { "id" => "evening", "type" => "count", "step" => "a" },
+                     { "id" => "day", "type" => "count", "step" => "a" } ],
+        "edges" => [ { "from" => "a", "to" => "late" }, { "from" => "late", "to" => "evening", "on" => "true" }, { "from" => "late", "to" => "day", "on" => "false" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      response = Run.start(flow)
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
+
+      response.advance
+
+      assert_equal %i[a evening], response.reload.recorded.keys
+    end
+
     test "gives the output its flow wrote when it ended" do
       flow = Definition.create!(host: "dummy", slug: "sale")
       flow.definition_versions.create!(number: 1, definition: flowing({

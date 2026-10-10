@@ -29,7 +29,7 @@ module EasyFlow
     end
 
     def run(progress)
-      while (node = @digest.next_step(named(progress.recorded))) && goes_on?(node, named(progress.recorded))
+      while (node = @digest.next_step(named(progress.recorded), named(progress.answered_at))) && goes_on?(node, named(progress.recorded))
         progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded)))
       end
       progress.start_inner(node) if node && starts_a_flow?(node)

@@ -52,5 +52,9 @@ module EasyFlow
     test "declares the true or false result it decides as an output" do
       assert_equal [ true, false ], AllOrAny.step_type.values_of(:result, joined("all of", [])).map { |value| value["value"] }
     end
+
+    test "is offered to every host's flows" do
+      assert EasyFlow.registry.registered?(:all_or_any)
+    end
   end
 end

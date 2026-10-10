@@ -25,6 +25,7 @@ module EasyFlow
         EasyFlow::Switch.register
         EasyFlow::Compare.register
         EasyFlow::CompareTwoValues.register
+        EasyFlow::AllOrAny.register
         EasyFlow::Count.register
         EasyFlow::Wait.register
         EasyFlow::FlowStep.register

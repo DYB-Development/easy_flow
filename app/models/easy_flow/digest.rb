@@ -65,7 +65,7 @@ module EasyFlow
     end
 
     def next_step(state, times = {})
-      walk(state, times).last
+      walk(state, times)[1]
     end
 
     def output(state, times = {})
@@ -73,6 +73,17 @@ module EasyFlow
       walk(state, times) { |cursor| ended = cursor }
 
       ended.config["output"].presence if step_type(ended)&.ends_here?
+    end
+
+    def ended_at_end?(state, times = {})
+      ended = nil
+      _recorded, waiting, = walk(state, times) { |cursor| ended = cursor }
+
+      waiting.nil? && step_type(ended)&.ends_here? || false
+    end
+
+    def stopped_on_loop(state, times = {})
+      walk(state, times)[2]
     end
 
     def state_on_path(state, times = {})
@@ -101,7 +112,7 @@ module EasyFlow
       cursor = entry
 
       while cursor
-        return [ recorded, nil ] if visits[cursor.id].positive? && answers_at_visit[cursor.id] == answered
+        return [ recorded, nil, cursor.id ] if visits[cursor.id].positive? && answers_at_visit[cursor.id] == answered
 
         yield cursor if block_given?
         visits[cursor.id] += 1

@@ -48,7 +48,7 @@ module EasyFlow
     end
 
     def walked(state)
-      digest.state_on_path(state.transform_keys(&:to_s))
+      digest.state_on_path(state.transform_keys(&:to_s), answered_at.transform_keys(&:to_s))
     end
 
     def digest

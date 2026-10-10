@@ -75,8 +75,8 @@ module EasyFlow
       ended.config["output"].presence if step_type(ended)&.ends_here?
     end
 
-    def state_on_path(state)
-      state.slice(*walk(state).first)
+    def state_on_path(state, times = {})
+      state.slice(*walk(state, times).first)
     end
 
     def questions_left(state)

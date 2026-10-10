@@ -93,6 +93,16 @@ module EasyFlow
       assert_equal %i[a evening], response.reload.recorded.keys
     end
 
+    test "going back removes the last answer along the route its answer times took" do
+      response = run_routing_on_time
+      travel_to(Time.zone.local(2026, 10, 12, 18, 0)) { response.record("a", "x") }
+      response.record("evening", "x")
+
+      response.discard_last
+
+      assert_equal({ a: "x" }, response.reload.recorded)
+    end
+
     test "gives the output of the end its answer times led to" do
       flow = Definition.create!(host: "dummy", slug: "ends")
       flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "ends", "entry" => "a",

@@ -40,6 +40,37 @@ module EasyFlow
       assert_equal "Count tests failed", Count.step_type.name_of(count({ "step" => "tests", "answer" => "failed" }))
     end
 
+    def registry
+      @registry ||= Registry.new.tap do |built|
+        [ Start, Terminal, Count, Compare ].each { |step| step.register(built) }
+        built.register(StepType.define(:ask) { awaits_input })
+      end
+    end
+
+    def retry_loop
+      { "slug" => "retry", "headline" => "Retry",
+        "nodes" => [ { "id" => "start", "type" => "start" },
+                     { "id" => "tests", "type" => "ask" },
+                     { "id" => "tries", "type" => "count", "step" => "tests", "answer" => "failed" },
+                     { "id" => "enough", "type" => "compare", "step" => "tries", "comparison" => "at least", "amount" => 3 },
+                     { "id" => "gave_up", "type" => "terminal", "output" => "gave up" } ],
+        "edges" => [ { "from" => "start", "to" => "tests" },
+                     { "from" => "tests", "to" => "tries" },
+                     { "from" => "tries", "to" => "enough" },
+                     { "from" => "enough", "to" => "gave_up", "on" => "true" },
+                     { "from" => "enough", "to" => "tests", "on" => "false" } ] }
+    end
+
+    def run_retry_loop(answers)
+      Progress::Loose.new(nil, answers, retry_loop).tap { |progress| Runner.new(retry_loop, registry: registry).run(progress) }
+    end
+
+    test "a Compare step routes on the count a Count step recorded" do
+      recorded = run_retry_loop({ tests: "failed", "tests@2": "failed", "tests@3": "failed" }).recorded
+
+      assert_equal "gave up", Digest.new(Document.new(retry_loop, registry: registry), registry: registry).output(recorded.transform_keys(&:to_s))
+    end
+
     test "is offered to every host's flows" do
       assert EasyFlow.registry.registered?(:count)
     end

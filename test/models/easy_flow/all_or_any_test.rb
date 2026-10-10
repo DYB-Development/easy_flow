@@ -42,5 +42,11 @@ module EasyFlow
     test "asks whether all of or any of its comparisons must hold, and for the comparisons" do
       assert_equal({ join: :select, comparisons: :list }, AllOrAny.step_type.settings.fields)
     end
+
+    test "asks each comparison for a step, its output, a comparison, and an amount or a second step's output" do
+      expected = { step: :previous_step, output: :from_step, comparison: :select, amount: :float, other_step: :previous_step, other_output: :from_step }
+
+      assert_equal({ comparisons: expected }, AllOrAny.step_type.settings.record_fields)
+    end
   end
 end

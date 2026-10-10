@@ -7,6 +7,11 @@ module EasyFlow
     setting :join, type: :select, options: [ "all of", "any of" ], label: "Must hold", required: true
     setting :comparisons, type: :list, required: true do
       setting :step, type: :previous_step, required: true
+      setting :output, outputs_of: :step
+      setting :comparison, type: :select, options: CompareTwoValues::COMPARISONS.keys, required: true
+      setting :amount, type: :float
+      setting :other_step, type: :previous_step, label: "Second step"
+      setting :other_output, outputs_of: :other_step, label: "Second step's output"
     end
 
     def route(node, state, times)

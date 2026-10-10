@@ -1,5 +1,1 @@
-<fieldset>
-  <legend class="ks-section-title mb-5 text-xl font-semibold leading-snug"><%= step.text %></legend>
-
-  <%= file_field_tag "answers[#{step.id}]", accept: step.accepts.presence %>
-</fieldset>
+<%= ui_file_upload(name: "answers[#{step.id}]", label: step.text, accept: step.accepts.presence) %>

@@ -8,7 +8,7 @@ module EasyFlow
 
     def route(node, state)
       first = number(side(state[node.config["step"]], node.config["output"]))
-      second = number(state[node.config["other_step"]])
+      second = number(side(state[node.config["other_step"]], node.config["other_output"]))
       return false if first.nil? || second.nil?
 
       first.public_send(COMPARISONS.fetch(node.config["comparison"]), second + node.config["amount"].to_f)

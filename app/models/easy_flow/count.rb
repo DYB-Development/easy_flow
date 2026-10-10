@@ -8,6 +8,8 @@ module EasyFlow
     setting :output, outputs_of: :step
     setting :answer, from: :output
 
+    output :count, type: :integer
+
     def process(node, state)
       visits(node, state).count { |answer| counted?(node, answer) }
     end

@@ -31,5 +31,9 @@ module EasyFlow
     test "draws the answer it counts from the output picked" do
       assert_equal :output, Count.step_type.settings.drawn_from[:answer]
     end
+
+    test "declares the count it records as a whole-number output" do
+      assert_equal [ [ :count, :integer ] ], Count.step_type.outputs.map { |output| [ output.name, output.type ] }
+    end
   end
 end

@@ -81,5 +81,9 @@ module EasyFlow
     test "offers each side's step outputs to pick from" do
       assert_equal({ output: :step, other_output: :other_step }, CompareTwoValues.step_type.settings.outputs_of)
     end
+
+    test "declares the true or false result it decides as an output" do
+      assert_equal [ true, false ], CompareTwoValues.step_type.values_of(:result, compare({})).map { |value| value["value"] }
+    end
   end
 end

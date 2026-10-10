@@ -13,6 +13,8 @@ module EasyFlow
     setting :other_output, outputs_of: :other_step
     setting :amount, type: :float
 
+    output :result, type: :boolean, values: [ true, false ]
+
     def route(node, state)
       first = number(side(state[node.config["step"]], node.config["output"]))
       second = number(side(state[node.config["other_step"]], node.config["other_output"]))

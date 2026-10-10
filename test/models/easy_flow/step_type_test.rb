@@ -496,5 +496,11 @@ module EasyFlow
 
       assert_equal({ rows: { output: :step } }, step_type.settings.record_outputs_of)
     end
+
+    test "keeps which fields inside a list's entries are required" do
+      step_type = StepType.define(:joined) { setting(:rows, type: :list) { setting :step, type: :previous_step, required: true; setting :amount, type: :float } }
+
+      assert_equal({ rows: [ :step ] }, step_type.settings.record_required)
+    end
   end
 end

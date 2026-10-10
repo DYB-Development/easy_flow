@@ -10,6 +10,7 @@ module EasyFlow
         @record_labels = {}
         @record_choices = {}
         @record_outputs_of = {}
+        @record_required = {}
         @choices = {}
         @limits = {}
         @checks = {}
@@ -113,7 +114,7 @@ module EasyFlow
 
       protected
 
-      attr_reader :fields, :labels, :choices, :outputs_of
+      attr_reader :fields, :labels, :choices, :outputs_of, :required
 
       private
 
@@ -130,6 +131,7 @@ module EasyFlow
         @record_labels[name] = declared.labels
         @record_choices[name] = declared.choices
         @record_outputs_of[name] = declared.outputs_of
+        @record_required[name] = declared.required
       end
 
       public
@@ -143,7 +145,7 @@ module EasyFlow
 
       def settings
         Settings.new(fields: @fields, labels: @labels, record_fields: @record_fields,
-          record_labels: @record_labels, record_choices: @record_choices, record_outputs_of: @record_outputs_of, choices: @choices, limits: @limits, checks: @checks,
+          record_labels: @record_labels, record_choices: @record_choices, record_outputs_of: @record_outputs_of, record_required: @record_required, choices: @choices, limits: @limits, checks: @checks,
           required: @required, drawn_from: @drawn_from, outputs_of: @outputs_of, kept: @kept)
       end
     end

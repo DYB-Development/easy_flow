@@ -187,6 +187,7 @@ const Canvas = ({ base, token, initial }) => {
         <Inspector node={selectedNode}
                    fields={entryFor?.fields || {}} holds={entryFor?.records || {}}
                    labels={entryFor?.labels || {}} recordLabels={entryFor?.record_labels || {}}
+                   recordChoices={entryFor?.record_choices || {}} recordOutputsOf={entryFor?.record_outputs_of || {}}
                    choices={offeredTo(selectedNode, entryFor)}
                    onClose={() => setSelected(null)}
                    onSave={(config) => send(`/steps/${selectedNode.id}`, "PATCH", { config })}

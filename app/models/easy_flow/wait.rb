@@ -16,7 +16,7 @@ module EasyFlow
     def self.named(config)
       return config["date"] if config["date"].present?
 
-      waited = config["time_of_day"].presence || ("#{config["minutes"]} minutes" if config["minutes"].present?)
+      waited = config["time_of_day"].presence || ("#{config["minutes"]} #{config["minutes"].to_i == 1 ? "minute" : "minutes"}" if config["minutes"].present?)
       "#{waited} after #{config["step"]}" if waited
     end
 

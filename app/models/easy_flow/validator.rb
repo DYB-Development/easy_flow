@@ -176,16 +176,31 @@ module EasyFlow
     def missing_settings
       @document.nodes.flat_map do |node|
         required_of(node).reject { |name| node.config[name.to_s].present? }
-          .map { |name| Violation.new(node: node.id, problem: :missing_setting, detail: name.to_s) } + missing_entry_settings(node)
+          .map { |name| Violation.new(node: node.id, problem: :missing_setting, detail: name.to_s) } + missing_entry_settings(node) + unchosen_outputs(node)
       end
+    end
+
+    def settings_of(node)
+      @registry.fetch(node.type).settings
+    end
+
+    def unchosen_outputs(node)
+      return [] unless @registry.registered?(node.type)
+
+      settings = @registry.fetch(node.type).settings
+      settings.outputs_of.reject { |output, _source| settings.required.include?(output) }
+        .select { |output, source| node.config[source.to_s].present? && node.config[output.to_s].blank? }
+        .map { |output, _source| Violation.new(node: node.id, problem: :missing_setting, detail: output.to_s) }
     end
 
     def missing_entry_settings(node)
       return [] unless @registry.registered?(node.type)
 
       @registry.fetch(node.type).settings.record_required.flat_map do |list, required|
+        outputs = settings_of(node).record_outputs_of.fetch(list, {})
         Array(node.config[list.to_s]).each_with_index.flat_map do |entry, index|
-          required.reject { |name| entry.to_h[name.to_s].present? }
+          unchosen = outputs.select { |output, source| entry.to_h[source.to_s].present? && entry.to_h[output.to_s].blank? }.keys
+          (required.reject { |name| entry.to_h[name.to_s].present? } + unchosen)
             .map { |name| Violation.new(node: node.id, problem: :missing_setting, detail: "#{list} #{index + 1} #{name}") }
         end
       end

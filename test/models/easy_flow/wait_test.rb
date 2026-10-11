@@ -81,5 +81,9 @@ module EasyFlow
     test "has no name of its own while nothing says how long it waits" do
       assert_nil Wait.step_type.name_of(wait({ "step" => "deploy" }))
     end
+
+    test "is named after a single minute without a plural" do
+      assert_equal "1 minute after deploy", Wait.step_type.name_of(wait({ "step" => "deploy", "minutes" => 1 }))
+    end
   end
 end

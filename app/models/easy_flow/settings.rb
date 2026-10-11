@@ -3,7 +3,7 @@ module EasyFlow
     attr_reader :fields, :labels, :record_fields, :record_labels, :record_choices, :record_outputs_of, :record_required, :drawn_from, :outputs_of
 
     def initialize(fields: {}, labels: {}, record_fields: {}, record_labels: {}, record_choices: {}, record_outputs_of: {}, record_required: {}, choices: {},
-      limits: {}, checks: {}, required: [], drawn_from: {}, outputs_of: {}, kept: {})
+      limits: {}, checks: {}, required: [], optional: [], drawn_from: {}, outputs_of: {}, kept: {})
       @fields = fields
       @labels = labels
       @record_fields = record_fields
@@ -15,6 +15,7 @@ module EasyFlow
       @limits = limits
       @checks = checks
       @required = required
+      @optional = optional
       @drawn_from = drawn_from
       @outputs_of = outputs_of
       @kept = kept
@@ -51,7 +52,7 @@ module EasyFlow
     end
 
     def required
-      fields.keys.select { |name| @required.include?(name) || naming_steps.include?(name) }
+      fields.keys.select { |name| @required.include?(name) || (naming_steps.include?(name) && !@optional.include?(name)) }
     end
 
     def requirements_for(config)

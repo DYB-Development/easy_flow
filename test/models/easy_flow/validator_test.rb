@@ -402,5 +402,38 @@ module EasyFlow
 
       assert_equal [ [ :missing_setting, "rows 2 step" ] ], violations(document, registry).map { |violation| [ violation.problem, violation.detail ] }
     end
+
+    test "reports a step that names an earlier step without choosing which of its outputs to read" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                                                { "id" => "big", "type" => "compare", "step" => "a", "comparison" => "more than", "amount" => 2 } ],
+                   "edges" => [ { "from" => "a", "to" => "big" } ] }
+
+      assert_includes violations(document).map { |violation| [ violation.node, violation.problem, violation.detail ] }, [ "big", :missing_setting, "output" ]
+    end
+
+    test "asks for the second step's output only when a second step is named" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                                                { "id" => "near", "type" => "compare_two_values", "step" => "a", "output" => "answer", "comparison" => "at least", "amount" => 2 },
+                                                { "id" => "far", "type" => "compare_two_values", "step" => "a", "output" => "answer", "comparison" => "at least", "other_step" => "a" } ],
+                   "edges" => [ { "from" => "a", "to" => "near" }, { "from" => "near", "to" => "far", "on" => "true" } ] }
+
+      assert_equal [ [ "far", "other_output" ] ], violations(document).select { |violation| violation.problem == :missing_setting && violation.node != "a" }.map { |violation| [ violation.node, violation.detail ] }
+    end
+
+    test "reports a comparison inside a list that names a step without choosing which of its outputs to read" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                                                { "id" => "join", "type" => "all_or_any", "join" => "all of", "comparisons" => [ { "step" => "a", "comparison" => "at least", "amount" => 1 } ] } ],
+                   "edges" => [ { "from" => "a", "to" => "join" } ] }
+
+      assert_includes violations(document).map { |violation| [ violation.node, violation.detail ] }, [ "join", "comparisons 1 output" ]
+    end
+
+    test "reports a Count step that names an earlier step without choosing which of its outputs to count" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                                                { "id" => "tries", "type" => "count", "step" => "a", "answer" => "x" } ],
+                   "edges" => [ { "from" => "a", "to" => "tries" } ] }
+
+      assert_includes violations(document).map { |violation| [ violation.node, violation.detail ] }, [ "tries", "output" ]
+    end
   end
 end

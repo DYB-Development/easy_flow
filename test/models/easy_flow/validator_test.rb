@@ -427,5 +427,13 @@ module EasyFlow
 
       assert_includes violations(document).map { |violation| [ violation.node, violation.detail ] }, [ "join", "comparisons 1 output" ]
     end
+
+    test "reports a Count step that names an earlier step without choosing which of its outputs to count" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                                                { "id" => "tries", "type" => "count", "step" => "a", "answer" => "x" } ],
+                   "edges" => [ { "from" => "a", "to" => "tries" } ] }
+
+      assert_includes violations(document).map { |violation| [ violation.node, violation.detail ] }, [ "tries", "output" ]
+    end
   end
 end

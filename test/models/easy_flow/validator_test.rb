@@ -402,5 +402,13 @@ module EasyFlow
 
       assert_equal [ [ :missing_setting, "rows 2 step" ] ], violations(document, registry).map { |violation| [ violation.problem, violation.detail ] }
     end
+
+    test "reports a step that names an earlier step without choosing which of its outputs to read" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                                                { "id" => "big", "type" => "compare", "step" => "a", "comparison" => "more than", "amount" => 2 } ],
+                   "edges" => [ { "from" => "a", "to" => "big" } ] }
+
+      assert_includes violations(document).map { |violation| [ violation.node, violation.problem, violation.detail ] }, [ "big", :missing_setting, "output" ]
+    end
   end
 end

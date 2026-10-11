@@ -410,5 +410,14 @@ module EasyFlow
 
       assert_includes violations(document).map { |violation| [ violation.node, violation.problem, violation.detail ] }, [ "big", :missing_setting, "output" ]
     end
+
+    test "asks for the second step's output only when a second step is named" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                                                { "id" => "near", "type" => "compare_two_values", "step" => "a", "output" => "answer", "comparison" => "at least", "amount" => 2 },
+                                                { "id" => "far", "type" => "compare_two_values", "step" => "a", "output" => "answer", "comparison" => "at least", "other_step" => "a" } ],
+                   "edges" => [ { "from" => "a", "to" => "near" }, { "from" => "near", "to" => "far", "on" => "true" } ] }
+
+      assert_equal [ [ "far", "other_output" ] ], violations(document).select { |violation| violation.problem == :missing_setting && violation.node != "a" }.map { |violation| [ violation.node, violation.detail ] }
+    end
   end
 end

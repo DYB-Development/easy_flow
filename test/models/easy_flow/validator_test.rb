@@ -419,5 +419,13 @@ module EasyFlow
 
       assert_equal [ [ "far", "other_output" ] ], violations(document).select { |violation| violation.problem == :missing_setting && violation.node != "a" }.map { |violation| [ violation.node, violation.detail ] }
     end
+
+    test "reports a comparison inside a list that names a step without choosing which of its outputs to read" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] },
+                                                { "id" => "join", "type" => "all_or_any", "join" => "all of", "comparisons" => [ { "step" => "a", "comparison" => "at least", "amount" => 1 } ] } ],
+                   "edges" => [ { "from" => "a", "to" => "join" } ] }
+
+      assert_includes violations(document).map { |violation| [ violation.node, violation.detail ] }, [ "join", "comparisons 1 output" ]
+    end
   end
 end

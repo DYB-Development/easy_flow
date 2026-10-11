@@ -180,6 +180,10 @@ module EasyFlow
       end
     end
 
+    def settings_of(node)
+      @registry.fetch(node.type).settings
+    end
+
     def unchosen_outputs(node)
       return [] unless @registry.registered?(node.type)
 
@@ -193,8 +197,10 @@ module EasyFlow
       return [] unless @registry.registered?(node.type)
 
       @registry.fetch(node.type).settings.record_required.flat_map do |list, required|
+        outputs = settings_of(node).record_outputs_of.fetch(list, {})
         Array(node.config[list.to_s]).each_with_index.flat_map do |entry, index|
-          required.reject { |name| entry.to_h[name.to_s].present? }
+          unchosen = outputs.select { |output, source| entry.to_h[source.to_s].present? && entry.to_h[output.to_s].blank? }.keys
+          (required.reject { |name| entry.to_h[name.to_s].present? } + unchosen)
             .map { |name| Violation.new(node: node.id, problem: :missing_setting, detail: "#{list} #{index + 1} #{name}") }
         end
       end

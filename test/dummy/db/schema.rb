@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_210100) do
   create_table "customers", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -67,9 +67,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_210000) do
     t.json "changes_captured"
     t.string "status", default: "draft", null: false
     t.datetime "created_at", null: false
+    t.string "public_code", null: false
     t.index ["flow_id", "number"], name: "index_easy_flow_versions_on_flow_id_and_number", unique: true
     t.index ["flow_id"], name: "index_easy_flow_versions_on_flow_id"
     t.index ["flow_id"], name: "index_easy_flow_versions_on_one_live_per_flow", unique: true, where: "status = 'live'"
+    t.index ["public_code"], name: "index_easy_flow_versions_on_public_code", unique: true
   end
 
   add_foreign_key "easy_flow_runs", "easy_flow_definitions", column: "flow_id"

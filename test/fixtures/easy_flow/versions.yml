@@ -2,6 +2,7 @@ _fixture:
   model_class: EasyFlow::Version
 
 db_guide_v1:
+  public_code: <%= PublicCode.generate %>
   flow: db_guide
   number: 1
   status: live

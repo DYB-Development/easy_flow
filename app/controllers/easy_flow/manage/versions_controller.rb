@@ -7,7 +7,7 @@ module EasyFlow
       end
 
       def return
-        flow.return_to(flow.definition_versions.find(params[:id]))
+        flow.return_to(flow.definition_versions.find_by_public_code!(params[:id]))
 
         redirect_to manage_flow_path(flow), notice: "The flow is back to that version."
       end

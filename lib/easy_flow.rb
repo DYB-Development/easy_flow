@@ -1,4 +1,5 @@
 require "json"
+require "public_code"
 require "easy_flow/version"
 require "easy_flow/host"
 require "easy_flow/unset_host"

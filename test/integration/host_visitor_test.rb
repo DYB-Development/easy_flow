@@ -38,7 +38,7 @@ module EasyFlow
     test "a visitor who starts a second host's flow stays on that host's path" do
       post console_flows.flow_runs_path(console_published.slug)
 
-      assert_redirected_to "/console/runs/#{Run.sole.id}"
+      assert_redirected_to "/console/runs/#{Run.sole.public_code}"
     end
 
     test "a visitor sees a host's flow in the layout that host names" do

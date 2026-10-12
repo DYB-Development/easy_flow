@@ -15,7 +15,7 @@ module EasyFlow
       private
 
       def flow
-        @flow ||= hosted_flows.find(params[:flow_id])
+        @flow ||= hosted_flows.find_by_public_code!(params[:flow_id])
       end
     end
   end

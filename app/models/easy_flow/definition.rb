@@ -2,6 +2,8 @@ module EasyFlow
   class Definition < ApplicationRecord
     self.table_name = "easy_flow_definitions"
 
+    has_public_code
+
     enum :status, { active: "active", hidden: "hidden", inactive: "inactive" }
     enum :kind, { scored: "scored", guide: "guide" }
     enum :persists, { unsaved: "unsaved", each_step: "each_step", on_finish: "on_finish" }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_210000) do
   create_table "customers", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -34,8 +34,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_200000) do
     t.string "host", null: false
     t.string "owner_type"
     t.integer "owner_id"
+    t.string "public_code", null: false
     t.index ["host", "owner_type", "owner_id", "slug"], name: "index_easy_flow_definitions_on_host_owner_and_slug", unique: true, where: "owner_id IS NOT NULL"
     t.index ["host", "slug"], name: "index_easy_flow_definitions_on_host_and_slug", unique: true, where: "owner_id IS NULL"
+    t.index ["public_code"], name: "index_easy_flow_definitions_on_public_code", unique: true
   end
 
   create_table "easy_flow_runs", force: :cascade do |t|

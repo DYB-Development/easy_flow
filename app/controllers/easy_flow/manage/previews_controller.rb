@@ -27,7 +27,7 @@ module EasyFlow
       end
 
       def previewed
-        @previewed ||= hosted_flows.find(params[:flow_id])
+        @previewed ||= hosted_flows.find_by_public_code!(params[:flow_id])
       end
 
       def admit(_flow)

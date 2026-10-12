@@ -53,7 +53,7 @@ module EasyFlow
     end
 
     def find_run(runs, address)
-      runs.find(address)
+      runs.find_by_public_code!(address)
     end
 
     def start_run(flow)

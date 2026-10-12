@@ -673,5 +673,13 @@ module EasyFlow
     ensure
       ::Steps::AwaitSignal.signalled = false
     end
+
+    test "a run is given a random code of 24 letters and digits where the app has run codes" do
+      flow = Definition.create!(host: "dummy", slug: "coded")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "coded", "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] } ], "edges" => [] }))
+      flow.publish_version(flow.definition_versions.first)
+
+      assert_match(/\A[a-zA-Z0-9]{24}\z/, Run.start(flow).public_code)
+    end
   end
 end

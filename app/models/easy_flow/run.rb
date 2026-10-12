@@ -2,6 +2,8 @@ module EasyFlow
   class Run < ApplicationRecord
     self.table_name = "easy_flow_runs"
 
+    has_public_code
+
     belongs_to :flow, class_name: "EasyFlow::Definition"
     belongs_to :definition_version, class_name: "EasyFlow::Version"
     belongs_to :owner, polymorphic: true, optional: true

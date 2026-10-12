@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_11_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_200000) do
   create_table "customers", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -50,10 +50,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_11_130000) do
     t.datetime "updated_at", null: false
     t.integer "parent_run_id"
     t.string "parent_step"
+    t.string "public_code", null: false
     t.index ["definition_version_id"], name: "index_easy_flow_runs_on_definition_version_id"
     t.index ["flow_id"], name: "index_easy_flow_runs_on_flow_id"
     t.index ["owner_type", "owner_id"], name: "index_easy_flow_runs_on_owner"
     t.index ["parent_run_id"], name: "index_easy_flow_runs_on_parent_run_id"
+    t.index ["public_code"], name: "index_easy_flow_runs_on_public_code", unique: true
   end
 
   create_table "easy_flow_versions", force: :cascade do |t|

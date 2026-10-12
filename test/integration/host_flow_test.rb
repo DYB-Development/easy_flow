@@ -22,23 +22,23 @@ class HostFlowTest < ActionDispatch::IntegrationTest
   test "a host sends a visitor who starts a flow to its own page for the run" do
     post "/host/#{flow.slug}/runs"
 
-    assert_redirected_to "/host/runs/#{EasyFlow::Run.sole.id}"
+    assert_redirected_to "/host/runs/#{EasyFlow::Run.sole.public_code}"
   end
 
   test "a host brings a visitor back to its own page for the run after each answer" do
     run = EasyFlow::Run.start(flow)
 
-    patch "/host/runs/#{run.id}", params: { answers: { annual_fee: "yes" } }
+    patch "/host/runs/#{run.public_code}", params: { answers: { annual_fee: "yes" } }
 
-    assert_redirected_to "/host/runs/#{run.id}"
+    assert_redirected_to "/host/runs/#{run.public_code}"
   end
 
   test "a host's page for a run sends each answer back to itself" do
     run = EasyFlow::Run.start(flow)
 
-    get "/host/runs/#{run.id}"
+    get "/host/runs/#{run.public_code}"
 
-    assert_select "form[action=?]", "/host/runs/#{run.id}"
+    assert_select "form[action=?]", "/host/runs/#{run.public_code}"
   end
 
   test "a host records what it needs when a visitor starts a flow" do

@@ -19,6 +19,8 @@ develop:
   - EasyFlow::FlowsController
   - hosted_by
   - routed_by
+  - run_address
+  - find_run
   - EasyFlow::Run
   - EasyFlow::QuestionRunner
 

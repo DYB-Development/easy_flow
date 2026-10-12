@@ -45,7 +45,15 @@ module EasyFlow
     end
 
     def run_location(run)
-      flow_routes.run_path(run)
+      flow_routes.run_path(run_address(run))
+    end
+
+    def run_address(run)
+      run
+    end
+
+    def find_run(runs, address)
+      runs.find(address)
     end
 
     def start_run(flow)
@@ -101,7 +109,7 @@ module EasyFlow
     end
 
     def admitted_run
-      found = Run.where(flow: hosted_flows).find(params[:id])
+      found = find_run(Run.where(flow: hosted_flows), params[:id])
 
       Admission.of_run(found, permitted: permitted?(found.flow))
     end

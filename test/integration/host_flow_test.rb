@@ -1,6 +1,9 @@
 require "test_helper"
+require "public_code/test_help"
 
 class HostFlowTest < ActionDispatch::IntegrationTest
+  include PublicCode::TestHelp
+
   def flow
     @flow ||= EasyFlow::Definition.create!(host: "dummy", slug: "fee").tap do |flow|
       flow.record_definition(flowing(
@@ -78,5 +81,11 @@ class HostFlowTest < ActionDispatch::IntegrationTest
     get "/host/runs/#{run.id}"
 
     assert_response :not_found
+  end
+
+  test "a run's page links to no numbered address where the app has run codes" do
+    run = EasyFlow::Run.start(flow)
+
+    assert_no_numbered_links([ "/host/runs/#{run.public_code}" ])
   end
 end

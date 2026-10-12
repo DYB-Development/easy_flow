@@ -2,6 +2,8 @@ module EasyFlow
   class Version < ApplicationRecord
     self.table_name = "easy_flow_versions"
 
+    has_public_code
+
     enum :status, { draft: "draft", live: "live", superseded: "superseded",
                     retired: "retired", withdrawn: "withdrawn" }
 

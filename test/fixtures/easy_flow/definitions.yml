@@ -3,6 +3,7 @@ _fixture:
 
 business_scorecard:
   host: dummy
+  public_code: <%= PublicCode.generate %>
   slug: business-scorecard
   title: Business Blind-Spot Scorecard
   kind: scored
@@ -10,6 +11,7 @@ business_scorecard:
 
 stats_ladder:
   host: dummy
+  public_code: <%= PublicCode.generate %>
   slug: stats-system-ladder
   title: The Stats System Ladder
   kind: guide
@@ -17,6 +19,7 @@ stats_ladder:
 
 db_guide:
   host: dummy
+  public_code: <%= PublicCode.generate %>
   slug: db-guide
   title: Database Guide Record
   kind: guide

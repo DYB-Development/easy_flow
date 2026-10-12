@@ -475,5 +475,15 @@ module EasyFlow
 
       assert_predicate flow.definition_versions.first.reload, :withdrawn?
     end
+
+    test "a flow is given a random code of 24 letters and digits where the app has flow codes" do
+      assert_match(/\A[a-zA-Z0-9]{24}\z/, Definition.create!(host: "dummy", slug: "coded").public_code)
+    end
+
+    test "a flow version is given a random code of 24 letters and digits where the app has version codes" do
+      flow = Definition.create!(host: "dummy", slug: "coded")
+
+      assert_match(/\A[a-zA-Z0-9]{24}\z/, flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "coded", "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] } ] })).public_code)
+    end
   end
 end

@@ -83,7 +83,7 @@ module EasyFlow
     test "a second host's preview starts on that host's own path" do
       get console_flows.manage_flow_preview_path(console_flow)
 
-      assert_select "a[href=?]", "/console/manage/flows/#{console_flow.id}/preview/step"
+      assert_select "a[href=?]", "/console/manage/flows/#{console_flow.public_code}/preview/step"
     end
 
     test "a host's management pages render in the admin layout that host names" do

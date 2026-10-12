@@ -27,5 +27,11 @@ module EasyFlow
 
       assert_no_numbered_links(pages)
     end
+
+    test "a numbered flow management address is not found where the app has flow codes" do
+      get easy_flow.manage_flow_path(flow.id)
+
+      assert_response :not_found
+    end
   end
 end

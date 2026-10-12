@@ -18,4 +18,12 @@ class RunAddressTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/coded/runs/run-#{EasyFlow::Run.sole.id}"
   end
+
+  test "a host that names its runs' addresses opens a run at that address" do
+    run = EasyFlow::Run.start(flow)
+
+    get "/coded/runs/run-#{run.id}"
+
+    assert_select "form[action=?]", "/coded/runs/run-#{run.id}"
+  end
 end

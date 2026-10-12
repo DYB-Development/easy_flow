@@ -5,4 +5,6 @@ class CodedFlowsController < EasyFlow::FlowsController
   private
 
   def run_address(run) = "run-#{run.id}"
+
+  def find_run(runs, address) = runs.find(address.delete_prefix("run-"))
 end

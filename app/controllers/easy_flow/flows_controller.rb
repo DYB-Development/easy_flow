@@ -45,7 +45,11 @@ module EasyFlow
     end
 
     def run_location(run)
-      flow_routes.run_path(run)
+      flow_routes.run_path(run_address(run))
+    end
+
+    def run_address(run)
+      run
     end
 
     def start_run(flow)

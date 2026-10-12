@@ -12,4 +12,10 @@ Rails.application.routes.draw do
   post "host/:slug/runs", to: "host_flows#start", as: :host_flow_runs
   get "host/runs/:id", to: "host_flows#step", as: :host_run
   patch "host/runs/:id", to: "host_flows#update"
+
+  get "coded/:slug", to: "coded_flows#show", as: :coded_flow
+  get "coded/:slug/step", to: "coded_flows#step", as: :coded_flow_step
+  post "coded/:slug/runs", to: "coded_flows#start", as: :coded_flow_runs
+  get "coded/runs/:id", to: "coded_flows#step", as: :coded_run
+  patch "coded/runs/:id", to: "coded_flows#update"
 end

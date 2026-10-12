@@ -71,4 +71,12 @@ class HostFlowTest < ActionDispatch::IntegrationTest
 
     assert_select "form[action=?]", "/host/#{flow.slug}/runs"
   end
+
+  test "a numbered run address is not found where the app has run codes" do
+    run = EasyFlow::Run.start(flow)
+
+    get "/host/runs/#{run.id}"
+
+    assert_response :not_found
+  end
 end

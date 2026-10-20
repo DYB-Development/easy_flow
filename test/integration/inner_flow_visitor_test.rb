@@ -28,5 +28,15 @@ module EasyFlow
 
       assert_redirected_to easy_flow.run_path(parent.inner_runs.sole)
     end
+
+    test "a visitor who finishes an inner run is taken back to the parent run" do
+      parent = Run.start(parent_flow).tap(&:advance)
+      inner = parent.inner_runs.sole
+
+      patch easy_flow.run_path(inner), params: { asked: "ask", answers: { ask: "yes" } }
+      follow_redirect!
+
+      assert_redirected_to easy_flow.run_path(parent)
+    end
   end
 end

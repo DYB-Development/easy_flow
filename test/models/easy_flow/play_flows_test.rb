@@ -37,5 +37,11 @@ module EasyFlow
     test "offers a visitor who reaches it each flow it lists" do
       assert_equal %w[History Science], offered
     end
+
+    test "leaves out a flow the visitor already played at an earlier visit" do
+      Run.start(quizzes.first).update!(parent_run: event_run, parent_step: "play")
+
+      assert_equal %w[Science], offered(node.with(id: "play@2"))
+    end
   end
 end

@@ -14,6 +14,9 @@ module EasyFlow
 
       names_by :question
       awaits_input
+      drawn_by "easy_flow/steps/ticking"
+
+      displays_by { |node| Asked.new(id: node.id.to_sym, text: node.config["question"], choices: Question.choices_in(node)) }
     end
   end
 end

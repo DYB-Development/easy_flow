@@ -96,6 +96,14 @@ module EasyFlow
       assert_response :not_found
     end
 
+    test "the builder lists only the current owner's flows when the host finds flows across owners" do
+      theirs
+
+      get "/owned/manage/flows", headers: as(@ours)
+
+      assert_select "a", text: "Theirs", count: 0
+    end
+
     private
 
     def as(customer)

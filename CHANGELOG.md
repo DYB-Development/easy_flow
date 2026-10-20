@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- A Multiple select step (`multiple_select`) asks a question whose answers each carry a value, a label and a weight, lets the visitor tick several, and records every value ticked.
+- A Fill in the blank step (`fill_in_the_blank`) asks a question the visitor answers by typing, records the text as typed, and keeps its list of accepted answers off the visitor's page.
+- An admin can set a category on either step and mark either one required, and a required one refuses an empty answer with a message saying why.
+
 ## [0.25.0] - 2026-10-20
 
 ### Added

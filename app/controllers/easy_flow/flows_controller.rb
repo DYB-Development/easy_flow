@@ -115,7 +115,15 @@ module EasyFlow
     end
 
     def flow
-      @stored_flow ||= admit(hosted_flows.find_by(slug: params[:slug]))
+      @stored_flow ||= admit(visited_flow)
+    end
+
+    def visited_flow
+      return hosted_flows.find_by(slug: params[:slug]) unless flow_host.finds_flows_across_owners
+
+      flow_host.flows.find_by_public_code!(params[:slug])
+    rescue ActiveRecord::RecordNotFound
+      nil
     end
 
     def flowing_definition(flow)

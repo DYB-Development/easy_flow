@@ -50,5 +50,13 @@ module EasyFlow
 
       assert_select "legend", text: /Anything else\?/
     end
+
+    test "a visitor who opens the parent run while its inner run is unfinished is taken to the inner run" do
+      parent = Run.start(parent_flow).tap(&:advance)
+
+      get easy_flow.run_path(parent)
+
+      assert_redirected_to easy_flow.run_path(parent.inner_runs.sole)
+    end
   end
 end

@@ -97,5 +97,13 @@ module EasyFlow
     test "cannot run without the flows it offers" do
       assert_includes PlayFlows.step_type.settings.required, :flows
     end
+
+    test "plays nothing more at a visit where a picked flow is already playing" do
+      Run.start(quizzes.first).update!(parent_run: event_run, parent_step: "play")
+
+      Progress::Kept.new(event_run).record("play", quizzes.last.id.to_s)
+
+      assert_equal 1, event_run.inner_runs.where(parent_step: "play").count
+    end
   end
 end

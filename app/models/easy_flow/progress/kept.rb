@@ -58,6 +58,7 @@ module EasyFlow
       end
 
       def play(id, flow_id)
+        return if @run.inner_runs.exists?(parent_step: id.to_s)
         return unless offered?(id, flow_id)
 
         Run.start(Definition.find(flow_id)).tap { |inner| inner.update!(parent_run: @run, parent_step: id.to_s, owner: @run.owner) }.advance

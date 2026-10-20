@@ -62,6 +62,14 @@ module EasyFlow
       assert_response :no_content
     end
 
+    test "a host that names no owner still publishes a flow whose Flow step names a flow of another owner" do
+      parent = owned_flow("parent", @ours, [ { "id" => "inner", "type" => "flow_step", "flow" => inner_flow(@theirs, host: "dummy").id.to_s, "version" => 1 } ], host: "dummy")
+
+      post "/easy_flow/manage/flows/#{parent.public_code}/canvas/publish"
+
+      assert_response :ok
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

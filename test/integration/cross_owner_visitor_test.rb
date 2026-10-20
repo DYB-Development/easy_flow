@@ -104,6 +104,12 @@ module EasyFlow
       assert_select "a", text: "Theirs", count: 0
     end
 
+    test "the builder cannot preview another owner's flow when the host finds flows across owners" do
+      get "/owned/manage/flows/#{theirs.public_code}/preview", headers: as(@ours)
+
+      assert_response :not_found
+    end
+
     private
 
     def as(customer)

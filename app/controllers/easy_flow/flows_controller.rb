@@ -81,7 +81,7 @@ module EasyFlow
     def step_form
       return { url: run_location(run), method: :patch } if run
 
-      { url: flow_step_path(@guide.slug), method: :get }
+      { url: flow_step_path(flow_address(@guide.slug)), method: :get }
     end
 
     def carries_answers?

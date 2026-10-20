@@ -46,6 +46,14 @@ module EasyFlow
       assert_select "a[href=?]", "/owned/#{theirs.public_code}/step"
     end
 
+    test "a question of a flow found by its public code that keeps no run is answered at that code" do
+      theirs.update!(persists: "unsaved")
+
+      get "/owned/#{theirs.public_code}/step", headers: as(@ours)
+
+      assert_select "form[action=?]", "/owned/#{theirs.public_code}/step"
+    end
+
     private
 
     def as(customer)

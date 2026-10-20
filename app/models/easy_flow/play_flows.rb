@@ -4,6 +4,7 @@ module EasyFlow
 
     step_name "Play flows"
 
+    setting :question, type: :string
     setting :flows, type: :flows
 
     awaits_input

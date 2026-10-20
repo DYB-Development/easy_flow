@@ -41,6 +41,10 @@ module EasyFlow
       assert_equal :flows, PlayFlows.step_type.settings.fields[:flows]
     end
 
+    test "takes the question it asks the visitor above the flows it offers" do
+      assert_equal :string, PlayFlows.step_type.settings.fields[:question]
+    end
+
     test "offers a visitor who reaches it each flow it lists" do
       assert_equal %w[History Science], offered
     end

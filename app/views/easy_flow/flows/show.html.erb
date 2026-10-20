@@ -10,7 +10,7 @@
           <%= ui_button(label: @flow.start_label.presence || "Start", type: :submit) %>
         <% end %>
       <% else %>
-        <%= ui_button(label: @flow.start_label.presence || "Start", href: flow_step_path(@flow.slug)) %>
+        <%= ui_button(label: @flow.start_label.presence || "Start", href: flow_step_path(flow_address(@flow.slug))) %>
       <% end %>
     </div>
   <% end %>

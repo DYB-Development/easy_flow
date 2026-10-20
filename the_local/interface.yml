@@ -41,6 +41,8 @@ sources:
   - app/models/easy_flow/terminal.rb
   - app/models/easy_flow/steps/question.rb
   - app/models/easy_flow/steps/checklist.rb
+  - app/models/easy_flow/steps/multiple_select.rb
+  - app/models/easy_flow/steps/fill_in_the_blank.rb
   - app/models/easy_flow/steps/file_upload.rb
   - app/models/easy_flow/count.rb
   - app/models/easy_flow/compare_two_values.rb
@@ -60,6 +62,7 @@ sources:
   - app/views/easy_flow/flows/complete.html.erb
   - app/views/easy_flow/steps/_choosing.html.erb
   - app/views/easy_flow/steps/_ticking.html.erb
+  - app/views/easy_flow/steps/_typing.html.erb
   - app/views/easy_flow/steps/_uploading.html.erb
   - app/controllers/easy_flow/manage/previews_controller.rb
   - config/routes.rb

@@ -62,5 +62,9 @@ module EasyFlow
     test "holds a run that reaches it until the visitor picks a flow" do
       assert_equal "play", Digest.new(event).next_step({}).id
     end
+
+    test "comes back for the next pick while a listed flow is still to be played" do
+      assert_equal "play@2", Digest.new(event).next_step({ "play" => "ended" }).id
+    end
   end
 end

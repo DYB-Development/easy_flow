@@ -8,6 +8,8 @@ module EasyFlow
 
     awaits_input
 
+    comes_back_while { |_node, _state| true }
+
     displays_by { |node, run| Asked.new(id: node.id.to_sym, text: node.config["question"], choices: PlayFlows.offered(node, run)) }
 
     def self.offered(node, run)

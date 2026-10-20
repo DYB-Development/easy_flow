@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- A Play flows step (`play_flows`) lists several of the owner's flows, offers a visitor each one not yet played, plays the one they pick as an inner run of their run, brings them back to the step when it ends, and moves the run on once every listed flow has been played.
+- A step type can declare `plays_the_picked_flow`, so a visitor's answer at it starts the flow it names as an inner run, and `comes_back_while`, so a run returns to the step under its next visit while a rule holds.
+
 ### Fixed
 
 - A Flow step whose inner flow ends on an End step with no output records "ended" and its parent run moves on, and the canvas offers an "ended" connection out of that Flow step.

@@ -2,6 +2,8 @@ require "test_helper"
 
 module EasyFlow
   class InnerFlowVisitorTest < ActionDispatch::IntegrationTest
+    include ActiveJob::TestHelper
+
     def published(slug, nodes:, edges:)
       Definition.create!(host: "dummy", slug: slug, persists: :each_step).tap do |flow|
         flow.publish_version(flow.definition_versions.create!(number: 1, definition: { "slug" => slug, "entry" => "start", "nodes" => nodes, "edges" => edges }))
@@ -37,6 +39,16 @@ module EasyFlow
       follow_redirect!
 
       assert_redirected_to easy_flow.run_path(parent)
+    end
+
+    test "a visitor taken back to the parent run sees its next step before the parent's job has run" do
+      parent = Run.start(parent_flow).tap(&:advance)
+      inner = parent.inner_runs.sole
+
+      patch easy_flow.run_path(inner), params: { asked: "ask", answers: { ask: "yes" } }
+      2.times { follow_redirect! }
+
+      assert_select "legend", text: /Anything else\?/
     end
   end
 end

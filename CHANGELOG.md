@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-10-20
+
 ### Added
 
 - A visitor whose stored run reaches a Flow step is taken to the first unanswered step of the inner run it started, and a visitor who opens the parent run's address while that inner run is unfinished is taken there too.

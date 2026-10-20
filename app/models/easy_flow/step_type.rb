@@ -8,7 +8,7 @@ module EasyFlow
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
       ends_here: false, begins_here: false, starts_a_flow: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,
-      naming_field: nil, naming: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil)
+      naming_field: nil, naming: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil, return_rule: nil)
       @id = id
       @step_name = step_name
       @settings = settings
@@ -29,6 +29,7 @@ module EasyFlow
       @answer_check = answer_check
       @answer_labelling = answer_labelling
       @readiness = readiness
+      @return_rule = return_rule
     end
 
     def display_of(node, run = nil)
@@ -59,6 +60,10 @@ module EasyFlow
 
     def ready?(node, state, times = {})
       @readiness.call(node, state, times)
+    end
+
+    def comes_back?(node, state)
+      @return_rule&.call(node, state) || false
     end
 
     def name_of(node)

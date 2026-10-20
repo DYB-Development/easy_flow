@@ -137,7 +137,7 @@ module EasyFlow
     end
 
     def naming_flows(node)
-      step_type_for(node)&.settings&.fields.to_h.select { |_name, type| type == :flow }.keys.map(&:to_s)
+      step_type_for(node)&.settings&.fields.to_h.select { |_name, type| %i[flow flows].include?(type) }.keys.map(&:to_s)
     end
 
     def offered_flows

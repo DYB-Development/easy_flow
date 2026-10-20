@@ -302,6 +302,16 @@ module EasyFlow
       assert_equal [ { "value" => onboarding.id.to_s, "label" => "Onboarding" } ], drawn["choices"]["flow"]
     end
 
+    test "offers the flows it is given as the choices for a step's setting holding several flows" do
+      offering = Registry.new.tap { |built| built.register(StepType.define(:run_flows) { setting :flows, type: :flows }) }
+      document = Document.new({ "nodes" => [ { "id" => "inner", "type" => "run_flows" } ], "edges" => [] }, registry: offering)
+      onboarding = Definition.create!(host: "dummy", slug: "onboarding", title: "Onboarding")
+
+      drawn = Canvas.new(document, registry: offering, flows: [ onboarding ]).to_h["nodes"].first
+
+      assert_equal [ { "value" => onboarding.id.to_s, "label" => "Onboarding" } ], drawn["choices"]["flows"]
+    end
+
     test "marks a step that starts another flow" do
       nesting = Registry.new.tap { |built| built.register(StepType.define(:run_flow) { starts_a_flow }) }
       document = Document.new({ "nodes" => [ { "id" => "inner", "type" => "run_flow" } ], "edges" => [] }, registry: nesting)

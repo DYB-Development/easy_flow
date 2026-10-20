@@ -46,6 +46,14 @@ module EasyFlow
       assert_response :ok
     end
 
+    test "a running Flow step that names a flow of the same owner plays that flow" do
+      inner = inner_flow(@ours)
+      parent = owned_flow("parent", @ours, [ { "id" => "inner", "type" => "flow_step", "flow" => inner.id.to_s, "version" => 1 } ])
+      parent.publish
+
+      assert_equal [ inner ], Run.start(parent).tap(&:advance).inner_runs.map(&:flow)
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

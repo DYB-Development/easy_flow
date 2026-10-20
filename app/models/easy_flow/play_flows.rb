@@ -19,6 +19,8 @@ module EasyFlow
     end
 
     def self.offered(node, run)
+      return [] unless run
+
       listed = Array(node.config["flows"]) - played(node, run)
       reachable(run).where(id: listed).sort_by { |flow| listed.index(flow.id.to_s) }.map { |flow| Choice.new(value: flow.id.to_s, label: flow.title) }
     end

@@ -7,6 +7,7 @@ module EasyFlow
     setting :question, type: :string
     setting :flows, type: :flows
 
+    names_by :question
     awaits_input
 
     plays_the_picked_flow

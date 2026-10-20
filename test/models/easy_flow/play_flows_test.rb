@@ -89,5 +89,9 @@ module EasyFlow
 
       assert_not event_run.inner_runs.exists?(parent_step: "play@2")
     end
+
+    test "is named by the question it asks" do
+      assert_equal "Which quiz next?", PlayFlows.step_type.name_of(Node.new(id: "play", type: "play_flows", config: { "question" => "Which quiz next?" }))
+    end
   end
 end

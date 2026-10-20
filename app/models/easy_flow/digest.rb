@@ -93,7 +93,9 @@ module EasyFlow
     def questions_left(state)
       cursor = next_step(state) && step(next_step(state).id)
       left = 0
-      while cursor && decided?(cursor, state)
+      visits = Hash.new(0)
+      while cursor && decided?(cursor, state) && visits[cursor.id].zero?
+        visits[cursor.id] += 1
         left += 1 if step_type(cursor)&.awaits_input?
         cursor = successor(cursor, state)
       end

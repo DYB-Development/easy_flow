@@ -77,5 +77,13 @@ module EasyFlow
 
       assert_equal quizzes.last, event_run.inner_runs.find_by(parent_step: "play")&.flow
     end
+
+    test "plays nothing when a visitor picks a flow already played" do
+      Run.start(quizzes.first).update!(parent_run: event_run, parent_step: "play")
+
+      Progress::Kept.new(event_run).record("play@2", quizzes.first.id.to_s)
+
+      assert_not event_run.inner_runs.exists?(parent_step: "play@2")
+    end
   end
 end

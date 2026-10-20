@@ -58,7 +58,14 @@ module EasyFlow
       end
 
       def play(id, flow_id)
+        return unless offered?(id, flow_id)
+
         Run.start(Definition.find(flow_id)).tap { |inner| inner.update!(parent_run: @run, parent_step: id.to_s, owner: @run.owner) }.advance
+      end
+
+      def offered?(id, flow_id)
+        node = @run.digest.step(id)
+        EasyFlow.registry.fetch(node.type).display_of(node.with(id: id.to_s), @run).choices.map(&:value).include?(flow_id.to_s)
       end
     end
   end

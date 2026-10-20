@@ -502,5 +502,11 @@ module EasyFlow
 
       assert_equal({ rows: [ :step ] }, step_type.settings.record_required)
     end
+
+    test "declares a setting holding several flows" do
+      step_type = StepType.define(:run_flows) { setting :flows, type: :flows }
+
+      assert_equal :flows, step_type.settings.fields[:flows]
+    end
   end
 end

@@ -22,7 +22,7 @@ module EasyFlow
       flash.now[:alert] = @refused if @refused
       @waiting = waiting_on(@question)
       return render :step if @question
-      return redirect_to run_location(run.parent_run) if run&.parent_run
+      return redirect_to run_location(run.parent_run) if handed_back?
 
       render_completion
     end
@@ -33,6 +33,10 @@ module EasyFlow
     end
 
     private
+
+    def handed_back?
+      run&.parent_run && run.parent_run.waiting_on != run
+    end
 
     def go_back
       guide = runner_for(running_definition)

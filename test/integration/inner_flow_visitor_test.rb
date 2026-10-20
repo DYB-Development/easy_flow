@@ -91,5 +91,19 @@ module EasyFlow
 
       assert_redirected_to "/coded/runs/run-#{parent.id}"
     end
+
+    test "a visitor on an inner run that stopped on a loop stays on it rather than going back to a parent still waiting on it" do
+      circling = published("circling",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "ask", "type" => "question", "text" => "Again?", "options" => [ "yes" ] },
+                 { "id" => "tally", "type" => "count", "step" => "ask" }, { "id" => "again", "type" => "count", "step" => "tally" } ],
+        edges: [ { "from" => "start", "to" => "ask" }, { "from" => "ask", "to" => "tally" }, { "from" => "tally", "to" => "again" }, { "from" => "again", "to" => "tally" } ])
+      parent = Run.start(published("handing", nodes: [ { "id" => "start", "type" => "start" }, { "id" => "offer", "type" => "flow_step", "flow" => circling.id.to_s, "version" => 1 } ],
+                                              edges: [ { "from" => "start", "to" => "offer" } ])).tap(&:advance)
+      inner = parent.inner_runs.sole.tap { |run| run.record(:ask, "yes") }
+
+      get easy_flow.run_path(inner)
+
+      assert_response :success
+    end
   end
 end

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Counting the questions left in a run finishes on a flow that loops back to an earlier step, and counts each question ahead once.
+
 ## [0.27.0] - 2026-10-20
 
 ### Added

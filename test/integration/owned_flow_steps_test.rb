@@ -38,6 +38,14 @@ module EasyFlow
       assert_response :no_content
     end
 
+    test "publishing a flow whose Flow step names a flow of the same owner is accepted" do
+      parent = owned_flow("parent", @ours, [ { "id" => "inner", "type" => "flow_step", "flow" => inner_flow(@ours).id.to_s, "version" => 1 } ])
+
+      post "/owned/manage/flows/#{parent.public_code}/canvas/publish", headers: as(@ours)
+
+      assert_response :ok
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

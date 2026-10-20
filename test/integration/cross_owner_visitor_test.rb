@@ -24,6 +24,14 @@ module EasyFlow
       assert_response :success
     end
 
+    test "a visitor continues a run of another owner's flow from the run's public code when the host finds flows across owners" do
+      run = Run.start(theirs)
+
+      get "/owned/runs/#{run.public_code}", headers: as(@ours)
+
+      assert_select "form[action=?]", "/owned/runs/#{run.public_code}"
+    end
+
     private
 
     def as(customer)

@@ -109,7 +109,7 @@ module EasyFlow
     end
 
     def admitted_run
-      found = find_run(Run.where(flow: hosted_flows), params[:id])
+      found = find_run(Run.where(flow: visited_flows), params[:id])
 
       Admission.of_run(found, permitted: permitted?(found.flow))
     end
@@ -121,9 +121,13 @@ module EasyFlow
     def visited_flow
       return hosted_flows.find_by(slug: params[:slug]) unless flow_host.finds_flows_across_owners
 
-      flow_host.flows.find_by_public_code!(params[:slug])
+      visited_flows.find_by_public_code!(params[:slug])
     rescue ActiveRecord::RecordNotFound
       nil
+    end
+
+    def visited_flows
+      flow_host.finds_flows_across_owners ? flow_host.flows : hosted_flows
     end
 
     def flowing_definition(flow)

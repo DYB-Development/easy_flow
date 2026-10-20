@@ -17,5 +17,13 @@ module EasyFlow
 
       assert_equal [ "two", "four", "five" ], css_select("input[type=checkbox][name='answers[primes][]']").map { |box| box["value"] }
     end
+
+    test "the run keeps every value the visitor picked" do
+      run = Run.start(selecting)
+
+      patch easy_flow.run_path(run), params: { asked: "primes", answers: { primes: [ "", "two", "five" ] } }
+
+      assert_equal [ "two", "five" ], run.reload.recorded[:primes]
+    end
   end
 end

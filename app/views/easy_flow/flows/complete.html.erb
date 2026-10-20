@@ -1,6 +1,6 @@
 <% content_for(:title, "Complete") %>
 
-<% starting_over = flow_start_path(@guide.slug) %>
+<% starting_over = flow_start_path(flow_address(@guide.slug)) %>
 
 <%= ui_page(max_width: :md) do %>
   <%= ui_page_header(title: "That's everything", subtitle: "Thanks — here's what you told us") do |header| %>

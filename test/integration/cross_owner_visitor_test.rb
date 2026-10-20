@@ -79,6 +79,15 @@ module EasyFlow
       assert_select "a[href^=?]", "/owned/#{their_wait.public_code}/step?", text: "Check again"
     end
 
+    test "a finished run of a flow found by its public code starts over at that code" do
+      run = Run.start(theirs)
+      run.record("a", "y")
+
+      get "/owned/runs/#{run.public_code}", headers: as(@ours)
+
+      assert_select "a[href=?]", "/owned/#{theirs.public_code}", text: "Start over"
+    end
+
     private
 
     def as(customer)

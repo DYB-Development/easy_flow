@@ -31,6 +31,7 @@ module EasyFlow
         EasyFlow::Count.register
         EasyFlow::Wait.register
         EasyFlow::FlowStep.register
+        EasyFlow::PlayFlows.register
 
         EasyFlow.check(:unrouted_value)
         EasyFlow.check(:unfollowed_path)

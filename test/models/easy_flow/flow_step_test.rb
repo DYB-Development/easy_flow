@@ -29,6 +29,20 @@ module EasyFlow
       assert_equal %w[bought declined], Digest.new(parent).routing_values("inner")
     end
 
+    test "has a connection out for ended when the chosen version has an End step with no output" do
+      inner = Definition.create!(host: "dummy", slug: "quiz")
+      inner.publish_version(inner.definition_versions.create!(number: 1, definition: {
+        "slug" => "quiz", "entry" => "start",
+        "nodes" => [ { "id" => "start", "type" => "start" },
+                     { "id" => "won", "type" => "terminal", "output" => "won" },
+                     { "id" => "done", "type" => "terminal" } ],
+        "edges" => [ { "from" => "start", "to" => "done" } ]
+      }))
+      parent = Document.new({ "nodes" => [ { "id" => "inner", "type" => "flow_step", "flow" => inner.id.to_s, "version" => 1 } ], "edges" => [] })
+
+      assert_equal %w[won ended], Digest.new(parent).routing_values("inner")
+    end
+
     test "holds a run that reaches it until its value is recorded" do
       parent = Document.new({ "entry" => "start",
         "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "inner", "type" => "flow_step" }, { "id" => "done", "type" => "terminal" } ],

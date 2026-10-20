@@ -20,6 +20,7 @@ module EasyFlow
 
         EasyFlow::Steps::Question.register
         EasyFlow::Steps::Checklist.register
+        EasyFlow::Steps::MultipleSelect.register
         EasyFlow::Steps::FileUpload.register
         EasyFlow::Condition.register
         EasyFlow::Switch.register

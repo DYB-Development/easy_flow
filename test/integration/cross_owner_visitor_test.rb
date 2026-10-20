@@ -88,6 +88,14 @@ module EasyFlow
       assert_select "a[href=?]", "/owned/#{theirs.public_code}", text: "Start over"
     end
 
+    test "a visitor does not open another owner's flow from its public code when the host does not find flows across owners" do
+      EasyFlow.host_named(:owned).finds_flows_across_owners = false
+
+      get "/owned/#{theirs.public_code}", headers: as(@ours)
+
+      assert_response :not_found
+    end
+
     private
 
     def as(customer)

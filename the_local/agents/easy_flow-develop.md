@@ -366,7 +366,7 @@ Use this when a visitor's run reaches a Flow step and the app must take the visi
    - The new run is moved on at once past every step that acts without the visitor, the same as `run.advance`. When it stops at a Flow step of its own, that starts a further run the same way.
    - It is started once per visit to the step, so loading the page again or calling `advance` again starts no second one.
    - Its `owner` is the parent run's `owner` at the moment the new run is started, or blank when the parent run has none. Setting or changing the parent run's owner later does not change it. Its `label` and `status` are not copied and are left blank.
-   - The parent run shows the visitor `Waiting for <name>.`, where the built-in Flow step's name is the named flow's title and version number, such as `Waiting for Intake, version 2.`, with no form, no Next button and no Back button, and stays on the Flow step until the new run ends.
+   - A visitor who loads the parent run's page is redirected to the new run's page, at the controller's own run address from `run_address`, and shown its first unanswered step. This holds whenever the parent run is stopped at the Flow step, so a visitor who opens the parent run's address while the new run is unfinished is sent to the new run. The parent run stays on the Flow step until the new run ends.
    - A flow set to save on finish or to save nothing, and an admin's preview, keep no stored run, so they start no run at a Flow step.
    - A flow cannot be published while one of its Flow steps names a missing flow, a version that cannot run, or a flow that leads back to it. A flow or version can still stop being runnable after the flow holding the step was published, such as a named flow being deleted or its version retired or withdrawn. Then, at the moment the run stops at the Flow step, one of these is raised and no run is started:
      - `ActiveRecord::RecordNotFound` when the named flow is gone.
@@ -378,19 +378,19 @@ Use this when a visitor's run reaches a Flow step and the app must take the visi
    - A job is queued with the app's Active Job adapter, on the `default` queue, that calls `advance` on the parent run. The parent run also moves on the next time its own page is loaded, whichever comes first, so a parent run whose job never runs still moves on when its visitor reloads.
    - The parent run follows the connection leaving the Flow step labelled with that output. An output that matches no connection's label ends the parent run at the Flow step.
    - When the parent run then ends and was itself started by a Flow step, its own output is handed to its parent the same way.
-   - The new run's own `finished` is still called on its visitor's page load. The job does not call `finished` for the parent run, and if the parent run reaches its end, `finished` is called the next time its visitor loads its page.
-   - A visitor who presses Back on the step after a Flow step removes the recorded output, and the parent run waits on the Flow step again. No second run is started, and the parent run moves on again only when the new run's page is loaded or `advance` is called on it.
+   - The new run's visitor is redirected to the parent run's page, at the controller's own run address, and the new run's own `finished` is not called. The parent run's page moves the parent run on itself without waiting for the job, then shows its next step, redirects into the next inner run when it stops at another Flow step, or calls the parent run's `finished` when it has ended. The job does not call `finished` for the parent run.
+   - A visitor who presses Back on the step after a Flow step removes the recorded output, and the parent run waits on the Flow step again. No second run is started. The parent run's page then redirects the visitor to the ended new run, whose page hands its output back again and redirects the visitor to the same step after the Flow step, so Back does not take a visitor past a Flow step.
 4. What holds when the new run ends with no output, which happens when it ends on an End step whose output was left blank, or ends without reaching an End step for any reason other than a loop stopping it, and the step that started it is not of a type that declares `chooses_flow_from_run` (for that type, `"ended"` is recorded and the parent run moves on):
-   - Nothing is recorded in the parent run, and the parent run stays at the Flow step showing `Waiting for <name>.` on every page load. Nothing in the engine moves it on.
+   - Nothing is recorded in the parent run, and the parent run stays at the Flow step, so loading its page redirects the visitor to the new run. Nothing in the engine moves it on.
    - A job is still queued that fails with `EasyFlow::InnerFlowError` and a message naming the Flow step's id, such as `Nothing was recorded at the Flow step sub, so its run cannot move on`. The job does not move the parent run.
    - Each later page load of the new run, and each later `advance` on it, queues another job that fails the same way.
    - What happens to a failed job, such as a retry or a report, is decided by the app's Active Job adapter and error reporting.
-   - The new run's own `finished` is still called on its visitor's page load.
+   - The new run's visitor is not sent back to the parent run, and the new run's own `finished` is still called on its visitor's page load.
 5. What holds when a loop stops the new run, which is when `inner.stopped_on_loop` names a step (see "Read a run and its answers"), whatever type the step that started it is:
    - Nothing is recorded in the parent run, not even `"ended"` for a step of a type that declares `chooses_flow_from_run`.
    - No job is queued, on the page load that stops the new run or on any later page load or `advance` of it, so no `EasyFlow::InnerFlowError` is raised for it.
-   - The parent run stays at the step showing `Waiting for <name>.` on every page load, and `parent.waiting_on` is still the stopped run. Nothing in the engine moves it on.
-   - The new run's own `finished` is still called on its visitor's page load.
+   - The parent run stays at the step, so loading its page redirects the visitor to the stopped run, and `parent.waiting_on` is still the stopped run. Nothing in the engine moves it on.
+   - The new run's visitor is not sent back to the parent run, and the new run's own `finished` is still called on its visitor's page load.
 6. What holds when an admin removes a flow:
    - Every run of the removed flow is deleted with it.
    - A run that one of those runs' Flow steps started is kept. Its `parent_run` becomes `nil` and its `parent_step` keeps the step id.

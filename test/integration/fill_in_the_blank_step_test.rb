@@ -16,5 +16,13 @@ module EasyFlow
 
       assert_select "input[type=text][name='answers[capital]']"
     end
+
+    test "the run keeps the text the visitor typed" do
+      run = Run.start(typing)
+
+      patch easy_flow.run_path(run), params: { asked: "capital", answers: { capital: " paris " } }
+
+      assert_equal " paris ", run.reload.recorded[:capital]
+    end
   end
 end

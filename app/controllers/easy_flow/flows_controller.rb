@@ -14,12 +14,15 @@ module EasyFlow
       @guide = runner_for(running_definition)
       @progress = progress
       @guide.run(@progress)
+      return redirect_to run_location(run.waiting_on) if run&.waiting_on
+
       @answers = @progress.recorded
       @question = @guide.next_step(@answers, run: run, times: @progress.completed_at)
       @drawing = @guide.drawing_at(@answers, times: @progress.completed_at)
       flash.now[:alert] = @refused if @refused
       @waiting = waiting_on(@question)
       return render :step if @question
+      return redirect_to run_location(run.parent_run) if handed_back?
 
       render_completion
     end
@@ -30,6 +33,10 @@ module EasyFlow
     end
 
     private
+
+    def handed_back?
+      run&.parent_run && run.parent_run.waiting_on != run
+    end
 
     def go_back
       guide = runner_for(running_definition)

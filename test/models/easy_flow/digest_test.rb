@@ -221,5 +221,21 @@ module EasyFlow
     test "finds a question by the key of a later visit to it" do
       assert_equal "name", digest(asking_again).step("name@2").id
     end
+
+    def checking_ahead
+      { "entry" => "pick",
+        "nodes" => [ { "id" => "pick", "type" => "ask" },
+                     { "id" => "taken", "type" => "branch", "answer" => "quiz" },
+                     { "id" => "quiz", "type" => "ask" },
+                     { "id" => "done", "type" => "ask" } ],
+        "edges" => [ { "from" => "pick", "to" => "taken" },
+                     { "from" => "taken", "to" => "done", "on" => "yes" },
+                     { "from" => "taken", "to" => "quiz", "on" => "no" },
+                     { "from" => "quiz", "to" => "pick" } ] }
+    end
+
+    test "a branch reads only the answers recorded before it on the path, not one a later step recorded" do
+      assert_equal "pick@2", digest(checking_ahead).next_step({ "pick" => "a", "quiz" => "yes" }).id
+    end
   end
 end

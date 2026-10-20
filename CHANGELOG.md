@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- A visitor whose stored run reaches a Flow step is taken to the first unanswered step of the inner run it started, and a visitor who opens the parent run's address while that inner run is unfinished is taken there too.
+- A visitor who finishes an inner run is taken back to the parent run, which moves on without waiting for its background job and shows its next step.
+- A controller that subclasses the visitor pages takes visitors into and out of inner runs at its own run addresses.
+
+### Fixed
+
+- A branching step reads only the answers recorded before it on the run's path, so a Condition that checks whether a Flow step further along has ended sees it as unplayed until the run has passed it.
+
 ## [0.26.0] - 2026-10-20
 
 ### Added

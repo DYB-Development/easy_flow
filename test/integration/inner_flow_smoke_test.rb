@@ -52,5 +52,22 @@ module EasyFlow
 
       assert_select "[data-answer=?]", "second"
     end
+
+    test "a visitor who finishes an inner flow whose End step has no output moves on in the parent run" do
+      quiet = published("quiet-quiz",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "ask", "type" => "question", "text" => "Ready?", "options" => [ "yes" ] }, { "id" => "done", "type" => "terminal" } ],
+        edges: [ { "from" => "start", "to" => "ask" }, { "from" => "ask", "to" => "done" } ])
+      parent = published("scored",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "quiz", "type" => "flow_step", "flow" => quiet.id.to_s, "version" => 1 },
+                 { "id" => "after", "type" => "question", "text" => "Play again?", "options" => [ "no" ] }, { "id" => "done", "type" => "terminal" } ],
+        edges: [ { "from" => "start", "to" => "quiz" }, { "from" => "quiz", "to" => "after", "on" => "ended" }, { "from" => "after", "to" => "done" } ])
+      post easy_flow.flow_runs_path(parent.slug)
+      follow_redirect! while response.redirect?
+
+      answer("ask", "yes")
+      answer("after", "no")
+
+      assert_select "[data-answer=?]", "after"
+    end
   end
 end

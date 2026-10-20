@@ -24,5 +24,11 @@ module EasyFlow
 
       assert_equal " paris ", run.reload.recorded[:capital]
     end
+
+    test "the page never holds the accepted answers" do
+      get easy_flow.run_path(Run.start(typing))
+
+      assert_no_match(/Paris|Paree/, response.body)
+    end
   end
 end

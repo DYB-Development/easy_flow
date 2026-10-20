@@ -32,6 +32,12 @@ module EasyFlow
       assert_select "form[action=?]", "/owned/runs/#{run.public_code}"
     end
 
+    test "a flow found by its public code starts its runs at that code" do
+      get "/owned/#{theirs.public_code}", headers: as(@ours)
+
+      assert_select "form[action=?]", "/owned/#{theirs.public_code}/runs"
+    end
+
     private
 
     def as(customer)

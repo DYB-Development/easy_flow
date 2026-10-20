@@ -1,6 +1,6 @@
 module EasyFlow
   class FlowsController < ApplicationController
-    helper_method :flow_start_path, :flow_step_path, :previewing?, :step_form, :carries_answers?
+    helper_method :flow_start_path, :flow_step_path, :previewing?, :step_form, :carries_answers?, :flow_address
 
     def show
       @flow = flow
@@ -58,6 +58,12 @@ module EasyFlow
 
     def start_run(flow)
       Run.start(flow)
+    end
+
+    def flow_address(slug)
+      return slug unless flow_host.finds_flows_across_owners
+
+      (run&.flow || flow).public_code
     end
 
     def flow_start_path(slug)

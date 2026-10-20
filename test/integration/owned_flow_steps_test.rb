@@ -15,6 +15,14 @@ module EasyFlow
       assert_response :unprocessable_entity
     end
 
+    test "publishing a flow whose Flow step names another owner's flow is refused" do
+      parent = owned_flow("parent", @ours, [ { "id" => "inner", "type" => "flow_step", "flow" => inner_flow(@theirs).id.to_s, "version" => 1 } ])
+
+      post "/owned/manage/flows/#{parent.public_code}/canvas/publish", headers: as(@ours)
+
+      assert_response :unprocessable_entity
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

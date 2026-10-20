@@ -73,5 +73,13 @@ module EasyFlow
 
       assert_select "legend", text: /Which quiz\?/
     end
+
+    test "a host that names its runs' addresses takes a visitor into an inner run at its own address" do
+      parent = Run.start(parent_flow)
+
+      get "/coded/runs/run-#{parent.id}"
+
+      assert_redirected_to "/coded/runs/run-#{parent.inner_runs.sole.id}"
+    end
   end
 end

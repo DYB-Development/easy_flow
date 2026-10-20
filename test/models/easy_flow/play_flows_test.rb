@@ -24,8 +24,9 @@ module EasyFlow
 
     def event
       Document.new({ "entry" => "start",
-        "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "play", "type" => "play_flows", "flows" => %w[1 2] }, { "id" => "done", "type" => "terminal" } ],
-        "edges" => [ { "from" => "start", "to" => "play" }, { "from" => "play", "to" => "done" } ] })
+        "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "play", "type" => "play_flows", "flows" => %w[1 2] },
+                     { "id" => "after", "type" => "question", "text" => "Again?", "options" => [ "no" ] } ],
+        "edges" => [ { "from" => "start", "to" => "play" }, { "from" => "play", "to" => "after" } ] })
     end
 
     def offered(at = node)
@@ -65,6 +66,10 @@ module EasyFlow
 
     test "comes back for the next pick while a listed flow is still to be played" do
       assert_equal "play@2", Digest.new(event).next_step({ "play" => "ended" }).id
+    end
+
+    test "moves on to its next step once every listed flow has been played" do
+      assert_equal "after", Digest.new(event).next_step({ "play" => "ended", "play@2" => "ended" }).id
     end
   end
 end

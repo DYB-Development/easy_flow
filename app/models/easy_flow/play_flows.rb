@@ -8,9 +8,13 @@ module EasyFlow
 
     awaits_input
 
-    comes_back_while { |_node, _state| true }
+    comes_back_while { |node, state| PlayFlows.visits(node, state) < Array(node.config["flows"]).size }
 
     displays_by { |node, run| Asked.new(id: node.id.to_sym, text: node.config["question"], choices: PlayFlows.offered(node, run)) }
+
+    def self.visits(node, state)
+      state.keys.count { |key| key.to_s == node.id || key.to_s.start_with?("#{node.id}@") }
+    end
 
     def self.offered(node, run)
       listed = Array(node.config["flows"]) - played(node, run)

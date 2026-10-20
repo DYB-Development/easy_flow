@@ -24,6 +24,7 @@ module EasyFlow
         @ends_here = false
         @begins_here = false
         @starts_a_flow = false
+        @plays_the_picked_flow = false
       end
 
       def output(name, type: :string, label: nil, values: nil, from: nil)
@@ -86,6 +87,10 @@ module EasyFlow
         @starts_a_flow = true
       end
 
+      def plays_the_picked_flow
+        @plays_the_picked_flow = true
+      end
+
       def chooses_flow_from_run(&chooser)
         @run_chooser = chooser
       end
@@ -144,7 +149,7 @@ module EasyFlow
 
       def to_step_type
         StepType.new(id: @id, step_name: @step_name, settings: settings, awaits_input: @awaits_input,
-          ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, flow_chooser: @flow_chooser, run_chooser: @run_chooser, behaviour: @behaviour, routing: @routing,
+          ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, plays_the_picked_flow: @plays_the_picked_flow, flow_chooser: @flow_chooser, run_chooser: @run_chooser, behaviour: @behaviour, routing: @routing,
           display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming,
           outputs: @declared_outputs, outputs_named_by: @outputs_named_by, answer_check: @answer_check, answer_labelling: @answer_labelling, readiness: @readiness, return_rule: @return_rule)
       end

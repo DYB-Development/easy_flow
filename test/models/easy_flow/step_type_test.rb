@@ -442,6 +442,10 @@ module EasyFlow
       assert_predicate StepType.define(:nested) { starts_a_flow }, :starts_a_flow?
     end
 
+    test "a step type can declare that its steps play the flow a visitor picks at them" do
+      assert_predicate StepType.define(:picked) { plays_the_picked_flow }, :plays_the_picked_flow?
+    end
+
     test "a step type that starts a flow can work out the flow and version from a step's own settings" do
       offers = StepType.define(:offer) { starts_a_flow; setting :offer, type: :string; chooses_flow { |node| { flow: "flow-of-#{node.config["offer"]}", version: 3 } } }
 

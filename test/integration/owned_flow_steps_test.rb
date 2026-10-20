@@ -30,6 +30,14 @@ module EasyFlow
       assert_raises(InnerFlowError) { Run.start(parent).advance }
     end
 
+    test "saving a Flow step that names a flow of the same owner is accepted" do
+      parent = owned_flow("parent", @ours, [ { "id" => "inner", "type" => "flow_step" } ])
+
+      patch "/owned/manage/flows/#{parent.public_code}/canvas/steps/inner", params: { config: { flow: inner_flow(@ours).id.to_s, version: 1 } }, headers: as(@ours)
+
+      assert_response :no_content
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

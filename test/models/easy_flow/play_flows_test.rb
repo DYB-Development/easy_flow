@@ -2,8 +2,8 @@ require "test_helper"
 
 module EasyFlow
   class PlayFlowsTest < ActiveSupport::TestCase
-    def published(slug, title: nil, nodes: [ { "id" => "start", "type" => "start" }, { "id" => "done", "type" => "terminal" } ], edges: [ { "from" => "start", "to" => "done" } ])
-      Definition.create!(host: "dummy", slug: slug, title: title).tap do |flow|
+    def published(slug, title: nil, host: "dummy", owner: nil, nodes: [ { "id" => "start", "type" => "start" }, { "id" => "done", "type" => "terminal" } ], edges: [ { "from" => "start", "to" => "done" } ])
+      Definition.create!(host: host, slug: slug, title: title, owner: owner).tap do |flow|
         flow.publish_version(flow.definition_versions.create!(number: 1, definition: { "slug" => slug, "entry" => "start", "nodes" => nodes, "edges" => edges }))
       end
     end
@@ -42,6 +42,15 @@ module EasyFlow
       Run.start(quizzes.first).update!(parent_run: event_run, parent_step: "play")
 
       assert_equal %w[Science], offered(node.with(id: "play@2"))
+    end
+
+    test "leaves out a listed flow that another owner owns" do
+      ours = Customer.create!(name: "Ours")
+      listed = [ published("ours", title: "Ours", host: "owned", owner: ours), published("theirs", title: "Theirs", host: "owned", owner: Customer.create!(name: "Theirs")) ]
+      play = Node.new(id: "play", type: "play_flows", config: { "flows" => listed.map { |quiz| quiz.id.to_s } })
+      run = Run.start(published("owned-event", host: "owned", owner: ours))
+
+      assert_equal %w[Ours], PlayFlows.step_type.display_of(play, run).choices.map(&:label)
     end
   end
 end

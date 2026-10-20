@@ -10,7 +10,12 @@ module EasyFlow
 
     def self.offered(node, run)
       listed = Array(node.config["flows"]) - played(node, run)
-      Definition.where(id: listed).sort_by { |flow| listed.index(flow.id.to_s) }.map { |flow| Choice.new(value: flow.id.to_s, label: flow.title) }
+      reachable(run).where(id: listed).sort_by { |flow| listed.index(flow.id.to_s) }.map { |flow| Choice.new(value: flow.id.to_s, label: flow.title) }
+    end
+
+    def self.reachable(run)
+      host = EasyFlow.host_named(run.flow.host)
+      host.owner_method ? host.flows.where(owner: run.flow.owner) : host.flows
     end
 
     def self.played(node, run)

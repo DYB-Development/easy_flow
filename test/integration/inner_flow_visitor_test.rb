@@ -81,5 +81,15 @@ module EasyFlow
 
       assert_redirected_to "/coded/runs/run-#{parent.inner_runs.sole.id}"
     end
+
+    test "a host that names its runs' addresses takes a visitor back to the parent run at its own address" do
+      parent = Run.start(parent_flow).tap(&:advance)
+      inner = parent.inner_runs.sole
+
+      patch "/coded/runs/run-#{inner.id}", params: { asked: "ask", answers: { ask: "yes" } }
+      follow_redirect!
+
+      assert_redirected_to "/coded/runs/run-#{parent.id}"
+    end
   end
 end

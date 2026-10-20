@@ -5,7 +5,7 @@ module EasyFlow
     step_name "Play flows"
 
     setting :question, type: :string
-    setting :flows, type: :flows
+    setting :flows, type: :flows, required: true
 
     names_by :question
     awaits_input

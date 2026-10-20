@@ -93,5 +93,9 @@ module EasyFlow
     test "is named by the question it asks" do
       assert_equal "Which quiz next?", PlayFlows.step_type.name_of(Node.new(id: "play", type: "play_flows", config: { "question" => "Which quiz next?" }))
     end
+
+    test "cannot run without the flows it offers" do
+      assert_includes PlayFlows.step_type.settings.required, :flows
+    end
   end
 end

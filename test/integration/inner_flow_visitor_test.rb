@@ -58,5 +58,20 @@ module EasyFlow
 
       assert_redirected_to easy_flow.run_path(parent.inner_runs.sole)
     end
+
+    test "a parent flow that loops back to an earlier question after an inner run ends asks that question again" do
+      looping = published("looping",
+        nodes: [ { "id" => "start", "type" => "start" }, { "id" => "pick", "type" => "question", "text" => "Which quiz?", "options" => [ "inner" ] },
+                 { "id" => "quiz", "type" => "flow_step", "flow" => inner_flow.id.to_s, "version" => 1 } ],
+        edges: [ { "from" => "start", "to" => "pick" }, { "from" => "pick", "to" => "quiz" }, { "from" => "quiz", "to" => "pick", "on" => "bought" } ])
+      parent = Run.start(looping)
+      patch easy_flow.run_path(parent), params: { asked: "pick", answers: { pick: "inner" } }
+      get easy_flow.run_path(parent)
+
+      patch easy_flow.run_path(parent.inner_runs.sole), params: { asked: "ask", answers: { ask: "yes" } }
+      2.times { follow_redirect! }
+
+      assert_select "legend", text: /Which quiz\?/
+    end
   end
 end

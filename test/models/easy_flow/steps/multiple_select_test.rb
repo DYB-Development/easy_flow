@@ -12,6 +12,10 @@ module EasyFlow
 
         assert_equal "Pick at least one answer to go on.", MultipleSelect.step_type.answer_problem(node, [ "" ])
       end
+
+      test "an admin can set a category a host can group it by" do
+        assert_equal :string, MultipleSelect.step_type.settings.fields[:category]
+      end
     end
   end
 end

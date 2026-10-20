@@ -54,6 +54,14 @@ module EasyFlow
       assert_equal [ inner ], Run.start(parent).tap(&:advance).inner_runs.map(&:flow)
     end
 
+    test "a host that names no owner still saves a Flow step naming a flow of another owner" do
+      parent = owned_flow("parent", @ours, [ { "id" => "inner", "type" => "flow_step" } ], host: "dummy")
+
+      patch "/easy_flow/manage/flows/#{parent.public_code}/canvas/steps/inner", params: { config: { flow: inner_flow(@theirs, host: "dummy").id.to_s, version: 1 } }
+
+      assert_response :no_content
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

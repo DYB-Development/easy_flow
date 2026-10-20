@@ -23,6 +23,13 @@ module EasyFlow
       assert_response :unprocessable_entity
     end
 
+    test "a running Flow step that names another owner's flow is refused instead of playing it" do
+      parent = owned_flow("parent", @ours, [ { "id" => "inner", "type" => "flow_step", "flow" => inner_flow(@theirs).id.to_s, "version" => 1 } ])
+      parent.publish
+
+      assert_raises(InnerFlowError) { Run.start(parent).advance }
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

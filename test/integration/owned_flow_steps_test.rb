@@ -70,6 +70,14 @@ module EasyFlow
       assert_response :ok
     end
 
+    test "a host that names no owner still plays a Flow step naming a flow of another owner" do
+      inner = inner_flow(@theirs, host: "dummy")
+      parent = owned_flow("parent", @ours, [ { "id" => "inner", "type" => "flow_step", "flow" => inner.id.to_s, "version" => 1 } ], host: "dummy")
+      parent.publish
+
+      assert_equal [ inner ], Run.start(parent).tap(&:advance).inner_runs.map(&:flow)
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

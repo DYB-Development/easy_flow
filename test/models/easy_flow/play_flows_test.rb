@@ -71,5 +71,11 @@ module EasyFlow
     test "moves on to its next step once every listed flow has been played" do
       assert_equal "after", Digest.new(event).next_step({ "play" => "ended", "play@2" => "ended" }).id
     end
+
+    test "plays the flow a visitor picks as an inner run of the visitor's run at that visit" do
+      Progress::Kept.new(event_run).record("play", quizzes.last.id.to_s)
+
+      assert_equal quizzes.last, event_run.inner_runs.find_by(parent_step: "play")&.flow
+    end
   end
 end

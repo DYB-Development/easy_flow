@@ -18,6 +18,8 @@ module EasyFlow
       end
 
       def record(id, value)
+        return play(id, value) if plays_the_picked_flow?(id)
+
         @run.record(id.to_sym, value)
       end
 
@@ -46,6 +48,17 @@ module EasyFlow
 
       def discard_last
         @run.discard_last
+      end
+
+      private
+
+      def plays_the_picked_flow?(id)
+        node = @run.digest.step(id)
+        node && EasyFlow.registry.registered?(node.type) && EasyFlow.registry.fetch(node.type).plays_the_picked_flow?
+      end
+
+      def play(id, flow_id)
+        Run.start(Definition.find(flow_id)).tap { |inner| inner.update!(parent_run: @run, parent_step: id.to_s, owner: @run.owner) }.advance
       end
     end
   end

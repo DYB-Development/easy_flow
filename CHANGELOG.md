@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- A host can set `finds_flows_across_owners = true` so its visitor pages find a flow by its public code and a run by its public code among every owner's flows in that host. The visitor pages then link to a flow at its public code instead of its slug.
+- A host that leaves the setting off finds flows on its visitor pages by slug among the current owner's flows exactly as before, and the admin pages list, open and preview only the current owner's flows whether the setting is on or off.
+
 ## [0.24.0] - 2026-10-12
 
 ### Added

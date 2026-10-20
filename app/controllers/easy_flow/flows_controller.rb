@@ -1,6 +1,6 @@
 module EasyFlow
   class FlowsController < ApplicationController
-    helper_method :flow_start_path, :flow_step_path, :previewing?, :step_form, :carries_answers?
+    helper_method :flow_start_path, :flow_step_path, :previewing?, :step_form, :carries_answers?, :flow_address
 
     def show
       @flow = flow
@@ -60,6 +60,12 @@ module EasyFlow
       Run.start(flow)
     end
 
+    def flow_address(slug)
+      return slug unless flow_host.finds_flows_across_owners
+
+      (run&.flow || flow).public_code
+    end
+
     def flow_start_path(slug)
       flow_routes.flow_path(slug)
     end
@@ -75,7 +81,7 @@ module EasyFlow
     def step_form
       return { url: run_location(run), method: :patch } if run
 
-      { url: flow_step_path(@guide.slug), method: :get }
+      { url: flow_step_path(flow_address(@guide.slug)), method: :get }
     end
 
     def carries_answers?
@@ -109,13 +115,25 @@ module EasyFlow
     end
 
     def admitted_run
-      found = find_run(Run.where(flow: hosted_flows), params[:id])
+      found = find_run(Run.where(flow: visited_flows), params[:id])
 
       Admission.of_run(found, permitted: permitted?(found.flow))
     end
 
     def flow
-      @stored_flow ||= admit(hosted_flows.find_by(slug: params[:slug]))
+      @stored_flow ||= admit(visited_flow)
+    end
+
+    def visited_flow
+      return hosted_flows.find_by(slug: params[:slug]) unless flow_host.finds_flows_across_owners
+
+      visited_flows.find_by_public_code!(params[:slug])
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+
+    def visited_flows
+      flow_host.finds_flows_across_owners ? flow_host.flows : hosted_flows
     end
 
     def flowing_definition(flow)

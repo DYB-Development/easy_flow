@@ -1,7 +1,7 @@
 <% content_for(:title, @guide.headline) %>
 
 <%= ui_page(max_width: :md) do %>
-  <%= link_to "← Start over", flow_start_path(@guide.slug), class: "text-sm text-accent-600 hover:text-accent-700" %>
+  <%= link_to "← Start over", flow_start_path(flow_address(@guide.slug)), class: "text-sm text-accent-600 hover:text-accent-700" %>
 
   <div class="mt-6 mb-6">
     <%= ui_progress(value: @answers.size, max: [ @guide.steps_on_path(@answers).size, 1 ].max, label: "Question #{@answers.size + 1}") %>
@@ -14,7 +14,7 @@
   <% if @waiting %>
     <p class="ks-hint">Waiting for <%= @waiting %>.</p>
     <% if carries_answers? %>
-      <div class="mt-4"><%= ui_button(label: "Check again", href: "#{flow_step_path(@guide.slug)}?#{{ answers: @answers, completed_at: @progress.completed_at.transform_values(&:iso8601) }.to_query}", variant: :secondary) %></div>
+      <div class="mt-4"><%= ui_button(label: "Check again", href: "#{flow_step_path(flow_address(@guide.slug))}?#{{ answers: @answers, completed_at: @progress.completed_at.transform_values(&:iso8601) }.to_query}", variant: :secondary) %></div>
     <% end %>
   <% else %>
     <%= form_with url: step_form[:url], method: step_form[:method], multipart: true, data: { turbo: false } do %>

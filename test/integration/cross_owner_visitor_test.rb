@@ -110,6 +110,15 @@ module EasyFlow
       assert_response :not_found
     end
 
+    test "a visitor plays another owner's flow from its public code to the end when the host finds flows across owners" do
+      post "/owned/#{theirs.public_code}/runs", headers: as(@ours)
+      follow_redirect!
+      patch path, params: { answers: { a: "y" } }, headers: as(@ours)
+      follow_redirect!
+
+      assert_select "li[data-answer=a]"
+    end
+
     private
 
     def as(customer)

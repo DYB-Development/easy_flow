@@ -12,6 +12,10 @@ module EasyFlow
 
         assert_equal "Type an answer to go on.", FillInTheBlank.step_type.answer_problem(node, "  ")
       end
+
+      test "an admin can set a category a host can group it by" do
+        assert_equal :string, FillInTheBlank.step_type.settings.fields[:category]
+      end
     end
   end
 end

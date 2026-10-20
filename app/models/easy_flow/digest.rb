@@ -126,10 +126,14 @@ module EasyFlow
           latest_times[cursor.id] = times[key] if times.key?(key)
           answered += 1 if step_type(cursor)&.awaits_input?
         end
-        cursor = successor(cursor, state.merge(latest), latest_times)
+        cursor = successor(cursor, reached(state, recorded).merge(latest), latest_times)
       end
 
       [ recorded, nil ]
+    end
+
+    def reached(state, recorded)
+      state.reject { |key, _value| step(key) && !recorded.include?(key) }
     end
 
     def records_a_value?(node)

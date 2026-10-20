@@ -6,6 +6,7 @@ module EasyFlow
       step_name "Multiple select"
 
       setting :question, type: :string
+      setting :required, type: :boolean
       setting :answers, type: :list, required: true do
         setting :value, type: :string
         setting :label, type: :string
@@ -15,6 +16,7 @@ module EasyFlow
       names_by :question
       awaits_input
       drawn_by "easy_flow/steps/ticking"
+      answer_check { |node, value| "Pick at least one answer to go on." if node.config["required"] && Array(value).compact_blank.empty? }
 
       displays_by { |node| Asked.new(id: node.id.to_sym, text: node.config["question"], choices: Question.choices_in(node)) }
     end

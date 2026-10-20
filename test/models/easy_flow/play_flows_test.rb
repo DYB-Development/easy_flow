@@ -22,6 +22,12 @@ module EasyFlow
         edges: [ { "from" => "start", "to" => "play" }, { "from" => "play", "to" => "done" } ]))
     end
 
+    def event
+      Document.new({ "entry" => "start",
+        "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "play", "type" => "play_flows", "flows" => %w[1 2] }, { "id" => "done", "type" => "terminal" } ],
+        "edges" => [ { "from" => "start", "to" => "play" }, { "from" => "play", "to" => "done" } ] })
+    end
+
     def offered(at = node)
       PlayFlows.step_type.display_of(at, event_run).choices.map(&:label)
     end
@@ -51,6 +57,10 @@ module EasyFlow
       run = Run.start(published("owned-event", host: "owned", owner: ours))
 
       assert_equal %w[Ours], PlayFlows.step_type.display_of(play, run).choices.map(&:label)
+    end
+
+    test "holds a run that reaches it until the visitor picks a flow" do
+      assert_equal "play", Digest.new(event).next_step({}).id
     end
   end
 end

@@ -6,6 +6,8 @@ module EasyFlow
 
     setting :flows, type: :flows
 
+    awaits_input
+
     displays_by { |node, run| Asked.new(id: node.id.to_sym, text: node.config["question"], choices: PlayFlows.offered(node, run)) }
 
     def self.offered(node, run)

@@ -18,6 +18,17 @@ module EasyFlow
       end
     end
 
+    def their_wait
+      @their_wait ||= Definition.create!(host: "owned", slug: "holding", owner: @theirs).tap do |flow|
+        flow.record_definition(flowing("slug" => "holding", "entry" => "a",
+          "nodes" => [ { "id" => "a", "type" => "question", "question" => "Ready?", "options" => [ "yes" ] },
+                       { "id" => "hold", "type" => "wait", "step" => "a", "minutes" => 30 },
+                       { "id" => "b", "type" => "question", "question" => "Still there?", "options" => [ "yes" ] } ],
+          "edges" => [ { "from" => "a", "to" => "hold" }, { "from" => "hold", "to" => "b" } ]))
+        flow.publish
+      end
+    end
+
     test "a visitor opens another owner's flow from its public code when the host finds flows across owners" do
       get "/owned/#{theirs.public_code}", headers: as(@ours)
 
@@ -60,6 +71,12 @@ module EasyFlow
       get "/owned/runs/#{run.public_code}", headers: as(@ours)
 
       assert_select "a[href=?]", "/owned/#{theirs.public_code}", text: /Start over/
+    end
+
+    test "a flow found by its public code that keeps no run checks a wait again at that code" do
+      get "/owned/#{their_wait.public_code}/step", params: { answers: { a: "yes" }, asked: "a" }, headers: as(@ours)
+
+      assert_select "a[href^=?]", "/owned/#{their_wait.public_code}/step?", text: "Check again"
     end
 
     private

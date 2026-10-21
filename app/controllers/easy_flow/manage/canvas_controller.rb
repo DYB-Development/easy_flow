@@ -186,8 +186,8 @@ module EasyFlow
       end
 
       def foreign_flows(step_type, values)
-        step_type.settings.fields.select { |name, type| type == :flow && values[name.to_s].present? }
-          .reject { |name, _type| flow.reaches?(Definition.find_by(id: values[name.to_s])) }
+        step_type.settings.fields.select { |name, type| %i[flow flows].include?(type) && values[name.to_s].present? }
+          .reject { |name, _type| Array(values[name.to_s]).all? { |id| flow.reaches?(Definition.find_by(id: id)) } }
           .map { |name, _type| "#{step_type.settings.labels[name]} names another owner's flow" }
       end
     end

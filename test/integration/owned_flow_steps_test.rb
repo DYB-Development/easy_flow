@@ -78,6 +78,14 @@ module EasyFlow
       assert_equal [ inner ], Run.start(parent).tap(&:advance).inner_runs.map(&:flow)
     end
 
+    test "saving a Play flows step that lists another owner's flow is refused" do
+      parent = owned_flow("parent", @ours, [ { "id" => "play", "type" => "play_flows" } ])
+
+      patch "/owned/manage/flows/#{parent.public_code}/canvas/steps/play", params: { config: { flows: [ inner_flow(@theirs).id.to_s ] } }, headers: as(@ours)
+
+      assert_response :unprocessable_entity
+    end
+
     private
 
     def owned_flow(slug, owner, nodes, host: "owned")

@@ -7,6 +7,8 @@
 - In a host that names an owner, a Flow step may only name a flow belonging to the owner of the flow it sits in, so the canvas refuses to save one naming another owner's flow and refuses to publish a flow that holds one.
 - A run in such a host refuses to start another owner's flow from a Flow step, or from a step whose flow the host chooses from the run, instead of playing it.
 - Hosts that name no owner save, publish and run Flow steps as before.
+- A Flow step whose inner flow ends on an End step with no output records "ended" and its parent run moves on, and the canvas offers an "ended" connection out of that Flow step.
+- Counting the questions left in a run finishes on a flow that loops back to an earlier step, and counts each question ahead once.
 
 ## [0.27.0] - 2026-10-20
 

@@ -1,4 +1,5 @@
 require "test_helper"
+require "timeout"
 
 module EasyFlow
   class RunnerTest < ActiveSupport::TestCase
@@ -100,6 +101,22 @@ module EasyFlow
 
     test "counts the question being asked and every question after it" do
       assert_equal 2, Runner.new(straight, registry: registry).questions_left({ "first" => "a" })
+    end
+
+    test "counts each question once on a flow that loops back to an earlier step" do
+      looping = { "nodes" => [ { "id" => "opening", "type" => "opening" },
+                               { "id" => "first", "type" => "ask", "text" => "First?" },
+                               { "id" => "second", "type" => "ask", "text" => "Second?" },
+                               { "id" => "gate", "type" => "gate", "of" => "first" },
+                               { "id" => "done", "type" => "ask", "text" => "Done?" } ],
+                  "edges" => [ { "from" => "opening", "to" => "first" }, { "from" => "first", "to" => "second" },
+                               { "from" => "second", "to" => "gate" },
+                               { "from" => "gate", "to" => "first", "on" => "yes" },
+                               { "from" => "gate", "to" => "done", "on" => "no" } ] }
+
+      left = Timeout.timeout(2) { Runner.new(looping, registry: registry).questions_left({ "first" => "yes" }) }
+
+      assert_equal 2, left
     end
 
     test "shows the next step for the run it is given" do

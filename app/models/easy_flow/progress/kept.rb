@@ -37,14 +37,8 @@ module EasyFlow
         return if @run.stopped_on_loop
         return if parent.recorded.key?(@run.parent_step.to_sym)
 
-        ending = @run.output || ("ended" if chose_from_run?(parent))
-        parent.record(@run.parent_step.to_sym, ending) if ending
+        parent.record(@run.parent_step.to_sym, @run.output || "ended")
         AdvanceParentJob.perform_later(parent, @run.parent_step)
-      end
-
-      def chose_from_run?(parent)
-        type = parent.pinned_steps.dig(@run.parent_step, "type")
-        EasyFlow.registry.registered?(type) && EasyFlow.registry.fetch(type).chooses_flow_from_run?
       end
 
       def finish(_state)

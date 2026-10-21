@@ -17,7 +17,7 @@ module EasyFlow
 
     def self.endings_of(node)
       version = ChosenFlow.of(node).version
-      Array(version&.definition.to_h["nodes"]).select { |step| step["type"] == "terminal" }.filter_map { |step| step["output"].presence }.uniq
+      Array(version&.definition.to_h["nodes"]).select { |step| step["type"] == "terminal" }.map { |step| step["output"].presence || "ended" }.uniq
     end
 
     def route(node, state)

@@ -140,7 +140,7 @@ module EasyFlow
     end
 
     def missing_flows
-      starting_a_flow.reject { |node| ChosenFlow.of(node).flow }
+      (starting_a_flow.reject { |node| ChosenFlow.of(node).flow } + listing_flows.select { |node| listed_ids(node).size > listed_flows(node).size })
         .map { |node| Violation.new(node: node.id, problem: :missing_flow) }
     end
 
@@ -166,7 +166,11 @@ module EasyFlow
     end
 
     def listed_flows(node)
-      Definition.where(id: flow_lists(node).flat_map { |name| Array(node.config[name.to_s]) })
+      Definition.where(id: listed_ids(node))
+    end
+
+    def listed_ids(node)
+      flow_lists(node).flat_map { |name| Array(node.config[name.to_s]) }.uniq
     end
 
     def flow_lists(node)

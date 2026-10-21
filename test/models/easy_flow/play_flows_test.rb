@@ -117,5 +117,11 @@ module EasyFlow
     test "moves on once every listed flow that can run has been played" do
       assert_equal "after", Digest.new(event([ quizzes.first.id.to_s, draft.id.to_s ])).next_step({ "play" => "ended" }).id
     end
+
+    test "leaves out a listed flow that has no live version" do
+      play = Node.new(id: "play", type: "play_flows", config: { "flows" => [ quizzes.first.id.to_s, draft.id.to_s ] })
+
+      assert_equal %w[History], offered(play)
+    end
   end
 end

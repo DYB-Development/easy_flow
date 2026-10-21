@@ -28,7 +28,7 @@ module EasyFlow
       return [] unless run
 
       listed = Array(node.config["flows"]) - played(node, run)
-      Definition.where(id: listed).select { |flow| run.flow.reaches?(flow) }.sort_by { |flow| listed.index(flow.id.to_s) }.map { |flow| Choice.new(value: flow.id.to_s, label: flow.title) }
+      playable(node).select { |flow| listed.include?(flow.id.to_s) && run.flow.reaches?(flow) }.sort_by { |flow| listed.index(flow.id.to_s) }.map { |flow| Choice.new(value: flow.id.to_s, label: flow.title) }
     end
 
     def self.played(node, run)

@@ -42,3 +42,7 @@ test("draws a yes or no setting as a keystone checkbox", () => {
 test("draws each option of a pick-several setting as a keystone checkbox", () => {
   assert.match(drawn({ type: "multi_select", value: [], choices: [ "red" ] }), /<input(?=[^>]*type="checkbox")(?=[^>]*class="ks-checkbox")[^>]*>/)
 })
+
+test("draws each flow a step plays as a checkbox labelled with the flow's title", () => {
+  assert.match(drawn({ type: "flows", value: [], choices: [ { value: "7", label: "Onboarding" } ] }), /<input(?=[^>]*type="checkbox")[^>]*>.*Onboarding/)
+})

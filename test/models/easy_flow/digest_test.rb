@@ -17,6 +17,7 @@ module EasyFlow
           setting(:values, type: :list) { setting :name, type: :string }
           outputs_named_by :values
         end)
+        built.register(StepType.define(:repeat) { awaits_input; comes_back_while { |node, state| !state.key?("#{node.id}@2") } })
         built.register(StepType.define(:branch) do
           setting :answer, type: :previous_step
           route { |node, state| state[node.config["answer"]] == "yes" ? :yes : :no }
@@ -236,6 +237,16 @@ module EasyFlow
 
     test "a branch reads only the answers recorded before it on the path, not one a later step recorded" do
       assert_equal "pick@2", digest(checking_ahead).next_step({ "pick" => "a", "quiz" => "yes" }).id
+    end
+
+    def repeating
+      { "entry" => "again",
+        "nodes" => [ { "id" => "again", "type" => "repeat" }, { "id" => "done", "type" => "ask" } ],
+        "edges" => [ { "from" => "again", "to" => "done" } ] }
+    end
+
+    test "a step that comes back while its rule holds is asked again under its next visit" do
+      assert_equal "again@2", digest(repeating).next_step({ "again" => "a" }).id
     end
   end
 end

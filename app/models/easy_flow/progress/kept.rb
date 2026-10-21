@@ -18,6 +18,8 @@ module EasyFlow
       end
 
       def record(id, value)
+        return play(id, value) if plays_the_picked_flow?(id)
+
         @run.record(id.to_sym, value)
       end
 
@@ -47,6 +49,25 @@ module EasyFlow
 
       def discard_last
         @run.discard_last
+      end
+
+      private
+
+      def plays_the_picked_flow?(id)
+        node = @run.digest.step(id)
+        node && EasyFlow.registry.registered?(node.type) && EasyFlow.registry.fetch(node.type).plays_the_picked_flow?
+      end
+
+      def play(id, flow_id)
+        return if @run.inner_runs.exists?(parent_step: id.to_s)
+        return unless offered?(id, flow_id)
+
+        Run.start(Definition.find(flow_id)).tap { |inner| inner.update!(parent_run: @run, parent_step: id.to_s, owner: @run.owner) }.advance
+      end
+
+      def offered?(id, flow_id)
+        node = @run.digest.step(id)
+        EasyFlow.registry.fetch(node.type).display_of(node.with(id: id.to_s), @run).choices.map(&:value).include?(flow_id.to_s)
       end
     end
   end

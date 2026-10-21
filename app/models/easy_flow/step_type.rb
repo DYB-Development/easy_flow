@@ -7,8 +7,8 @@ module EasyFlow
     attr_reader :id, :step_name, :settings, :naming_field, :naming, :outputs, :drawn_by
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
-      ends_here: false, begins_here: false, starts_a_flow: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,
-      naming_field: nil, naming: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil)
+      ends_here: false, begins_here: false, starts_a_flow: false, plays_the_picked_flow: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,
+      naming_field: nil, naming: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil, return_rule: nil)
       @id = id
       @step_name = step_name
       @settings = settings
@@ -16,6 +16,7 @@ module EasyFlow
       @ends_here = ends_here
       @begins_here = begins_here
       @starts_a_flow = starts_a_flow
+      @plays_the_picked_flow = plays_the_picked_flow
       @flow_chooser = flow_chooser
       @run_chooser = run_chooser
       @behaviour = behaviour
@@ -29,6 +30,7 @@ module EasyFlow
       @answer_check = answer_check
       @answer_labelling = answer_labelling
       @readiness = readiness
+      @return_rule = return_rule
     end
 
     def display_of(node, run = nil)
@@ -59,6 +61,10 @@ module EasyFlow
 
     def ready?(node, state, times = {})
       @readiness.call(node, state, times)
+    end
+
+    def comes_back?(node, state)
+      @return_rule&.call(node, state) || false
     end
 
     def name_of(node)
@@ -95,6 +101,10 @@ module EasyFlow
 
     def starts_a_flow?
       @starts_a_flow
+    end
+
+    def plays_the_picked_flow?
+      @plays_the_picked_flow
     end
 
     def chooses_flow_from_run?

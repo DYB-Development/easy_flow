@@ -164,6 +164,8 @@ module EasyFlow
     end
 
     def successor(node, state, times = {})
+      return node if step_type(node)&.comes_back?(node, state)
+
       leaving = @document.edges_from(node.id)
       port = step_type(node)&.route(node, state, times)
       taken = port.nil? ? leaving.first : leaving.find { |edge| edge.on.to_s == port.to_s }

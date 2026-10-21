@@ -361,6 +361,12 @@ module EasyFlow
       { "entry" => "offer", "nodes" => [ { "id" => "offer", "type" => "flow_step" }.merge(config) ], "edges" => [] }
     end
 
+    test "flags a Play flows step listing a flow that no longer exists" do
+      document = { "entry" => "play", "nodes" => [ { "id" => "play", "type" => "play_flows", "flows" => [ "0" ] } ], "edges" => [] }
+
+      assert_includes violations(document).map { |violation| [ violation.node, violation.problem ] }, [ "play", :missing_flow ]
+    end
+
     test "accepts a step that chooses its flow from the run with no flow in its settings" do
       registry = Registry.new.tap { |built| built.register(StepType.define(:run_pipeline) { starts_a_flow; chooses_flow_from_run { |_node, _run| {} } }) }
       document = { "entry" => "pipeline", "nodes" => [ { "id" => "pipeline", "type" => "run_pipeline" } ], "edges" => [] }

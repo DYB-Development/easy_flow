@@ -30,6 +30,18 @@ const Control = ({ type, value, choices, onChange, onSettle }) => {
     </div>
   }
 
+  if (type === "flows") {
+    const chosen = Array.isArray(value) ? value : []
+    return <div style={{ display: "flex", flexDirection: "column", gap: 4 }} className="mb-3">
+      {offered(choices).map((choice) => (
+        <label key={choice.value} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <Checkbox checked={chosen.includes(choice.value)} onChange={() => onSettle(toggled(chosen, choice.value))} />
+          <span>{choice.label}</span>
+        </label>
+      ))}
+    </div>
+  }
+
   if (type === "integer" || type === "float") {
     return <Input className="mb-3" type="number" step={type === "integer" ? "1" : "any"} value={value ?? ""}
                   onChange={(e) => onChange(e.target.value)} onBlur={(e) => onSettle(e.target.value)} />

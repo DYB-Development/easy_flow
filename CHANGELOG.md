@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- A Play flows step (`play_flows`) lists several of the owner's flows, offers a visitor each one not yet played, plays the one they pick as an inner run of their run, brings them back to the step when it ends, and moves the run on once every listed flow that can run has been played.
+- Publishing is refused while a Play flows step lists a flow that no longer exists, and in a host that names an owner, saving the step or publishing its flow is refused while it lists another owner's flow.
+- A step type can declare `plays_the_picked_flow`, so a visitor's answer at it starts the flow it names as an inner run, and `comes_back_while`, so a run returns to the step under its next visit while a rule holds.
+
 ### Fixed
 
 - In a host that names an owner, a Flow step may only name a flow belonging to the owner of the flow it sits in, so the canvas refuses to save one naming another owner's flow and refuses to publish a flow that holds one.

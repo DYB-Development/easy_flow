@@ -22,9 +22,9 @@ module EasyFlow
         edges: [ { "from" => "start", "to" => "play" }, { "from" => "play", "to" => "done" } ]))
     end
 
-    def event
+    def event(flows = quizzes.map { |quiz| quiz.id.to_s })
       Document.new({ "entry" => "start",
-        "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "play", "type" => "play_flows", "flows" => %w[1 2] },
+        "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "play", "type" => "play_flows", "flows" => flows },
                      { "id" => "after", "type" => "question", "text" => "Again?", "options" => [ "no" ] } ],
         "edges" => [ { "from" => "start", "to" => "play" }, { "from" => "play", "to" => "after" } ] })
     end
@@ -104,6 +104,10 @@ module EasyFlow
       Progress::Kept.new(event_run).record("play", quizzes.last.id.to_s)
 
       assert_equal 1, event_run.inner_runs.where(parent_step: "play").count
+    end
+
+    test "moves on once every listed flow that still exists has been played" do
+      assert_equal "after", Digest.new(event([ quizzes.first.id.to_s, "0" ])).next_step({ "play" => "ended" }).id
     end
   end
 end

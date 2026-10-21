@@ -156,8 +156,23 @@ module EasyFlow
     def foreign_flows
       return [] unless @flow
 
-      starting_a_flow.select { |node| ChosenFlow.of(node).flow }.reject { |node| @flow.reaches?(ChosenFlow.of(node).flow) }
+      (starting_a_flow.select { |node| ChosenFlow.of(node).flow }.reject { |node| @flow.reaches?(ChosenFlow.of(node).flow) } +
+        listing_flows.reject { |node| listed_flows(node).all? { |listed| @flow.reaches?(listed) } })
         .map { |node| Violation.new(node: node.id, problem: :owned_by_another_owner) }
+    end
+
+    def listing_flows
+      @document.nodes.select { |node| flow_lists(node).any? }
+    end
+
+    def listed_flows(node)
+      Definition.where(id: flow_lists(node).flat_map { |name| Array(node.config[name.to_s]) })
+    end
+
+    def flow_lists(node)
+      return [] unless @registry.registered?(node.type)
+
+      @registry.fetch(node.type).settings.fields.select { |_name, type| type == :flows }.keys
     end
 
     def circular_flows

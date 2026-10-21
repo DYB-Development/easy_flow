@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-10-20
+
 ### Added
 
 - A Play flows step (`play_flows`) lists several of the owner's flows, offers a visitor each one not yet played, plays the one they pick as an inner run of their run, brings them back to the step when it ends, and moves the run on once every listed flow that can run has been played.

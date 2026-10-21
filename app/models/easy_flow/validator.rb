@@ -10,7 +10,7 @@ module EasyFlow
     end
 
     def violations
-      structural_violations + unmet_requirements + missing_settings + missing_values + missing_flows + unrunnable_versions + circular_flows + beginnings + asked_for
+      structural_violations + unmet_requirements + missing_settings + missing_values + missing_flows + unrunnable_versions + foreign_flows + circular_flows + beginnings + asked_for
     end
 
     def structural_violations
@@ -151,6 +151,13 @@ module EasyFlow
 
     def runnable?(version)
       version&.live? || version&.superseded? || false
+    end
+
+    def foreign_flows
+      return [] unless @flow
+
+      starting_a_flow.select { |node| ChosenFlow.of(node).flow }.reject { |node| @flow.reaches?(ChosenFlow.of(node).flow) }
+        .map { |node| Violation.new(node: node.id, problem: :owned_by_another_owner) }
     end
 
     def circular_flows

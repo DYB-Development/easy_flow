@@ -29,6 +29,7 @@ module EasyFlow
         chosen = ChosenFlow.of(node, run: @run)
         raise InnerFlowError, "The step #{node.id} chose no flow to run" if chosen.flow.nil? && EasyFlow.registry.fetch(node.type).chooses_flow_from_run?
         raise InnerFlowError, "The Flow step #{node.id} names a version that cannot run" if chosen.version&.out_of_service?
+        raise InnerFlowError, "The Flow step #{node.id} names another owner's flow" if chosen.flow && !@run.flow.reaches?(chosen.flow)
         Run.start(chosen.flow || raise(ActiveRecord::RecordNotFound), version: chosen.version)
           .tap { |inner| inner.update!(parent_run: @run, parent_step: node.id, owner: @run.owner) }.advance
       end

@@ -104,6 +104,10 @@ module EasyFlow
       live_version&.definition
     end
 
+    def reaches?(inner)
+      EasyFlow.host_named(host).owner_method.nil? || inner&.owner == owner
+    end
+
     def runner
       Runner.new(live_definition)
     end

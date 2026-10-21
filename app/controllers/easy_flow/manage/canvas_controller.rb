@@ -177,9 +177,18 @@ module EasyFlow
           objections = step_type.settings.objections(values)
           raise InvalidEdit, objections.join(", ") if objections.any?
 
+          foreign = foreign_flows(step_type, values)
+          raise InvalidEdit, foreign.join(", ") if foreign.any?
+
           refused = step_type.settings.keep(values)
           raise InvalidEdit, refused.join(", ") if refused.any?
         end.then { |values| step_type.settings.unkept(values) }
+      end
+
+      def foreign_flows(step_type, values)
+        step_type.settings.fields.select { |name, type| type == :flow && values[name.to_s].present? }
+          .reject { |name, _type| flow.reaches?(Definition.find_by(id: values[name.to_s])) }
+          .map { |name, _type| "#{step_type.settings.labels[name]} names another owner's flow" }
       end
     end
   end

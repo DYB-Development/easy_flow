@@ -109,5 +109,13 @@ module EasyFlow
     test "moves on once every listed flow that still exists has been played" do
       assert_equal "after", Digest.new(event([ quizzes.first.id.to_s, "0" ])).next_step({ "play" => "ended" }).id
     end
+
+    def draft
+      Definition.create!(host: "dummy", slug: "draft", title: "Draft")
+    end
+
+    test "moves on once every listed flow that can run has been played" do
+      assert_equal "after", Digest.new(event([ quizzes.first.id.to_s, draft.id.to_s ])).next_step({ "play" => "ended" }).id
+    end
   end
 end

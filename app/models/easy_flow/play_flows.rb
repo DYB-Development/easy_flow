@@ -21,7 +21,7 @@ module EasyFlow
     end
 
     def self.playable(node)
-      Definition.where(id: Array(node.config["flows"]))
+      Definition.where(id: Array(node.config["flows"])).select(&:live_version)
     end
 
     def self.offered(node, run)

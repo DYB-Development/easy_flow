@@ -22,6 +22,12 @@ module EasyFlow
       assert_select "input[name='answers[capital]'][value=Paris]"
     end
 
+    test "a question drawn without a chosen answer has no option selected" do
+      render partial: "easy_flow/steps/choosing", locals: { step: question }
+
+      assert_select "input[type=radio][checked]", count: 0
+    end
+
     private
 
     def question

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- A host can draw a single-choice, multiple-select or fill-in-the-blank step with an answer already chosen by passing `chosen` to its drawing, and the step is drawn blank as before when none is passed.
+
 ## [0.28.0] - 2026-10-20
 
 ### Added

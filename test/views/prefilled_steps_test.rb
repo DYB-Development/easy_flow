@@ -16,6 +16,12 @@ module EasyFlow
       assert_select "input[type=checkbox][checked]", count: 2
     end
 
+    test "a fill-in-the-blank question drawn with a chosen answer has it typed in its box" do
+      render partial: "easy_flow/steps/typing", locals: { step: Steps::FillInTheBlank::Asked.new(id: :capital, text: "Capital of France?"), chosen: "Paris" }
+
+      assert_select "input[name='answers[capital]'][value=Paris]"
+    end
+
     private
 
     def question

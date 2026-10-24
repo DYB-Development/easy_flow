@@ -10,6 +10,12 @@ module EasyFlow
       assert_select "input[type=radio][value=b][checked]"
     end
 
+    test "a multiple-select question drawn with chosen answers has each of them ticked" do
+      render partial: "easy_flow/steps/ticking", locals: { step: question, chosen: %w[a b] }
+
+      assert_select "input[type=checkbox][checked]", count: 2
+    end
+
     private
 
     def question

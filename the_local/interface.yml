@@ -7,6 +7,7 @@ install:
   - EasyFlow.host
   - EasyFlow.draws_with
   - EasyFlow.file_store
+  - EasyFlow.picture_store
   - EasyFlow.check
   - /manage/flows
 

@@ -7,6 +7,8 @@
 - A host can set `EasyFlow.picture_store` to a store that keeps a picture for a flow with `keep(file, flow:)` and gives its address with `url_of(reference)`.
 - An admin can add a picture to a question, multiple select or fill-in-the-blank step on the canvas, see it, and remove it, and the step keeps only the store's reference to it as its `picture` setting.
 - An admin who chooses a picture when the host has set no picture store is told pictures cannot be added yet, and the step is left unchanged.
+- A visitor sees a question, multiple select or fill-in-the-blank step's picture above the question, taken from the flow version their run is playing, with alternative text naming it as the question's picture.
+- The object a step's drawing receives for those three step types carries `picture_url`, so a host or another gem can draw the picture on its own pages.
 
 ## [0.29.0] - 2026-10-24
 

@@ -3,7 +3,11 @@ module EasyFlow
     class FillInTheBlank
       include Step
 
-      Asked = Data.define(:id, :text)
+      Asked = Data.define(:id, :text, :picture_url) do
+        def initialize(id:, text:, picture_url: nil)
+          super
+        end
+      end
 
       step_name "Fill in the blank"
 
@@ -20,7 +24,7 @@ module EasyFlow
       drawn_by "easy_flow/steps/typing"
       answer_check { |node, value| "Type an answer to go on." if node.config["required"] && value.blank? }
 
-      displays_by { |node| Asked.new(id: node.id.to_sym, text: node.config["question"]) }
+      displays_by { |node| Asked.new(id: node.id.to_sym, text: node.config["question"], picture_url: EasyFlow.picture_url(node.config["picture"])) }
     end
   end
 end

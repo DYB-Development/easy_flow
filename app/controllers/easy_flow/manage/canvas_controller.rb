@@ -55,6 +55,8 @@ module EasyFlow
         render json: { reference: reference, url: EasyFlow.picture_url(reference) }
       rescue NoPictureStore
         render json: { error: "Pictures cannot be added yet. Ask the app's developer to set up a picture store." }, status: :unprocessable_entity
+      rescue PictureRefused => refusal
+        render json: { error: refusal.message }, status: :unprocessable_entity
       end
 
       def configure_step

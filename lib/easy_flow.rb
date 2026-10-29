@@ -23,6 +23,7 @@ module EasyFlow
   class InnerFlowError < StandardError; end
   class Withdrawn < StandardError; end
   class NoFileStore < StandardError; end
+  class NoPictureStore < StandardError; end
 
   DRAWING = "easy_flow/steps/choosing".freeze
 
@@ -71,6 +72,8 @@ module EasyFlow
     end
 
     def keep_picture(file, flow:)
+      raise NoPictureStore, "set EasyFlow.picture_store to a store that keeps a picture for a flow and gives an address for it" unless picture_store
+
       picture_store.keep(file, flow: flow)
     end
 

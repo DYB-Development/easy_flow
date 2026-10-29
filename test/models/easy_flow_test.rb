@@ -57,6 +57,14 @@ module EasyFlow
       EasyFlow.picture_store = stored_with
     end
 
+    test "refuses to keep a picture when the host has set up no picture store" do
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, nil
+
+      assert_raises(NoPictureStore) { EasyFlow.keep_picture(:file, flow: Definition.new(slug: "capitals")) }
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
     test "refuses to keep an uploaded file when the host has set up no file store" do
       stored_with, EasyFlow.file_store = EasyFlow.file_store, nil
 

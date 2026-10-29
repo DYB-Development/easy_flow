@@ -41,5 +41,14 @@ module EasyFlow
 
       assert_select "fieldset img[src='/pictures/picture-1'] + legend", text: "Which country is this?"
     end
+
+    test "a player sees a fill-in-the-blank step's picture above the question" do
+      step = { "id" => "france", "type" => "fill_in_the_blank", "question" => "Which country is this?", "picture" => "picture-1",
+               "accepted_answers" => [ { "value" => "France" } ] }
+
+      get easy_flow.run_path(Run.start(flow_with(step)))
+
+      assert_select "label img[src='/pictures/picture-1'] + span", text: "Which country is this?"
+    end
   end
 end

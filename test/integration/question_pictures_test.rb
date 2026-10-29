@@ -50,5 +50,11 @@ module EasyFlow
 
       assert_select "label img[src='/pictures/picture-1'] + span", text: "Which country is this?"
     end
+
+    test "a question step's picture has alternative text naming it as the question's picture" do
+      get easy_flow.run_path(Run.start(flow_with(question)))
+
+      assert_select "img[alt=?]", "The question's picture"
+    end
   end
 end

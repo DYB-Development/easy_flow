@@ -3,6 +3,17 @@ require "test_helper"
 module EasyFlow
   module Steps
     class FillInTheBlankTest < ActiveSupport::TestCase
+      test "hands the page drawing it the address of its picture" do
+        store = Object.new
+        store.define_singleton_method(:url_of) { |reference| "/pictures/#{reference}" }
+        stored_with, EasyFlow.picture_store = EasyFlow.picture_store, store
+        node = Node.new(id: "capital", type: "fill_in_the_blank", config: { "question" => "Capital?", "picture" => "picture-1" })
+
+        assert_equal "/pictures/picture-1", FillInTheBlank.step_type.display_of(node).picture_url
+      ensure
+        EasyFlow.picture_store = stored_with
+      end
+
       test "declares a setting for a picture shown with the question" do
         assert_equal :picture, FillInTheBlank.step_type.settings.fields[:picture]
       end

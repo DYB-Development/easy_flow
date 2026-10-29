@@ -48,3 +48,7 @@ test("shows a step's picture from the address the canvas gave it", () => {
 
   assert.match(html, /<img[^>]*src="\/pictures\/picture-1"/)
 })
+
+test("shows why the last change was refused", () => {
+  assert.match(drawn({ refusal: "That file is not a picture." }), /data-refusal[^>]*>That file is not a picture\.</)
+})

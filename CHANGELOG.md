@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- A host's picture store can refuse a file by raising `EasyFlow::PictureRefused` with a message, and the author sees that message on the canvas while the step keeps its earlier picture.
+- The canvas's step inspector shows why the last change was refused, since the side panel that shows refusals is hidden while a step is open.
+
 ## [0.30.0] - 2026-10-29
 
 ### Added

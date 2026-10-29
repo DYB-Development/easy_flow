@@ -67,7 +67,7 @@ module EasyFlow
 
       drawn = canvas("entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask", "text" => "Budget?", "picture" => "picture-1" } ], "edges" => [])
 
-      assert_equal "/pictures/picture-1", drawn["nodes"].find { it["id"] == "a" }["picture_url"]
+      assert_equal "/pictures/picture-1", drawn["nodes"].find { |node| node["id"] == "a" }["picture_url"]
     ensure
       EasyFlow.picture_store = stored_with
     end

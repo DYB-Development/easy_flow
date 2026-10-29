@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-10-29
+
 ### Added
 
 - A host's picture store can refuse a file by raising `EasyFlow::PictureRefused` with a message, and the author sees that message on the canvas while the step keeps its earlier picture.

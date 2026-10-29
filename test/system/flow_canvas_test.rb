@@ -139,6 +139,26 @@ module EasyFlow
       end
     end
 
+    class RefusingPictureStore < PictureStore
+      def keep(_file, flow:)
+        raise PictureRefused, "That file is not a picture."
+      end
+    end
+
+    test "an author whose chosen picture is refused is told why and the step keeps its earlier picture" do
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, RefusingPictureStore.new
+      flow.record_definition(flow.definition.merge("nodes" => flow.definition["nodes"].map { |node| node["id"] == "first" ? node.merge("picture" => "earlier") : node }))
+      canvas_for(flow)
+      step_card("first").click
+
+      find("[data-inspector] input[type=file]").attach_file(file_fixture("picture.png"))
+
+      assert_text "That file is not a picture."
+      assert_equal "earlier", flow.reload.document["nodes"].find { |node| node["id"] == "first" }["picture"]
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
     test "an author adds a picture to a question and the step keeps a reference to it" do
       stored_with, EasyFlow.picture_store = EasyFlow.picture_store, PictureStore.new
       canvas_for(flow)

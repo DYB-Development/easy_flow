@@ -130,8 +130,13 @@ module EasyFlow
     end
 
     class PictureStore
-      def keep(_file, flow:) = "picture-for-#{flow.slug}"
-      def url_of(reference) = "/pictures/#{reference}"
+      def keep(_file, flow:)
+        "picture-for-#{flow.slug}"
+      end
+
+      def url_of(reference)
+        "/pictures/#{reference}"
+      end
     end
 
     test "an author adds a picture to a question and the step keeps a reference to it" do

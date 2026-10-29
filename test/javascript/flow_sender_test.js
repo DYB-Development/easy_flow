@@ -21,3 +21,13 @@ test("a chosen picture is sent to the flow's pictures and its kept reference and
 
   assert.deepEqual([ sent, kept ], [ [ [ "/flows/1/canvas/pictures", "POST", "the file" ] ], { reference: "picture-1", url: "/pictures/picture-1" } ])
 })
+
+test("a refused picture shows the author why and keeps nothing", async () => {
+  const errors = []
+  const refusing = async () => ({ ok: false, json: async () => ({ error: "Pictures cannot be added yet." }) })
+  const pick = createPictureSender({ base: "/flows/1/canvas", token: "t", fetch: refusing, onError: (error) => errors.push(error) })
+
+  const kept = await pick("the file")
+
+  assert.deepEqual([ errors, kept ], [ [ "Pictures cannot be added yet." ], null ])
+})

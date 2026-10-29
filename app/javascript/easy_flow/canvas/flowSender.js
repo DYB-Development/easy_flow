@@ -25,10 +25,16 @@ export const createPictureSender = ({ base, token, fetch, onError }) => async (f
   const body = new FormData()
   body.append("picture", file)
   const response = await fetch(base + "/pictures", { method: "POST", headers: { "X-CSRF-Token": token }, body }).catch(() => null)
-  if (!response) return onError(UNREACHABLE)
+  if (!response) {
+    onError(UNREACHABLE)
+    return null
+  }
 
   const answered = await response.json().catch(() => ({}))
-  if (!response.ok) return onError(answered.error || "That picture was refused")
+  if (!response.ok) {
+    onError(answered.error || "That picture was refused")
+    return null
+  }
 
   onError(null)
   return answered

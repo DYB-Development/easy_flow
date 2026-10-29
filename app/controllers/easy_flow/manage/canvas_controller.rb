@@ -53,6 +53,8 @@ module EasyFlow
       def keep_picture
         reference = EasyFlow.keep_picture(params.expect(:picture), flow: flow)
         render json: { reference: reference, url: EasyFlow.picture_url(reference) }
+      rescue NoPictureStore
+        render json: { error: "Pictures cannot be added yet. Ask the app's developer to set up a picture store." }, status: :unprocessable_entity
       end
 
       def configure_step

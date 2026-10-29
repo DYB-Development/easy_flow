@@ -28,5 +28,13 @@ module EasyFlow
 
       assert_equal({ "reference" => "picture-for-canvas", "url" => "/pictures/picture-for-canvas" }, response.parsed_body)
     end
+
+    test "an author who chooses a picture when the host has set up no picture store is told pictures cannot be added yet" do
+      EasyFlow.picture_store = nil
+
+      post "#{easy_flow.manage_flow_canvas_path(flow)}/pictures", params: { picture: picture }
+
+      assert_equal [ 422, "Pictures cannot be added yet. Ask the app's developer to set up a picture store." ], [ response.status, response.parsed_body["error"] ]
+    end
   end
 end

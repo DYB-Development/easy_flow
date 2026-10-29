@@ -62,5 +62,16 @@ module EasyFlow
 
       assert_select "img", count: 0
     end
+
+    test "a run shows the picture from the flow version it is playing after the author changes it" do
+      flow = flow_with(question)
+      run = Run.start(flow)
+      flow.record_definition(flowing("slug" => flow.slug, "entry" => "france", "nodes" => [ question.merge("picture" => "picture-2") ]))
+      flow.publish
+
+      get easy_flow.run_path(run)
+
+      assert_select "img[src='/pictures/picture-1']"
+    end
   end
 end

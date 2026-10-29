@@ -192,6 +192,7 @@ const Canvas = ({ base, token, initial }) => {
                    onClose={() => setSelected(null)}
                    onSave={(config) => send(`/steps/${selectedNode.id}`, "PATCH", { config })}
                    onPickPicture={pickPicture}
+                   refusal={error}
                    onDelete={() => { setSelected(null); send(`/steps/${selectedNode.id}`, "DELETE") }} />
       )}
     </div>

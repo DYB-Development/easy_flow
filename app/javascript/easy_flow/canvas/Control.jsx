@@ -7,7 +7,11 @@ import Checkbox from "keystone_ui-react/src/Checkbox.jsx"
 const offered = (choices) =>
   (choices || []).map((choice) => (typeof choice === "object" ? choice : { value: choice, label: choice }))
 
-const Control = ({ type, value, choices, onChange, onSettle }) => {
+const Control = ({ type, value, choices, onChange, onSettle, onPick }) => {
+  if (type === "picture") {
+    return <input className="mb-3" type="file" accept="image/*" onChange={(e) => e.target.files[0] && onPick(e.target.files[0])} />
+  }
+
   if (type === "boolean") return <Checkbox checked={Boolean(value)} onChange={(e) => onSettle(e.target.checked)} />
 
   if (type === "select" || type === "previous_step" || type === "from_step" || type === "flow") {

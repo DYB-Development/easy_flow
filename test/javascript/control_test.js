@@ -46,3 +46,7 @@ test("draws each option of a pick-several setting as a keystone checkbox", () =>
 test("draws each flow a step plays as a checkbox labelled with the flow's title", () => {
   assert.match(drawn({ type: "flows", value: [], choices: [ { value: "7", label: "Onboarding" } ] }), /<input(?=[^>]*type="checkbox")[^>]*>.*Onboarding/)
 })
+
+test("draws a picture setting as a file input that takes images", () => {
+  assert.match(drawn({ type: "picture", value: "" }), /<input[^>]*type="file"[^>]*accept="image\/\*"/)
+})

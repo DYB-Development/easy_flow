@@ -28,7 +28,7 @@ module EasyFlow
 
   class << self
     attr_writer :base_controller
-    attr_accessor :file_store
+    attr_accessor :file_store, :picture_store
 
     def base_controller
       @base_controller || "ActionController::Base"
@@ -68,6 +68,10 @@ module EasyFlow
       raise NoFileStore, "set EasyFlow.file_store to a store that keeps an uploaded file and returns a reference to it" unless file_store
 
       file_store.keep(file)
+    end
+
+    def keep_picture(file, flow:)
+      picture_store.keep(file, flow: flow)
     end
 
     def check(name)

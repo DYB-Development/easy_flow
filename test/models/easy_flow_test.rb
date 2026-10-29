@@ -75,6 +75,10 @@ module EasyFlow
       EasyFlow.picture_store = stored_with
     end
 
+    test "gives no picture address for a step with no picture" do
+      assert_nil EasyFlow.picture_url(nil)
+    end
+
     test "refuses to keep an uploaded file when the host has set up no file store" do
       stored_with, EasyFlow.file_store = EasyFlow.file_store, nil
 

@@ -78,7 +78,7 @@ module EasyFlow
     end
 
     def picture_url(reference)
-      picture_store.url_of(reference)
+      picture_store.url_of(reference) if reference.present?
     end
 
     def check(name)

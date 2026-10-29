@@ -3,8 +3,13 @@ require "test_helper"
 module EasyFlow
   class CanvasPicturesTest < ActionDispatch::IntegrationTest
     class Store
-      def keep(_file, flow:) = "picture-for-#{flow.slug}"
-      def url_of(reference) = "/pictures/#{reference}"
+      def keep(_file, flow:)
+        "picture-for-#{flow.slug}"
+      end
+
+      def url_of(reference)
+        "/pictures/#{reference}"
+      end
     end
 
     setup do

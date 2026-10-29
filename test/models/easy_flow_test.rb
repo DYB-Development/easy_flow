@@ -48,11 +48,11 @@ module EasyFlow
     test "keeps a picture through the host's picture store, telling it the flow the picture belongs to" do
       kept = []
       store = Object.new
-      store.define_singleton_method(:keep) { |file, flow:| kept << [file, flow] && "picture-1" }
+      store.define_singleton_method(:keep) { |file, flow:| kept << [ file, flow ] && "picture-1" }
       stored_with, EasyFlow.picture_store = EasyFlow.picture_store, store
       flow = Definition.new(slug: "capitals")
 
-      assert_equal ["picture-1", [[:file, flow]]], [EasyFlow.keep_picture(:file, flow: flow), kept]
+      assert_equal [ "picture-1", [ [ :file, flow ] ] ], [ EasyFlow.keep_picture(:file, flow: flow), kept ]
     ensure
       EasyFlow.picture_store = stored_with
     end

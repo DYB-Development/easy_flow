@@ -50,3 +50,7 @@ test("draws each flow a step plays as a checkbox labelled with the flow's title"
 test("draws a picture setting as a file input that takes images", () => {
   assert.match(drawn({ type: "picture", value: "" }), /<input[^>]*type="file"[^>]*accept="image\/\*"/)
 })
+
+test("shows a step's current picture above its file input", () => {
+  assert.match(drawn({ type: "picture", value: "picture-1", pictureUrl: "/pictures/picture-1" }), /<img[^>]*src="\/pictures\/picture-1"/)
+})

@@ -26,7 +26,7 @@ export const Choosing = ({ port, onCancel }) => (
 )
 
 const Canvas = ({ base, token, initial }) => {
-  const { flow, error, notice, send } = useFlow(base, token, initial)
+  const { flow, error, notice, send, pickPicture } = useFlow(base, token, initial)
   const [ selected, setSelected ] = useState(null)
   const [ adding, setAdding ] = useState(null)
   const [ armed, setArmed ] = useState(null)
@@ -191,6 +191,7 @@ const Canvas = ({ base, token, initial }) => {
                    choices={offeredTo(selectedNode, entryFor)}
                    onClose={() => setSelected(null)}
                    onSave={(config) => send(`/steps/${selectedNode.id}`, "PATCH", { config })}
+                   onPickPicture={pickPicture}
                    onDelete={() => { setSelected(null); send(`/steps/${selectedNode.id}`, "DELETE") }} />
       )}
     </div>

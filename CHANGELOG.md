@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- A host can set `EasyFlow.picture_store` to a store that keeps a picture for a flow with `keep(file, flow:)` and gives its address with `url_of(reference)`.
+- An admin can add a picture to a question, multiple select or fill-in-the-blank step on the canvas, see it, and remove it, and the step keeps only the store's reference to it as its `picture` setting.
+- An admin who chooses a picture when the host has set no picture store is told pictures cannot be added yet, and the step is left unchanged.
+
 ## [0.29.0] - 2026-10-24
 
 ### Added

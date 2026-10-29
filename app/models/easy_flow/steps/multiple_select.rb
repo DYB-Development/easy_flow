@@ -6,6 +6,7 @@ module EasyFlow
       step_name "Multiple select"
 
       setting :question, type: :string
+      setting :picture, type: :picture
       setting :category, type: :string
       setting :required, type: :boolean
       setting :answers, type: :list, required: true do

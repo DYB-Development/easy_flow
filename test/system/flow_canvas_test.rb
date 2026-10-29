@@ -129,6 +129,29 @@ module EasyFlow
       assert_selector "[data-connector='first-question']"
     end
 
+    class PictureStore
+      def keep(_file, flow:)
+        "picture-for-#{flow.slug}"
+      end
+
+      def url_of(reference)
+        "/pictures/#{reference}"
+      end
+    end
+
+    test "an author adds a picture to a question and the step keeps a reference to it" do
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, PictureStore.new
+      canvas_for(flow)
+      step_card("first").click
+
+      find("[data-inspector] input[type=file]").attach_file(file_fixture("picture.png"))
+
+      assert_selector "[data-inspector] img[src='/pictures/picture-for-canvas-system']"
+      assert_equal "picture-for-canvas-system", flow.reload.document["nodes"].find { |node| node["id"] == "first" }["picture"]
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
     test "opening a step labels each setting its type declares" do
       canvas_for(flow)
 

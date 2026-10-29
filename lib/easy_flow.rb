@@ -7,7 +7,7 @@ require "easy_flow/host_routes"
 require "easy_flow/engine"
 
 module EasyFlow
-  FIELD_TYPES = %i[string integer float boolean select multi_select previous_step from_step list flow flows].freeze
+  FIELD_TYPES = %i[string integer float boolean select multi_select previous_step from_step list flow flows picture].freeze
 
   OUTPUT_TYPES = %i[string integer float boolean].freeze
   OPTIONAL_CHECKS = %i[unrouted_value unfollowed_path dead_end].freeze
@@ -23,12 +23,13 @@ module EasyFlow
   class InnerFlowError < StandardError; end
   class Withdrawn < StandardError; end
   class NoFileStore < StandardError; end
+  class NoPictureStore < StandardError; end
 
   DRAWING = "easy_flow/steps/choosing".freeze
 
   class << self
     attr_writer :base_controller
-    attr_accessor :file_store
+    attr_accessor :file_store, :picture_store
 
     def base_controller
       @base_controller || "ActionController::Base"
@@ -68,6 +69,16 @@ module EasyFlow
       raise NoFileStore, "set EasyFlow.file_store to a store that keeps an uploaded file and returns a reference to it" unless file_store
 
       file_store.keep(file)
+    end
+
+    def keep_picture(file, flow:)
+      raise NoPictureStore, "set EasyFlow.picture_store to a store that keeps a picture for a flow and gives an address for it" unless picture_store
+
+      picture_store.keep(file, flow: flow)
+    end
+
+    def picture_url(reference)
+      picture_store.url_of(reference)
     end
 
     def check(name)

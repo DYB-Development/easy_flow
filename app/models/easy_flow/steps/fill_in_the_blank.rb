@@ -8,6 +8,7 @@ module EasyFlow
       step_name "Fill in the blank"
 
       setting :question, type: :string
+      setting :picture, type: :picture
       setting :category, type: :string
       setting :required, type: :boolean
       setting :accepted_answers, type: :list, required: true do

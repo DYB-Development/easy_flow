@@ -22,7 +22,11 @@ module EasyFlow
     def drawn_step(node)
       { "id" => node.id, "type" => node.type, "label" => label_for(node),
         "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
-        "starts_a_flow" => starts_a_flow?(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "record_choices" => record_choices_for(node), "placeholder" => false, **placed[node.id] }
+        "starts_a_flow" => starts_a_flow?(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "record_choices" => record_choices_for(node), "placeholder" => false, "picture_url" => picture_url(node), **placed[node.id] }
+    end
+
+    def picture_url(node)
+      EasyFlow.picture_url(node.config["picture"]) if node.config["picture"].present?
     end
 
     def drawn_placeholder(gap)

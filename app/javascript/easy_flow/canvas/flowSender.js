@@ -20,3 +20,22 @@ export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice
   onNotice(answered.notice || null)
   onFlow(await (await fetch(base + ".json", { headers: { Accept: "application/json" } })).json())
 }
+
+export const createPictureSender = ({ base, token, fetch, onError }) => async (file) => {
+  const body = new FormData()
+  body.append("picture", file)
+  const response = await fetch(base + "/pictures", { method: "POST", headers: { "X-CSRF-Token": token }, body }).catch(() => null)
+  if (!response) {
+    onError(UNREACHABLE)
+    return null
+  }
+
+  const answered = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    onError(answered.error || "That picture was refused")
+    return null
+  }
+
+  onError(null)
+  return answered
+}

@@ -19,6 +19,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - `EasyFlow.host` — declares a named host with its visitor layout, admin layout, admin authentication method, visitor authorization method, refusal method, owner method, and the step types its admins can add on the canvas.
 - `EasyFlow.draws_with` — the partial that draws a visitor's step when the step's type names none. Defaults to the engine's own `easy_flow/steps/choosing`.
 - `EasyFlow.file_store` — the object that keeps a file a visitor uploads at a File upload step and names it again later. Defaults to none, and with none set an uploaded file is refused with `EasyFlow::NoFileStore`.
+- `EasyFlow.picture_store` — the object that keeps a picture an admin adds to a question step on the canvas, for the flow it belongs to, and gives the address the picture is loaded from. Defaults to none, and with none set an admin who chooses a picture is told pictures cannot be added yet.
 - `EasyFlow.check` — turns on an optional flow check: `:unrouted_value`, `:unfollowed_path` or `:dead_end`.
 - `/manage/flows` — the admin pages, under each mount path, where flows are listed, created, drawn on the canvas, previewed and published.
 
@@ -88,6 +89,16 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
     - When several files are sent for one step, `keep` is called once for each file, and the run records the list of references it returned, in the order the files were sent.
     - The store answers `name_of(reference)`, called with a reference `keep` returned. It returns the name the visitor's completion page shows for that answer. When it returns nothing, the page shows the reference itself.
     - With no store set, a visitor who submits a file at any step of a stored run gets the app's error page, raised as `EasyFlow::NoFileStore`.
+
+    Ask the developer too where the app keeps the pictures admins add to question, multiple select and fill-in-the-blank steps. The engine keeps only a reference to each picture in the step's settings and has no default store. Ask the developer to point at the app's store or write one, and do not pick a storage service for them. Set it in the initializer:
+
+    ```ruby
+    EasyFlow.picture_store = QuestionPictures.new
+    ```
+
+    - The store answers `keep(file, flow:)`, called with the chosen picture and the flow whose step it is added to. It keeps the picture and returns a string reference to it, and the step keeps that reference as its `picture` setting.
+    - The store answers `url_of(reference)`, called with a reference `keep` returned. It returns the address a page loads the picture from.
+    - With no store set, an admin who chooses a picture on the canvas is told "Pictures cannot be added yet. Ask the app's developer to set up a picture store." and the step is left unchanged.
 11. Leave `EasyFlow.check` out unless the developer asks for it. The engine already turns on `:unrouted_value`, `:unfollowed_path` and `:dead_end` at boot. Any other name raises `EasyFlow::UnknownCheck` when the app boots.
 12. Check that the app loads Active Job (`require "rails/all"` or `require "active_job/railtie"` in `config/application.rb`) and has a queue adapter that runs jobs from the `default` queue. When a run started by a Flow step, or by a step type of the app's own that starts another flow, ends, the engine records its output in the run it was started from and queues a job on `default` that moves that run on. If no adapter runs that queue, the run that holds the step stays at it until its visitor next loads its page. If `config.active_job.queue_adapter` is not set for an environment, ask the developer which adapter to use there.
 13. Check `config.time_zone` in `config/application.rb`. A Wait step's time of day and date, and the "Hour completed" and "Weekday completed" outputs every completed step offers, are read in that zone, and with none set it is UTC. If it is not set, ask the developer which zone the app's admins mean when they write a time.

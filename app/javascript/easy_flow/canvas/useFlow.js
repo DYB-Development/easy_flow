@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { createFlowSender } from "./flowSender"
+import { createFlowSender, createPictureSender } from "./flowSender"
 
 const useFlow = (base, token, initial) => {
   const [ flow, setFlow ] = useState(initial)
@@ -11,7 +11,12 @@ const useFlow = (base, token, initial) => {
     [ base, token ]
   )
 
-  return { flow, error, notice, send }
+  const pickPicture = useMemo(
+    () => createPictureSender({ base, token, fetch: (...request) => window.fetch(...request), onError: setError }),
+    [ base, token ]
+  )
+
+  return { flow, error, notice, send, pickPicture }
 }
 
 export default useFlow

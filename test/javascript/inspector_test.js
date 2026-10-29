@@ -41,3 +41,10 @@ test("offers a record's fields the options the palette and the step give them", 
 
   assert.match(html, /<option value="tests"[^>]*>Run tests<\/option>[\s\S]*<option value="more than">more than<\/option>/)
 })
+
+test("shows a step's picture from the address the canvas gave it", () => {
+  const html = drawn({ node: { id: "ask", type: "question", label: "Ask", config: { picture: "picture-1" }, picture_url: "/pictures/picture-1" },
+                       fields: { picture: "picture" }, labels: { picture: "Picture" } })
+
+  assert.match(html, /<img[^>]*src="\/pictures\/picture-1"/)
+})

@@ -45,6 +45,36 @@ module EasyFlow
       assert_raises(UnknownCheck) { EasyFlow.check(:invented) }
     end
 
+    test "keeps a picture through the host's picture store, telling it the flow the picture belongs to" do
+      kept = []
+      store = Object.new
+      store.define_singleton_method(:keep) { |file, flow:| kept << [ file, flow ] && "picture-1" }
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, store
+      flow = Definition.new(slug: "capitals")
+
+      assert_equal [ "picture-1", [ [ :file, flow ] ] ], [ EasyFlow.keep_picture(:file, flow: flow), kept ]
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
+    test "refuses to keep a picture when the host has set up no picture store" do
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, nil
+
+      assert_raises(NoPictureStore) { EasyFlow.keep_picture(:file, flow: Definition.new(slug: "capitals")) }
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
+    test "turns a picture's reference into the address the host's picture store gives for it" do
+      store = Object.new
+      store.define_singleton_method(:url_of) { |reference| "/pictures/#{reference}" }
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, store
+
+      assert_equal "/pictures/picture-1", EasyFlow.picture_url("picture-1")
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
     test "refuses to keep an uploaded file when the host has set up no file store" do
       stored_with, EasyFlow.file_store = EasyFlow.file_store, nil
 

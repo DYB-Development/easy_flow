@@ -56,5 +56,11 @@ module EasyFlow
 
       assert_select "img[alt=?]", "The question's picture"
     end
+
+    test "a question step with no picture is drawn with no picture" do
+      get easy_flow.run_path(Run.start(flow_with(question.except("picture"))))
+
+      assert_select "img", count: 0
+    end
   end
 end

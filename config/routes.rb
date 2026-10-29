@@ -21,6 +21,7 @@ EasyFlow::Engine.routes.draw do
         post   "redo",        action: :redo
         post   "edges",       action: :connect
         delete "edges",       action: :disconnect
+        post   "pictures",    action: :keep_picture
       end
     end
   end

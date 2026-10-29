@@ -50,6 +50,11 @@ module EasyFlow
         end
       end
 
+      def keep_picture
+        reference = EasyFlow.keep_picture(params.expect(:picture), flow: flow)
+        render json: { reference: reference, url: EasyFlow.picture_url(reference) }
+      end
+
       def configure_step
         apply(:updated, params[:step]) { |edited| edited.configure(params[:step], coerced(edited, params[:step])) }
       end

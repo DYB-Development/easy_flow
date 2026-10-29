@@ -7,8 +7,10 @@ import { Label } from "keystone_ui-react/src/FieldText.jsx"
 
 const panel = { width: 280, padding: 20, overflowY: "auto" }
 
-const Inspector = ({ node, fields, holds, labels, recordLabels, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose }) => {
+const Inspector = ({ node, fields, holds, labels, recordLabels, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose, onPickPicture }) => {
   const [ draft, setDraft ] = useState(node.config)
+  const [ pictureUrl, setPictureUrl ] = useState(node.picture_url)
+  useEffect(() => setPictureUrl(node.picture_url), [ node.id, node.picture_url ])
   useEffect(() => setDraft(node.config), [ node.id, node.config ])
 
   const settle = (next) => {
@@ -33,9 +35,15 @@ const Inspector = ({ node, fields, holds, labels, recordLabels, recordChoices, r
                        outputsOf={(recordOutputsOf || {})[name]}
                        onChange={(next) => setDraft({ ...draft, [name]: next })}
                        onSettle={(next) => settle({ ...draft, [name]: next })} />
-            : <Control type={type} value={draft[name]} choices={choices[name]}
+            : <Control type={type} value={draft[name]} choices={choices[name]} pictureUrl={pictureUrl}
                        onChange={(next) => setDraft({ ...draft, [name]: next })}
-                       onSettle={(next) => settle({ ...draft, [name]: next })} />}
+                       onSettle={(next) => settle({ ...draft, [name]: next })}
+                       onPick={async (file) => {
+                         const kept = await onPickPicture(file)
+                         if (!kept) return
+                         setPictureUrl(kept.url)
+                         settle({ ...draft, [name]: kept.reference })
+                       }} />}
         </Label>
       ))}
       <Button variant="danger" size="sm" className="w-full" onClick={onDelete}>Delete step</Button>

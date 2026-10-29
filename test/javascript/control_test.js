@@ -54,3 +54,13 @@ test("draws a picture setting as a file input that takes images", () => {
 test("shows a step's current picture above its file input", () => {
   assert.match(drawn({ type: "picture", value: "picture-1", pictureUrl: "/pictures/picture-1" }), /<img[^>]*src="\/pictures\/picture-1"/)
 })
+
+test("removes a step's picture when the author asks", () => {
+  let settled = null
+  const tree = Control({ type: "picture", value: "picture-1", pictureUrl: "/pictures/picture-1", onSettle: (value) => { settled = value }, onPick: () => {} })
+  const remove = [ tree.props.children ].flat(Infinity).filter(Boolean).find((element) => element.props?.["data-remove-picture"])
+
+  remove.props.onClick()
+
+  assert.equal(settled, "")
+})

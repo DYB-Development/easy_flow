@@ -65,6 +65,16 @@ module EasyFlow
       EasyFlow.picture_store = stored_with
     end
 
+    test "turns a picture's reference into the address the host's picture store gives for it" do
+      store = Object.new
+      store.define_singleton_method(:url_of) { |reference| "/pictures/#{reference}" }
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, store
+
+      assert_equal "/pictures/picture-1", EasyFlow.picture_url("picture-1")
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
     test "refuses to keep an uploaded file when the host has set up no file store" do
       stored_with, EasyFlow.file_store = EasyFlow.file_store, nil
 

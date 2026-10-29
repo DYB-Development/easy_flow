@@ -77,6 +77,10 @@ module EasyFlow
       picture_store.keep(file, flow: flow)
     end
 
+    def picture_url(reference)
+      picture_store.url_of(reference)
+    end
+
     def check(name)
       raise UnknownCheck, "#{name} is not one of #{OPTIONAL_CHECKS.join(', ')}" unless OPTIONAL_CHECKS.include?(name)
 

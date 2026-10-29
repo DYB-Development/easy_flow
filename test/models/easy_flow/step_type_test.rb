@@ -190,6 +190,12 @@ module EasyFlow
       assert_equal({ value: :string, weight: :integer }, step_type.settings.record_fields[:options])
     end
 
+    test "a step can declare a setting that holds a picture" do
+      step_type = StepType.define(:ask) { setting :picture, type: :picture }
+
+      assert_equal({ picture: :picture }, step_type.settings.fields)
+    end
+
     test "refuses a list of records that does not say what a record holds" do
       assert_raises UnknownFieldType do
         StepType.define(:ask) { setting :options, type: :list }

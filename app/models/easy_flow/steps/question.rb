@@ -23,7 +23,7 @@ module EasyFlow
       awaits_input
       answer_check { |node, value| "Fill this in to go on." if node.config["required"] && value.blank? }
 
-      displays_by { |node| Asked.new(id: node.id.to_sym, text: asked(node.config), choices: choices_in(node)) }
+      displays_by { |node| Asked.new(id: node.id.to_sym, text: asked(node.config), choices: choices_in(node), picture_url: EasyFlow.picture_url(node.config["picture"])) }
 
       def self.asked(step)
         step.to_h["question"] || step.to_h["text"]

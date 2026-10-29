@@ -9,6 +9,17 @@ module EasyFlow
         assert_equal "Budget?", Question.step_type.display_of(node).text
       end
 
+      test "hands the page drawing it the address of its picture" do
+        store = Object.new
+        store.define_singleton_method(:url_of) { |reference| "/pictures/#{reference}" }
+        stored_with, EasyFlow.picture_store = EasyFlow.picture_store, store
+        node = Node.new(id: "budget", type: "question", config: { "question" => "Budget?", "picture" => "picture-1" })
+
+        assert_equal "/pictures/picture-1", Question.step_type.display_of(node).picture_url
+      ensure
+        EasyFlow.picture_store = stored_with
+      end
+
       test "declares a setting for the question it asks" do
         assert_equal :string, Question.step_type.settings.fields[:question]
       end

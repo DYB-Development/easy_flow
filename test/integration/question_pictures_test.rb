@@ -33,5 +33,13 @@ module EasyFlow
 
       assert_select "fieldset img[src='/pictures/picture-1'] + legend", text: "Which country is this?"
     end
+
+    test "a player sees a multiple select step's picture above the question" do
+      step = question.merge("type" => "multiple_select")
+
+      get easy_flow.run_path(Run.start(flow_with(step)))
+
+      assert_select "fieldset img[src='/pictures/picture-1'] + legend", text: "Which country is this?"
+    end
   end
 end

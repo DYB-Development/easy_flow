@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-10-29
+
 ### Added
 
 - A host can set `EasyFlow.picture_store` to a store that keeps a picture for a flow with `keep(file, flow:)` and gives its address with `url_of(reference)`.

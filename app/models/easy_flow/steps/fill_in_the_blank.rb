@@ -3,7 +3,11 @@ module EasyFlow
     class FillInTheBlank
       include Step
 
-      Asked = Data.define(:id, :text, :picture_url)
+      Asked = Data.define(:id, :text, :picture_url) do
+        def initialize(id:, text:, picture_url: nil)
+          super
+        end
+      end
 
       step_name "Fill in the blank"
 

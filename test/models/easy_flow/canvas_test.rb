@@ -60,6 +60,18 @@ module EasyFlow
         "edges" => [ { "from" => "a", "to" => "b" }, { "from" => "a", "to" => "c" }, { "from" => "b", "to" => "c" } ] }
     end
 
+    test "carries the address of a step's picture so the canvas can show it" do
+      store = Object.new
+      store.define_singleton_method(:url_of) { |reference| "/pictures/#{reference}" }
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, store
+
+      drawn = canvas("entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask", "text" => "Budget?", "picture" => "picture-1" } ], "edges" => [])
+
+      assert_equal "/pictures/picture-1", drawn["nodes"].find { it["id"] == "a" }["picture_url"]
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
     test "gives every node a row and a column" do
       placed = canvas(flow)["nodes"].map { |node| node.values_at("row", "column") }
 

@@ -13,6 +13,10 @@ module EasyFlow
         assert_equal :string, Question.step_type.settings.fields[:question]
       end
 
+      test "declares a setting for a picture shown with the question" do
+        assert_equal :picture, Question.step_type.settings.fields[:picture]
+      end
+
       test "declares a setting for the answers it offers" do
         assert_equal :list, Question.step_type.settings.fields[:answers]
       end

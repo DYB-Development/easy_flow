@@ -24,6 +24,7 @@ module EasyFlow
   class Withdrawn < StandardError; end
   class NoFileStore < StandardError; end
   class NoPictureStore < StandardError; end
+  class PictureRefused < StandardError; end
 
   DRAWING = "easy_flow/steps/choosing".freeze
 

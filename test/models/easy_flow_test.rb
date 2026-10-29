@@ -79,6 +79,18 @@ module EasyFlow
       assert_nil EasyFlow.picture_url(nil)
     end
 
+    test "a picture store's refusal reaches whoever asked to keep the picture, with its reason" do
+      refusing = Object.new
+      refusing.define_singleton_method(:keep) { |_file, flow:| raise PictureRefused, "That file is not a picture." }
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, refusing
+
+      refusal = assert_raises(PictureRefused) { EasyFlow.keep_picture(:file, flow: Definition.new(slug: "capitals")) }
+
+      assert_equal "That file is not a picture.", refusal.message
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
     test "refuses to keep an uploaded file when the host has set up no file store" do
       stored_with, EasyFlow.file_store = EasyFlow.file_store, nil
 

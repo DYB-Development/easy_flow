@@ -4,6 +4,8 @@ module EasyFlow
 
     has_public_code
 
+    SLUGS_THE_ROUTES_USE = %w[runs].freeze
+
     enum :status, { active: "active", hidden: "hidden", inactive: "inactive" }
     enum :kind, { scored: "scored", guide: "guide" }
     enum :persists, { unsaved: "unsaved", each_step: "each_step", on_finish: "on_finish" }
@@ -121,7 +123,7 @@ module EasyFlow
 
     def unused_slug
       made = title.parameterize.presence || "flow"
-      taken = self.class.where(host: host, owner: owner).where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug)
+      taken = self.class.where(host: host, owner: owner).where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug) + SLUGS_THE_ROUTES_USE
       numbered = (2..).lazy.map { |number| "#{made}-#{number}" }
 
       [ made ].chain(numbered).find { |candidate| taken.exclude?(candidate) }

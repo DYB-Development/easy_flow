@@ -41,6 +41,13 @@ module EasyFlow
       assert_equal "flow", flow.slug
     end
 
+    test "a flow started by a title that makes the slug of the runs address takes the next one" do
+      flow = Definition.new(host: "dummy", title: "Runs")
+      flow.save_under_title
+
+      assert_equal "runs-2", flow.slug
+    end
+
     test "the database still refuses two shared flows with the same slug in one host" do
       Definition.create!(host: "dummy", slug: "checkup")
 

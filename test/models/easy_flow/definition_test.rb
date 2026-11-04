@@ -48,6 +48,12 @@ module EasyFlow
       assert_equal "runs-2", flow.slug
     end
 
+    test "a flow cannot be started with a blank title" do
+      flow = Definition.new(host: "dummy", title: "  ")
+
+      assert_not flow.save_under_title
+    end
+
     test "the database still refuses two shared flows with the same slug in one host" do
       Definition.create!(host: "dummy", slug: "checkup")
 

@@ -32,6 +32,8 @@ module EasyFlow
     end
 
     def save_under_title
+      return refuse_blank_title if title.blank?
+
       self.slug = unused_slug
       save
     end
@@ -120,6 +122,11 @@ module EasyFlow
     end
 
     private
+
+    def refuse_blank_title
+      errors.add(:title, :blank)
+      false
+    end
 
     def unused_slug
       made = title.parameterize.presence || "flow"

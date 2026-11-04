@@ -18,5 +18,11 @@ module EasyFlow
 
       assert_empty WriteData.step_type.settings.choices[:data]
     end
+
+    test "is on the canvas's add menu with what can be written" do
+      palette = Canvas.new(Document.new({})).to_h["palette"]
+
+      assert_equal %w[restock], palette.find { |entry| entry["type"] == "write_data" }["choices"]["data"]
+    end
   end
 end

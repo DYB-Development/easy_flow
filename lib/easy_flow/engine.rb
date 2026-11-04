@@ -30,6 +30,7 @@ module EasyFlow
         EasyFlow::AllOrAny.register
         EasyFlow::Count.register
         EasyFlow::ReadData.register
+        EasyFlow::WriteData.register
         EasyFlow::Wait.register
         EasyFlow::FlowStep.register
         EasyFlow::PlayFlows.register

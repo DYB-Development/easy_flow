@@ -25,5 +25,19 @@ module EasyFlow
 
       assert_select "form[action=?][method=post]", easy_flow.manage_flows_path
     end
+
+    test "a flow created on the new flow page can be published and run" do
+      post easy_flow.manage_flows_path, params: { flow: { slug: "from-the-page" } }
+      flow = Definition.find_by!(slug: "from-the-page")
+      flow.update!(persists: :each_step)
+      flow.publish_version(flow.definition_versions.create!(number: 1, definition: flowing("slug" => "from-the-page", "entry" => "ask",
+        "nodes" => [ { "id" => "ask", "type" => "question", "text" => "Ready?", "options" => [ "yes" ] }, { "id" => "done", "type" => "terminal" } ],
+        "edges" => [ { "from" => "ask", "to" => "done" } ])))
+
+      post easy_flow.flow_runs_path(flow.slug)
+      patch easy_flow.run_path(flow.runs.last), params: { answers: { ask: "yes" } }
+
+      assert_equal "yes", flow.runs.last.recorded[:ask]
+    end
   end
 end

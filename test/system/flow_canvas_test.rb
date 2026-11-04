@@ -711,5 +711,18 @@ module EasyFlow
 
       assert_selector "[data-publish]"
     end
+
+    test "declining the warning keeps every step and creates nothing" do
+      flow = wired_with_one_aside
+      versions = flow.definition_versions.count
+      canvas_for(flow)
+      find("[data-open-panel]").click
+      find("[data-create-version]").click
+
+      find("[data-decline-removal]").click
+      find("[data-create-version]")
+
+      assert_equal [ true, versions, nil ], [ flow.reload.document["nodes"].any? { |node| node["id"] == "aside" }, flow.definition_versions.count, flow.live_version ]
+    end
   end
 end

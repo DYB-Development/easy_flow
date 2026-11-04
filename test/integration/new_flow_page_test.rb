@@ -26,6 +26,12 @@ module EasyFlow
       assert_select "input[name=?]", "flow[slug]", count: 0
     end
 
+    test "a flow created from the page has a slug made from the title typed" do
+      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } }
+
+      assert_equal "morning-routine", Definition.find_by!(host: "dummy", title: "Morning Routine").slug
+    end
+
     test "the flow list links to the new flow page" do
       get easy_flow.manage_flows_path
 

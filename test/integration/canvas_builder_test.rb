@@ -642,5 +642,15 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").back_link = nil
     end
+
+    test "the builder header shows no All flows button once its host set a back link" do
+      EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a", text: "All flows", count: 0
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
   end
 end

@@ -56,5 +56,11 @@ module EasyFlow
 
       assert_equal "morning-routine", Definition.find_by!(host: "dummy", title: "Morning Routine").slug
     end
+
+    test "the new flow page still asks for a kind" do
+      get easy_flow.new_manage_flow_path
+
+      assert_select "select[name=?]", "flow[kind]"
+    end
   end
 end

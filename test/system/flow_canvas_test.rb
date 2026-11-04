@@ -141,6 +141,14 @@ module EasyFlow
       end
     end
 
+    test "a host that hides step type codes shows a step's type by its name on its box" do
+      with_step_type_codes_hidden do
+        canvas_for(flow)
+
+        assert_equal "First\nQuestion", step_card("first").text
+      end
+    end
+
     test "removing a connection unlinks the two steps" do
       canvas_for(flow)
 

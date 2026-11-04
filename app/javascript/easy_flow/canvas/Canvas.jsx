@@ -159,6 +159,7 @@ const Canvas = ({ base, token, initial }) => {
                 }}
                 onDragEnd={() => setDragging(null)}
                 onDragStart={() => setDragging(node.id)}
+                hideStepTypeCodes={flow.hide_step_type_codes}
               />}
             </div>
           ))}

@@ -25,6 +25,15 @@ module EasyFlow
       assert_equal "morning-routine", flow.slug
     end
 
+    test "a flow started by a title another owner uses keeps the plain slug" do
+      first, second = Customer.create!(name: "First"), Customer.create!(name: "Second")
+      Definition.new(host: "dummy", owner: first, title: "Morning Routine").save_under_title
+      flow = Definition.new(host: "dummy", owner: second, title: "Morning Routine")
+      flow.save_under_title
+
+      assert_equal "morning-routine", flow.slug
+    end
+
     test "the database still refuses two shared flows with the same slug in one host" do
       Definition.create!(host: "dummy", slug: "checkup")
 

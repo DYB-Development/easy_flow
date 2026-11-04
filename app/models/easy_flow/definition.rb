@@ -121,7 +121,7 @@ module EasyFlow
 
     def unused_slug
       made = title.parameterize
-      taken = self.class.where(host: host).where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug)
+      taken = self.class.where(host: host, owner: owner).where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug)
       numbered = (2..).lazy.map { |number| "#{made}-#{number}" }
 
       [ made ].chain(numbered).find { |candidate| taken.exclude?(candidate) }

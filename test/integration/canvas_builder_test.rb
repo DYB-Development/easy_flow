@@ -749,5 +749,15 @@ module EasyFlow
 
       assert_select "[data-version] [data-captured]", text: "Removed unconnected “New”"
     end
+
+    test "a builder can return to the version from before the removal with the removed steps in it" do
+      leave_a_step_aside
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+      before_the_removal = flow.reload.definition_versions.order(:number).second_to_last
+
+      post easy_flow.return_manage_flow_version_path(flow, before_the_removal)
+
+      assert_includes nodes, "aside"
+    end
   end
 end

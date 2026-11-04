@@ -84,12 +84,14 @@ module EasyFlow
       def with_unconnected_settled
         flow.with_lock do
           unconnected = UnconnectedSteps.new(document, flow: flow)
+          objections = unconnected.objections
 
-          if unconnected.objections.any?
-            render json: { error: refusal(unconnected.objections) }, status: :unprocessable_entity
-          elsif unconnected.named.any?
+          if objections.any?
+            render json: { error: refusal(objections) }, status: :unprocessable_entity
+          elsif unconnected.ids.any? && !unconnected.accepted?(params[:remove_unconnected])
             render json: { error: refusal(Validator.new(document, flow: flow).violations), unconnected: unconnected.named }, status: :unprocessable_entity
           else
+            flow.remove_unconnected(unconnected.ids) if unconnected.ids.any?
             yield
           end
         end

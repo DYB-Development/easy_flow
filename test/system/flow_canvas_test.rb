@@ -57,6 +57,18 @@ module EasyFlow
       EasyFlow.host_named("dummy").always_show_insert_buttons = false
     end
 
+    def with_step_type_codes_hidden
+      EasyFlow.host_named("dummy").hide_step_type_codes = true
+      yield
+    ensure
+      EasyFlow.host_named("dummy").hide_step_type_codes = false
+    end
+
+    def add_menu_from(placeholder)
+      find("[data-placeholder='#{placeholder}']").click
+      find("div[style*='z-index: 9']")
+    end
+
     def add_step_named(label)
       find("div[style*='z-index: 9']").click_button(label, match: :first)
     end
@@ -119,6 +131,14 @@ module EasyFlow
       add_step_named("Question")
 
       assert_selector "[data-step='question']"
+    end
+
+    test "a host that hides step type codes lists each type in the add menu by its name alone" do
+      with_step_type_codes_hidden do
+        canvas_for(flow)
+
+        assert_not_includes add_menu_from("gate--false").text, "question"
+      end
     end
 
     test "removing a connection unlinks the two steps" do

@@ -791,5 +791,17 @@ module EasyFlow
 
       assert_equal "Published version 1. Visitors run it now.", response.parsed_body["notice"]
     end
+
+    test "publishing after a removal leaves the version visitors ran as it was" do
+      post "#{canvas_path}/publish"
+      running = flow.reload.live_version
+      run = Run.start(flow)
+      held = running.definition.deep_dup
+      leave_a_step_aside
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal [ held, held ], [ running.reload.definition, run.reload.pinned_definition ]
+    end
   end
 end

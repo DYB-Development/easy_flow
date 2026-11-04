@@ -6,6 +6,9 @@ const TypePicker = ({ entries, at, where, onPick, onConnect, onUnconnected, onDi
   <Panel className="shadow-lg" style={{ position: "absolute", zIndex: 9, top: at.y, left: at.x, width: 210, padding: 8, borderRadius: 8 }}>
     <p className="text-gray-500 dark:text-gray-400" style={{ margin: "0 0 6px", fontSize: 11 }}>Add a step</p>
     {where && <p className="text-gray-500 dark:text-gray-400" style={{ margin: "0 0 6px", fontSize: 11 }}>{where}</p>}
+    {onUnconnected && (
+      <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onUnconnected}>Add it unconnected</Button>
+    )}
     {entries.map((entry) => (
       <Button key={entry.type} variant="secondary" size="sm" className="w-full mb-1.5 flex-col" onClick={() => onPick(entry)}>
         {entry.label}
@@ -14,9 +17,6 @@ const TypePicker = ({ entries, at, where, onPick, onConnect, onUnconnected, onDi
     ))}
     {onConnect && (
       <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onConnect}>Connect to a step already here</Button>
-    )}
-    {onUnconnected && (
-      <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onUnconnected}>Add it unconnected</Button>
     )}
     <Button variant="secondary" size="sm" className="w-full" onClick={onDismiss}>Cancel</Button>
   </Panel>

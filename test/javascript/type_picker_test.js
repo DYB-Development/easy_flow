@@ -47,3 +47,9 @@ test("says where the step will go when told", () => {
 test("offers adding the step unconnected as keystone's secondary button", () => {
   assert.ok(classesOf(placed({ onUnconnected: () => {} }), "Add it unconnected").includes("ks-button-secondary"))
 })
+
+test("offers adding the step unconnected above the step types", () => {
+  const menu = placed({ onUnconnected: () => {} })
+
+  assert.ok(menu.indexOf("Add it unconnected") < menu.indexOf("Question"))
+})

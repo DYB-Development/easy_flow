@@ -586,6 +586,16 @@ module EasyFlow
       assert_equal false, response.parsed_body["hide_step_type_codes"]
     end
 
+    test "the canvas says a host that asks to hide step type codes hides them" do
+      EasyFlow.host_named("dummy").hide_step_type_codes = true
+
+      get "#{canvas_path}.json"
+
+      assert_equal true, response.parsed_body["hide_step_type_codes"]
+    ensure
+      EasyFlow.host_named("dummy").hide_step_type_codes = false
+    end
+
     test "the canvas says a host that asks for insert buttons always shows them" do
       EasyFlow.host_named("dummy").always_show_insert_buttons = true
 

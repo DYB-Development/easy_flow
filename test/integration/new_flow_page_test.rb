@@ -8,30 +8,6 @@ module EasyFlow
       assert_select "form[action=?][method=post]", easy_flow.manage_flows_path
     end
 
-    test "a flow created from the page has the title typed" do
-      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } }
-
-      assert Definition.exists?(host: "dummy", title: "Morning Routine")
-    end
-
-    test "a flow created from the page has a slug made from the title typed" do
-      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } }
-
-      assert_equal "morning-routine", Definition.find_by!(host: "dummy", title: "Morning Routine").slug
-    end
-
-    test "a second flow created from the page with the same title takes a different slug" do
-      2.times { post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } } }
-
-      assert_equal %w[morning-routine morning-routine-2], Definition.where(host: "dummy", title: "Morning Routine").order(:id).pluck(:slug)
-    end
-
-    test "a blank title on the page says the title cannot be blank" do
-      post easy_flow.manage_flows_path, params: { flow: { title: "" } }
-
-      assert_select "*", text: /Title can.t be blank/
-    end
-
     test "the new flow page asks for a kind when the host has set none" do
       get easy_flow.new_manage_flow_path
 

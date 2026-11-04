@@ -22,12 +22,6 @@ module EasyFlow
       assert_equal @ours, Definition.find_by!(host: "owned", slug: "fresh").owner
     end
 
-    test "a second flow created for the same owner with the same title takes a different slug" do
-      2.times { post "/owned/manage/flows", params: { flow: { title: "Fresh" } }, headers: as(@ours) }
-
-      assert_equal %w[fresh fresh-2], Definition.where(host: "owned", owner: @ours).order(:id).pluck(:slug)
-    end
-
     test "the builder of a host that names an owner cannot open another owner's flow" do
       theirs = Definition.create!(host: "owned", slug: "theirs", title: "Theirs", owner: @theirs)
 

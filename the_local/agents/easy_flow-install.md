@@ -20,6 +20,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - `EasyFlow.draws_with` — the partial that draws a visitor's step when the step's type names none. Defaults to the engine's own `easy_flow/steps/choosing`.
 - `EasyFlow.file_store` — the object that keeps a file a visitor uploads at a File upload step and names it again later. Defaults to none, and with none set an uploaded file is refused with `EasyFlow::NoFileStore`.
 - `EasyFlow.picture_store` — the object that keeps a picture an admin adds to a question step on the canvas, for the flow it belongs to, and gives the address the picture is loaded from. Defaults to none, and with none set an admin who chooses a picture is told pictures cannot be added yet.
+- `EasyFlow.data_source` — the object that says what Read data and Write data steps can read and write, and carries each one out. Defaults to none, and with none set those steps offer no choices.
 - `EasyFlow.check` — turns on an optional flow check: `:unrouted_value`, `:unfollowed_path` or `:dead_end`.
 - `/manage/flows` — the admin pages, under each mount path, where flows are listed, created, drawn on the canvas, previewed and published.
 
@@ -46,7 +47,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
      host.visitor_authorization_method = :easy_flow_visitor_permitted?
      host.refusal_method = :refuse_flow
      host.owner_method = :current_account
-     host.offers = %i[question checklist multiple_select fill_in_the_blank file_upload condition switch compare compare_two_values all_or_any count wait flow_step]
+     host.offers = %i[question checklist multiple_select fill_in_the_blank file_upload condition switch compare compare_two_values all_or_any count read_data write_data wait flow_step]
    end
    ```
 
@@ -104,10 +105,20 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
     - The store answers `url_of(reference)`, called with a reference `keep` returned. It returns the address a page loads the picture from.
     - The store refuses a file it will not keep, such as one that is not an image or is too large, by raising `EasyFlow::PictureRefused` with the message the admin should see. The canvas shows that message and leaves the step's picture as it was.
     - With no store set, an admin who chooses a picture on the canvas is told "Pictures cannot be added yet. Ask the app's developer to set up a picture store." and the step is left unchanged.
-11. Leave `EasyFlow.check` out unless the developer asks for it. The engine already turns on `:unrouted_value`, `:unfollowed_path` and `:dead_end` at boot. Any other name raises `EasyFlow::UnknownCheck` when the app boots.
-12. Check that the app loads Active Job (`require "rails/all"` or `require "active_job/railtie"` in `config/application.rb`) and has a queue adapter that runs jobs from the `default` queue. When a run started by a Flow step, or by a step type of the app's own that starts another flow, ends, the engine records its output in the run it was started from and queues a job on `default` that moves that run on. If no adapter runs that queue, the run that holds the step stays at it until its visitor next loads its page. If `config.active_job.queue_adapter` is not set for an environment, ask the developer which adapter to use there.
-13. Check `config.time_zone` in `config/application.rb`. A Wait step's time of day and date, and the "Hour completed" and "Weekday completed" outputs every completed step offers, are read in that zone, and with none set it is UTC. If it is not set, ask the developer which zone the app's admins mean when they write a time.
-14. Start the server and open `<mount path>/manage/flows` for each host.
+11. Ask the developer whether any host will offer the Read data or Write data step, and if so, what a flow may read and write and how the app carries each one out. Set the object that answers in the initializer:
+
+    ```ruby
+    EasyFlow.data_source = FlowData.new
+    ```
+
+    - The object answers `reads`, a list of strings naming what a flow can read.
+    - The object answers `writes`, a list of strings naming what a flow can write.
+    - The object answers `carry_out(name, values)`, called with one of those names and a hash of the step's input values, with string keys as the admin named them. What it returns is the step's answer. What it raises is the step's failure.
+    - A step whose name is no longer on its list records a failure and does not call `carry_out`.
+12. Leave `EasyFlow.check` out unless the developer asks for it. The engine already turns on `:unrouted_value`, `:unfollowed_path` and `:dead_end` at boot. Any other name raises `EasyFlow::UnknownCheck` when the app boots.
+13. Check that the app loads Active Job (`require "rails/all"` or `require "active_job/railtie"` in `config/application.rb`) and has a queue adapter that runs jobs from the `default` queue. When a run started by a Flow step, or by a step type of the app's own that starts another flow, ends, the engine records its output in the run it was started from and queues a job on `default` that moves that run on. If no adapter runs that queue, the run that holds the step stays at it until its visitor next loads its page. If `config.active_job.queue_adapter` is not set for an environment, ask the developer which adapter to use there.
+14. Check `config.time_zone` in `config/application.rb`. A Wait step's time of day and date, and the "Hour completed" and "Weekday completed" outputs every completed step offers, are read in that zone, and with none set it is UTC. If it is not set, ask the developer which zone the app's admins mean when they write a time.
+15. Start the server and open `<mount path>/manage/flows` for each host.
 
 ## Conventions
 
@@ -149,6 +160,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - After filling in a Wait step, check its name on the canvas. With a date set it is named by the date alone, and the run waits until that date. Otherwise, with a time of day set, it is named by that time followed by "after" and the step it counts from, and the run waits until that time of day first comes after the step was answered. Otherwise it is named by the minutes, as "1 minute after" or "<n> minutes after" followed by the step it counts from, and the run waits that many minutes past the answer. With none of the three set it has no name of its own, and a visitor held at it sees "Waiting for Wait."
 - The engine queues no job for a Wait step. After publishing a flow with a Wait step, check that a visitor held at it sees "Waiting for" followed by the step's name, and that a stored run moves on when the visitor's page is loaded after its time has come. Moving a run on with no visitor present belongs to the `easy_flow-develop` local.
 - After publishing a flow with a Wait step whose "What this keeps of a run" detail is "Nothing" or "The whole run once it finishes", check that a visitor held at it sees a "Check again" button, and that pressing it after the time has come carries their answers and completion times forward and moves them past the Wait step.
+- After setting `EasyFlow.data_source`, check that a Read data step on the canvas offers the object's `reads` and a Write data step offers its `writes`. Publish a flow set to save each step, connect each step's `passed` and `failed` connections, and check a run follows `passed` when `carry_out` answers and `failed` when it raises.
 - After setting `EasyFlow.file_store`, publish a flow with a File upload step whose "What this keeps of a run" detail is "Every answer as it is given", upload a file as a visitor, and check that the completion page shows the name the store gives it.
 - A File upload step takes a file only in a flow that keeps every answer as it is given. In a flow that keeps nothing or keeps the run only once it finishes, the visitor is told "A file can only be uploaded in a flow that saves its runs." and cannot go on with a file chosen.
 - A File upload step's "Accepted file types" setting is a comma-separated list of extensions, such as `.pdf, .png`. A file of another kind is refused with a message naming the accepted kinds and is never passed to the file store.

@@ -44,5 +44,12 @@ module EasyFlow
 
       assert_equal [ "Updated “A”", "Updated “B”", "Updated “A”" ], Change.listed(saves)
     end
+
+    test "keeps a save and a move of the same step as two lines" do
+      changes = [ { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] },
+                  { "action" => "moved", "steps" => [ "a" ], "named" => [ "A" ] } ]
+
+      assert_equal [ "Updated “A”", "Moved “A”" ], Change.listed(changes)
+    end
   end
 end

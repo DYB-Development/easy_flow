@@ -4,7 +4,7 @@ module EasyFlow
                  "moved" => "Moved", "connected" => "Connected", "disconnected" => "Disconnected", "returned" => "Returned to" }.freeze
 
     def self.listed(changes)
-      changes.chunk_while { |earlier, later| earlier["steps"] == later["steps"] }.map { |saves| phrase(saves.first) }
+      changes.chunk_while { |earlier, later| earlier.values_at("action", "steps") == later.values_at("action", "steps") }.map { |saves| phrase(saves.first) }
     end
 
     def self.phrase(change)

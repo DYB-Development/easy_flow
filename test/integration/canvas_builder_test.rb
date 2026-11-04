@@ -652,5 +652,11 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").back_link = nil
     end
+
+    test "the builder header shows All flows when its host set no back link" do
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a[href=?]", easy_flow.manage_flows_path, text: "All flows"
+    end
   end
 end

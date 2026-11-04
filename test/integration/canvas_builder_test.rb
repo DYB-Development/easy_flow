@@ -803,5 +803,13 @@ module EasyFlow
 
       assert_equal [ held, held ], [ running.reload.definition, run.reload.pinned_definition ]
     end
+
+    test "publishing from the model does not remove an unconnected step" do
+      leave_a_step_aside
+
+      flow.reload.publish
+
+      assert_includes flow.live_version.definition["nodes"].map { |node| node["id"] }, "aside"
+    end
   end
 end

@@ -178,7 +178,7 @@ const Canvas = ({ base, token, initial }) => {
       </div>
 
       {showing && !selectedNode && (
-        <Panel flow={flow.flow || {}} changes={flow.changes || []} problems={flow.violations} refusal={error} notice={notice}
+        <Panel flow={flow.flow || {}} changes={flow.changes || []} problems={flow.violations} refusal={error} notice={notice} publishNote={flow.publish_note}
                onClose={() => setShowing(false)}
                onCreate={() => send("/versions", "POST")}
                onPublish={() => send("/publish", "POST")}

@@ -137,10 +137,14 @@ module EasyFlow
 
     def unused_slug
       made = title.parameterize.presence || "flow"
-      taken = self.class.where(host: host, owner: owner).where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug) + SLUGS_THE_ROUTES_USE
+      taken = slugs_starting_with(made) + SLUGS_THE_ROUTES_USE
       numbered = (2..).lazy.map { |number| "#{made}-#{number}" }
 
       [ made ].chain(numbered).find { |candidate| taken.exclude?(candidate) }
+    end
+
+    def slugs_starting_with(start)
+      self.class.where(host: host, owner: owner).where("slug LIKE ?", "#{self.class.sanitize_sql_like(start)}%").pluck(:slug)
     end
 
     def kept_while_a_parent_waits

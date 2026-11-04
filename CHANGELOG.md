@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.32.1] - 2026-11-04
+
 ### Fixed
 
 - On SQLite, the migration that removes a flow's stored kind no longer changes rows in other tables. It used to delete each row whose foreign key to a flow deletes the row with the flow, and clear each foreign key to a flow that is set to null with the flow.

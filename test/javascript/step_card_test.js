@@ -44,6 +44,12 @@ test("writes no step type code when the host hides them", () => {
   assert.equal(child(card({ type_name: "Condition" }, hidingCodes), (element) => element.props?.children === "condition"), undefined)
 })
 
+test("writes the step type's name in the muted text color when the host hides codes", () => {
+  const name = child(card({ type_name: "Condition" }, hidingCodes), (element) => element.props?.children === "Condition")
+
+  assert.ok(classes(name).includes("text-gray-500"))
+})
+
 test("writes a start card's label in keystone's muted text color", () => {
   const label = child(card({ begins_here: true, label: "Start" }), (element) => element.props?.children === "Start")
 

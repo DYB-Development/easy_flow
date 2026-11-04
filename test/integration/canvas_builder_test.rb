@@ -622,5 +622,15 @@ module EasyFlow
 
       assert_select "[data-captured]", 2
     end
+
+    test "the canvas carries the note a host sets for Publish" do
+      EasyFlow.host_named("dummy").publish_note = "Publishing changes the live game."
+
+      get "#{canvas_path}.json"
+
+      assert_equal "Publishing changes the live game.", response.parsed_body["publish_note"]
+    ensure
+      EasyFlow.host_named("dummy").publish_note = nil
+    end
   end
 end

@@ -231,6 +231,16 @@ module EasyFlow
       EasyFlow.picture_store = stored_with
     end
 
+    test "a step with a picture shows a picture mark on its box" do
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, PictureStore.new
+      flow.record_definition(flow.definition.merge("nodes" => flow.definition["nodes"].map { |node| node["id"] == "first" ? node.merge("picture" => "earlier") : node }))
+      canvas_for(flow)
+
+      assert_includes step_card("first").text, "Has a picture"
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
     test "opening a step labels each setting its type declares" do
       canvas_for(flow)
 

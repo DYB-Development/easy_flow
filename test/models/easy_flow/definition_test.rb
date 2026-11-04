@@ -54,6 +54,17 @@ module EasyFlow
       assert_not flow.save_under_title
     end
 
+    test "a flow that loses a race for its slug takes the next one" do
+      flow = Definition.new(host: "dummy", title: "Morning Routine")
+      flow.define_singleton_method(:save) do |**options|
+        Definition.create!(host: "dummy", slug: "morning-routine") unless Definition.exists?(host: "dummy", slug: "morning-routine")
+        super(**options)
+      end
+      flow.save_under_title
+
+      assert_equal "morning-routine-2", flow.slug
+    end
+
     test "the database still refuses two shared flows with the same slug in one host" do
       Definition.create!(host: "dummy", slug: "checkup")
 

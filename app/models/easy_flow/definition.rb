@@ -5,6 +5,7 @@ module EasyFlow
     has_public_code
 
     SLUGS_THE_ROUTES_USE = %w[runs].freeze
+    TRIES_FOR_A_FREE_SLUG = 3
 
     enum :status, { active: "active", hidden: "hidden", inactive: "inactive" }
     enum :kind, { scored: "scored", guide: "guide" }
@@ -34,8 +35,14 @@ module EasyFlow
     def save_under_title
       return refuse_blank_title if title.blank?
 
-      self.slug = unused_slug
-      save
+      tries = 0
+      begin
+        self.slug = unused_slug
+        save
+      rescue ActiveRecord::RecordNotUnique
+        retry if (tries += 1) < TRIES_FOR_A_FREE_SLUG
+        raise
+      end
     end
 
     def definition

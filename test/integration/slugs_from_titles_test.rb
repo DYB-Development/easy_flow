@@ -62,5 +62,11 @@ module EasyFlow
 
       assert_select "select[name=?]", "flow[kind]"
     end
+
+    test "a flow created from the page has the kind chosen" do
+      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "scored" } }
+
+      assert_equal "scored", Definition.find_by!(host: "dummy", title: "Morning Routine").kind
+    end
   end
 end

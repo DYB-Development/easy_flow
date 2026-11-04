@@ -613,5 +613,14 @@ module EasyFlow
 
       assert_equal 1, response.parsed_body["changes"].size
     end
+
+    test "the history of versions lists every save a version captured" do
+      2.times { patch "#{canvas_path}/steps/a", params: { config: { question: "New", answers: [ { "value" => "yes" } ] } } }
+      post "#{canvas_path}/versions"
+
+      get easy_flow.manage_flow_versions_path(flow)
+
+      assert_select "[data-captured]", 2
+    end
   end
 end

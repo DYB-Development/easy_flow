@@ -1,8 +1,29 @@
 require "test_helper"
+require "open3"
 require EasyFlow::Engine.root.join("db/migrate/20261104184315_remove_kind_from_easy_flow_definitions").to_s
 
 module EasyFlow
   class RemoveKindFromEasyFlowDefinitionsTest < ActiveSupport::TestCase
+    MIGRATE_WITH_A_CASCADING_REFERENCE = <<~RUBY
+      require "bundler/setup"
+      require "tmpdir"
+      ENV["RAILS_ENV"] = "test"
+      require "./test/dummy/config/environment"
+
+      Dir.mktmpdir do |dir|
+        ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: File.join(dir, "cascade.sqlite3"))
+        ActiveRecord::Migration.verbose = false
+        connection = ActiveRecord::Base.connection
+        migrations = ActiveRecord::MigrationContext.new("db/migrate")
+        migrations.migrate(20261012210100)
+        connection.create_table(:flow_summaries) { |t| t.references :flow, foreign_key: { to_table: :easy_flow_definitions, on_delete: :cascade } }
+        connection.execute("INSERT INTO easy_flow_definitions (host, public_code, created_at, updated_at) VALUES ('dummy', 'code', '2026-11-04', '2026-11-04')")
+        connection.execute("INSERT INTO flow_summaries (flow_id) SELECT id FROM easy_flow_definitions")
+        migrations.migrate
+        puts "summaries kept: \#{connection.select_value('SELECT COUNT(*) FROM flow_summaries')}"
+      end
+    RUBY
+
     def connection
       Definition.connection
     end
@@ -32,6 +53,12 @@ module EasyFlow
       migrate(:up)
 
       assert_not stored_field?
+    end
+
+    test "a row in a table with a cascading reference to a flow survives a real run of the migration" do
+      output, = Open3.capture2e(RbConfig.ruby, "-e", MIGRATE_WITH_A_CASCADING_REFERENCE, chdir: EasyFlow::Engine.root.to_s)
+
+      assert_equal "summaries kept: 1", output.strip
     end
 
     test "it does nothing when the stored field is already gone" do

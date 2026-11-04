@@ -29,5 +29,41 @@ module EasyFlow
     test "prefers a name over a detail when both arrive" do
       assert_equal "Added “A”", Change.phrase("action" => "added", "named" => [ "A" ], "detail" => "ignored")
     end
+
+    test "lists several saves to one step in a row as one line" do
+      saves = [ { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] },
+                { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] } ]
+
+      assert_equal [ "Updated “A”" ], Change.listed(saves)
+    end
+
+    test "keeps saves to a step apart when a save to another step falls between them" do
+      saves = [ { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] },
+                { "action" => "updated", "steps" => [ "b" ], "named" => [ "B" ] },
+                { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] } ]
+
+      assert_equal [ "Updated “A”", "Updated “B”", "Updated “A”" ], Change.listed(saves)
+    end
+
+    test "keeps a save and a move of the same step as two lines" do
+      changes = [ { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] },
+                  { "action" => "moved", "steps" => [ "a" ], "named" => [ "A" ] } ]
+
+      assert_equal [ "Updated “A”", "Moved “A”" ], Change.listed(changes)
+    end
+
+    test "keeps repeated moves of a step as separate lines" do
+      moves = [ { "action" => "moved", "steps" => [ "a" ], "named" => [ "A" ] },
+                { "action" => "moved", "steps" => [ "a" ], "named" => [ "A" ] } ]
+
+      assert_equal [ "Moved “A”", "Moved “A”" ], Change.listed(moves)
+    end
+
+    test "names a grouped step by the name its latest save gave it" do
+      saves = [ { "action" => "updated", "steps" => [ "a" ], "named" => [ "Old" ] },
+                { "action" => "updated", "steps" => [ "a" ], "named" => [ "New" ] } ]
+
+      assert_equal [ "Updated “New”" ], Change.listed(saves)
+    end
   end
 end

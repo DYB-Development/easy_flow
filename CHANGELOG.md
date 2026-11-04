@@ -7,6 +7,13 @@
 - A host can set `always_show_insert_buttons = true` to show each connection's button for inserting a step on its canvas without the pointer over the connection. A connection's label then sits to the right of the line so the button does not cover it. The setting is off by default, and a host that does not set it sees no change.
 - A host can set `hide_step_type_codes = true` to hide step type code names on its canvas. The add menu then lists each step type by its name alone, and a step's box shows its step type's name in place of the code name. A step with no name of its own is headed by its step type's name. With none set, the add menu and step boxes show the code names as before. The settings panel still shows a step's id and code name.
 - A step with a picture shows `Has a picture` on its box on the canvas, on every host.
+- A host can set `publish_note` to a sentence shown directly under the Publish button in its flow panel. With none set, the panel shows no note.
+- A host can set `back_link = { label: "Games", address: "/admin/games" }` to show a button with that label and address in its builder header in place of `All flows`. With none set, the header shows `All flows`.
+
+### Changed
+
+- The flow panel shows Create version and Publish above its lists of problems and changes, on every host. Definition and Edit details stay at the bottom of the panel.
+- Several saves to the same step in a row show as one line in the flow panel's changes list, named by the step's latest name, on every host. The history of versions still lists every change a version captured.
 
 ### Fixed
 

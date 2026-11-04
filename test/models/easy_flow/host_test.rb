@@ -62,5 +62,17 @@ module EasyFlow
 
       assert host.always_show_insert_buttons?
     end
+
+    test "a host names no note for Publish unless it sets one" do
+      assert_nil Host.new(:alembic).publish_note
+    end
+
+    test "a host names no back link unless it sets one" do
+      assert_nil Host.new(:alembic).back_link
+    end
+
+    test "a host refuses a back link with no address" do
+      assert_raises(ArgumentError) { Host.new(:alembic).back_link = { label: "Games" } }
+    end
   end
 end

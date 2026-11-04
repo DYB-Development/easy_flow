@@ -675,5 +675,16 @@ module EasyFlow
 
       assert_selector "[data-inspector] select option", text: "Hour completed"
     end
+
+    test "the flow panel shows the note its host set for Publish" do
+      EasyFlow.host_named("dummy").publish_note = "Publishing changes the live game."
+      canvas_for(flow)
+
+      find("[data-open-panel]").click
+
+      assert_selector "[data-publish-note]", text: "Publishing changes the live game."
+    ensure
+      EasyFlow.host_named("dummy").publish_note = nil
+    end
   end
 end

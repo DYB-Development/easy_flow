@@ -605,5 +605,68 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").always_show_insert_buttons = false
     end
+
+    test "the canvas carries several saves to one step as one line" do
+      2.times { patch "#{canvas_path}/steps/a", params: { config: { question: "New", answers: [ { "value" => "yes" } ] } } }
+
+      get "#{canvas_path}.json"
+
+      assert_equal 1, response.parsed_body["changes"].size
+    end
+
+    test "the history of versions lists every save a version captured" do
+      2.times { patch "#{canvas_path}/steps/a", params: { config: { question: "New", answers: [ { "value" => "yes" } ] } } }
+      post "#{canvas_path}/versions"
+
+      get easy_flow.manage_flow_versions_path(flow)
+
+      assert_select "[data-captured]", 2
+    end
+
+    test "the canvas carries the note a host sets for Publish" do
+      EasyFlow.host_named("dummy").publish_note = "Publishing changes the live game."
+
+      get "#{canvas_path}.json"
+
+      assert_equal "Publishing changes the live game.", response.parsed_body["publish_note"]
+    ensure
+      EasyFlow.host_named("dummy").publish_note = nil
+    end
+
+    test "the builder header shows the back link its host set" do
+      EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a[href=?]", "/admin/games", text: "Games"
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
+
+    test "the builder header shows no All flows button once its host set a back link" do
+      EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a", text: "All flows", count: 0
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
+
+    test "the builder header shows All flows when its host set no back link" do
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a[href=?]", easy_flow.manage_flows_path, text: "All flows"
+    end
+
+    test "a request parameter does not change the back link's address" do
+      EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
+
+      get easy_flow.manage_flow_path(flow, back_link: "https://elsewhere.example", address: "https://elsewhere.example")
+
+      assert_select "header a[href=?]", "https://elsewhere.example", count: 0
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
   end
 end

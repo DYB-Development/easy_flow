@@ -10,7 +10,8 @@ module EasyFlow
           .merge("undoable" => flow.edit_history.undoable?, "redoable" => flow.edit_history.redoable?,
                  "changes" => listed_changes(flow), "flow" => flow_details(flow),
                  "always_show_insert_buttons" => flow_host.always_show_insert_buttons?,
-                 "hide_step_type_codes" => flow_host.hide_step_type_codes?)
+                 "hide_step_type_codes" => flow_host.hide_step_type_codes?,
+                 "publish_note" => flow_host.publish_note)
       end
 
       def canvas_document(flow)
@@ -18,7 +19,7 @@ module EasyFlow
       end
 
       def listed_changes(flow)
-        flow.changes_since_version.to_a.map { |change| Change.phrase(change) }
+        Change.listed(flow.changes_since_version.to_a)
       end
 
       def flow_details(flow)

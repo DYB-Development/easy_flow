@@ -172,3 +172,15 @@ test("links to editing the details as keystone's secondary button", () => {
 test("colors the close button with keystone's muted text color", () => {
   assert.ok(withText(panel({}), "×").props.className?.split(" ").includes("text-gray-500"))
 })
+
+test("offers creating a version and publishing above its problems and its changes", () => {
+  assert.match(renderToStaticMarkup(panel({})), /Create version.*Publish.*Problems.*Changes since the last version/s)
+})
+
+test("shows the host's note right after the Publish button", () => {
+  assert.match(renderToStaticMarkup(panel({ publishNote: "Goes live now." })), /Publish<\/button><p[^>]*data-publish-note[^>]*>Goes live now\./)
+})
+
+test("shows no note when the host set none", () => {
+  assert.equal(shown(panel({}), "data-publish-note").length, 0)
+})

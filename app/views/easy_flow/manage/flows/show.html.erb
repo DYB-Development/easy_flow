@@ -20,7 +20,11 @@
         <%= ui_button(label: "Back to #{@parent.title.presence || @parent.slug}", href: flow_routes.manage_flow_path(@parent), variant: :secondary) %>
       <% end %>
 
-      <%= ui_button(label: "All flows", href: flow_routes.manage_flows_path, variant: :secondary) %>
+      <% if @back_link %>
+        <%= ui_button(label: @back_link.label, href: @back_link.address, variant: :secondary) %>
+      <% else %>
+        <%= ui_button(label: "All flows", href: flow_routes.manage_flows_path, variant: :secondary) %>
+      <% end %>
     </div>
   </header>
 

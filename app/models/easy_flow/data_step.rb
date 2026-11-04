@@ -13,5 +13,9 @@ module EasyFlow
     rescue => error
       { "result" => "failed", "reason" => error.message }
     end
+
+    def route(node, state)
+      state.dig(node.id, "result")
+    end
   end
 end

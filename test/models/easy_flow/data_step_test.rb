@@ -90,6 +90,10 @@ module EasyFlow
       assert_not Definition.exists?(slug: "partial")
     end
 
+    test "routes along the result it recorded" do
+      assert_equal "failed", ReadData.step_type.route(read, { "lookup" => { "result" => "failed" } })
+    end
+
     test "keeps its own result when the answer holds a key named result" do
       answering { { "result" => "unchanged" } }
 

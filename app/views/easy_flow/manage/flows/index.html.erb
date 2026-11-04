@@ -7,7 +7,7 @@
 
   <%= ui_data_table(
     items: @flows,
-    columns: [ { title: "Title" }, { slug: "Slug" }, { kind: "Kind" }, { status: "Status" } ],
+    columns: [ { title: "Title" }, { slug: "Slug" }, { status: "Status" } ],
     empty_message: "No flows yet."
   ) do |table| %>
     <% table.link(:title) { |flow| flow_routes.manage_flow_path(flow) } %>

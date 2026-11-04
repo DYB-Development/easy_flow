@@ -697,5 +697,13 @@ module EasyFlow
 
       assert_equal [ "aside" ], response.parsed_body["unconnected"].map { |step| step["id"] }
     end
+
+    test "accepting the warning at Publish makes live a version without the unconnected steps" do
+      leave_a_step_aside
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_not_includes flow.reload.live_version.definition["nodes"].map { |node| node["id"] }, "aside"
+    end
   end
 end

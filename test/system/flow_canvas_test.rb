@@ -272,6 +272,17 @@ module EasyFlow
       assert_selector "[data-loose] [data-step='question']"
     end
 
+    test "undoing a step placed by the add button removes the step" do
+      canvas_for(wired)
+      find("[title='Add a step']").click
+      add_step_named("Question")
+      assert_selector "[data-step='question']"
+
+      click_button "↶ Undo"
+
+      assert_no_selector "[data-step='question']"
+    end
+
     test "the step a flow begins at simply says it begins" do
       canvas_for(wired)
 

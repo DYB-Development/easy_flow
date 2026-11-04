@@ -689,5 +689,13 @@ module EasyFlow
 
       assert_not_includes flow.reload.definition["nodes"].map { |node| node["id"] }, "aside"
     end
+
+    test "pressing Create version on a flow with an unconnected step names it in a warning" do
+      leave_a_step_aside
+
+      post "#{canvas_path}/versions"
+
+      assert_equal [ "aside" ], response.parsed_body["unconnected"].map { |step| step["id"] }
+    end
   end
 end

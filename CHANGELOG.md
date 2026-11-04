@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-11-04
+
 ### Removed
 
 - A flow no longer has a kind. The new flow page does not ask for one and the flow list has no column for it.

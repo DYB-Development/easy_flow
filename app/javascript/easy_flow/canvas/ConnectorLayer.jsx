@@ -1,7 +1,7 @@
 import React from "react"
 import Connector from "./Connector"
 
-const ConnectorLayer = ({ links, extent, dragging, onInsert, onRemove, onDrop }) => (
+const ConnectorLayer = ({ links, extent, dragging, onInsert, onRemove, onDrop, alwaysShowInsertButtons }) => (
   <>
     <svg width={extent.width} height={extent.height}
          style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none", zIndex: 1 }}>
@@ -17,12 +17,12 @@ const ConnectorLayer = ({ links, extent, dragging, onInsert, onRemove, onDrop })
 
     {links.filter((link) => link.label).map((link) => (
       <div key={`${link.id}-label`} data-link-label={link.id} className="bg-surface-50 text-gray-500 dark:bg-surface-950 dark:text-gray-400"
-           style={{ position: "absolute", left: link.midX - 10, top: link.midY - 18, zIndex: 3,
+           style={{ position: "absolute", left: link.midX + (alwaysShowInsertButtons ? 2 : -10), top: link.midY - 18, zIndex: 3,
                     fontSize: 11, padding: "0 3px" }}>{link.label}</div>
     ))}
 
     {links.filter((link) => !link.placeholder).map((link) => (
-      <Connector key={link.id} link={link} dragging={Boolean(dragging)}
+      <Connector key={link.id} link={link} dragging={Boolean(dragging)} alwaysShowInsertButtons={alwaysShowInsertButtons}
                  onInsert={() => onInsert(link)} onRemove={() => onRemove(link)} onDrop={() => onDrop(link)} />
     ))}
   </>

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- A host can set `always_show_insert_buttons = true` to show each connection's button for inserting a step on its canvas without the pointer over the connection. A connection's label then sits to the right of the line so the button does not cover it. The setting is off by default, and a host that does not set it sees no change.
+
 ## [0.32.1] - 2026-11-04
 
 ### Fixed

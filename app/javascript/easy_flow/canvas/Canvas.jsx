@@ -94,7 +94,7 @@ const Canvas = ({ base, token, initial }) => {
                  onUndo={() => { setSelected(null); send("/undo", "POST") }}
                  onRedo={() => { setSelected(null); send("/redo", "POST") }} />
 
-        <ConnectorLayer links={links} extent={extent} dragging={dragging}
+        <ConnectorLayer links={links} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
                         onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
                         onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
                         onDrop={(link) => { const held = dragging; setDragging(null); send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }} />

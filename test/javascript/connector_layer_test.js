@@ -4,10 +4,10 @@ import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import ConnectorLayer from "../../app/javascript/easy_flow/canvas/ConnectorLayer.jsx"
 
-const drawn = () => renderToStaticMarkup(React.createElement(ConnectorLayer, {
+const drawn = (props) => renderToStaticMarkup(React.createElement(ConnectorLayer, {
   links: [ { id: "a-b", source: "a", target: "b", path: "M 0 0 L 10 10", midX: 5, midY: 5, label: "yes" } ],
   extent: { width: 100, height: 100 }, dragging: null,
-  onInsert: () => {}, onRemove: () => {}, onDrop: () => {}
+  onInsert: () => {}, onRemove: () => {}, onDrop: () => {}, ...props
 }))
 
 const classesWith = (html, attribute) => (html.match(new RegExp(`<[^<>]*${attribute}[^<>]*`))?.[0].match(/class="([^"]*)"/)?.[1] || "").split(" ")
@@ -26,4 +26,16 @@ test("writes each connection label in keystone's muted text color", () => {
 
 test("sets each connection label on the canvas's surface color", () => {
   assert.ok(classesWith(drawn(), 'data-link-label="a-b"').includes("bg-surface-50"))
+})
+
+test("sets each connection label over the line when the host has not asked for insert buttons to show", () => {
+  assert.match(drawn(), /data-link-label="a-b"[^>]*left:-5px/)
+})
+
+test("sets each connection label to the right of its insert button when the host asks for those buttons to show", () => {
+  assert.match(drawn({ alwaysShowInsertButtons: true }), /data-link-label="a-b"[^>]*left:7px/)
+})
+
+test("hands each connection the host's wish to show its insert button", () => {
+  assert.doesNotMatch(drawn({ alwaysShowInsertButtons: true }), /title="Insert a step here"[^>]*opacity:0/)
 })

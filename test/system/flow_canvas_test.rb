@@ -46,6 +46,17 @@ module EasyFlow
       all("[data-connector]").map { |connector| connector["data-connector"] }
     end
 
+    def insert_button_opacity(connector)
+      page.evaluate_script(%(getComputedStyle(document.querySelector("[data-connector='#{connector}'] [title='Insert a step here']")).opacity))
+    end
+
+    def with_insert_buttons_showing
+      EasyFlow.host_named("dummy").always_show_insert_buttons = true
+      yield
+    ensure
+      EasyFlow.host_named("dummy").always_show_insert_buttons = false
+    end
+
     def add_step_named(label)
       find("div[style*='z-index: 9']").click_button(label, match: :first)
     end
@@ -231,6 +242,15 @@ module EasyFlow
       add_step_named("Question")
 
       assert_selector "[data-loose] [data-step='question']"
+    end
+
+    test "a host that asks for it shows a connection's insert button with the pointer elsewhere" do
+      with_insert_buttons_showing do
+        canvas_for(flow)
+        assert_selector "[data-connector='first-gate']", visible: :all
+
+        assert_equal "1", insert_button_opacity("first-gate")
+      end
     end
 
     test "the step a flow begins at simply says it begins" do

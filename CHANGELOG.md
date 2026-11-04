@@ -5,6 +5,12 @@
 ### Added
 
 - A host can set `always_show_insert_buttons = true` to show each connection's button for inserting a step on its canvas without the pointer over the connection. A connection's label then sits to the right of the line so the button does not cover it. The setting is off by default, and a host that does not set it sees no change.
+- A host can set `hide_step_type_codes = true` to hide step type code names on its canvas. The add menu then lists each step type by its name alone, and a step's box shows its step type's name in place of the code name. A step with no name of its own is headed by its step type's name. With none set, the add menu and step boxes show the code names as before. The settings panel still shows a step's id and code name.
+- A step with a picture shows `Has a picture` on its box on the canvas, on every host.
+
+### Fixed
+
+- A step whose type its host no longer offers opens with all its settings and can be saved. It used to open with none. The type still stays out of the add menu.
 
 ## [0.32.1] - 2026-11-04
 

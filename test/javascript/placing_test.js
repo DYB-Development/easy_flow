@@ -40,3 +40,7 @@ const oneIntoEnd = { nodes: [ last, end ], edges: [ { source: "last", target: "e
 test("says a step on the one connection into End goes between its two steps", () => {
   assert.equal(fromToolbar(oneIntoEnd).where, "Goes between Last question and End")
 })
+
+test("says a step with no connection to go on stays out of the flow", () => {
+  assert.equal(fromToolbar({ nodes: [ last ], edges: [] }).where, "Goes beside the flow, not connected")
+})

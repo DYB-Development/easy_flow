@@ -9,6 +9,11 @@
     <label class="block text-sm font-medium mb-1">Title</label>
     <%= ui_input(name: "flow[title]", value: @flow.title, placeholder: "e.g. Business scorecard") %>
 
+    <% unless slugs_from_titles? %>
+      <label class="block text-sm font-medium mb-1">Slug</label>
+      <%= ui_input(name: "flow[slug]", value: @flow.slug, placeholder: "e.g. business-scorecard") %>
+    <% end %>
+
     <% if asks_for_kind? %>
       <label class="block text-sm font-medium mb-1 mt-4">Kind</label>
       <%= ui_select(name: "flow[kind]", options: [ [ "Scored", "scored" ], [ "Guide", "guide" ] ], selected: @flow.kind) %>

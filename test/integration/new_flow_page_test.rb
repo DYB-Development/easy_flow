@@ -22,12 +22,6 @@ module EasyFlow
       assert Definition.exists?(host: "dummy", title: "Morning Routine")
     end
 
-    test "the new flow page does not ask for a slug" do
-      get easy_flow.new_manage_flow_path
-
-      assert_select "input[name=?]", "flow[slug]", count: 0
-    end
-
     test "a flow created from the page has a slug made from the title typed" do
       post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } }
 
@@ -72,6 +66,12 @@ module EasyFlow
       post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "scored" } }
 
       assert_equal "scored", Definition.find_by!(host: "dummy", title: "Morning Routine").kind
+    end
+
+    test "the new flow page asks for a slug when the host has not set slugs from titles" do
+      get easy_flow.new_manage_flow_path
+
+      assert_select "input[name=?]", "flow[slug]"
     end
 
     test "the flow list links to the new flow page" do

@@ -3,7 +3,7 @@ module EasyFlow
     class FlowsController < BaseController
       include DrawsCanvas
 
-      helper_method :asks_for_kind?
+      helper_method :asks_for_kind?, :slugs_from_titles?
 
       def index
         @flows = ordered_flows
@@ -50,6 +50,10 @@ module EasyFlow
 
       def asks_for_kind?
         flow_host.new_flow_kind.nil?
+      end
+
+      def slugs_from_titles?
+        flow_host.slugs_from_titles?
       end
 
       def parent_flow

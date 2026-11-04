@@ -65,6 +65,16 @@ module EasyFlow
       assert_equal "morning-routine-2", flow.slug
     end
 
+    test "a flow that keeps losing the race for its slug stops trying" do
+      flow = Definition.new(host: "dummy", title: "Morning Routine")
+      flow.define_singleton_method(:save) do |**options|
+        Definition.create!(host: "dummy", slug: slug)
+        super(**options)
+      end
+
+      assert_raises(ActiveRecord::RecordNotUnique) { flow.save_under_title }
+    end
+
     test "the database still refuses two shared flows with the same slug in one host" do
       Definition.create!(host: "dummy", slug: "checkup")
 

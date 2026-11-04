@@ -16,7 +16,7 @@ module EasyFlow
       def create
         @flow = hosted_flows.new(create_params)
 
-        if @flow.save_under_title
+        if save_new_flow
           redirect_to manage_flow_path(@flow), notice: "Flow created."
         else
           render :new, status: :unprocessable_entity
@@ -52,6 +52,10 @@ module EasyFlow
         flow_host.slugs_from_titles?
       end
 
+      def save_new_flow
+        slugs_from_titles? ? @flow.save_under_title : @flow.save
+      end
+
       def parent_flow
         hosted_flows.find_by_public_code!(params[:from]) if params[:from].present?
       rescue ActiveRecord::RecordNotFound
@@ -63,7 +67,7 @@ module EasyFlow
       end
 
       def create_params
-        params.require(:flow).permit(:title, :kind)
+        params.require(:flow).permit(slugs_from_titles? ? :title : :slug, :kind)
       end
 
       def flow_params

@@ -15,9 +15,9 @@ module EasyFlow
     end
 
     test "a flow created from the page has the kind chosen when the host has set none" do
-      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "scored" } }
+      post easy_flow.manage_flows_path, params: { flow: { slug: "morning-routine", kind: "scored" } }
 
-      assert_equal "scored", Definition.find_by!(host: "dummy", title: "Morning Routine").kind
+      assert_equal "scored", Definition.find_by!(host: "dummy", slug: "morning-routine").kind
     end
 
     test "the new flow page asks for a slug when the host has not set slugs from titles" do
@@ -45,7 +45,7 @@ module EasyFlow
     end
 
     test "a flow that cannot be created is shown again on the new flow page" do
-      post easy_flow.manage_flows_path, params: { flow: { title: "", kind: "guide" } }
+      post easy_flow.manage_flows_path, params: { flow: { slug: "", kind: "guide" } }
 
       assert_select "form[action=?][method=post]", easy_flow.manage_flows_path
     end

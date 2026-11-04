@@ -57,5 +57,11 @@ module EasyFlow
 
       assert_equal "Boots", read_processed["title"]
     end
+
+    test "records passed when the app answers" do
+      answering { "A1" }
+
+      assert_equal "passed", read_processed["result"]
+    end
   end
 end

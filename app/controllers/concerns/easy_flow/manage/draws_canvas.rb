@@ -8,7 +8,8 @@ module EasyFlow
       def canvas_payload(flow)
         Canvas.new(canvas_document(flow), host: flow_host, flows: hosted_flows.order(:title), flow_path: ->(id) { manage_flow_path(hosted_flows.find_by(id: id) || id, from: flow) }, flow: flow).to_h
           .merge("undoable" => flow.edit_history.undoable?, "redoable" => flow.edit_history.redoable?,
-                 "changes" => listed_changes(flow), "flow" => flow_details(flow))
+                 "changes" => listed_changes(flow), "flow" => flow_details(flow),
+                 "always_show_insert_buttons" => false)
       end
 
       def canvas_document(flow)

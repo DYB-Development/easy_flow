@@ -573,5 +573,11 @@ module EasyFlow
 
       assert_includes response.parsed_body["violations"].map { |violation| [ violation["node"], violation["problem"] ] }, [ "again", "circular" ]
     end
+
+    test "the canvas says a host that names no setting keeps insert buttons hidden" do
+      get "#{canvas_path}.json"
+
+      assert_equal false, response.parsed_body["always_show_insert_buttons"]
+    end
   end
 end

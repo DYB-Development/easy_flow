@@ -759,5 +759,14 @@ module EasyFlow
 
       assert_includes nodes, "aside"
     end
+
+    test "the versions page offers a return to the version from before the removal" do
+      leave_a_step_aside
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      get easy_flow.manage_flow_versions_path(flow)
+
+      assert_select "[data-version='#{flow.reload.definition_versions.maximum(:number) - 1}'] form[data-turbo='false']"
+    end
   end
 end

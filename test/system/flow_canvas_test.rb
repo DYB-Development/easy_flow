@@ -253,6 +253,13 @@ module EasyFlow
       end
     end
 
+    test "a host that names no setting hides a connection's insert button with the pointer elsewhere" do
+      canvas_for(flow)
+      assert_selector "[data-connector='first-gate']", visible: :all
+
+      assert_equal "0", insert_button_opacity("first-gate")
+    end
+
     test "the step a flow begins at simply says it begins" do
       canvas_for(wired)
 

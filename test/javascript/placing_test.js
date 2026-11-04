@@ -23,3 +23,14 @@ test("counts only the connections that lead into End", () => {
 
   assert.equal(from, "last")
 })
+
+test("counts connections into every End in the flow", () => {
+  const other = { id: "other_end", label: "Other end", ends_here: true }
+  const { from } = fromToolbar({ nodes: [ last, end, other ], edges: [ { source: "last", target: "end" }, { source: "last", target: "other_end" } ] })
+
+  assert.equal(from, undefined)
+})
+
+test("places no step on a connection in a flow with none into End", () => {
+  assert.equal(fromToolbar({ nodes: [ last ], edges: [] }).from, undefined)
+})

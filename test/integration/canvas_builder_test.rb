@@ -775,5 +775,15 @@ module EasyFlow
 
       assert flow.reload.definition_versions.order(:number).second_to_last.draft?
     end
+
+    test "undo after the removal brings the steps back to the working document and leaves the version alone" do
+      leave_a_step_aside
+      post "#{canvas_path}/versions", params: { remove_unconnected: [ "aside" ] }
+      newest = flow.reload.definition_versions.maximum(:number)
+
+      post "#{canvas_path}/undo"
+
+      assert_equal [ true, newest ], [ nodes.include?("aside"), flow.reload.definition_versions.maximum(:number) ]
+    end
   end
 end

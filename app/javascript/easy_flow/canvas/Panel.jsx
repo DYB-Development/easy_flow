@@ -24,6 +24,11 @@ const Panel = ({ flow, changes, problems, refusal, notice, onCreate, onPublish, 
     </div>
     <a className="text-accent-600 dark:text-accent-400" style={{ fontSize: 12, display: "block" }} href={flow.history_url} data-history>{standing(flow)}</a>
 
+    <div style={{ marginTop: 14 }}>
+      <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onCreate} data-create-version>Create version</Button>
+      <Button size="sm" className="w-full mb-1.5" onClick={onPublish} data-publish>Publish</Button>
+    </div>
+
     <h2 style={heading}>Problems</h2>
     {refusal && <p className="text-red-800 dark:text-red-400" style={{ ...item, fontWeight: 600 }} data-refusal>{refusal}</p>}
     {notice && !refusal && <p className="text-emerald-800 dark:text-emerald-400" style={{ ...item, fontWeight: 600 }} data-notice>{notice}</p>}
@@ -50,8 +55,6 @@ const Panel = ({ flow, changes, problems, refusal, notice, onCreate, onPublish, 
     </Label>
 
     <div style={{ marginTop: 16 }}>
-      <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onCreate} data-create-version>Create version</Button>
-      <Button size="sm" className="w-full mb-1.5" onClick={onPublish} data-publish>Publish</Button>
       <Button variant="secondary" size="sm" className="w-full mb-1.5" href={flow.definition_url} data-definition>Definition</Button>
       <Button variant="secondary" size="sm" className="w-full mb-1.5" href={flow.details_url} data-details>Edit details</Button>
     </div>

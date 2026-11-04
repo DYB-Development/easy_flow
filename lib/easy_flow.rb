@@ -30,7 +30,7 @@ module EasyFlow
 
   class << self
     attr_writer :base_controller
-    attr_accessor :file_store, :picture_store
+    attr_accessor :file_store, :picture_store, :data_source
 
     def base_controller
       @base_controller || "ActionController::Base"

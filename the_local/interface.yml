@@ -8,6 +8,7 @@ install:
   - EasyFlow.draws_with
   - EasyFlow.file_store
   - EasyFlow.picture_store
+  - EasyFlow.data_source
   - EasyFlow.check
   - /manage/flows
 
@@ -16,6 +17,7 @@ develop:
   - EasyFlow.step
   - labels_answer_by
   - outputs_named_by
+  - EasyFlow::Inputs
   - host.allowed_answers=
   - EasyFlow::FlowsController
   - hosted_by
@@ -48,6 +50,10 @@ sources:
   - app/models/easy_flow/count.rb
   - app/models/easy_flow/compare_two_values.rb
   - app/models/easy_flow/all_or_any.rb
+  - app/models/easy_flow/read_data.rb
+  - app/models/easy_flow/write_data.rb
+  - app/models/easy_flow/data_step.rb
+  - app/models/easy_flow/inputs.rb
   - app/models/easy_flow/wait.rb
   - app/models/easy_flow/completed_at.rb
   - app/models/easy_flow/step_type.rb

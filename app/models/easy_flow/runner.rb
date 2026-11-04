@@ -29,11 +29,15 @@ module EasyFlow
     end
 
     def run(progress)
-      while (node = @digest.next_step(named(progress.recorded), named(progress.completed_at))) && goes_on?(node, named(progress.recorded), CompletedAt.latest(named(progress.completed_at)))
+      while (node = @digest.next_step(named(progress.recorded), named(progress.completed_at))) && goes_on?(node, named(progress.recorded), CompletedAt.latest(named(progress.completed_at))) && (progress.saved? || refusal_of(node).nil?)
         progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded)))
       end
       progress.start_inner(node) if node && starts_a_flow?(node)
       progress.ended unless node
+    end
+
+    def unsaved_refusal(state, times: {})
+      refusal_of(@digest.next_step(named(state), named(times)))
     end
 
     def fills_in_next?(state)
@@ -58,6 +62,10 @@ module EasyFlow
     end
 
     private
+
+    def refusal_of(node)
+      @registry.fetch(node.type).unsaved_refusal if node && @registry.registered?(node.type)
+    end
 
     def starts_a_flow?(node)
       @registry.registered?(node.type) && @registry.fetch(node.type).starts_a_flow?

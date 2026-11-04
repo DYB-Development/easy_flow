@@ -2,6 +2,11 @@ require "test_helper"
 
 module EasyFlow
   class InputsTest < ActiveSupport::TestCase
+    class HostStep
+      include Step
+      include Inputs
+    end
+
     def taking(*inputs)
       Node.new(id: "lookup", type: "read_data", config: { "inputs" => inputs })
     end
@@ -21,6 +26,10 @@ module EasyFlow
       state = { "pick" => { "code" => "A1" }, "pick@2" => { "code" => "B2" }, "pick@10" => { "code" => "C3" } }
 
       assert_equal({ "sku" => "C3" }, Inputs.values_of(taking(input), state))
+    end
+
+    test "gives a step type that includes it a list of named inputs" do
+      assert_equal %i[name value step output], HostStep.step_type.settings.record_fields[:inputs].keys
     end
   end
 end

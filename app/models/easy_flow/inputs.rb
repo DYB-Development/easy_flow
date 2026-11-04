@@ -1,5 +1,16 @@
 module EasyFlow
   module Inputs
+    extend ActiveSupport::Concern
+
+    included do
+      setting :inputs, type: :list do
+        setting :name, type: :string, required: true
+        setting :value, type: :string
+        setting :step, type: :previous_step, label: "Earlier step"
+        setting :output, outputs_of: :step, label: "Earlier step's output"
+      end
+    end
+
     def self.values_of(node, state)
       Array(node.config["inputs"]).to_h { |input| [ input["name"], input["step"].present? ? latest_output(input, state) : input["value"] ] }
     end

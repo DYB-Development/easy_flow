@@ -717,7 +717,6 @@ module EasyFlow
 
     test "accepting while a step that stays has a problem refuses and removes nothing" do
       leave_a_step_aside
-      patch "#{canvas_path}/steps/b", params: { config: { answers: [] } }
       post "#{canvas_path}/steps", params: { id: "gate", type: "condition", from: "b", to: "end" }
 
       post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }

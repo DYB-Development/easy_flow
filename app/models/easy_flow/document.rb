@@ -109,6 +109,11 @@ module EasyFlow
            edges: (raw_edges - incoming - outgoing) + bridges(incoming, outgoing))
     end
 
+    def without(ids)
+      Document.new(@document.merge("nodes" => raw_nodes.reject { |node| ids.include?(node["id"]) },
+        "edges" => raw_edges.reject { |edge| ids.include?(edge["from"]) || ids.include?(edge["to"]) }), registry: @registry)
+    end
+
     private
 
     def bridges(incoming, outgoing)

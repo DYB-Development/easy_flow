@@ -118,5 +118,9 @@ module EasyFlow
 
       assert_empty second.unconnected
     end
+
+    test "taking steps out drops them and every connection touching them without joining what they connected" do
+      assert_equal [ { "from" => "start", "to" => "a" } ], with_one_left_to_the_side.without([ "aside" ]).to_h["edges"]
+    end
   end
 end

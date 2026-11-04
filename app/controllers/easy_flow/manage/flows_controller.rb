@@ -2,6 +2,9 @@ module EasyFlow
   module Manage
     class FlowsController < BaseController
       include DrawsCanvas
+
+      helper_method :asks_for_kind?
+
       def index
         @flows = ordered_flows
       end
@@ -44,6 +47,10 @@ module EasyFlow
       end
 
       private
+
+      def asks_for_kind?
+        flow_host.new_flow_kind.nil?
+      end
 
       def parent_flow
         hosted_flows.find_by_public_code!(params[:from]) if params[:from].present?

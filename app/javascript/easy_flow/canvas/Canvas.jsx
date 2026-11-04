@@ -48,7 +48,7 @@ const Canvas = ({ base, token, initial }) => {
     }
 
     const away = (event) => {
-      if (!event.target.closest("[data-builder-panel], [data-open-panel]")) setShowing(false)
+      if (event.target.isConnected && !event.target.closest("[data-builder-panel], [data-open-panel]")) setShowing(false)
     }
     document.addEventListener("click", away)
     return () => document.removeEventListener("click", away)

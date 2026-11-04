@@ -701,5 +701,15 @@ module EasyFlow
 
       assert_selector "[data-unconnected-warning]", text: "“Left aside” is not connected to the flow and will be removed."
     end
+
+    test "declining the warning brings Publish back" do
+      canvas_for(wired_with_one_aside)
+      find("[data-open-panel]").click
+      find("[data-publish]").click
+
+      find("[data-decline-removal]").click
+
+      assert_selector "[data-publish]"
+    end
   end
 end

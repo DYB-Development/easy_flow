@@ -209,3 +209,12 @@ test("accepting the warning at Create version says it removes and creates a vers
 
   assert.equal(accept.props.children, "Remove and create version")
 })
+
+test("declining the warning answers the panel's decline", () => {
+  const declined = []
+  const [ decline ] = shown(panel({ warning, onDecline: () => declined.push(true) }), "data-decline-removal")
+
+  decline.props.onClick()
+
+  assert.deepEqual(declined, [ true ])
+})

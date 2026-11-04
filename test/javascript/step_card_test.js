@@ -50,6 +50,12 @@ test("writes the step type's name in the muted text color when the host hides co
   assert.ok(classes(name).includes("text-gray-500"))
 })
 
+const unnamedQuestion = { id: "question_2", label: "question_2", type: "question", type_name: "Question" }
+
+test("writes no id on the box of a step with no name of its own when the host hides codes", () => {
+  assert.equal(child(card(unnamedQuestion, hidingCodes), (element) => element.props?.children === "question_2"), undefined)
+})
+
 test("writes a start card's label in keystone's muted text color", () => {
   const label = child(card({ begins_here: true, label: "Start" }), (element) => element.props?.children === "Start")
 

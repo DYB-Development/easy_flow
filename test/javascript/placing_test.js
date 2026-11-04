@@ -10,3 +10,10 @@ test("places a step on the one connection into End", () => {
 
   assert.deepEqual([ from, to ], [ "last", "end" ])
 })
+
+test("places no step on a connection when several lead into End", () => {
+  const other = { id: "other", label: "Other", ends_here: false }
+  const { from } = fromToolbar({ nodes: [ last, other, end ], edges: [ { source: "last", target: "end" }, { source: "other", target: "end" } ] })
+
+  assert.equal(from, undefined)
+})

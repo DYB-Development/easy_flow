@@ -41,7 +41,7 @@ easy_flow declares no commands of its own for this local. Its surface is split b
 
 ## Conventions
 
-- **Flow** — one guided path, found by its slug within its host. It holds a working document the admin edits and a list of versions.
+- **Flow** — one guided path, found by its slug within its host. It holds a working document the admin edits and a list of versions. A flow created on the new flow page takes its slug from the title typed there, with the next free number on the end when the host or owner already holds that slug, and keeps that slug when its title is edited later.
 - **Document** — the flow's content: its steps (nodes), the connections between them (edges), a headline and a slug.
 - **Version** — a numbered snapshot of the document. A version is a draft until it is published, and a flow has at most one live version at a time. Publishing another version makes the one that was live superseded. A version can also be retired or withdrawn, and a retired or withdrawn version cannot be published again.
 - **Published version** — a version that is live or superseded, which is any version that has been published and not taken out of service.

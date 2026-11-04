@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- A host can set `new_flow_kind` to `:scored` or `:guide`, so the new flow page does not ask for a kind and every flow created from it has that kind.
+
+### Changed
+
+- The new flow page asks for a title instead of a slug, and refuses a blank title.
+- A flow created from the page takes a slug made from its title, which stays the same when the title is edited later.
+- A second flow with the same title takes the next free number on its slug, such as `checkup-2`, within its host and owner.
+- A title with no letters or numbers takes the slug `flow`, and a title that makes the slug `runs` takes `runs-2`, since `<mount path>/runs/step` is the address of a run.
+
 ## [0.31.0] - 2026-10-29
 
 ### Added

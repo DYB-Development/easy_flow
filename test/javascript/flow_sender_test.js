@@ -46,3 +46,13 @@ test("a warning about unconnected steps carries the steps and where to send the 
 
   assert.deepEqual(warnings, [ { path: "/publish", steps: [ { id: "aside", label: "Aside" } ] } ])
 })
+
+test("a warning about unconnected steps draws the flow again so the canvas matches it", async () => {
+  const drawn = []
+  const warned = { ok: false, json: async () => ({ unconnected: [ { id: "aside", label: "Aside" } ] }) }
+  const send = createFlowSender({ base: "/flows/1/canvas", token: "t", fetch: answering(warned, { nodes: [ "fresh" ] }), onFlow: (flow) => drawn.push(flow), onNotice: () => {}, onError: () => {} })
+
+  await send("/publish", "POST")
+
+  assert.deepEqual(drawn, [ { nodes: [ "fresh" ] } ])
+})

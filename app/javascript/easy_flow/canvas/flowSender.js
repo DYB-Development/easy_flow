@@ -14,7 +14,8 @@ export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice
   if (answered.unconnected) {
     onNotice(null)
     onError(null)
-    return onWarning({ path, steps: answered.unconnected })
+    onWarning({ path, steps: answered.unconnected })
+    return onFlow(await (await fetch(base + ".json", { headers: { Accept: "application/json" } })).json())
   }
 
   if (!response.ok) {

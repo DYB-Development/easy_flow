@@ -768,5 +768,12 @@ module EasyFlow
 
       assert_select "[data-version='#{flow.reload.definition_versions.maximum(:number) - 1}'] form[data-turbo='false']"
     end
+
+    test "the version kept from before the removal never goes live" do
+      leave_a_step_aside
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert flow.reload.definition_versions.order(:number).second_to_last.draft?
+    end
   end
 end

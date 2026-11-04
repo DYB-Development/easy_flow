@@ -20,6 +20,15 @@ Do this before any SQLite database runs the copy, and commit the change so every
 
 An app that has not copied the migration yet gets the corrected one from `bin/rails easy_flow:install:migrations`. An app on Postgres changes nothing, since Postgres keeps these rows with or without the line.
 
+An app that already ran the 0.32.0 migration on SQLite has lost:
+
+- Every row in another table whose foreign key to a flow deletes the row with the flow, and every row that was deleted in turn because it referenced one of those rows.
+- The value of every foreign key to a flow that is set to null with the flow. Those rows remain with the field empty.
+
+Flows, versions and runs were kept. This fix does not restore what was lost, and neither does rolling back or running the migration again. The only way to get those rows back is a backup taken before the run.
+
+Add the line above to that app's copy too, since rolling the copy back and running it again empties those tables again.
+
 ## [0.32.0] - 2026-11-04
 
 ### Removed

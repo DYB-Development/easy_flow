@@ -79,6 +79,17 @@ module EasyFlow
       assert_equal false, carried_out
     end
 
+    test "a failed read leaves no partial change even inside the caller's transaction" do
+      answering do
+        Definition.create!(host: "dummy", slug: "partial")
+        raise "The shelf is closed"
+      end
+
+      ActiveRecord::Base.transaction { read_processed }
+
+      assert_not Definition.exists?(slug: "partial")
+    end
+
     test "keeps its own result when the answer holds a key named result" do
       answering { { "result" => "unchanged" } }
 

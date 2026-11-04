@@ -184,3 +184,9 @@ test("shows the host's note right after the Publish button", () => {
 test("shows no note when the host set none", () => {
   assert.equal(shown(panel({}), "data-publish-note").length, 0)
 })
+
+const warning = { path: "/publish", steps: [ { id: "aside", label: "Aside" } ] }
+
+test("a warning names each step that will be removed", () => {
+  assert.match(renderToStaticMarkup(panel({ warning })), /“Aside” is not connected to the flow and will be removed\./)
+})

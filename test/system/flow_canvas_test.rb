@@ -735,5 +735,18 @@ module EasyFlow
       assert_selector "[data-notice]", text: "Published version"
       assert_no_selector "[data-step='aside']"
     end
+
+    test "a step left unconnected after the warning was shown warns again before anything is removed" do
+      flow = wired_with_one_aside
+      canvas_for(flow)
+      find("[data-open-panel]").click
+      find("[data-publish]").click
+      find("[data-unconnected-warning]")
+      flow.edit_history.record(Document.new(flow.reload.document).add({ "id" => "later", "type" => "question", "question" => "Added later" }), :added, [ "later" ], flow.document)
+
+      find("[data-accept-removal]").click
+
+      assert_selector "[data-unconnected-warning]", text: "“Left aside”, “Added later” are not connected"
+    end
   end
 end

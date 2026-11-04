@@ -658,5 +658,15 @@ module EasyFlow
 
       assert_select "header a[href=?]", easy_flow.manage_flows_path, text: "All flows"
     end
+
+    test "a request parameter does not change the back link's address" do
+      EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
+
+      get easy_flow.manage_flow_path(flow, back_link: "https://elsewhere.example", address: "https://elsewhere.example")
+
+      assert_select "header a[href=?]", "https://elsewhere.example", count: 0
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
   end
 end

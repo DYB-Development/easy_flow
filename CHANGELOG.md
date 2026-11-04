@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- On the canvas, every connection shows its button for inserting a step all the time. The button for removing a connection still shows only with the pointer over it, and a connection's label now sits to the right of the line so the insert button does not cover it.
+- In a flow with exactly one connection into an End step, counted across all its End steps, the canvas's top-left add button now puts the chosen step on that connection. In any other flow it adds the step unconnected, as before.
+- The add menu opened from the top-left button now says where the step will go. When the step would go on a connection, the menu offers `Add it unconnected`.
+
 ## [0.32.1] - 2026-11-04
 
 ### Fixed

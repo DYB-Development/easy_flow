@@ -3,6 +3,10 @@ module EasyFlow
     PHRASING = { "added" => "Added", "updated" => "Updated", "removed" => "Removed",
                  "moved" => "Moved", "connected" => "Connected", "disconnected" => "Disconnected", "returned" => "Returned to" }.freeze
 
+    def self.listed(changes)
+      changes.map { |change| phrase(change) }.uniq
+    end
+
     def self.phrase(change)
       named = Array(change["named"]).compact_blank.map { |name| "“#{name}”" }
       verb = PHRASING.fetch(change["action"], change["action"])

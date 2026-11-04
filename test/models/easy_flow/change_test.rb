@@ -29,5 +29,12 @@ module EasyFlow
     test "prefers a name over a detail when both arrive" do
       assert_equal "Added “A”", Change.phrase("action" => "added", "named" => [ "A" ], "detail" => "ignored")
     end
+
+    test "lists several saves to one step in a row as one line" do
+      saves = [ { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] },
+                { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] } ]
+
+      assert_equal [ "Updated “A”" ], Change.listed(saves)
+    end
   end
 end

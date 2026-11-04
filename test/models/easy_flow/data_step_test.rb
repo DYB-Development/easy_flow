@@ -51,5 +51,11 @@ module EasyFlow
 
       assert_equal "A1", read_processed["answer"]
     end
+
+    test "records a hash answer under names written as strings" do
+      answering { { title: "Boots" } }
+
+      assert_equal "Boots", read_processed["title"]
+    end
   end
 end

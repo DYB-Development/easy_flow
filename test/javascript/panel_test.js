@@ -190,3 +190,7 @@ const warning = { path: "/publish", steps: [ { id: "aside", label: "Aside" } ] }
 test("a warning names each step that will be removed", () => {
   assert.match(renderToStaticMarkup(panel({ warning })), /“Aside” is not connected to the flow and will be removed\./)
 })
+
+test("a warning puts its own buttons in place of Create version and Publish", () => {
+  assert.equal(shown(panel({ warning }), "data-publish").length, 0)
+})

@@ -25,13 +25,19 @@ const Panel = ({ flow, changes, problems, refusal, notice, publishNote, warning,
     </div>
     <a className="text-accent-600 dark:text-accent-400" style={{ fontSize: 12, display: "block" }} href={flow.history_url} data-history>{standing(flow)}</a>
 
-    {warning && <div style={{ marginTop: 14 }} data-unconnected-warning><Alert type="warning" message={warned(warning.steps)} /></div>}
-
-    <div style={{ marginTop: 14 }}>
-      <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onCreate} data-create-version>Create version</Button>
-      <Button size="sm" className="w-full mb-1.5" onClick={onPublish} data-publish>Publish</Button>
-      {publishNote && <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: 12, lineHeight: 1.4 }} data-publish-note>{publishNote}</p>}
-    </div>
+    {warning
+      ? (
+        <div style={{ marginTop: 14 }} data-unconnected-warning>
+          <Alert type="warning" className="mb-1.5" message={warned(warning.steps)} />
+        </div>
+      )
+      : (
+        <div style={{ marginTop: 14 }}>
+          <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onCreate} data-create-version>Create version</Button>
+          <Button size="sm" className="w-full mb-1.5" onClick={onPublish} data-publish>Publish</Button>
+          {publishNote && <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: 12, lineHeight: 1.4 }} data-publish-note>{publishNote}</p>}
+        </div>
+      )}
 
     <h2 style={heading}>Problems</h2>
     {refusal && <p className="text-red-800 dark:text-red-400" style={{ ...item, fontWeight: 600 }} data-refusal>{refusal}</p>}

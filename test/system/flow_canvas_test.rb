@@ -163,6 +163,12 @@ module EasyFlow
       assert_includes add_menu_from("gate--false").text, "Question\nquestion"
     end
 
+    test "a host that names no setting shows a step's type code on its box" do
+      canvas_for(flow)
+
+      assert_equal "First\nquestion", step_card("first").text
+    end
+
     test "removing a connection unlinks the two steps" do
       canvas_for(flow)
 

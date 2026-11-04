@@ -65,5 +65,9 @@ module EasyFlow
 
       assert_equal [ "Updated “New”" ], Change.listed(saves)
     end
+
+    test "phrases a removal of unconnected steps by naming each step" do
+      assert_equal "Removed unconnected “A”, “B”", Change.phrase("action" => "removed_unconnected", "named" => [ "A", "B" ])
+    end
   end
 end

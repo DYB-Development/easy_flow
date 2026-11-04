@@ -1,7 +1,8 @@
 module EasyFlow
   module Change
     PHRASING = { "added" => "Added", "updated" => "Updated", "removed" => "Removed",
-                 "moved" => "Moved", "connected" => "Connected", "disconnected" => "Disconnected", "returned" => "Returned to" }.freeze
+                 "moved" => "Moved", "connected" => "Connected", "disconnected" => "Disconnected", "returned" => "Returned to",
+                 "removed_unconnected" => "Removed unconnected" }.freeze
 
     def self.listed(changes)
       changes.chunk_while { |earlier, later| saves_to_one_step?(earlier, later) }.map { |saves| phrase(saves.last) }
@@ -15,6 +16,7 @@ module EasyFlow
       named = Array(change["named"]).compact_blank.map { |name| "“#{name}”" }
       verb = PHRASING.fetch(change["action"], change["action"])
 
+      return "#{verb} #{named.join(', ')}" if named.any? && change["action"] == "removed_unconnected"
       return "#{verb} #{named.join(' → ')}" if named.any?
       return "#{verb} #{change['detail']}" if change["detail"].present?
 

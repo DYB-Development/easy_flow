@@ -180,3 +180,7 @@ test("offers creating a version and publishing above its problems and its change
 test("shows the host's note right after the Publish button", () => {
   assert.match(renderToStaticMarkup(panel({ publishNote: "Goes live now." })), /Publish<\/button><p[^>]*data-publish-note[^>]*>Goes live now\./)
 })
+
+test("shows no note when the host set none", () => {
+  assert.equal(shown(panel({}), "data-publish-note").length, 0)
+})

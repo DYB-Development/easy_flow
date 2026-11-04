@@ -157,6 +157,12 @@ module EasyFlow
       end
     end
 
+    test "a host that names no setting shows each type's code in the add menu" do
+      canvas_for(flow)
+
+      assert_includes add_menu_from("gate--false").text, "Question\nquestion"
+    end
+
     test "removing a connection unlinks the two steps" do
       canvas_for(flow)
 

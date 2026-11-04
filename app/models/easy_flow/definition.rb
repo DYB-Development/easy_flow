@@ -29,6 +29,11 @@ module EasyFlow
       end
     end
 
+    def save_under_title
+      self.slug = title.parameterize
+      save
+    end
+
     def definition
       current_definition_version&.definition
     end

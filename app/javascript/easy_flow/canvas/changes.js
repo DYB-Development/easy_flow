@@ -3,3 +3,9 @@ export const worded = (violation) => {
 
   return violation.node ? `“${violation.node}” ${problem}` : problem
 }
+
+export const warned = (steps) => {
+  const named = steps.map((step) => `“${step.label}”`).join(", ")
+
+  return `${named} ${steps.length === 1 ? "is" : "are"} not connected to the flow and will be removed.`
+}

@@ -4,6 +4,8 @@ module EasyFlow
     include Inputs
 
     included do
+      names_by :data
+
       setting(:values, type: :list, label: "Values it reports") { setting :name, type: :string, required: true }
       outputs_named_by :values
 

@@ -100,6 +100,10 @@ module EasyFlow
       assert_equal %w[result reason answer title], outputs
     end
 
+    test "is named after what it reads" do
+      assert_equal "stock", ReadData.step_type.name_of(read)
+    end
+
     test "keeps its own result when the answer holds a key named result" do
       answering { { "result" => "unchanged" } }
 

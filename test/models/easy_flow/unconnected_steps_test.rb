@@ -21,5 +21,9 @@ module EasyFlow
 
       assert_includes unsettled.objections.map(&:node), "a"
     end
+
+    test "a connection from a removed step into the beginning is no objection" do
+      assert_empty checked([ asking("aside") ], [ { "from" => "aside", "to" => "start" } ]).objections
+    end
   end
 end

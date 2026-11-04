@@ -4,6 +4,7 @@ module EasyFlow
   class ReadDataTest < ActiveSupport::TestCase
     class Shelf
       def reads = %w[stock]
+      def writes = []
     end
 
     setup { EasyFlow.data_source = Shelf.new }

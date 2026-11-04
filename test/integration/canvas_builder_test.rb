@@ -705,5 +705,14 @@ module EasyFlow
 
       assert_not_includes flow.reload.live_version.definition["nodes"].map { |node| node["id"] }, "aside"
     end
+
+    test "accepting a warning that names other steps than the flow now has warns again and removes nothing" do
+      leave_a_step_aside
+      add_step_with_answers("later")
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal [ %w[aside later], nil, true ], [ response.parsed_body["unconnected"].map { |step| step["id"] }, flow.reload.live_version, nodes.include?("aside") ]
+    end
   end
 end

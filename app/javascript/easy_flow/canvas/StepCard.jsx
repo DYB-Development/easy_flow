@@ -16,7 +16,7 @@ const edge = (target, troubled, selected) => {
   return "border-gray-300 shadow-sm dark:border-zinc-700"
 }
 
-const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart }) => {
+const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes }) => {
   const bookend = node.begins_here || node.ends_here
   const pinned = node.begins_here
   const ports = node.ends_here ? [] : node.ports
@@ -37,7 +37,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
          }}>
       {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{node.label}</div>}
       {!bookend && <div style={named}>{node.label}</div>}
-      {!bookend && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{node.type}</div>}
+      {!bookend && !hideStepTypeCodes && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{node.type}</div>}
       {node.starts_a_flow && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Runs a flow</div>}
       {node.opens && <Button variant="secondary" size="sm" className="mt-2" onClick={(event) => { event.stopPropagation(); onSelect() }}>Settings</Button>}
       {node.violations.map((violation) => (

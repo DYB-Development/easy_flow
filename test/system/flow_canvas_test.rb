@@ -233,6 +233,14 @@ module EasyFlow
       assert_selector "[data-connector='question-end']"
     end
 
+    test "the add menu says which two steps the chosen step will go between" do
+      canvas_for(wired)
+
+      find("[title='Add a step']").click
+
+      assert_text "Goes between Yes path and End"
+    end
+
     test "the step a flow begins at simply says it begins" do
       canvas_for(wired)
 

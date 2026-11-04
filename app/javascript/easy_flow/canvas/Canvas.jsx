@@ -166,7 +166,7 @@ const Canvas = ({ base, token, initial }) => {
         </div>
 
         {adding && (
-          <TypePicker entries={flow.palette} at={adding.at} onDismiss={() => setAdding(null)}
+          <TypePicker entries={flow.palette} at={adding.at} where={adding.where} onDismiss={() => setAdding(null)}
                       onConnect={adding.on !== undefined ? () => { setArmed([ adding.from, adding.on ]); setAdding(null) } : null}
                       onPick={(entry) => {
                         const where = adding

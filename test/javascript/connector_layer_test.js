@@ -35,3 +35,7 @@ test("sets each connection label over the line when the host has not asked for i
 test("sets each connection label to the right of its insert button when the host asks for those buttons to show", () => {
   assert.match(drawn({ alwaysShowInsertButtons: true }), /data-link-label="a-b"[^>]*left:7px/)
 })
+
+test("hands each connection the host's wish to show its insert button", () => {
+  assert.doesNotMatch(drawn({ alwaysShowInsertButtons: true }), /title="Insert a step here"[^>]*opacity:0/)
+})

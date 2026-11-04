@@ -22,7 +22,7 @@ const ConnectorLayer = ({ links, extent, dragging, onInsert, onRemove, onDrop, a
     ))}
 
     {links.filter((link) => !link.placeholder).map((link) => (
-      <Connector key={link.id} link={link} dragging={Boolean(dragging)}
+      <Connector key={link.id} link={link} dragging={Boolean(dragging)} alwaysShowInsertButtons={alwaysShowInsertButtons}
                  onInsert={() => onInsert(link)} onRemove={() => onRemove(link)} onDrop={() => onDrop(link)} />
     ))}
   </>

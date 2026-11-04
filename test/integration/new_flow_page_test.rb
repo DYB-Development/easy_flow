@@ -20,6 +20,12 @@ module EasyFlow
       assert Definition.exists?(host: "dummy", title: "Morning Routine")
     end
 
+    test "the new flow page does not ask for a slug" do
+      get easy_flow.new_manage_flow_path
+
+      assert_select "input[name=?]", "flow[slug]", count: 0
+    end
+
     test "the flow list links to the new flow page" do
       get easy_flow.manage_flows_path
 

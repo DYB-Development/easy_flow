@@ -13,7 +13,7 @@ module EasyFlow
       def create
         @flow = hosted_flows.new(create_params)
 
-        if @flow.save
+        if @flow.save_under_title
           redirect_to manage_flow_path(@flow), notice: "Flow created."
         else
           render :new, status: :unprocessable_entity
@@ -56,7 +56,7 @@ module EasyFlow
       end
 
       def create_params
-        params.require(:flow).permit(:slug, :kind)
+        params.require(:flow).permit(:title, :kind)
       end
 
       def flow_params

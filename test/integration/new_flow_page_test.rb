@@ -14,6 +14,12 @@ module EasyFlow
       assert_select "input[name=?]", "flow[title]"
     end
 
+    test "a flow created from the page has the title typed" do
+      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } }
+
+      assert Definition.exists?(host: "dummy", title: "Morning Routine")
+    end
+
     test "the flow list links to the new flow page" do
       get easy_flow.manage_flows_path
 
@@ -27,7 +33,7 @@ module EasyFlow
     end
 
     test "a flow that cannot be created is shown again on the new flow page" do
-      post easy_flow.manage_flows_path, params: { flow: { slug: "", kind: "guide" } }
+      post easy_flow.manage_flows_path, params: { flow: { title: "", kind: "guide" } }
 
       assert_select "form[action=?][method=post]", easy_flow.manage_flows_path
     end

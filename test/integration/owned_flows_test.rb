@@ -17,7 +17,7 @@ module EasyFlow
     end
 
     test "a flow created in a host that names an owner belongs to that owner" do
-      post "/owned/manage/flows", params: { flow: { slug: "fresh", title: "Fresh" } }, headers: as(@ours)
+      post "/owned/manage/flows", params: { flow: { title: "Fresh" } }, headers: as(@ours)
 
       assert_equal @ours, Definition.find_by!(host: "owned", slug: "fresh").owner
     end

@@ -50,5 +50,11 @@ module EasyFlow
 
       assert_equal %w[fresh fresh-2], Definition.where(host: "owned", owner: owner).order(:id).pluck(:slug)
     end
+
+    test "a slug posted to the page is ignored" do
+      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", slug: "typed-by-hand", kind: "guide" } }
+
+      assert_equal "morning-routine", Definition.find_by!(host: "dummy", title: "Morning Routine").slug
+    end
   end
 end

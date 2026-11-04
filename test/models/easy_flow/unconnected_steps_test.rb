@@ -38,5 +38,9 @@ module EasyFlow
     test "names each step that would be removed by its id and label" do
       assert_equal [ { "id" => "aside", "label" => "Aside" } ], checked([ asking("aside", question: "Aside") ]).named
     end
+
+    test "the removal is accepted only when it names the same steps" do
+      assert_equal [ true, false ], [ checked([ asking("aside") ]).accepted?([ "aside" ]), checked([ asking("aside"), asking("other") ]).accepted?([ "aside" ]) ]
+    end
   end
 end

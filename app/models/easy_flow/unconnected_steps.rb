@@ -6,8 +6,16 @@ module EasyFlow
       @registry = registry
     end
 
+    def ids
+      @document.unconnected
+    end
+
     def named
-      @document.unconnected.map { |id| { "id" => id, "label" => Name.of(@document.node(id), @registry) } }
+      ids.map { |id| { "id" => id, "label" => Name.of(@document.node(id), @registry) } }
+    end
+
+    def accepted?(named_steps)
+      Array(named_steps).map(&:to_s).sort == ids.map(&:to_s).sort
     end
 
     def objections
@@ -17,7 +25,7 @@ module EasyFlow
     private
 
     def readers
-      staying.nodes.select { |node| entries_naming(node).intersect?(@document.unconnected) }
+      staying.nodes.select { |node| entries_naming(node).intersect?(ids) }
         .map { |node| Violation.new(node: node.id, problem: :reading_an_unconnected_step) }
     end
 
@@ -30,7 +38,7 @@ module EasyFlow
     end
 
     def staying
-      @document.without(@document.unconnected)
+      @document.without(ids)
     end
   end
 end

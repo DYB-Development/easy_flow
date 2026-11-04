@@ -25,5 +25,13 @@ module EasyFlow
 
       assert_equal [ "stock", "A1" ], recorded.values_at("name", "sku")
     end
+
+    test "records what the app answers to a write given the input values" do
+      node = Node.new(id: "add", type: "write_data", config: { "data" => "restock", "inputs" => [ { "name" => "sku", "value" => "A1" } ] })
+
+      recorded = WriteData.step_type.process(node, {})
+
+      assert_equal [ "restock", "A1" ], recorded.values_at("name", "sku")
+    end
   end
 end

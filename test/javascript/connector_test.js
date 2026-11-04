@@ -30,3 +30,7 @@ test("hides the insert button until the pointer is over the connection when the 
 test("keeps the remove button hidden until the pointer is over the connection", () => {
   assert.match(drawn(), /title="Remove this connection"[^>]*opacity:0/)
 })
+
+test("shows the insert button without the pointer over the connection when the host asks for it", () => {
+  assert.doesNotMatch(drawn({ alwaysShowInsertButtons: true }), /title="Insert a step here"[^>]*opacity:0/)
+})

@@ -785,5 +785,11 @@ module EasyFlow
 
       assert_equal [ true, newest ], [ nodes.include?("aside"), flow.reload.definition_versions.maximum(:number) ]
     end
+
+    test "accepting when nothing is unconnected any more removes nothing and goes on" do
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal "Published version 1. Visitors run it now.", response.parsed_body["notice"]
+    end
   end
 end

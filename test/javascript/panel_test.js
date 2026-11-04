@@ -203,3 +203,9 @@ test("accepting the warning at Publish says it removes and publishes", () => {
 
   assert.deepEqual([ accept.props.children, accepted ], [ "Remove and publish", [ true ] ])
 })
+
+test("accepting the warning at Create version says it removes and creates a version", () => {
+  const [ accept ] = shown(panel({ warning: { ...warning, path: "/versions" } }), "data-accept-removal")
+
+  assert.equal(accept.props.children, "Remove and create version")
+})

@@ -29,7 +29,7 @@ const Panel = ({ flow, changes, problems, refusal, notice, publishNote, warning,
       ? (
         <div style={{ marginTop: 14 }} data-unconnected-warning>
           <Alert type="warning" className="mb-1.5" message={warned(warning.steps)} />
-          <Button size="sm" className="w-full mb-1.5" onClick={onAccept} data-accept-removal>Remove and publish</Button>
+          <Button size="sm" className="w-full mb-1.5" onClick={onAccept} data-accept-removal>{warning.path === "/publish" ? "Remove and publish" : "Remove and create version"}</Button>
         </div>
       )
       : (

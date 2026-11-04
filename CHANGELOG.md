@@ -13,6 +13,7 @@
 - A Read data or Write data step takes named inputs, each a fixed value or an output of an earlier step, and an input reads the most recent visit of a step reached more than once.
 - A Read data or Write data step runs in its own nested transaction. A hash answer is recorded as named outputs and any other answer under `answer`, and the step follows its `passed` connection. A raised error rolls back what the call changed, records its message as `reason` and follows the `failed` connection.
 - A step type of the app's own can `include EasyFlow::Inputs` for the same inputs setting and read the values with `EasyFlow::Inputs.values_of(node, state)`.
+- A Read data or Write data step in a flow that keeps nothing or keeps the run only once it finishes tells the visitor "Data can only be read or written in a flow that saves its runs." when the run reaches it. The visitor cannot go on and the app is not called. A preview of a flow runs this way too.
 
 ### Changed
 

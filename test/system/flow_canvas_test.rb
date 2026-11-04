@@ -260,6 +260,15 @@ module EasyFlow
       assert_equal "0", insert_button_opacity("first-gate")
     end
 
+    test "a host that asks for insert buttons still draws none on a placeholder's arrow" do
+      with_insert_buttons_showing do
+        canvas_for(flow)
+        assert_selector "[data-link]", visible: :all
+
+        assert_no_selector "[data-connector='gate-gate--false']", visible: :all
+      end
+    end
+
     test "the step a flow begins at simply says it begins" do
       canvas_for(wired)
 

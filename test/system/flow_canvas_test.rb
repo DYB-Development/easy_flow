@@ -283,6 +283,17 @@ module EasyFlow
       assert_no_selector "[data-step='question']"
     end
 
+    test "undoing a step placed by the add button restores the connection it was placed on" do
+      canvas_for(wired)
+      find("[title='Add a step']").click
+      add_step_named("Question")
+      assert_no_selector "[data-connector='yes_step-end']"
+
+      click_button "↶ Undo"
+
+      assert_selector "[data-connector='yes_step-end']"
+    end
+
     test "the step a flow begins at simply says it begins" do
       canvas_for(wired)
 

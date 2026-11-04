@@ -18,7 +18,7 @@ const Connector = ({ link, onInsert, onRemove, onDrop, dragging }) => {
                 data-over={Boolean(dragging && over)} style={round}>+</Button>
         {!dragging && (
           <Button variant="danger" title="Remove this connection" onClick={onRemove}
-                  className="rounded-full" style={round}>×</Button>
+                  className="rounded-full" style={{ ...round, opacity: over ? 1 : 0, transition: "opacity .12s" }}>×</Button>
         )}
       </div>
     </div>

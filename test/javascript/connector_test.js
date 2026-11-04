@@ -26,3 +26,7 @@ test("offers removing the connection as a round keystone danger button", () => {
 test("shows the insert button without the pointer being over the connection", () => {
   assert.doesNotMatch(drawn().split('title="Remove')[0], /opacity:0/)
 })
+
+test("keeps the remove button hidden until the pointer is over the connection", () => {
+  assert.match(drawn(), /title="Remove this connection"[^>]*opacity:0/)
+})

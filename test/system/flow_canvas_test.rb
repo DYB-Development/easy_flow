@@ -241,6 +241,16 @@ module EasyFlow
       EasyFlow.picture_store = stored_with
     end
 
+    test "a step whose type the host no longer offers still opens with its settings" do
+      EasyFlow.host_named("dummy").offers = %i[compare]
+      canvas_for(flow)
+      step_card("first").click
+
+      assert_selector "[data-inspector] label", text: "Question"
+    ensure
+      EasyFlow.host_named("dummy").offers = nil
+    end
+
     test "opening a step labels each setting its type declares" do
       canvas_for(flow)
 

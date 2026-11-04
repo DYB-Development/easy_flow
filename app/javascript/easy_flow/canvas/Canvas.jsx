@@ -78,7 +78,7 @@ const Canvas = ({ base, token, initial }) => {
   }
 
   const selectedNode = flow.nodes.find((node) => node.id === selected)
-  const entryFor = flow.palette.find((entry) => entry.type === selectedNode?.type)
+  const entryFor = [ ...flow.palette, ...(flow.unoffered || []) ].find((entry) => entry.type === selectedNode?.type)
 
   return (
     <div className="text-gray-900 dark:text-gray-100" style={page} onMouseUp={() => setDragging(null)}

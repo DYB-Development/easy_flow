@@ -149,6 +149,14 @@ module EasyFlow
       end
     end
 
+    test "a host that hides step type codes shows an unconnected step's type by its name on its box" do
+      with_step_type_codes_hidden do
+        canvas_for(adrift)
+
+        assert_equal "Adrift\nQuestion", step_card("adrift").text.split("\nunreachable").first
+      end
+    end
+
     test "removing a connection unlinks the two steps" do
       canvas_for(flow)
 

@@ -118,7 +118,8 @@ const Canvas = ({ base, token, initial }) => {
                   onOpen={(path) => window.location.assign(path)}
                   onArm={(port, event) => { event.stopPropagation(); setArmed([ node.id, port ]) }}
                   onDragStart={() => setDragging(node.id)}
-                  onDragEnd={() => setDragging(null)} />
+                  onDragEnd={() => setDragging(null)}
+                  hideStepTypeCodes={flow.hide_step_type_codes} />
               </div>
             ))}
           </div>

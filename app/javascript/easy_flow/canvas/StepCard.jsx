@@ -45,7 +45,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
            padding: bookend ? 0 : "12px 14px",
            cursor: pinned ? "default" : connecting ? "crosshair" : "grab"
          }}>
-      {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{node.label}</div>}
+      {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{heading}</div>}
       {!bookend && <div style={named}>{heading}</div>}
       {!bookend && typeLine && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{typeLine}</div>}
       {node.starts_a_flow && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Runs a flow</div>}

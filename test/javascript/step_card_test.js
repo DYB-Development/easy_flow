@@ -62,6 +62,12 @@ test("writes the type's name once on the box of a step with no name of its own w
   assert.equal(everyChild(card(unnamedQuestion, hidingCodes)).filter((element) => element.props?.children === "Question").length, 1)
 })
 
+test("heads an end step with no name of its own by its type's name when the host hides codes", () => {
+  const end = card({ id: "terminal", label: "terminal", type: "terminal", type_name: "End", ends_here: true }, hidingCodes)
+
+  assert.ok(child(end, (element) => element.props?.children === "End"))
+})
+
 test("writes a start card's label in keystone's muted text color", () => {
   const label = child(card({ begins_here: true, label: "Start" }), (element) => element.props?.children === "Start")
 

@@ -605,5 +605,13 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").always_show_insert_buttons = false
     end
+
+    test "the canvas carries several saves to one step as one line" do
+      2.times { patch "#{canvas_path}/steps/a", params: { config: { question: "New", answers: [ { "value" => "yes" } ] } } }
+
+      get "#{canvas_path}.json"
+
+      assert_equal 1, response.parsed_body["changes"].size
+    end
   end
 end

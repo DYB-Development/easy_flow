@@ -18,7 +18,7 @@ module EasyFlow
       end
 
       def listed_changes(flow)
-        flow.changes_since_version.to_a.map { |change| Change.phrase(change) }
+        Change.listed(flow.changes_since_version.to_a)
       end
 
       def flow_details(flow)

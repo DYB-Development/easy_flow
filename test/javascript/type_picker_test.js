@@ -43,3 +43,7 @@ const placed = (props) => renderToStaticMarkup(React.createElement(TypePicker, {
 test("says where the step will go when told", () => {
   assert.match(placed({ where: "Goes between First and End" }), />Goes between First and End</)
 })
+
+test("offers adding the step unconnected as keystone's secondary button", () => {
+  assert.ok(classesOf(placed({ onUnconnected: () => {} }), "Add it unconnected").includes("ks-button-secondary"))
+})

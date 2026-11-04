@@ -25,5 +25,14 @@ module EasyFlow
     test "a connection from a removed step into the beginning is no objection" do
       assert_empty checked([ asking("aside") ], [ { "from" => "aside", "to" => "start" } ]).objections
     end
+
+    test "a step that stays reading a removed step in a list entry is an objection" do
+      reading = { "id" => "gate", "type" => "all_or_any", "join" => "all of",
+                  "comparisons" => [ { "step" => "aside", "output" => "answer", "comparison" => "equal to" } ] }
+      unsettled = UnconnectedSteps.new(Document.new(flowing({ "entry" => "gate", "nodes" => [ reading, { "id" => "end", "type" => "terminal" }, asking("aside") ],
+                                                              "edges" => [ { "from" => "gate", "to" => "end", "on" => true }, { "from" => "gate", "to" => "end", "on" => false } ] })))
+
+      assert_equal [ :reading_an_unconnected_step ], unsettled.objections.map(&:problem)
+    end
   end
 end

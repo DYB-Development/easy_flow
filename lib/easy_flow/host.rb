@@ -28,6 +28,10 @@ module EasyFlow
       @allowed_answers&.call(step, answers)
     end
 
+    def always_show_insert_buttons?
+      false
+    end
+
     def offers?(step_type)
       @offers.nil? || @offers.map(&:to_s).include?(step_type.to_s)
     end

@@ -40,5 +40,9 @@ module EasyFlow
 
       assert_equal [ "download" ], host.answers_allowed(Node.new(id: "sold_as", type: "question", config: {}), { kind: "pdf" })
     end
+
+    test "leaves insert buttons hidden until hovered when it says nothing" do
+      assert_not Host.new(:alembic).always_show_insert_buttons?
+    end
   end
 end

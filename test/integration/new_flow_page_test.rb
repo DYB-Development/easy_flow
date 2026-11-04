@@ -32,6 +32,12 @@ module EasyFlow
       assert_equal "morning-routine", Definition.find_by!(host: "dummy", title: "Morning Routine").slug
     end
 
+    test "a second flow created from the page with the same title takes a different slug" do
+      2.times { post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } } }
+
+      assert_equal %w[morning-routine morning-routine-2], Definition.where(host: "dummy", title: "Morning Routine").order(:id).pluck(:slug)
+    end
+
     test "the flow list links to the new flow page" do
       get easy_flow.manage_flows_path
 

@@ -68,5 +68,14 @@ module EasyFlow
 
       assert_equal "scored", Definition.find_by!(host: "dummy", title: "Morning Routine").kind
     end
+
+    test "editing a title leaves the slug made from it" do
+      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } }
+      flow = Definition.find_by!(host: "dummy", title: "Morning Routine")
+
+      patch easy_flow.manage_flow_path(flow), params: { flow: { title: "Evening Routine" } }
+
+      assert_equal "morning-routine", flow.reload.slug
+    end
   end
 end

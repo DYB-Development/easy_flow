@@ -20,15 +20,6 @@ module EasyFlow
       assert_equal "dummy", Definition.find_by!(slug: "made-here").host
     end
 
-    test "editing a flow's title leaves its slug as it was" do
-      flow = Definition.new(host: "dummy", title: "Morning Routine")
-      flow.save_under_title
-
-      patch easy_flow.manage_flow_path(flow), params: { flow: { title: "Evening Routine" } }
-
-      assert_equal "morning-routine", flow.reload.slug
-    end
-
     test "a host's pages do not show another host's flow" do
       get easy_flow.manage_flow_path(console_flow)
 

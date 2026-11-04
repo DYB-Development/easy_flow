@@ -17,7 +17,7 @@ const ConnectorLayer = ({ links, extent, dragging, onInsert, onRemove, onDrop })
 
     {links.filter((link) => link.label).map((link) => (
       <div key={`${link.id}-label`} data-link-label={link.id} className="bg-surface-50 text-gray-500 dark:bg-surface-950 dark:text-gray-400"
-           style={{ position: "absolute", left: link.midX + 2, top: link.midY - 18, zIndex: 3,
+           style={{ position: "absolute", left: link.midX - 10, top: link.midY - 18, zIndex: 3,
                     fontSize: 11, padding: "0 3px" }}>{link.label}</div>
     ))}
 

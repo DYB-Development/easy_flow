@@ -632,5 +632,15 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").publish_note = nil
     end
+
+    test "the builder header shows the back link its host set" do
+      EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a[href=?]", "/admin/games", text: "Games"
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
   end
 end

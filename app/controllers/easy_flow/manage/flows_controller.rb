@@ -23,6 +23,7 @@ module EasyFlow
       def show
         @flow = hosted_flows.find_by_public_code!(params[:id])
         @parent = parent_flow
+        @back_link = flow_host.back_link
         @canvas = canvas_payload(@flow)
       end
 

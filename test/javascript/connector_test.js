@@ -22,3 +22,7 @@ test("rings the insert button in the accent color while a step is dragged over i
 test("offers removing the connection as a round keystone danger button", () => {
   assert.ok(classesWith(drawn(), 'title="Remove this connection"').includes("ks-button-danger"))
 })
+
+test("shows the insert button without the pointer being over the connection", () => {
+  assert.doesNotMatch(drawn().split('title="Remove')[0], /opacity:0/)
+})

@@ -15,7 +15,7 @@ const settling = (flow, name, onSaveDetails) => (event) => {
   if (event.target.value !== (flow[name] ?? "")) onSaveDetails({ [name]: event.target.value })
 }
 
-const Panel = ({ flow, changes, problems, refusal, notice, onCreate, onPublish, onSaveDetails, onClose }) => (
+const Panel = ({ flow, changes, problems, refusal, notice, publishNote, onCreate, onPublish, onSaveDetails, onClose }) => (
   <KeystonePanel as="aside" style={sheet} data-builder-panel>
     <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: 8 }}>
       <h2 style={{ fontWeight: 600 }} data-flow-name>{flow.title || flow.slug}</h2>
@@ -27,6 +27,7 @@ const Panel = ({ flow, changes, problems, refusal, notice, onCreate, onPublish, 
     <div style={{ marginTop: 14 }}>
       <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onCreate} data-create-version>Create version</Button>
       <Button size="sm" className="w-full mb-1.5" onClick={onPublish} data-publish>Publish</Button>
+      <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: 12, lineHeight: 1.4 }} data-publish-note>{publishNote}</p>
     </div>
 
     <h2 style={heading}>Problems</h2>

@@ -11,7 +11,7 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
-import { fromToolbar } from "./placing"
+import { fromToolbar, unconnected } from "./placing"
 
 const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13 }
 const scroll = { flex: 1, overflow: "auto", position: "relative" }
@@ -167,6 +167,7 @@ const Canvas = ({ base, token, initial }) => {
 
         {adding && (
           <TypePicker entries={flow.palette} at={adding.at} where={adding.where} onDismiss={() => setAdding(null)}
+                      onUnconnected={adding.where && adding.to ? () => setAdding({ ...unconnected, at: adding.at }) : null}
                       onConnect={adding.on !== undefined ? () => { setArmed([ adding.from, adding.on ]); setAdding(null) } : null}
                       onPick={(entry) => {
                         const where = adding

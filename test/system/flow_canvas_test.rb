@@ -241,6 +241,16 @@ module EasyFlow
       assert_text "Goes between Yes path and End"
     end
 
+    test "the add menu still offers adding the step unconnected" do
+      canvas_for(wired)
+
+      find("[title='Add a step']").click
+      click_button "Add it unconnected"
+      add_step_named("Question")
+
+      assert_selector "[data-loose] [data-step='question']"
+    end
+
     test "the step a flow begins at simply says it begins" do
       canvas_for(wired)
 

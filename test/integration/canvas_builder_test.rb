@@ -731,5 +731,14 @@ module EasyFlow
 
       assert_equal flow.reload.definition_versions.order(:number).last, flow.live_version
     end
+
+    test "a step left to the side is still on the canvas after edits and on reopening" do
+      leave_a_step_aside
+      patch "#{canvas_path}/steps/a", params: { config: { question: "Changed" } }
+
+      get canvas_path, headers: { "Accept" => "application/json" }
+
+      assert_includes response.parsed_body["nodes"].select { |node| node["loose"] }.map { |node| node["id"] }, "aside"
+    end
   end
 end

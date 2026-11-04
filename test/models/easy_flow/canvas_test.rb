@@ -72,6 +72,12 @@ module EasyFlow
       EasyFlow.picture_store = stored_with
     end
 
+    test "carries the name of a step's type" do
+      drawn = canvas("entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask", "text" => "Budget?" } ], "edges" => [])
+
+      assert_equal "Ask", drawn["nodes"].find { |node| node["id"] == "a" }["type_name"]
+    end
+
     test "gives every node a row and a column" do
       placed = canvas(flow)["nodes"].map { |node| node.values_at("row", "column") }
 

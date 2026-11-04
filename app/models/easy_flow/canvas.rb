@@ -20,7 +20,7 @@ module EasyFlow
     end
 
     def drawn_step(node)
-      { "id" => node.id, "type" => node.type, "label" => label_for(node),
+      { "id" => node.id, "type" => node.type, "type_name" => step_type_for(node)&.step_name, "label" => label_for(node),
         "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
         "starts_a_flow" => starts_a_flow?(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "record_choices" => record_choices_for(node), "placeholder" => false, "picture_url" => picture_url(node), **placed[node.id] }
     end

@@ -62,5 +62,9 @@ module EasyFlow
 
       assert host.always_show_insert_buttons?
     end
+
+    test "a host names no note for Publish unless it sets one" do
+      assert_nil Host.new(:alembic).publish_note
+    end
   end
 end

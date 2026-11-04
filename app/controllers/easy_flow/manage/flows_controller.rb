@@ -63,7 +63,10 @@ module EasyFlow
       end
 
       def create_params
-        params.require(:flow).permit(:title, :kind)
+        chosen = params.require(:flow).permit(:title, :kind)
+        return chosen if asks_for_kind?
+
+        chosen.merge(kind: flow_host.new_flow_kind)
       end
 
       def flow_params

@@ -724,5 +724,16 @@ module EasyFlow
 
       assert_equal [ true, versions, nil ], [ flow.reload.document["nodes"].any? { |node| node["id"] == "aside" }, flow.definition_versions.count, flow.live_version ]
     end
+
+    test "accepting the warning publishes and the step leaves the canvas" do
+      canvas_for(wired_with_one_aside)
+      find("[data-open-panel]").click
+      find("[data-publish]").click
+
+      find("[data-accept-removal]").click
+
+      assert_selector "[data-notice]", text: "Published version"
+      assert_no_selector "[data-step='aside']"
+    end
   end
 end

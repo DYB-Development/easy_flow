@@ -11,6 +11,7 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
+import { fromToolbar } from "./placing"
 
 const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13 }
 const scroll = { flex: 1, overflow: "auto", position: "relative" }
@@ -90,7 +91,7 @@ const Canvas = ({ base, token, initial }) => {
           <Choosing port={armed[1]} onCancel={() => setArmed(null)} />
         )}
         <Toolbar undoable={flow.undoable} redoable={flow.redoable}
-                 onAdd={() => setAdding({ at: { x: 16, y: 52 } })}
+                 onAdd={() => setAdding({ ...fromToolbar(flow), at: { x: 16, y: 52 } })}
                  onUndo={() => { setSelected(null); send("/undo", "POST") }}
                  onRedo={() => { setSelected(null); send("/redo", "POST") }} />
 

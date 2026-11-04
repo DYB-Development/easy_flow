@@ -224,6 +224,15 @@ module EasyFlow
       assert_selector "[data-loose] [data-step='question']"
     end
 
+    test "the add button puts the chosen step on the one connection into End" do
+      canvas_for(wired)
+
+      find("[title='Add a step']").click
+      add_step_named("Question")
+
+      assert_selector "[data-connector='question-end']"
+    end
+
     test "the step a flow begins at simply says it begins" do
       canvas_for(wired)
 

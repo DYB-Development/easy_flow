@@ -38,6 +38,12 @@ module EasyFlow
       assert_equal %w[morning-routine morning-routine-2], Definition.where(host: "dummy", title: "Morning Routine").order(:id).pluck(:slug)
     end
 
+    test "a blank title on the page says the title cannot be blank" do
+      post easy_flow.manage_flows_path, params: { flow: { title: "" } }
+
+      assert_select "*", text: /Title can.t be blank/
+    end
+
     test "the flow list links to the new flow page" do
       get easy_flow.manage_flows_path
 

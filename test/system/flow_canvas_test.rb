@@ -46,18 +46,6 @@ module EasyFlow
       all("[data-connector]").map { |connector| connector["data-connector"] }
     end
 
-    def two_into_end
-      Definition.create!(host: "dummy", slug: "canvas-two-ends").tap do |built|
-        built.record_definition(flowing(
-          "slug" => "canvas-two-ends", "entry" => "gate",
-          "nodes" => [ { "id" => "gate", "type" => "condition" },
-                       { "id" => "end", "type" => "terminal" } ],
-          "edges" => [ { "from" => "gate", "to" => "end", "on" => true },
-                       { "from" => "gate", "to" => "end", "on" => false } ]
-        ))
-      end
-    end
-
     def add_step_named(label)
       find("div[style*='z-index: 9']").click_button(label, match: :first)
     end
@@ -236,62 +224,13 @@ module EasyFlow
       assert_selector "[data-loose] [data-step='question']"
     end
 
-    test "the add button puts the chosen step on the one connection into End" do
+    test "the add button adds the step unconnected with one connection into End" do
       canvas_for(wired)
-
-      find("[title='Add a step']").click
-      add_step_named("Question")
-
-      assert_selector "[data-connector='question-end']"
-    end
-
-    test "the add menu says which two steps the chosen step will go between" do
-      canvas_for(wired)
-
-      find("[title='Add a step']").click
-
-      assert_text "Goes between Yes path and End"
-    end
-
-    test "the add menu still offers adding the step unconnected" do
-      canvas_for(wired)
-
-      find("[title='Add a step']").click
-      click_button "Add it unconnected"
-      add_step_named("Question")
-
-      assert_selector "[data-loose] [data-step='question']"
-    end
-
-    test "the add button adds the step unconnected with several connections into End" do
-      canvas_for(two_into_end)
 
       find("[title='Add a step']").click
       add_step_named("Question")
 
       assert_selector "[data-loose] [data-step='question']"
-    end
-
-    test "undoing a step placed by the add button removes the step" do
-      canvas_for(wired)
-      find("[title='Add a step']").click
-      add_step_named("Question")
-      assert_selector "[data-step='question']"
-
-      click_button "↶ Undo"
-
-      assert_no_selector "[data-step='question']"
-    end
-
-    test "undoing a step placed by the add button restores the connection it was placed on" do
-      canvas_for(wired)
-      find("[title='Add a step']").click
-      add_step_named("Question")
-      assert_no_selector "[data-connector='yes_step-end']"
-
-      click_button "↶ Undo"
-
-      assert_selector "[data-connector='yes_step-end']"
     end
 
     test "the step a flow begins at simply says it begins" do

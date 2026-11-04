@@ -11,7 +11,6 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
-import { fromToolbar, unconnected } from "./placing"
 
 const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13 }
 const scroll = { flex: 1, overflow: "auto", position: "relative" }
@@ -91,7 +90,7 @@ const Canvas = ({ base, token, initial }) => {
           <Choosing port={armed[1]} onCancel={() => setArmed(null)} />
         )}
         <Toolbar undoable={flow.undoable} redoable={flow.redoable}
-                 onAdd={() => setAdding({ ...fromToolbar(flow), at: { x: 16, y: 52 } })}
+                 onAdd={() => setAdding({ at: { x: 16, y: 52 } })}
                  onUndo={() => { setSelected(null); send("/undo", "POST") }}
                  onRedo={() => { setSelected(null); send("/redo", "POST") }} />
 
@@ -166,8 +165,7 @@ const Canvas = ({ base, token, initial }) => {
         </div>
 
         {adding && (
-          <TypePicker entries={flow.palette} at={adding.at} where={adding.where} onDismiss={() => setAdding(null)}
-                      onUnconnected={adding.where && adding.to ? () => setAdding({ ...unconnected, at: adding.at }) : null}
+          <TypePicker entries={flow.palette} at={adding.at} onDismiss={() => setAdding(null)}
                       onConnect={adding.on !== undefined ? () => { setArmed([ adding.from, adding.on ]); setAdding(null) } : null}
                       onPick={(entry) => {
                         const where = adding

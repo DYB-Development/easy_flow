@@ -687,7 +687,7 @@ module EasyFlow
 
       post "#{canvas_path}/versions", params: { remove_unconnected: [ "aside" ] }
 
-      assert_not_includes flow.reload.definition["nodes"].map { |node| node["id"] }, "aside"
+      assert_equal %w[start a b end], flow.reload.definition_versions.order(:number).last.definition["nodes"].map { |node| node["id"] }
     end
 
     test "pressing Create version on a flow with an unconnected step names it in a warning" do

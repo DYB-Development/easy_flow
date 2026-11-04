@@ -2,12 +2,12 @@
 
 ## [Unreleased]
 
-### Changed
+### Added
 
-- The new flow page asks for a title instead of a slug, and refuses a blank title.
-- A flow created from the page takes a slug made from its title, which stays the same when the title is edited later.
-- A second flow with the same title takes the next free number on its slug, such as `checkup-2`, within its host and owner.
-- A title with no letters or numbers takes the slug `flow`, and a title that makes the slug `runs` takes `runs-2`, since `<mount path>/runs/step` is the address of a run.
+- A host can set `slugs_from_titles` to true, so the new flow page asks for a title instead of a slug, refuses a blank title and ignores a posted slug. A host that leaves it unset keeps the new flow page as it was.
+- With `slugs_from_titles` set, a flow takes a slug made from its title, which stays the same when the title is edited later.
+- With `slugs_from_titles` set, a second flow with the same title takes the next free number on its slug, such as `checkup-2`, within its host and owner.
+- With `slugs_from_titles` set, a title with no letters or numbers takes the slug `flow`, and a title that makes the slug `runs` takes `runs-2`, since `<mount path>/runs/step` is the address of a run.
 
 ## [0.31.0] - 2026-10-29
 

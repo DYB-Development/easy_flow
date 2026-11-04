@@ -31,3 +31,7 @@ test("sets each connection label on the canvas's surface color", () => {
 test("sets each connection label over the line when the host has not asked for insert buttons to show", () => {
   assert.match(drawn(), /data-link-label="a-b"[^>]*left:-5px/)
 })
+
+test("sets each connection label to the right of its insert button when the host asks for those buttons to show", () => {
+  assert.match(drawn({ alwaysShowInsertButtons: true }), /data-link-label="a-b"[^>]*left:7px/)
+})

@@ -14,5 +14,12 @@ module EasyFlow
     test "a problem only on a step being removed is no objection" do
       assert_empty checked([ { "id" => "aside", "type" => "question" } ]).objections
     end
+
+    test "a problem on a step that stays is an objection" do
+      unsettled = UnconnectedSteps.new(Document.new(flowing({ "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question" }, { "id" => "end", "type" => "terminal" }, asking("aside") ],
+                                                              "edges" => [ { "from" => "a", "to" => "end" } ] })))
+
+      assert_includes unsettled.objections.map(&:node), "a"
+    end
   end
 end

@@ -36,5 +36,13 @@ module EasyFlow
 
       assert_equal [ "Updated “A”" ], Change.listed(saves)
     end
+
+    test "keeps saves to a step apart when a save to another step falls between them" do
+      saves = [ { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] },
+                { "action" => "updated", "steps" => [ "b" ], "named" => [ "B" ] },
+                { "action" => "updated", "steps" => [ "a" ], "named" => [ "A" ] } ]
+
+      assert_equal [ "Updated “A”", "Updated “B”", "Updated “A”" ], Change.listed(saves)
+    end
   end
 end

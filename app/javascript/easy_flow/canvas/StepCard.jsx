@@ -19,12 +19,18 @@ const edge = (target, troubled, selected) => {
 const headingOf = (node, hideStepTypeCodes) =>
   hideStepTypeCodes && node.label === node.id ? node.type_name || node.label : node.label
 
+const typeLineOf = (node, heading, hideStepTypeCodes) => {
+  if (!hideStepTypeCodes) return node.type
+  return heading === node.type_name ? null : node.type_name
+}
+
 const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes }) => {
   const bookend = node.begins_here || node.ends_here
   const pinned = node.begins_here
   const ports = node.ends_here ? [] : node.ports
   const target = connecting && !pinned
   const heading = headingOf(node, hideStepTypeCodes)
+  const typeLine = typeLineOf(node, heading, hideStepTypeCodes)
 
   return (
     <div ref={node.ref}
@@ -41,7 +47,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
          }}>
       {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{node.label}</div>}
       {!bookend && <div style={named}>{heading}</div>}
-      {!bookend && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{hideStepTypeCodes ? node.type_name : node.type}</div>}
+      {!bookend && typeLine && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{typeLine}</div>}
       {node.starts_a_flow && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Runs a flow</div>}
       {node.opens && <Button variant="secondary" size="sm" className="mt-2" onClick={(event) => { event.stopPropagation(); onSelect() }}>Settings</Button>}
       {node.violations.map((violation) => (

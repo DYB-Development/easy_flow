@@ -56,6 +56,12 @@ test("writes no id on the box of a step with no name of its own when the host hi
   assert.equal(child(card(unnamedQuestion, hidingCodes), (element) => element.props?.children === "question_2"), undefined)
 })
 
+const everyChild = (element) => [ element.props.children ].flat(Infinity).filter(Boolean)
+
+test("writes the type's name once on the box of a step with no name of its own when the host hides codes", () => {
+  assert.equal(everyChild(card(unnamedQuestion, hidingCodes)).filter((element) => element.props?.children === "Question").length, 1)
+})
+
 test("writes a start card's label in keystone's muted text color", () => {
   const label = child(card({ begins_here: true, label: "Start" }), (element) => element.props?.children === "Start")
 

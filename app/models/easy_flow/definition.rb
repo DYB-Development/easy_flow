@@ -30,7 +30,7 @@ module EasyFlow
     end
 
     def save_under_title
-      self.slug = title.parameterize
+      self.slug = unused_slug
       save
     end
 
@@ -118,6 +118,13 @@ module EasyFlow
     end
 
     private
+
+    def unused_slug
+      made = title.parameterize
+      taken = self.class.where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug)
+
+      [ made, *(2..).lazy.map { |number| "#{made}-#{number}" }.first(taken.size + 1) ].find { |candidate| taken.exclude?(candidate) }
+    end
 
     def kept_while_a_parent_waits
       waiting = runs.where.not(parent_run_id: nil).select { |run| run.parent_run.waiting_on == run }

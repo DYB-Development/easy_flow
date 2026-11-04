@@ -4,7 +4,7 @@ module EasyFlow
                  "moved" => "Moved", "connected" => "Connected", "disconnected" => "Disconnected", "returned" => "Returned to" }.freeze
 
     def self.listed(changes)
-      changes.chunk_while { |earlier, later| saves_to_one_step?(earlier, later) }.map { |saves| phrase(saves.first) }
+      changes.chunk_while { |earlier, later| saves_to_one_step?(earlier, later) }.map { |saves| phrase(saves.last) }
     end
 
     def self.saves_to_one_step?(earlier, later)

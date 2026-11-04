@@ -58,5 +58,12 @@ module EasyFlow
 
       assert_equal [ "Moved “A”", "Moved “A”" ], Change.listed(moves)
     end
+
+    test "names a grouped step by the name its latest save gave it" do
+      saves = [ { "action" => "updated", "steps" => [ "a" ], "named" => [ "Old" ] },
+                { "action" => "updated", "steps" => [ "a" ], "named" => [ "New" ] } ]
+
+      assert_equal [ "Updated “New”" ], Change.listed(saves)
+    end
   end
 end

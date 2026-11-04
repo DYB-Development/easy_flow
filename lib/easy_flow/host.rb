@@ -1,7 +1,7 @@
 module EasyFlow
   class Host
     attr_reader :name
-    attr_writer :layout, :admin_layout, :offers, :allowed_answers, :always_show_insert_buttons
+    attr_writer :layout, :admin_layout, :offers, :allowed_answers, :always_show_insert_buttons, :hide_step_type_codes
     attr_accessor :admin_authentication_method, :visitor_authorization_method, :refusal_method, :owner_method, :finds_flows_across_owners
 
     def initialize(name)
@@ -33,7 +33,7 @@ module EasyFlow
     end
 
     def hide_step_type_codes?
-      false
+      @hide_step_type_codes.present?
     end
 
     def offers?(step_type)

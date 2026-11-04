@@ -50,7 +50,7 @@ module EasyFlow
     def unconnected
       return [] unless entry
 
-      nodes.map(&:id).uniq - reachable
+      nodes.map(&:id).uniq - reachable - beginnings
     end
 
     def to_h

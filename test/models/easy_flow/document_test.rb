@@ -112,5 +112,11 @@ module EasyFlow
     test "names the steps the flow does not reach as unconnected" do
       assert_equal [ "aside" ], with_one_left_to_the_side.unconnected
     end
+
+    test "does not count a second beginning as unconnected" do
+      second = Document.new(flowing({ "nodes" => [ { "id" => "again", "type" => "start" } ] }))
+
+      assert_empty second.unconnected
+    end
   end
 end

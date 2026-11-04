@@ -262,6 +262,15 @@ module EasyFlow
       EasyFlow.host_named("dummy").offers = nil
     end
 
+    test "a step type the host no longer offers does not appear in the add menu" do
+      EasyFlow.host_named("dummy").offers = %i[compare]
+      canvas_for(flow)
+
+      assert_not_includes add_menu_from("gate--false").text, "Question"
+    ensure
+      EasyFlow.host_named("dummy").offers = nil
+    end
+
     test "opening a step labels each setting its type declares" do
       canvas_for(flow)
 

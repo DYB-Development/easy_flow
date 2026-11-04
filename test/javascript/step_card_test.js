@@ -84,6 +84,10 @@ test("marks a step that runs another flow", () => {
   assert.ok(child(card({ starts_a_flow: true }), (element) => element.props?.children === "Runs a flow"))
 })
 
+test("shows no picture mark on a step with no picture", () => {
+  assert.equal(child(card(), (element) => element.props?.children === "Has a picture"), undefined)
+})
+
 test("opens the flow a step runs when its card is clicked", () => {
   let opened = null
   card({ starts_a_flow: true, opens: "/flows/7" }, { onOpen: (path) => { opened = path } }).props.onClick()

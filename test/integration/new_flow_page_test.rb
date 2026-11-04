@@ -10,12 +10,6 @@ module EasyFlow
       assert_select "form[action=?][method=post]", easy_flow.manage_flows_path
     end
 
-    test "the new flow page asks for a title" do
-      get easy_flow.new_manage_flow_path
-
-      assert_select "input[name=?]", "flow[title]"
-    end
-
     test "a flow created from the page has the title typed" do
       post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "guide" } }
 
@@ -72,6 +66,12 @@ module EasyFlow
       get easy_flow.new_manage_flow_path
 
       assert_select "input[name=?]", "flow[slug]"
+    end
+
+    test "the new flow page does not ask for a title when the host has not set slugs from titles" do
+      get easy_flow.new_manage_flow_path
+
+      assert_select "input[name=?]", "flow[title]", count: 0
     end
 
     test "the flow list links to the new flow page" do

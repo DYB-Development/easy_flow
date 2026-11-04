@@ -10,5 +10,11 @@ module EasyFlow
 
       assert_select "input[name=?]", "flow[slug]", count: 0
     end
+
+    test "the new flow page asks for a title" do
+      get easy_flow.new_manage_flow_path
+
+      assert_select "input[name=?]", "flow[title]"
+    end
   end
 end

@@ -6,10 +6,10 @@
   <% end %>
 
   <%= ui_form(action: flow_routes.manage_flows_path, method: :post) do %>
-    <label class="block text-sm font-medium mb-1">Title</label>
-    <%= ui_input(name: "flow[title]", value: @flow.title, placeholder: "e.g. Business scorecard") %>
-
-    <% unless slugs_from_titles? %>
+    <% if slugs_from_titles? %>
+      <label class="block text-sm font-medium mb-1">Title</label>
+      <%= ui_input(name: "flow[title]", value: @flow.title, placeholder: "e.g. Business scorecard") %>
+    <% else %>
       <label class="block text-sm font-medium mb-1">Slug</label>
       <%= ui_input(name: "flow[slug]", value: @flow.slug, placeholder: "e.g. business-scorecard") %>
     <% end %>

@@ -66,5 +66,9 @@ module EasyFlow
     test "a host names no note for Publish unless it sets one" do
       assert_nil Host.new(:alembic).publish_note
     end
+
+    test "a host names no back link unless it sets one" do
+      assert_nil Host.new(:alembic).back_link
+    end
   end
 end

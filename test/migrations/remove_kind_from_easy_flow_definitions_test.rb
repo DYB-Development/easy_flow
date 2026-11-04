@@ -33,5 +33,11 @@ module EasyFlow
 
       assert_not stored_field?
     end
+
+    test "it does nothing when the stored field is already gone" do
+      connection.remove_column(:easy_flow_definitions, :kind) if stored_field?
+
+      assert_nothing_raised { migrate(:up) }
+    end
   end
 end

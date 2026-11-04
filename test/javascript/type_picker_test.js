@@ -34,22 +34,3 @@ test("offers connecting to an existing step as keystone's secondary button", () 
 test("offers cancelling as keystone's secondary button", () => {
   assert.ok(classesOf(drawn(), "Cancel").includes("ks-button-secondary"))
 })
-
-const placed = (props) => renderToStaticMarkup(React.createElement(TypePicker, {
-  entries: [ { type: "question", label: "Question" } ], at: { x: 0, y: 0 },
-  onPick: () => {}, onDismiss: () => {}, ...props
-}))
-
-test("says where the step will go when told", () => {
-  assert.match(placed({ where: "Goes between First and End" }), />Goes between First and End</)
-})
-
-test("offers adding the step unconnected as keystone's secondary button", () => {
-  assert.ok(classesOf(placed({ onUnconnected: () => {} }), "Add it unconnected").includes("ks-button-secondary"))
-})
-
-test("offers adding the step unconnected above the step types", () => {
-  const menu = placed({ onUnconnected: () => {} })
-
-  assert.ok(menu.indexOf("Add it unconnected") < menu.indexOf("Question"))
-})

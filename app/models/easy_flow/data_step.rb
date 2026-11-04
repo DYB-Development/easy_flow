@@ -3,6 +3,15 @@ module EasyFlow
     extend ActiveSupport::Concern
     include Inputs
 
+    included do
+      setting(:values, type: :list, label: "Values it reports") { setting :name, type: :string, required: true }
+      outputs_named_by :values
+
+      output :result, values: %w[passed failed]
+      output :reason
+      output :answer
+    end
+
     def process(node, state)
       raise ArgumentError, "#{node.config["data"]} is not offered by this step" unless self.class.step_type.settings.choices[:data].include?(node.config["data"])
 

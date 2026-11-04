@@ -94,6 +94,12 @@ module EasyFlow
       assert_equal "failed", ReadData.step_type.route(read, { "lookup" => { "result" => "failed" } })
     end
 
+    test "offers its result, its reason, its answer and each value named in its settings as outputs" do
+      outputs = ReadData.step_type.outputs_for(read("values" => [ { "name" => "title" } ])).map { |output| output.name.to_s }
+
+      assert_equal %w[result reason answer title], outputs
+    end
+
     test "keeps its own result when the answer holds a key named result" do
       answering { { "result" => "unchanged" } }
 

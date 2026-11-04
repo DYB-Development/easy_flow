@@ -1,6 +1,7 @@
 module EasyFlow
   class Definition < ApplicationRecord
     self.table_name = "easy_flow_definitions"
+    self.ignored_columns += %w[kind]
 
     has_public_code
 

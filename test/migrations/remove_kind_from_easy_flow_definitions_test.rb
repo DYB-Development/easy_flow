@@ -68,5 +68,13 @@ module EasyFlow
 
       assert_equal "yes", run.reload.recorded[:ask]
     end
+
+    test "a process that loaded the table before the field was removed can still create a flow" do
+      restore_stored_field
+      Definition.columns
+      connection.execute("ALTER TABLE easy_flow_definitions DROP COLUMN kind")
+
+      assert Definition.create!(host: "dummy", slug: "after-the-drop").persisted?
+    end
   end
 end

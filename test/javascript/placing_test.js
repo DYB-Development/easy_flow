@@ -34,3 +34,9 @@ test("counts connections into every End in the flow", () => {
 test("places no step on a connection in a flow with none into End", () => {
   assert.equal(fromToolbar({ nodes: [ last ], edges: [] }).from, undefined)
 })
+
+const oneIntoEnd = { nodes: [ last, end ], edges: [ { source: "last", target: "end" } ] }
+
+test("says a step on the one connection into End goes between its two steps", () => {
+  assert.equal(fromToolbar(oneIntoEnd).where, "Goes between Last question and End")
+})

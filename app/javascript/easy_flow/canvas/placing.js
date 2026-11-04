@@ -5,5 +5,7 @@ export const fromToolbar = ({ nodes, edges }) => {
 
   const [ { source, target } ] = intoEnd
 
-  return { from: source, to: target }
+  const named = (id) => nodes.find((node) => node.id === id).label
+
+  return { from: source, to: target, where: `Goes between ${named(source)} and ${named(target)}` }
 }

@@ -3,10 +3,10 @@ require "test_helper"
 module EasyFlow
   class DefinitionTest < ActiveSupport::TestCase
     test "a flow started by its title takes a slug made from that title" do
-      flow = Definition.new(host: "dummy", title: "Business Scorecard")
+      flow = Definition.new(host: "dummy", title: "Morning Routine")
       flow.save_under_title
 
-      assert_equal "business-scorecard", flow.slug
+      assert_equal "morning-routine", flow.slug
     end
 
     test "the database still refuses two shared flows with the same slug in one host" do

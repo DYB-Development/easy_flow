@@ -5,7 +5,7 @@ module EasyFlow
 
     def process(node, state)
       answer = EasyFlow.data_source.carry_out(node.config["data"], Inputs.values_of(node, state)).as_json
-      { "result" => "passed" }.merge(answer.is_a?(Hash) ? answer : { "answer" => answer })
+      (answer.is_a?(Hash) ? answer : { "answer" => answer }).merge("result" => "passed")
     end
   end
 end

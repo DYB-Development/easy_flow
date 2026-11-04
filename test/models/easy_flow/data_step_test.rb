@@ -63,5 +63,11 @@ module EasyFlow
 
       assert_equal "passed", read_processed["result"]
     end
+
+    test "keeps its own result when the answer holds a key named result" do
+      answering { { "result" => "unchanged" } }
+
+      assert_equal "passed", read_processed["result"]
+    end
   end
 end

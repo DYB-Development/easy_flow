@@ -17,3 +17,9 @@ test("places no step on a connection when several lead into End", () => {
 
   assert.equal(from, undefined)
 })
+
+test("counts only the connections that lead into End", () => {
+  const { from } = fromToolbar({ nodes: [ { id: "start", label: "Start", ends_here: false }, last, end ], edges: [ { source: "start", target: "last" }, { source: "last", target: "end" } ] })
+
+  assert.equal(from, "last")
+})

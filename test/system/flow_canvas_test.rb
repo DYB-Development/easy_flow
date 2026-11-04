@@ -686,5 +686,20 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").publish_note = nil
     end
+
+    def wired_with_one_aside
+      wired.tap do |built|
+        built.edit_history.record(Document.new(built.document).add({ "id" => "aside", "type" => "question", "question" => "Left aside" }), :added, [ "aside" ], built.document)
+      end
+    end
+
+    test "pressing Publish with an unconnected step warns naming it" do
+      canvas_for(wired_with_one_aside)
+      find("[data-open-panel]").click
+
+      find("[data-publish]").click
+
+      assert_selector "[data-unconnected-warning]", text: "“Left aside” is not connected to the flow and will be removed."
+    end
   end
 end

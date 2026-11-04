@@ -481,5 +481,20 @@ module EasyFlow
 
       assert_match(/\A[a-zA-Z0-9]{24}\z/, flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "coded", "entry" => "a", "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] } ] })).public_code)
     end
+
+    def with_a_step_left_aside
+      Definition.create!(host: "dummy", slug: "aside").tap do |built|
+        built.record_definition(flowing("slug" => "aside", "entry" => "end", "nodes" => [ { "id" => "end", "type" => "terminal" } ]))
+        built.edit_history.record(Document.new(built.document).add({ "id" => "aside", "type" => "question" }), :added, [ "aside" ], built.document)
+      end
+    end
+
+    test "removing unconnected steps first keeps them in a version a builder can return to" do
+      flow = with_a_step_left_aside
+
+      flow.remove_unconnected([ "aside" ])
+
+      assert_includes flow.definition["nodes"].map { |node| node["id"] }, "aside"
+    end
   end
 end

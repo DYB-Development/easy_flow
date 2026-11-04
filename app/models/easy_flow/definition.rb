@@ -61,6 +61,10 @@ module EasyFlow
       update!(undo_history: edit_history.undoable, changes_since_version: [], undone_changes: [])
     end
 
+    def remove_unconnected(steps)
+      create_version
+    end
+
     def returning_to(version)
       { "action" => "returned", "steps" => [], "named" => [],
         "detail" => "version #{version.number}", "before" => document }

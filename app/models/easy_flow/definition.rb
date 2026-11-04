@@ -120,7 +120,7 @@ module EasyFlow
     private
 
     def unused_slug
-      made = title.parameterize
+      made = title.parameterize.presence || "flow"
       taken = self.class.where(host: host, owner: owner).where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug)
       numbered = (2..).lazy.map { |number| "#{made}-#{number}" }
 

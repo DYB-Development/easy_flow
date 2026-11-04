@@ -34,6 +34,13 @@ module EasyFlow
       assert_equal "morning-routine", flow.slug
     end
 
+    test "a flow started by a title of only punctuation takes a slug all the same" do
+      flow = Definition.new(host: "dummy", title: "?!")
+      flow.save_under_title
+
+      assert_equal "flow", flow.slug
+    end
+
     test "the database still refuses two shared flows with the same slug in one host" do
       Definition.create!(host: "dummy", slug: "checkup")
 

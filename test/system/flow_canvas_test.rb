@@ -251,6 +251,17 @@ module EasyFlow
       EasyFlow.host_named("dummy").offers = nil
     end
 
+    test "a step whose type the host no longer offers can be saved" do
+      EasyFlow.host_named("dummy").offers = %i[compare]
+      canvas_for(flow)
+      step_card("first").click
+      fill_in_first_field_with("Changed by hand")
+
+      assert_selector "[data-step='first']", text: "Changed by hand"
+    ensure
+      EasyFlow.host_named("dummy").offers = nil
+    end
+
     test "opening a step labels each setting its type declares" do
       canvas_for(flow)
 

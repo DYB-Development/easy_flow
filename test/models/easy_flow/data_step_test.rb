@@ -70,6 +70,15 @@ module EasyFlow
       assert_equal({ "result" => "failed", "reason" => "The shelf is closed" }, read_processed)
     end
 
+    test "records failed rather than carrying out what the step does not offer" do
+      carried_out = false
+      answering { carried_out = true }
+
+      read_processed("data" => "vault")
+
+      assert_equal false, carried_out
+    end
+
     test "keeps its own result when the answer holds a key named result" do
       answering { { "result" => "unchanged" } }
 

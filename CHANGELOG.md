@@ -2,10 +2,6 @@
 
 ## [Unreleased]
 
-### Added
-
-- A host can set `new_flow_kind` to `:scored` or `:guide`, so the new flow page does not ask for a kind and every flow created from it has that kind.
-
 ### Changed
 
 - The new flow page asks for a title instead of a slug, and refuses a blank title.

@@ -3,7 +3,7 @@ module EasyFlow
     class FlowsController < BaseController
       include DrawsCanvas
 
-      helper_method :asks_for_kind?, :slugs_from_titles?
+      helper_method :slugs_from_titles?
 
       def index
         @flows = ordered_flows
@@ -48,10 +48,6 @@ module EasyFlow
 
       private
 
-      def asks_for_kind?
-        flow_host.new_flow_kind.nil?
-      end
-
       def slugs_from_titles?
         flow_host.slugs_from_titles?
       end
@@ -67,10 +63,7 @@ module EasyFlow
       end
 
       def create_params
-        chosen = params.require(:flow).permit(:title, :kind)
-        return chosen if asks_for_kind?
-
-        chosen.merge(kind: flow_host.new_flow_kind)
+        params.require(:flow).permit(:title, :kind)
       end
 
       def flow_params

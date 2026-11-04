@@ -2,8 +2,6 @@ require "test_helper"
 
 module EasyFlow
   class NewFlowPageTest < ActionDispatch::IntegrationTest
-    teardown { EasyFlow.host_named(:dummy).new_flow_kind = nil }
-
     test "the new flow page shows the form that creates a flow" do
       get easy_flow.new_manage_flow_path
 
@@ -32,22 +30,6 @@ module EasyFlow
       post easy_flow.manage_flows_path, params: { flow: { title: "" } }
 
       assert_select "*", text: /Title can.t be blank/
-    end
-
-    test "the new flow page does not ask for a kind when the host has set one" do
-      EasyFlow.host_named(:dummy).new_flow_kind = :guide
-
-      get easy_flow.new_manage_flow_path
-
-      assert_select "select[name=?]", "flow[kind]", count: 0
-    end
-
-    test "a flow created from the page has the kind the host set, whatever is posted" do
-      EasyFlow.host_named(:dummy).new_flow_kind = :guide
-
-      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "scored" } }
-
-      assert_equal "guide", Definition.find_by!(host: "dummy", title: "Morning Routine").kind
     end
 
     test "the new flow page asks for a kind when the host has set none" do

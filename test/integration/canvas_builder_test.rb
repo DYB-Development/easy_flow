@@ -668,5 +668,18 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").back_link = nil
     end
+
+    def leave_a_step_aside
+      add_step_with_answers("aside")
+      post "#{canvas_path}/edges", params: { from: "aside", to: "end" }
+    end
+
+    test "publishing a flow with an unconnected step names it in a warning and publishes nothing" do
+      leave_a_step_aside
+
+      post "#{canvas_path}/publish"
+
+      assert_equal [ [ "aside", "New" ], nil ], [ response.parsed_body["unconnected"].first.values_at("id", "label"), flow.reload.live_version ]
+    end
   end
 end

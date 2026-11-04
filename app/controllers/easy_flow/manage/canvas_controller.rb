@@ -7,23 +7,21 @@ module EasyFlow
       end
 
       def create
-        objections = Validator.new(document, flow: flow).violations
-        return render json: { error: refusal(objections) }, status: :unprocessable_entity if objections.any?
+        with_unconnected_settled do
+          stood_at = flow.current_definition_version&.number
+          flow.create_version
 
-        stood_at = flow.current_definition_version&.number
-        flow.create_version
-
-        render json: { notice: created(stood_at) }
+          render json: { notice: created(stood_at) }
+        end
       end
 
       def publish
-        objections = Validator.new(document, flow: flow).violations
-        return render json: { error: refusal(objections) }, status: :unprocessable_entity if objections.any?
+        with_unconnected_settled do
+          ran = flow.live_version&.number
+          flow.publish
 
-        ran = flow.live_version&.number
-        flow.publish
-
-        render json: { notice: published(ran) }
+          render json: { notice: published(ran) }
+        end
       end
 
       def details
@@ -82,6 +80,20 @@ module EasyFlow
       end
 
       private
+
+      def with_unconnected_settled
+        flow.with_lock do
+          unconnected = UnconnectedSteps.new(document, flow: flow)
+
+          if unconnected.objections.any?
+            render json: { error: refusal(unconnected.objections) }, status: :unprocessable_entity
+          elsif unconnected.named.any?
+            render json: { error: refusal(Validator.new(document, flow: flow).violations), unconnected: unconnected.named }, status: :unprocessable_entity
+          else
+            yield
+          end
+        end
+      end
 
       def apply(action = nil, *steps)
         before = document.to_h

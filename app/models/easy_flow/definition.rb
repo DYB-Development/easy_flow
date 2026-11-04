@@ -5,7 +5,6 @@ module EasyFlow
     has_public_code
 
     enum :status, { active: "active", hidden: "hidden", inactive: "inactive" }
-    enum :kind, { scored: "scored", guide: "guide" }
     enum :persists, { unsaved: "unsaved", each_step: "each_step", on_finish: "on_finish" }
 
     belongs_to :owner, polymorphic: true, optional: true

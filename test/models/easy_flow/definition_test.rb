@@ -58,10 +58,6 @@ module EasyFlow
       assert Definition.new(status: :hidden).hidden?
     end
 
-    test "reports its kind" do
-      assert Definition.new(kind: :scored).scored?
-    end
-
     test "builds a runner from the version it published" do
       flow = Definition.create!(host: "dummy", slug: "demo")
       flow.record_definition({ "slug" => "demo" })

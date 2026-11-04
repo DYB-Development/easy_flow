@@ -3,8 +3,13 @@ require "test_helper"
 module EasyFlow
   class WriteDataTest < ActiveSupport::TestCase
     class Shelf
-      def reads = []
-      def writes = %w[restock]
+      def reads
+        []
+      end
+
+      def writes
+        %w[restock]
+      end
     end
 
     setup { EasyFlow.data_source = Shelf.new }

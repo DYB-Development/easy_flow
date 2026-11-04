@@ -7,8 +7,13 @@ module EasyFlow
         @answer = answer
       end
 
-      def reads = %w[stock]
-      def writes = %w[restock]
+      def reads
+        %w[stock]
+      end
+
+      def writes
+        %w[restock]
+      end
 
       def carry_out(name, values)
         @answer.call(name, values)

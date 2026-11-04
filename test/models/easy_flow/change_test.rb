@@ -51,5 +51,12 @@ module EasyFlow
 
       assert_equal [ "Updated “A”", "Moved “A”" ], Change.listed(changes)
     end
+
+    test "keeps repeated moves of a step as separate lines" do
+      moves = [ { "action" => "moved", "steps" => [ "a" ], "named" => [ "A" ] },
+                { "action" => "moved", "steps" => [ "a" ], "named" => [ "A" ] } ]
+
+      assert_equal [ "Moved “A”", "Moved “A”" ], Change.listed(moves)
+    end
   end
 end

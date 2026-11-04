@@ -194,3 +194,12 @@ test("a warning names each step that will be removed", () => {
 test("a warning puts its own buttons in place of Create version and Publish", () => {
   assert.equal(shown(panel({ warning }), "data-publish").length, 0)
 })
+
+test("accepting the warning at Publish says it removes and publishes", () => {
+  const accepted = []
+  const [ accept ] = shown(panel({ warning, onAccept: () => accepted.push(true) }), "data-accept-removal")
+
+  accept.props.onClick()
+
+  assert.deepEqual([ accept.props.children, accepted ], [ "Remove and publish", [ true ] ])
+})

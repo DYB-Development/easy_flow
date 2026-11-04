@@ -39,5 +39,11 @@ module EasyFlow
 
       assert_nothing_raised { migrate(:up) }
     end
+
+    test "rolling it back restores a nullable text column" do
+      migrate(:down)
+
+      assert connection.columns(:easy_flow_definitions).find { |column| column.name == "kind" }&.then { |column| column.type == :string && column.null }
+    end
   end
 end

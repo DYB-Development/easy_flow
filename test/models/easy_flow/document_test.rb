@@ -102,5 +102,15 @@ module EasyFlow
 
       assert_equal [ "a" ], document.nodes.map(&:id)
     end
+
+    def with_one_left_to_the_side
+      Document.new(flowing({ "entry" => "a",
+                             "nodes" => [ { "id" => "a", "type" => "question" }, { "id" => "aside", "type" => "question" } ],
+                             "edges" => [ { "from" => "aside", "to" => "a" } ] }))
+    end
+
+    test "names the steps the flow does not reach as unconnected" do
+      assert_equal [ "aside" ], with_one_left_to_the_side.unconnected
+    end
   end
 end

@@ -47,6 +47,12 @@ module EasyFlow
       found
     end
 
+    def unconnected
+      return [] unless entry
+
+      nodes.map(&:id).uniq - reachable
+    end
+
     def to_h
       @document
     end

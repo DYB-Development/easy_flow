@@ -9,9 +9,6 @@
     <label class="block text-sm font-medium mb-1">Slug</label>
     <%= ui_input(name: "flow[slug]", value: @flow.slug, placeholder: "e.g. business-scorecard") %>
 
-    <label class="block text-sm font-medium mb-1 mt-4">Kind</label>
-    <%= ui_select(name: "flow[kind]", options: [ [ "Scored", "scored" ], [ "Guide", "guide" ] ], selected: @flow.kind) %>
-
     <%= ui_button(label: "Create", type: :submit) %>
   <% end %>
 <% end %>

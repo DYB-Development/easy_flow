@@ -740,5 +740,14 @@ module EasyFlow
 
       assert_includes response.parsed_body["nodes"].select { |node| node["loose"] }.map { |node| node["id"] }, "aside"
     end
+
+    test "the versions page shows that unconnected steps were removed" do
+      leave_a_step_aside
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      get easy_flow.manage_flow_versions_path(flow)
+
+      assert_select "[data-version] [data-captured]", text: "Removed unconnected “New”"
+    end
   end
 end

@@ -63,6 +63,7 @@ module EasyFlow
 
     def remove_unconnected(steps)
       create_version
+      edit_history.record(Document.new(document).without(steps), :removed_unconnected, steps, document)
     end
 
     def returning_to(version)

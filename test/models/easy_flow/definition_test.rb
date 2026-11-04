@@ -496,5 +496,13 @@ module EasyFlow
 
       assert_includes flow.definition["nodes"].map { |node| node["id"] }, "aside"
     end
+
+    test "removing unconnected steps takes them out of the working document" do
+      flow = with_a_step_left_aside
+
+      flow.remove_unconnected([ "aside" ])
+
+      assert_equal %w[start end], flow.document["nodes"].map { |node| node["id"] }
+    end
   end
 end

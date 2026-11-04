@@ -56,7 +56,7 @@ module EasyFlow
       end
 
       def create_params
-        params.require(:flow).permit(:slug, :kind)
+        params.require(:flow).permit(:slug)
       end
 
       def flow_params

@@ -45,6 +45,17 @@ module EasyFlow
       assert_not Host.new(:alembic).always_show_insert_buttons?
     end
 
+    test "keeps showing step type codes when it says nothing" do
+      assert_not Host.new(:alembic).hide_step_type_codes?
+    end
+
+    test "hides step type codes when it asks to" do
+      host = Host.new(:alembic)
+      host.hide_step_type_codes = true
+
+      assert host.hide_step_type_codes?
+    end
+
     test "always shows insert buttons when it asks to" do
       host = Host.new(:alembic)
       host.always_show_insert_buttons = true

@@ -57,6 +57,18 @@ module EasyFlow
       EasyFlow.host_named("dummy").always_show_insert_buttons = false
     end
 
+    def with_step_type_codes_hidden
+      EasyFlow.host_named("dummy").hide_step_type_codes = true
+      yield
+    ensure
+      EasyFlow.host_named("dummy").hide_step_type_codes = false
+    end
+
+    def add_menu_from(placeholder)
+      find("[data-placeholder='#{placeholder}']").click
+      find("div[style*='z-index: 9']")
+    end
+
     def add_step_named(label)
       find("div[style*='z-index: 9']").click_button(label, match: :first)
     end
@@ -121,6 +133,42 @@ module EasyFlow
       assert_selector "[data-step='question']"
     end
 
+    test "a host that hides step type codes lists each type in the add menu by its name alone" do
+      with_step_type_codes_hidden do
+        canvas_for(flow)
+
+        assert_not_includes add_menu_from("gate--false").text, "question"
+      end
+    end
+
+    test "a host that hides step type codes shows a step's type by its name on its box" do
+      with_step_type_codes_hidden do
+        canvas_for(flow)
+
+        assert_equal "First\nQuestion", step_card("first").text
+      end
+    end
+
+    test "a host that hides step type codes shows an unconnected step's type by its name on its box" do
+      with_step_type_codes_hidden do
+        canvas_for(adrift)
+
+        assert_equal "Adrift\nQuestion", step_card("adrift").text.split("\nunreachable").first
+      end
+    end
+
+    test "a host that names no setting shows each type's code in the add menu" do
+      canvas_for(flow)
+
+      assert_includes add_menu_from("gate--false").text, "Question\nquestion"
+    end
+
+    test "a host that names no setting shows a step's type code on its box" do
+      canvas_for(flow)
+
+      assert_equal "First\nquestion", step_card("first").text
+    end
+
     test "removing a connection unlinks the two steps" do
       canvas_for(flow)
 
@@ -181,6 +229,46 @@ module EasyFlow
       assert_equal "picture-for-canvas-system", flow.reload.document["nodes"].find { |node| node["id"] == "first" }["picture"]
     ensure
       EasyFlow.picture_store = stored_with
+    end
+
+    test "a step with a picture shows a picture mark on its box" do
+      stored_with, EasyFlow.picture_store = EasyFlow.picture_store, PictureStore.new
+      flow.record_definition(flow.definition.merge("nodes" => flow.definition["nodes"].map { |node| node["id"] == "first" ? node.merge("picture" => "earlier") : node }))
+      canvas_for(flow)
+
+      assert_includes step_card("first").text, "Has a picture"
+    ensure
+      EasyFlow.picture_store = stored_with
+    end
+
+    test "a step whose type the host no longer offers still opens with its settings" do
+      EasyFlow.host_named("dummy").offers = %i[compare]
+      canvas_for(flow)
+      step_card("first").click
+
+      assert_selector "[data-inspector] label", text: "Question"
+    ensure
+      EasyFlow.host_named("dummy").offers = nil
+    end
+
+    test "a step whose type the host no longer offers can be saved" do
+      EasyFlow.host_named("dummy").offers = %i[compare]
+      canvas_for(flow)
+      step_card("first").click
+      fill_in_first_field_with("Changed by hand")
+
+      assert_selector "[data-step='first']", text: "Changed by hand"
+    ensure
+      EasyFlow.host_named("dummy").offers = nil
+    end
+
+    test "a step type the host no longer offers does not appear in the add menu" do
+      EasyFlow.host_named("dummy").offers = %i[compare]
+      canvas_for(flow)
+
+      assert_not_includes add_menu_from("gate--false").text, "Question"
+    ensure
+      EasyFlow.host_named("dummy").offers = nil
     end
 
     test "opening a step labels each setting its type declares" do

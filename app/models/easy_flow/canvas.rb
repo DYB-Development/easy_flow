@@ -10,7 +10,7 @@ module EasyFlow
     end
 
     def to_h
-      { "nodes" => nodes, "edges" => edges, "palette" => palette, "violations" => violations }
+      { "nodes" => nodes, "edges" => edges, "palette" => palette, "unoffered" => unoffered, "violations" => violations }
     end
 
     private
@@ -20,7 +20,7 @@ module EasyFlow
     end
 
     def drawn_step(node)
-      { "id" => node.id, "type" => node.type, "label" => label_for(node),
+      { "id" => node.id, "type" => node.type, "type_name" => step_type_for(node)&.step_name, "label" => label_for(node),
         "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
         "starts_a_flow" => starts_a_flow?(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "record_choices" => record_choices_for(node), "placeholder" => false, "picture_url" => picture_url(node), **placed[node.id] }
     end
@@ -89,17 +89,27 @@ module EasyFlow
     end
 
     def palette
-      @registry.step_types.reject(&:begins_here?).select { |step_type| @host.nil? || step_type.ends_here? || @host.offers?(step_type.id) }.map do |step_type|
-        { "type" => step_type.id.to_s, "label" => step_type.step_name,
-          "fields" => step_type.settings.fields.transform_keys(&:to_s).transform_values(&:to_s),
-          "labels" => step_type.settings.labels.transform_keys(&:to_s),
-          "choices" => step_type.settings.choices.transform_keys(&:to_s),
-          "records" => holdings_of(step_type),
-          "record_choices" => step_type.settings.record_choices.to_h { |name, offered| [ name.to_s, offered.transform_keys(&:to_s) ] },
-          "record_outputs_of" => step_type.settings.record_outputs_of.to_h { |name, sources| [ name.to_s, sources.to_h { |field, source| [ field.to_s, source.to_s ] } ] },
-          "record_labels" => step_type.settings.record_labels.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
-          "awaits_input" => step_type.awaits_input? }
-      end
+      offered_step_types.map { |step_type| palette_entry(step_type) }
+    end
+
+    def unoffered
+      (@document.nodes.filter_map { |node| step_type_for(node) }.uniq.reject(&:begins_here?) - offered_step_types).map { |step_type| palette_entry(step_type) }
+    end
+
+    def offered_step_types
+      @registry.step_types.reject(&:begins_here?).select { |step_type| @host.nil? || step_type.ends_here? || @host.offers?(step_type.id) }
+    end
+
+    def palette_entry(step_type)
+      { "type" => step_type.id.to_s, "label" => step_type.step_name,
+        "fields" => step_type.settings.fields.transform_keys(&:to_s).transform_values(&:to_s),
+        "labels" => step_type.settings.labels.transform_keys(&:to_s),
+        "choices" => step_type.settings.choices.transform_keys(&:to_s),
+        "records" => holdings_of(step_type),
+        "record_choices" => step_type.settings.record_choices.to_h { |name, offered| [ name.to_s, offered.transform_keys(&:to_s) ] },
+        "record_outputs_of" => step_type.settings.record_outputs_of.to_h { |name, sources| [ name.to_s, sources.to_h { |field, source| [ field.to_s, source.to_s ] } ] },
+        "record_labels" => step_type.settings.record_labels.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
+        "awaits_input" => step_type.awaits_input? }
     end
 
     def holdings_of(step_type)

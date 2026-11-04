@@ -4,9 +4,9 @@ import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import TypePicker from "../../app/javascript/easy_flow/canvas/TypePicker.jsx"
 
-const drawn = () => renderToStaticMarkup(React.createElement(TypePicker, {
+const drawn = (given = {}) => renderToStaticMarkup(React.createElement(TypePicker, {
   entries: [ { type: "question", label: "Question" } ], at: { x: 0, y: 0 },
-  onPick: () => {}, onConnect: () => {}, onDismiss: () => {}
+  onPick: () => {}, onConnect: () => {}, onDismiss: () => {}, ...given
 }))
 
 test("is drawn as a keystone panel", () => {
@@ -25,6 +25,10 @@ test("offers each step type as keystone's secondary button", () => {
 
 test("writes each step type's name in the button's own text color, softened", () => {
   assert.deepEqual(classesOf(drawn(), "question"), [ "opacity-75" ])
+})
+
+test("writes no step type code when the host hides them", () => {
+  assert.doesNotMatch(drawn({ hideStepTypeCodes: true }), />question</)
 })
 
 test("offers connecting to an existing step as keystone's secondary button", () => {

@@ -72,6 +72,21 @@ module EasyFlow
       EasyFlow.picture_store = stored_with
     end
 
+    test "carries the name of a step's type" do
+      drawn = canvas("entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask", "text" => "Budget?" } ], "edges" => [])
+
+      assert_equal "Ask", drawn["nodes"].find { |node| node["id"] == "a" }["type_name"]
+    end
+
+    test "carries the settings of a step type in the flow that the host does not offer" do
+      host = Host.new(:alembic)
+      host.offers = %i[switch]
+
+      drawn = Canvas.new(Document.new(flowing("entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask", "text" => "Budget?" } ], "edges" => [])), registry: registry, host: host).to_h
+
+      assert_includes drawn["unoffered"].find { |entry| entry["type"] == "ask" }["fields"].keys, "text"
+    end
+
     test "gives every node a row and a column" do
       placed = canvas(flow)["nodes"].map { |node| node.values_at("row", "column") }
 

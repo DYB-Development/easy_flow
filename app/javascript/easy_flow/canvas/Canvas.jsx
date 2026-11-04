@@ -78,7 +78,7 @@ const Canvas = ({ base, token, initial }) => {
   }
 
   const selectedNode = flow.nodes.find((node) => node.id === selected)
-  const entryFor = flow.palette.find((entry) => entry.type === selectedNode?.type)
+  const entryFor = [ ...flow.palette, ...(flow.unoffered || []) ].find((entry) => entry.type === selectedNode?.type)
 
   return (
     <div className="text-gray-900 dark:text-gray-100" style={page} onMouseUp={() => setDragging(null)}
@@ -118,7 +118,8 @@ const Canvas = ({ base, token, initial }) => {
                   onOpen={(path) => window.location.assign(path)}
                   onArm={(port, event) => { event.stopPropagation(); setArmed([ node.id, port ]) }}
                   onDragStart={() => setDragging(node.id)}
-                  onDragEnd={() => setDragging(null)} />
+                  onDragEnd={() => setDragging(null)}
+                  hideStepTypeCodes={flow.hide_step_type_codes} />
               </div>
             ))}
           </div>
@@ -159,13 +160,14 @@ const Canvas = ({ base, token, initial }) => {
                 }}
                 onDragEnd={() => setDragging(null)}
                 onDragStart={() => setDragging(node.id)}
+                hideStepTypeCodes={flow.hide_step_type_codes}
               />}
             </div>
           ))}
         </div>
 
         {adding && (
-          <TypePicker entries={flow.palette} at={adding.at} onDismiss={() => setAdding(null)}
+          <TypePicker entries={flow.palette} at={adding.at} onDismiss={() => setAdding(null)} hideStepTypeCodes={flow.hide_step_type_codes}
                       onConnect={adding.on !== undefined ? () => { setArmed([ adding.from, adding.on ]); setAdding(null) } : null}
                       onPick={(entry) => {
                         const where = adding

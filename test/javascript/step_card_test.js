@@ -38,6 +38,36 @@ test("writes the step's type in keystone's muted text color", () => {
   assert.ok(classes(type).includes("text-gray-500"))
 })
 
+const hidingCodes = { hideStepTypeCodes: true }
+
+test("writes no step type code when the host hides them", () => {
+  assert.equal(child(card({ type_name: "Condition" }, hidingCodes), (element) => element.props?.children === "condition"), undefined)
+})
+
+test("writes the step type's name in the muted text color when the host hides codes", () => {
+  const name = child(card({ type_name: "Condition" }, hidingCodes), (element) => element.props?.children === "Condition")
+
+  assert.ok(classes(name).includes("text-gray-500"))
+})
+
+const unnamedQuestion = { id: "question_2", label: "question_2", type: "question", type_name: "Question" }
+
+test("writes no id on the box of a step with no name of its own when the host hides codes", () => {
+  assert.equal(child(card(unnamedQuestion, hidingCodes), (element) => element.props?.children === "question_2"), undefined)
+})
+
+const everyChild = (element) => [ element.props.children ].flat(Infinity).filter(Boolean)
+
+test("writes the type's name once on the box of a step with no name of its own when the host hides codes", () => {
+  assert.equal(everyChild(card(unnamedQuestion, hidingCodes)).filter((element) => element.props?.children === "Question").length, 1)
+})
+
+test("heads an end step with no name of its own by its type's name when the host hides codes", () => {
+  const end = card({ id: "terminal", label: "terminal", type: "terminal", type_name: "End", ends_here: true }, hidingCodes)
+
+  assert.ok(child(end, (element) => element.props?.children === "End"))
+})
+
 test("writes a start card's label in keystone's muted text color", () => {
   const label = child(card({ begins_here: true, label: "Start" }), (element) => element.props?.children === "Start")
 
@@ -52,6 +82,10 @@ test("writes each of the step's problems in red", () => {
 
 test("marks a step that runs another flow", () => {
   assert.ok(child(card({ starts_a_flow: true }), (element) => element.props?.children === "Runs a flow"))
+})
+
+test("shows no picture mark on a step with no picture", () => {
+  assert.equal(child(card(), (element) => element.props?.children === "Has a picture"), undefined)
 })
 
 test("opens the flow a step runs when its card is clicked", () => {

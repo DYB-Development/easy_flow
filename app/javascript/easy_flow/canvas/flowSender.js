@@ -18,6 +18,8 @@ export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice
     return onFlow(await (await fetch(base + ".json", { headers: { Accept: "application/json" } })).json())
   }
 
+  onWarning(null)
+
   if (!response.ok) {
     onNotice(null)
     return onError(answered.error || "That change was refused")

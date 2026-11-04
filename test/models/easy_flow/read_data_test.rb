@@ -18,5 +18,11 @@ module EasyFlow
 
       assert_empty ReadData.step_type.settings.choices[:data]
     end
+
+    test "is on the canvas's add menu with what can be read" do
+      palette = Canvas.new(Document.new({})).to_h["palette"]
+
+      assert_equal %w[stock], palette.find { |entry| entry["type"] == "read_data" }["choices"]["data"]
+    end
   end
 end

@@ -64,6 +64,12 @@ module EasyFlow
       assert_equal "passed", read_processed["result"]
     end
 
+    test "records failed with the reason when the app raises" do
+      answering { raise "The shelf is closed" }
+
+      assert_equal({ "result" => "failed", "reason" => "The shelf is closed" }, read_processed)
+    end
+
     test "keeps its own result when the answer holds a key named result" do
       answering { { "result" => "unchanged" } }
 

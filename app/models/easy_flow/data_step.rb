@@ -5,6 +5,7 @@ module EasyFlow
 
     included do
       names_by :data
+      needs_a_saved_run "Data can only be read or written in a flow that saves its runs."
 
       setting(:values, type: :list, label: "Values it reports") { setting :name, type: :string, required: true }
       outputs_named_by :values

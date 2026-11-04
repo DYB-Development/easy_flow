@@ -62,5 +62,13 @@ module EasyFlow
     test "a run whose reads and writes work moves along their passed connections to the end" do
       assert run_answering("good").ended_at_end?
     end
+
+    test "a flow that saves no run tells the visitor it cannot read data and goes no further" do
+      unsaved = flow.tap { |built| built.update!(persists: :unsaved) }
+
+      get easy_flow.flow_step_path(unsaved.slug), params: { asked: "pick", answers: { pick: "good" } }
+
+      assert_equal [ true, false ], [ response.body.include?("Data can only be read or written in a flow that saves its runs."), response.body.include?("Boots") ]
+    end
   end
 end

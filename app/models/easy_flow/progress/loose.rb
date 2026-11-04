@@ -10,6 +10,10 @@ module EasyFlow
 
       attr_reader :completed_at
 
+      def saved?
+        false
+      end
+
       def definition
         @definition || @flow.live_definition
       end

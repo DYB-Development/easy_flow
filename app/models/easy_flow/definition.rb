@@ -121,9 +121,10 @@ module EasyFlow
 
     def unused_slug
       made = title.parameterize
-      taken = self.class.where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug)
+      taken = self.class.where(host: host).where("slug LIKE ?", "#{self.class.sanitize_sql_like(made)}%").pluck(:slug)
+      numbered = (2..).lazy.map { |number| "#{made}-#{number}" }
 
-      [ made, *(2..).lazy.map { |number| "#{made}-#{number}" }.first(taken.size + 1) ].find { |candidate| taken.exclude?(candidate) }
+      [ made ].chain(numbered).find { |candidate| taken.exclude?(candidate) }
     end
 
     def kept_while_a_parent_waits

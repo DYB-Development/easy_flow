@@ -51,5 +51,22 @@ module EasyFlow
 
       assert_nothing_raised { migrate(:down) }
     end
+
+    test "a flow that had a value set and its run keep working once the field is removed" do
+      restore_stored_field
+      flow = Definition.create!(host: "dummy", slug: "scored-before", persists: :each_step)
+      flow.publish_version(flow.definition_versions.create!(number: 1, definition: flowing("slug" => "scored-before", "entry" => "ask",
+        "nodes" => [ { "id" => "ask", "type" => "question", "text" => "Ready?", "options" => [ "yes" ] }, { "id" => "done", "type" => "terminal" } ],
+        "edges" => [ { "from" => "ask", "to" => "done" } ])))
+      run = flow.runs.create!(definition_version: flow.live_version)
+      connection.execute("UPDATE easy_flow_definitions SET kind = 'scored' WHERE id = #{flow.id}")
+
+      migrate(:up)
+      Definition.reset_column_information
+      run = Run.find(run.id)
+      run.record(:ask, "yes")
+
+      assert_equal "yes", run.reload.recorded[:ask]
+    end
   end
 end

@@ -24,15 +24,15 @@ module EasyFlow
         return if value.blank?
         return "A file can only be uploaded in a flow that saves its runs." unless value.respond_to?(:original_filename)
 
-        kinds = accepted_kinds(node)
-        return if kinds.empty?
-        return if kinds.include?(File.extname(value.original_filename).downcase)
+        extensions = accepted_extensions(node)
+        return if extensions.empty?
+        return if extensions.include?(File.extname(value.original_filename).downcase)
 
-        "Choose a #{kinds.to_sentence(two_words_connector: ' or ', last_word_connector: ', or ')} file."
+        "Choose a #{extensions.to_sentence(two_words_connector: ' or ', last_word_connector: ', or ')} file."
       end
 
-      def self.accepted_kinds(node)
-        node.config["accepts"].to_s.split(",").map { |kind| kind.strip.downcase }.compact_blank
+      def self.accepted_extensions(node)
+        node.config["accepts"].to_s.split(",").map { |extension| extension.strip.downcase }.compact_blank
       end
     end
   end

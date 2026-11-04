@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+### Removed
+
+- A flow no longer has a kind. The new flow page does not ask for one and the flow list has no column for it.
+- `EasyFlow::Definition` no longer has a `kind` attribute, the `scored` and `guide` scopes, or the `scored?` and `guide?` methods.
+
+### Upgrading
+
+Code that still sets `kind` on a flow must stop before the app upgrades, and so before it runs the new migration. `EasyFlow::Definition.create!(kind: "guide")` raises `ActiveModel::UnknownAttributeError` from this version on, whether or not the migration has run. A test fixture that sets `kind` fails once the migration has run.
+
+The stored field is gone once an app copies and runs the new migration, which deletes each flow's stored value:
+
+```bash
+bin/rails easy_flow:install:migrations
+bin/rails db:migrate
+```
+
+Deploy the upgraded gem first, and copy and run the migration in a later deploy. A process still running the earlier version cannot create a flow once the column is dropped, and one that boots after the drop raises on every use of a flow. The upgraded version never reads or writes the column, so it keeps working while the column is dropped.
+
+An app using alembic that has not yet run alembic's migration moving flows onto easy_flow must run it on the earlier easy_flow version first. That migration copies the field, and it fails on any existing flow once the field is gone.
+
+Rolling the migration back restores an empty nullable column, and the stored values do not return.
+
 ## [0.31.0] - 2026-10-29
 
 ### Added

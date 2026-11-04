@@ -62,6 +62,18 @@ module EasyFlow
       assert_equal "guide", Definition.find_by!(host: "dummy", title: "Morning Routine").kind
     end
 
+    test "the new flow page asks for a kind when the host has set none" do
+      get easy_flow.new_manage_flow_path
+
+      assert_select "select[name=?]", "flow[kind]"
+    end
+
+    test "a flow created from the page has the kind chosen when the host has set none" do
+      post easy_flow.manage_flows_path, params: { flow: { title: "Morning Routine", kind: "scored" } }
+
+      assert_equal "scored", Definition.find_by!(host: "dummy", title: "Morning Routine").kind
+    end
+
     test "the flow list links to the new flow page" do
       get easy_flow.manage_flows_path
 

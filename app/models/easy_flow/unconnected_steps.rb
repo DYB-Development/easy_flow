@@ -6,6 +6,10 @@ module EasyFlow
       @registry = registry
     end
 
+    def named
+      @document.unconnected.map { |id| { "id" => id, "label" => Name.of(@document.node(id), @registry) } }
+    end
+
     def objections
       Validator.new(staying, registry: @registry, flow: @flow).violations + readers
     end

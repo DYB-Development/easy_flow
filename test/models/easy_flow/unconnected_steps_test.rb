@@ -34,5 +34,9 @@ module EasyFlow
 
       assert_equal [ :reading_an_unconnected_step ], unsettled.objections.map(&:problem)
     end
+
+    test "names each step that would be removed by its id and label" do
+      assert_equal [ { "id" => "aside", "label" => "Aside" } ], checked([ asking("aside", question: "Aside") ]).named
+    end
   end
 end

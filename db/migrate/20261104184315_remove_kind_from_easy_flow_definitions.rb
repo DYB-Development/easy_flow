@@ -4,6 +4,6 @@ class RemoveKindFromEasyFlowDefinitions < ActiveRecord::Migration[8.1]
   end
 
   def down
-    add_column :easy_flow_definitions, :kind, :string
+    add_column :easy_flow_definitions, :kind, :string, if_not_exists: true
   end
 end

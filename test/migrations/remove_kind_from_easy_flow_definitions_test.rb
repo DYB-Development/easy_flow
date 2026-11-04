@@ -45,5 +45,11 @@ module EasyFlow
 
       assert connection.columns(:easy_flow_definitions).find { |column| column.name == "kind" }&.then { |column| column.type == :string && column.null }
     end
+
+    test "rolling it back does nothing when the column is already there" do
+      restore_stored_field
+
+      assert_nothing_raised { migrate(:down) }
+    end
   end
 end

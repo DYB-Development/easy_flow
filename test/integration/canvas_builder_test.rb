@@ -714,5 +714,23 @@ module EasyFlow
 
       assert_equal [ %w[aside later], nil, true ], [ response.parsed_body["unconnected"].map { |step| step["id"] }, flow.reload.live_version, nodes.include?("aside") ]
     end
+
+    test "accepting while a step that stays has a problem refuses and removes nothing" do
+      leave_a_step_aside
+      patch "#{canvas_path}/steps/b", params: { config: { answers: [] } }
+      post "#{canvas_path}/steps", params: { id: "gate", type: "condition", from: "b", to: "end" }
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal [ 422, nil, true ], [ response.status, flow.reload.live_version, nodes.include?("aside") ]
+    end
+
+    test "a problem only on the step being removed does not block" do
+      post "#{canvas_path}/steps", params: { id: "aside", type: "question" }
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal flow.reload.definition_versions.order(:number).last, flow.live_version
+    end
   end
 end

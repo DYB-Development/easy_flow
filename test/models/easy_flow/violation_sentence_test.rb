@@ -113,5 +113,9 @@ module EasyFlow
     test "says a step leads back to its own flow" do
       assert_equal "Check the new test fails leads back to the flow it sits in. Pick a flow in its settings that does not lead back here.", sentence(:circular)
     end
+
+    test "says a step reads one that is not connected" do
+      assert_equal "Check the new test fails reads a step that is not connected to the flow. Connect that step, or pick another in its settings.", sentence(:reading_an_unconnected_step)
+    end
   end
 end

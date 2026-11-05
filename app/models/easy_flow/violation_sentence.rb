@@ -100,5 +100,9 @@ module EasyFlow
     def circular(violation)
       "#{step(violation.node)} leads back to the flow it sits in. Pick a flow in its settings that does not lead back here."
     end
+
+    def reading_an_unconnected_step(violation)
+      "#{step(violation.node)} reads a step that is not connected to the flow. Connect that step, or pick another in its settings."
+    end
   end
 end

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.37.0] - 2026-11-05
+
 ### Fixed
 
 - An input given `run:` and asking for an output the earlier step did not report now gives no value, so the host's own check for a missing value can refuse it. A plain recorded value is read only under the single output its step type declares, by an input naming no output, or from a step whose type declares no outputs or is not registered. A call to `EasyFlow::Inputs.values_of` with no `run:` and every comparison step read a plain value under any output name, as they did.

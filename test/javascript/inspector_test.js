@@ -24,6 +24,10 @@ test("colors the close button with keystone's muted text color", () => {
   assert.ok(classesOf(drawn(), "×").includes("text-gray-500"))
 })
 
+test("shows a setting's explanation", () => {
+  assert.match(drawn({ explanations: { step: "Picks the earlier step." } }), /data-setting-explanation="true"[^>]*>Picks the earlier step\.</)
+})
+
 test("labels each field with keystone's label", () => {
   assert.match(drawn(), /class="ks-label"[^>]*>(<span[^>]*>)?Step</)
 })

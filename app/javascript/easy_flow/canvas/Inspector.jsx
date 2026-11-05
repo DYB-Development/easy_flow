@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react"
 import Control from "./Control"
 import Records from "./Records"
+import Explanation from "./Explanation"
 import Panel from "keystone_ui-react/src/Panel.jsx"
 import Button from "keystone_ui-react/src/Button.jsx"
 import { Label } from "keystone_ui-react/src/FieldText.jsx"
 
 const panel = { width: 280, padding: 20, overflowY: "auto" }
 
-const Inspector = ({ node, fields, holds, labels, recordLabels, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose, onPickPicture, refusal }) => {
+const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose, onPickPicture, refusal }) => {
   const [ draft, setDraft ] = useState(node.config)
   const [ pictureUrl, setPictureUrl ] = useState(node.picture_url)
   useEffect(() => setPictureUrl(node.picture_url), [ node.id, node.picture_url ])
@@ -45,6 +46,7 @@ const Inspector = ({ node, fields, holds, labels, recordLabels, recordChoices, r
                          setPictureUrl(kept.url)
                          settle({ ...draft, [name]: kept.reference })
                        }} />}
+          <Explanation text={(explanations || {})[name]} />
         </Label>
       ))}
       <Button variant="danger" size="sm" className="w-full" onClick={onDelete}>Delete step</Button>

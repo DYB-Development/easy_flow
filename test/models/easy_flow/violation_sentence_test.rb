@@ -33,5 +33,9 @@ module EasyFlow
     test "writes an underscore in a step's name as a space" do
       assert_equal "run tests leads nowhere. Connect it to the step that should come next.", sentence(:dead_end, node: "snake")
     end
+
+    test "says which way out of a step leads nowhere" do
+      assert_equal "Passed on Check the new test fails leads nowhere. Connect it to the step that should come next.", sentence(:unrouted_value, detail: "passed")
+    end
   end
 end

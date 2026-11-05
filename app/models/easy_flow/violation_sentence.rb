@@ -18,5 +18,9 @@ module EasyFlow
     def dead_end(violation)
       "#{step(violation.node)} leads nowhere. Connect it to the step that should come next."
     end
+
+    def unrouted_value(violation)
+      "#{violation.detail.to_s.upcase_first} on #{step(violation.node)} leads nowhere. Connect it to the step that should come next."
+    end
   end
 end

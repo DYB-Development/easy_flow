@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-11-05
+
 ### Added
 
 - An input can take its value from the run's owner, at a Read data or Write data step and at any step type that includes `EasyFlow::Inputs`. An admin ticks `The run's owner` on the input's entry on the canvas, which is stored as `{ "name" => "item", "from_run_owner" => true }`, and the input gives the owner's id. A flow that saves no runs, or a run with no owner, gives no value and raises nothing. A run started by a Flow step has its parent's owner, so it gives the same id.

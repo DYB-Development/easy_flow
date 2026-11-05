@@ -60,5 +60,9 @@ module EasyFlow
     def missing_edge_target(violation)
       "A connection from #{step(violation.node)} leads to a step that does not exist. Remove it in the flow's definition."
     end
+
+    def missing_edge_source(violation)
+      "A connection into #{step(violation.node)} comes from a step that does not exist. Remove it in the flow's definition."
+    end
   end
 end

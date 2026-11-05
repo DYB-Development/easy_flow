@@ -8,7 +8,7 @@ import { Label } from "keystone_ui-react/src/FieldText.jsx"
 
 const panel = { width: 280, padding: 20, overflowY: "auto" }
 
-const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose, onPickPicture, refusal }) => {
+const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, recordExplanations, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose, onPickPicture, refusal }) => {
   const [ draft, setDraft ] = useState(node.config)
   const [ pictureUrl, setPictureUrl ] = useState(node.picture_url)
   useEffect(() => setPictureUrl(node.picture_url), [ node.id, node.picture_url ])
@@ -32,7 +32,7 @@ const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, re
         <Label key={name}>
           <span style={{ display: "block", marginBottom: 3 }}>{labels[name] || name}</span>
           {type === "list"
-            ? <Records holds={holds[name] || {}} labels={recordLabels[name] || {}} rows={draft[name]}
+            ? <Records holds={holds[name] || {}} labels={recordLabels[name] || {}} explanations={(recordExplanations || {})[name]} rows={draft[name]}
                        choices={{ ...(recordChoices || {})[name], ...(node.record_choices || {})[name] }}
                        outputsOf={(recordOutputsOf || {})[name]}
                        onChange={(next) => setDraft({ ...draft, [name]: next })}

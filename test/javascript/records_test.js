@@ -19,6 +19,12 @@ test("writes each record's field names in keystone's muted text color", () => {
   assert.ok(classesOf(drawn(), "Value").includes("text-gray-500"))
 })
 
+test("shows the explanation of a setting in each record", () => {
+  const html = renderToStaticMarkup(React.createElement(Records, { holds: { value: "string" }, labels: {}, explanations: { value: "Sent with the answer." }, rows: [ {} ], onChange: () => {}, onSettle: () => {} }))
+
+  assert.match(html, /data-setting-explanation="true"[^>]*>Sent with the answer\.</)
+})
+
 test("offers removing a record as keystone's secondary button", () => {
   assert.ok(classesOf(drawn(), "Remove").includes("ks-button-secondary"))
 })

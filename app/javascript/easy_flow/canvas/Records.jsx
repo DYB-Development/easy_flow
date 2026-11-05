@@ -1,6 +1,7 @@
 import React from "react"
 import Control from "./Control"
 import { amended } from "./rows"
+import Explanation from "./Explanation"
 import Button from "keystone_ui-react/src/Button.jsx"
 
 const offeredFor = (choices, outputsOf, name, row) => {
@@ -9,7 +10,7 @@ const offeredFor = (choices, outputsOf, name, row) => {
   return source ? (offered || {})[row[source]] : offered
 }
 
-const Records = ({ holds, labels, rows, choices, outputsOf, onChange, onSettle }) => {
+const Records = ({ holds, labels, explanations, rows, choices, outputsOf, onChange, onSettle }) => {
   const kept = Array.isArray(rows) ? rows : []
   const amend = (index, name, next, settle) => {
     const updated = amended(kept, index, name, next)
@@ -26,6 +27,7 @@ const Records = ({ holds, labels, rows, choices, outputsOf, onChange, onSettle }
               <Control type={type} value={row[name]} choices={offeredFor(choices, outputsOf, name, row)}
                        onChange={(next) => amend(index, name, next, false)}
                        onSettle={(next) => amend(index, name, next, true)} />
+              <Explanation text={(explanations || {})[name]} />
             </label>
           ))}
           <Button variant="secondary" size="sm" className="mb-1.5"

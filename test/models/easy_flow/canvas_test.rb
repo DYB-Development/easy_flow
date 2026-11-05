@@ -173,6 +173,10 @@ module EasyFlow
       assert_equal({ "text" => "Shown to the visitor." }, canvas(flow)["palette"].find { |entry| entry["type"] == "ask" }["explanations"])
     end
 
+    test "carries the explanation of a setting inside a list in the palette" do
+      assert_equal({ "options" => { "weight" => "Counts toward the score." } }, canvas(flow)["palette"].find { |entry| entry["type"] == "ask" }["record_explanations"])
+    end
+
     test "carries the violations the document has" do
       stranded = flow.merge("nodes" => flow["nodes"] + [ { "id" => "loose", "type" => "ask" } ])
 

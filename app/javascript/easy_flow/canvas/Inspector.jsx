@@ -46,7 +46,7 @@ const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, re
                          setPictureUrl(kept.url)
                          settle({ ...draft, [name]: kept.reference })
                        }} />}
-          <Explanation text={(explanations || {})[name]} />
+          {(explanations || {})[name] && <Explanation text={explanations[name]} />}
         </Label>
       ))}
       <Button variant="danger" size="sm" className="w-full" onClick={onDelete}>Delete step</Button>

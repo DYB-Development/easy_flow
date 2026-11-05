@@ -28,6 +28,10 @@ test("shows a setting's explanation", () => {
   assert.match(drawn({ explanations: { step: "Picks the earlier step." } }), /data-setting-explanation="true"[^>]*>Picks the earlier step\.</)
 })
 
+test("shows nothing under a setting with no explanation", () => {
+  assert.doesNotMatch(drawn(), /data-setting-explanation/)
+})
+
 test("labels each field with keystone's label", () => {
   assert.match(drawn(), /class="ks-label"[^>]*>(<span[^>]*>)?Step</)
 })

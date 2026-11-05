@@ -85,6 +85,10 @@ module EasyFlow
       assert_nil host.explanation_for(:question, :category)
     end
 
+    test "a host refuses an explanation that is not text" do
+      assert_raises(ArgumentError) { Host.new(:alembic).setting_explanations = { question: { answers: { weight: "Points." } } } }
+    end
+
     test "a host names no back link unless it sets one" do
       assert_nil Host.new(:alembic).back_link
     end

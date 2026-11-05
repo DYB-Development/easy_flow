@@ -15,7 +15,10 @@ module EasyFlow
     end
 
     def setting_explanations=(explanations)
-      @setting_explanations = explanations.to_h.deep_stringify_keys
+      explained = explanations.to_h.deep_stringify_keys
+      raise ArgumentError, "an explanation must be text, and a list entry's setting is named like answers.weight" unless explained.values.flat_map(&:values).all? { |text| text.nil? || text.is_a?(String) }
+
+      @setting_explanations = explained
     end
 
     def layout

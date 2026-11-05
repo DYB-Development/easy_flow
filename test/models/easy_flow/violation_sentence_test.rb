@@ -69,5 +69,9 @@ module EasyFlow
     test "says a step reads one that no longer exists" do
       assert_equal "Check the new test fails reads a step that no longer exists. Pick another step in its settings.", sentence(:unmet_requirement, detail: "gone")
     end
+
+    test "says a connection leads to a step that does not exist" do
+      assert_equal "A connection from Check the new test fails leads to a step that does not exist. Remove it in the flow's definition.", sentence(:missing_edge_target, detail: "gone")
+    end
   end
 end

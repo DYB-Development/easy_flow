@@ -56,5 +56,9 @@ module EasyFlow
 
       "#{step(violation.node)} reads #{step(violation.detail)}, which not every path to it goes through. Move #{step(violation.detail)} ahead of it on every path, or pick another step in its settings."
     end
+
+    def missing_edge_target(violation)
+      "A connection from #{step(violation.node)} leads to a step that does not exist. Remove it in the flow's definition."
+    end
   end
 end

@@ -26,5 +26,9 @@ module EasyFlow
     def unreachable(violation)
       "#{step(violation.node)} is not connected to the flow. Connect a step to it, or delete it."
     end
+
+    def past_the_end(violation)
+      "#{step(violation.node)} ends the flow, but a connection leaves it. Remove that connection."
+    end
   end
 end

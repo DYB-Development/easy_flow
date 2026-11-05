@@ -41,5 +41,9 @@ module EasyFlow
     test "says a step is not connected to the flow" do
       assert_equal "Check the new test fails is not connected to the flow. Connect a step to it, or delete it.", sentence(:unreachable)
     end
+
+    test "says an end step has a connection leaving it" do
+      assert_equal "Check the new test fails ends the flow, but a connection leaves it. Remove that connection.", sentence(:past_the_end)
+    end
   end
 end

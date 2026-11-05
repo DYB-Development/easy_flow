@@ -43,7 +43,7 @@ module EasyFlow
     end
 
     test "gives a step type that includes it a list of named inputs" do
-      assert_equal %i[name value step output], HostStep.step_type.settings.record_fields[:inputs].keys
+      assert_equal %i[name value step output from_run_owner], HostStep.step_type.settings.record_fields[:inputs].keys
     end
   end
 end

@@ -8,6 +8,7 @@ module EasyFlow
         setting :value, type: :string
         setting :step, type: :previous_step, label: "Earlier step"
         setting :output, outputs_of: :step, label: "Earlier step's output"
+        setting :from_run_owner, type: :boolean, label: "The run's owner"
       end
     end
 

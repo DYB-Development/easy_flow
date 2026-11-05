@@ -29,7 +29,11 @@ module EasyFlow
 
       def behaviour(word)
         asks_for_times = instance_method(word).arity.abs >= 3
-        ->(node, state, times = {}) { asks_for_times ? new.public_send(word, node, state, times) : new.public_send(word, node, state) }
+        asks_for_run = StepType.asks_for_run?(instance_method(word))
+        lambda do |node, state, times = {}, run: nil|
+          arguments = asks_for_times ? [ node, state, times ] : [ node, state ]
+          new.public_send(word, *arguments, **(asks_for_run ? { run: run } : {}))
+        end
       end
 
       def register(registry = EasyFlow.registry)

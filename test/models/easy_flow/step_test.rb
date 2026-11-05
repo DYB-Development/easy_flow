@@ -16,6 +16,18 @@ module EasyFlow
       end
     end
 
+    class OwnerReader
+      include Step
+
+      def process(_node, _state, run: nil)
+        run.owner_id
+      end
+    end
+
+    test "hands the run to a process method that asks for it" do
+      assert_equal 7, OwnerReader.step_type.process(Node.new(id: "a", type: "owner_reader", config: {}), {}, run: Run.new(owner_id: 7))
+    end
+
     test "derives its id from the class name" do
       assert_equal :probe, Probe.step_type.id
     end

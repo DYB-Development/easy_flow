@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-11-05
+
 ### Changed
 
 - Pressing Create version or Publish on a flow with an unconnected step no longer stops at a refusal, on every host. The flow panel names each step that will be removed and offers to remove them or cancel. Cancelling changes nothing. Accepting first saves the flow as it stood, unconnected steps included, as a version that stays a draft, then removes the steps and creates or publishes the next version, so one acceptance adds two version numbers. The history shows `Removed unconnected` with each step's name, and a builder can return to the draft version to get the steps back. Undo after accepting brings the steps back to the working document and leaves the versions as they are.

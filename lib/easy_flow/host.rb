@@ -42,6 +42,10 @@ module EasyFlow
       @hide_step_type_codes.present?
     end
 
+    def explanation_for(step_type, setting)
+      @setting_explanations.to_h.dig(step_type.to_s, setting.to_s)
+    end
+
     def offers?(step_type)
       @offers.nil? || @offers.map(&:to_s).include?(step_type.to_s)
     end

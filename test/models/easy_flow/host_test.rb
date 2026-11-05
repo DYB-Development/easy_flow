@@ -67,6 +67,10 @@ module EasyFlow
       assert_nil Host.new(:alembic).publish_note
     end
 
+    test "a host gives no explanation for a setting unless it sets one" do
+      assert_nil Host.new(:alembic).explanation_for(:question, :category)
+    end
+
     test "a host names no back link unless it sets one" do
       assert_nil Host.new(:alembic).back_link
     end

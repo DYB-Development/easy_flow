@@ -14,6 +14,13 @@ module EasyFlow
       @back_link = link && BackLink.new(**link)
     end
 
+    def setting_explanations=(explanations)
+      explained = explanations.to_h.deep_stringify_keys
+      raise ArgumentError, "an explanation must be text, and a list entry's setting is named like answers.weight" unless explained.values.flat_map(&:values).all? { |text| text.nil? || text.is_a?(String) }
+
+      @setting_explanations = explained
+    end
+
     def layout
       @layout || "easy_flow/application"
     end
@@ -40,6 +47,10 @@ module EasyFlow
 
     def hide_step_type_codes?
       @hide_step_type_codes.present?
+    end
+
+    def explanation_for(step_type, setting)
+      @setting_explanations.to_h.dig(step_type.to_s, setting.to_s).presence
     end
 
     def offers?(step_type)

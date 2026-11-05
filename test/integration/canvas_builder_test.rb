@@ -633,6 +633,18 @@ module EasyFlow
       EasyFlow.host_named("dummy").publish_note = nil
     end
 
+    test "the canvas carries the explanation its host is set to, and follows a change to it" do
+      explained = [ "Gives the round.", "Names the topic." ].map do |text|
+        EasyFlow.host_named("dummy").setting_explanations = { question: { category: text } }
+        get "#{canvas_path}.json"
+        response.parsed_body["palette"].find { |entry| entry["type"] == "question" }["explanations"]["category"]
+      end
+
+      assert_equal [ "Gives the round.", "Names the topic." ], explained
+    ensure
+      EasyFlow.host_named("dummy").setting_explanations = nil
+    end
+
     test "the builder header shows the back link its host set" do
       EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
 

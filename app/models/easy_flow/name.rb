@@ -7,7 +7,7 @@ module EasyFlow
     end
 
     def self.shown(node, registry = EasyFlow.registry)
-      named(node, registry) || type_name(node, registry)
+      named(node, registry) || type_name(node, registry) || "Unnamed step"
     end
 
     def self.named(node, registry)

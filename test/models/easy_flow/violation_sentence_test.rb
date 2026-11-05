@@ -85,5 +85,9 @@ module EasyFlow
     test "says a step's id holds an at sign" do
       assert_equal "Check the new test fails has an id with an @ in it, which a flow cannot use. Change the id in the flow's definition.", sentence(:reserved_id)
     end
+
+    test "says a flow has no start step" do
+      assert_equal "This flow has no start step. Add one in the flow's definition.", sentence(:no_beginning, node: nil)
+    end
   end
 end

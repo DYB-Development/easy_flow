@@ -72,5 +72,9 @@ module EasyFlow
     def reserved_id(violation)
       "#{step(violation.node)} has an id with an @ in it, which a flow cannot use. Change the id in the flow's definition."
     end
+
+    def no_beginning(_violation)
+      "This flow has no start step. Add one in the flow's definition."
+    end
   end
 end

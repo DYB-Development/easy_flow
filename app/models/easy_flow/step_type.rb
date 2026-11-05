@@ -40,8 +40,8 @@ module EasyFlow
       @display.arity == 1 ? @display.call(node) : @display.call(node, run)
     end
 
-    def process(node, state)
-      @behaviour&.call(node, state)
+    def process(node, state, run: nil)
+      @behaviour&.call(node, state, run: run)
     end
 
     def route(node, state, times = {})

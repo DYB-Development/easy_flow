@@ -76,5 +76,9 @@ module EasyFlow
     def no_beginning(_violation)
       "This flow has no start step. Add one in the flow's definition."
     end
+
+    def many_beginnings(violation)
+      "#{step(violation.node)} is a second start step. Delete it."
+    end
   end
 end

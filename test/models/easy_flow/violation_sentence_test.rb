@@ -89,5 +89,9 @@ module EasyFlow
     test "says a flow has no start step" do
       assert_equal "This flow has no start step. Add one in the flow's definition.", sentence(:no_beginning, node: nil)
     end
+
+    test "says a step is a second start step" do
+      assert_equal "Check the new test fails is a second start step. Delete it.", sentence(:many_beginnings)
+    end
   end
 end

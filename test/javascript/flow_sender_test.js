@@ -31,3 +31,38 @@ test("a refused picture shows the author why and keeps nothing", async () => {
 
   assert.deepEqual([ errors, kept ], [ [ "Pictures cannot be added yet." ], null ])
 })
+
+const answering = (first, flow = { nodes: [] }) => {
+  const answers = [ first, { ok: true, json: async () => flow } ]
+  return async () => answers.shift()
+}
+
+test("a warning about unconnected steps carries the steps and where to send the acceptance", async () => {
+  const warnings = []
+  const warned = { ok: false, json: async () => ({ error: "Cannot publish.", unconnected: [ { id: "aside", label: "Aside" } ] }) }
+  const send = createFlowSender({ base: "/flows/1/canvas", token: "t", fetch: answering(warned), onFlow: () => {}, onNotice: () => {}, onError: () => {}, onWarning: (warning) => warnings.push(warning) })
+
+  await send("/publish", "POST")
+
+  assert.deepEqual(warnings, [ { path: "/publish", steps: [ { id: "aside", label: "Aside" } ] } ])
+})
+
+test("a warning about unconnected steps draws the flow again so the canvas matches it", async () => {
+  const drawn = []
+  const warned = { ok: false, json: async () => ({ unconnected: [ { id: "aside", label: "Aside" } ] }) }
+  const send = createFlowSender({ base: "/flows/1/canvas", token: "t", fetch: answering(warned, { nodes: [ "fresh" ] }), onFlow: (flow) => drawn.push(flow), onNotice: () => {}, onError: () => {} })
+
+  await send("/publish", "POST")
+
+  assert.deepEqual(drawn, [ { nodes: [ "fresh" ] } ])
+})
+
+test("any other answer clears the warning", async () => {
+  const warnings = []
+  const refused = { ok: false, json: async () => ({ error: "Cannot publish." }) }
+  const send = createFlowSender({ base: "/flows/1/canvas", token: "t", fetch: answering(refused), onFlow: () => {}, onNotice: () => {}, onError: () => {}, onWarning: (warning) => warnings.push(warning) })
+
+  await send("/publish", "POST", { remove_unconnected: [ "aside" ] })
+
+  assert.deepEqual(warnings, [ null ])
+})

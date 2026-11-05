@@ -47,6 +47,12 @@ module EasyFlow
       found
     end
 
+    def unconnected
+      return [] unless entry
+
+      nodes.map(&:id).uniq - reachable - beginnings
+    end
+
     def to_h
       @document
     end
@@ -101,6 +107,11 @@ module EasyFlow
 
       with(nodes: raw_nodes.reject { |node| node["id"] == id },
            edges: (raw_edges - incoming - outgoing) + bridges(incoming, outgoing))
+    end
+
+    def without(ids)
+      Document.new(@document.merge("nodes" => raw_nodes.reject { |node| ids.include?(node["id"]) },
+        "edges" => raw_edges.reject { |edge| ids.include?(edge["from"]) || ids.include?(edge["to"]) }), registry: @registry)
     end
 
     private

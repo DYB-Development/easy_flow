@@ -124,6 +124,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 ## Conventions
 
 - After install, check that `<mount path>/manage/flows` shows the flow list and that a new flow opens on the canvas. If the canvas is blank, check that the admin layout calls `yield :head`.
+- After install, add a step to a flow without connecting it and press Publish. Check that the flow panel names the step, that Cancel changes nothing, and that accepting publishes the flow without it and the history shows `Removed unconnected` with its name.
 - After publishing a flow, check that `<mount path>/<slug>` shows it to a visitor who passes the host's visitor authorization method.
 - After publishing a flow with a question or a checklist whose answer has info text, check that the visitor's page shows an info button on that answer. If it does not, compare the app's `keystone_ui` version with the one in step 2.
 - After install, check that an End step selected on the canvas shows an output setting. An admin fills it in on each End step, and it needs no migration and no setting in the initializer.

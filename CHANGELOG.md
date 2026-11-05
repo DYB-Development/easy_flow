@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Pressing Create version or Publish on a flow with an unconnected step no longer stops at a refusal, on every host. The flow panel names each step that will be removed and offers to remove them or cancel. Cancelling changes nothing. Accepting first saves the flow as it stood, unconnected steps included, as a version that stays a draft, then removes the steps and creates or publishes the next version, so one acceptance adds two version numbers. The history shows `Removed unconnected` with each step's name, and a builder can return to the draft version to get the steps back. Undo after accepting brings the steps back to the working document and leaves the versions as they are.
+- The server decides what is unconnected each time and removes steps only when the request names exactly those steps, otherwise it warns again. A request that names none is refused with the same status and text as before and also carries the list under `unconnected`.
+- A problem only on a step being removed no longer blocks Create version or Publish. A problem on a step that stays still does, and so does a step that stays whose list entry reads a step being removed. A second start step is never removed.
+- `EasyFlow::Definition#publish`, `#create_version` and `EasyFlow::Validator#violations` are unchanged, so code that publishes without the canvas removes nothing, and `violations` still lists every unconnected step as `unreachable`.
+
 ## [0.33.0] - 2026-11-04
 
 ### Added

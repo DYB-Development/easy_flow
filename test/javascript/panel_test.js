@@ -184,3 +184,37 @@ test("shows the host's note right after the Publish button", () => {
 test("shows no note when the host set none", () => {
   assert.equal(shown(panel({}), "data-publish-note").length, 0)
 })
+
+const warning = { path: "/publish", steps: [ { id: "aside", label: "Aside" } ] }
+
+test("a warning names each step that will be removed", () => {
+  assert.match(renderToStaticMarkup(panel({ warning })), /“Aside” is not connected to the flow and will be removed\./)
+})
+
+test("a warning puts its own buttons in place of Create version and Publish", () => {
+  assert.equal(shown(panel({ warning }), "data-publish").length, 0)
+})
+
+test("accepting the warning at Publish says it removes and publishes", () => {
+  const accepted = []
+  const [ accept ] = shown(panel({ warning, onAccept: () => accepted.push(true) }), "data-accept-removal")
+
+  accept.props.onClick()
+
+  assert.deepEqual([ accept.props.children, accepted ], [ "Remove and publish", [ true ] ])
+})
+
+test("accepting the warning at Create version says it removes and creates a version", () => {
+  const [ accept ] = shown(panel({ warning: { ...warning, path: "/versions" } }), "data-accept-removal")
+
+  assert.equal(accept.props.children, "Remove and create version")
+})
+
+test("declining the warning answers the panel's decline", () => {
+  const declined = []
+  const [ decline ] = shown(panel({ warning, onDecline: () => declined.push(true) }), "data-decline-removal")
+
+  decline.props.onClick()
+
+  assert.deepEqual(declined, [ true ])
+})

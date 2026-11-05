@@ -1,6 +1,6 @@
 const UNREACHABLE = "Your change was not saved because the server could not be reached."
 
-export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice }) => async (path, method, body) => {
+export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice, onWarning = () => {} }) => async (path, method, body) => {
   const response = await fetch(base + path, {
     method, headers: { "Content-Type": "application/json", "X-CSRF-Token": token }, body: body && JSON.stringify(body)
   }).catch(() => null)
@@ -10,6 +10,15 @@ export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice
   }
 
   const answered = await response.json().catch(() => ({}))
+
+  if (answered.unconnected) {
+    onNotice(null)
+    onError(null)
+    onWarning({ path, steps: answered.unconnected })
+    return onFlow(await (await fetch(base + ".json", { headers: { Accept: "application/json" } })).json())
+  }
+
+  onWarning(null)
 
   if (!response.ok) {
     onNotice(null)

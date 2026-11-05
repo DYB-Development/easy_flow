@@ -686,5 +686,67 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").publish_note = nil
     end
+
+    def wired_with_one_aside
+      wired.tap do |built|
+        built.edit_history.record(Document.new(built.document).add({ "id" => "aside", "type" => "question", "question" => "Left aside" }), :added, [ "aside" ], built.document)
+      end
+    end
+
+    test "pressing Publish with an unconnected step warns naming it" do
+      canvas_for(wired_with_one_aside)
+      find("[data-open-panel]").click
+
+      find("[data-publish]").click
+
+      assert_selector "[data-unconnected-warning]", text: "“Left aside” is not connected to the flow and will be removed."
+    end
+
+    test "declining the warning brings Publish back" do
+      canvas_for(wired_with_one_aside)
+      find("[data-open-panel]").click
+      find("[data-publish]").click
+
+      find("[data-decline-removal]").click
+
+      assert_selector "[data-publish]"
+    end
+
+    test "declining the warning keeps every step and creates nothing" do
+      flow = wired_with_one_aside
+      versions = flow.definition_versions.count
+      canvas_for(flow)
+      find("[data-open-panel]").click
+      find("[data-create-version]").click
+
+      find("[data-decline-removal]").click
+      find("[data-create-version]")
+
+      assert_equal [ true, versions, nil ], [ flow.reload.document["nodes"].any? { |node| node["id"] == "aside" }, flow.definition_versions.count, flow.live_version ]
+    end
+
+    test "accepting the warning publishes and the step leaves the canvas" do
+      canvas_for(wired_with_one_aside)
+      find("[data-open-panel]").click
+      find("[data-publish]").click
+
+      find("[data-accept-removal]").click
+
+      assert_selector "[data-notice]", text: "Published version"
+      assert_no_selector "[data-step='aside']"
+    end
+
+    test "a step left unconnected after the warning was shown warns again before anything is removed" do
+      flow = wired_with_one_aside
+      canvas_for(flow)
+      find("[data-open-panel]").click
+      find("[data-publish]").click
+      find("[data-unconnected-warning]")
+      flow.edit_history.record(Document.new(flow.reload.document).add({ "id" => "later", "type" => "question", "question" => "Added later" }), :added, [ "later" ], flow.document)
+
+      find("[data-accept-removal]").click
+
+      assert_selector "[data-unconnected-warning]", text: "“Left aside”, “Added later” are not connected"
+    end
   end
 end

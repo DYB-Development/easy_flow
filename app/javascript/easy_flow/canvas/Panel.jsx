@@ -2,8 +2,9 @@ import React from "react"
 import KeystonePanel from "keystone_ui-react/src/Panel.jsx"
 import Button from "keystone_ui-react/src/Button.jsx"
 import Input from "keystone_ui-react/src/Input.jsx"
+import Alert from "keystone_ui-react/src/Alert.jsx"
 import { Label } from "keystone_ui-react/src/FieldText.jsx"
-import { worded } from "./changes"
+import { warned, worded } from "./changes"
 import { standing } from "./flow"
 
 const sheet = { width: 280, padding: 20, overflowY: "auto" }
@@ -15,7 +16,7 @@ const settling = (flow, name, onSaveDetails) => (event) => {
   if (event.target.value !== (flow[name] ?? "")) onSaveDetails({ [name]: event.target.value })
 }
 
-const Panel = ({ flow, changes, problems, refusal, notice, publishNote, onCreate, onPublish, onSaveDetails, onClose }) => (
+const Panel = ({ flow, changes, problems, refusal, notice, publishNote, warning, onCreate, onPublish, onAccept, onDecline, onSaveDetails, onClose }) => (
   <KeystonePanel as="aside" style={sheet} data-builder-panel>
     <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: 8 }}>
       <h2 style={{ fontWeight: 600 }} data-flow-name>{flow.title || flow.slug}</h2>
@@ -24,11 +25,21 @@ const Panel = ({ flow, changes, problems, refusal, notice, publishNote, onCreate
     </div>
     <a className="text-accent-600 dark:text-accent-400" style={{ fontSize: 12, display: "block" }} href={flow.history_url} data-history>{standing(flow)}</a>
 
-    <div style={{ marginTop: 14 }}>
-      <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onCreate} data-create-version>Create version</Button>
-      <Button size="sm" className="w-full mb-1.5" onClick={onPublish} data-publish>Publish</Button>
-      {publishNote && <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: 12, lineHeight: 1.4 }} data-publish-note>{publishNote}</p>}
-    </div>
+    {warning
+      ? (
+        <div style={{ marginTop: 14 }} data-unconnected-warning>
+          <Alert type="warning" className="mb-1.5" message={warned(warning.steps)} />
+          <Button size="sm" className="w-full mb-1.5" onClick={onAccept} data-accept-removal>{warning.path === "/publish" ? "Remove and publish" : "Remove and create version"}</Button>
+          <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onDecline} data-decline-removal>Cancel</Button>
+        </div>
+      )
+      : (
+        <div style={{ marginTop: 14 }}>
+          <Button variant="secondary" size="sm" className="w-full mb-1.5" onClick={onCreate} data-create-version>Create version</Button>
+          <Button size="sm" className="w-full mb-1.5" onClick={onPublish} data-publish>Publish</Button>
+          {publishNote && <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: 12, lineHeight: 1.4 }} data-publish-note>{publishNote}</p>}
+        </div>
+      )}
 
     <h2 style={heading}>Problems</h2>
     {refusal && <p className="text-red-800 dark:text-red-400" style={{ ...item, fontWeight: 600 }} data-refusal>{refusal}</p>}

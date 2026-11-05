@@ -668,5 +668,148 @@ module EasyFlow
     ensure
       EasyFlow.host_named("dummy").back_link = nil
     end
+
+    def leave_a_step_aside
+      add_step_with_answers("aside")
+      post "#{canvas_path}/edges", params: { from: "aside", to: "end" }
+    end
+
+    test "publishing a flow with an unconnected step names it in a warning and publishes nothing" do
+      leave_a_step_aside
+
+      post "#{canvas_path}/publish"
+
+      assert_equal [ [ "aside", "New" ], nil ], [ response.parsed_body["unconnected"].first.values_at("id", "label"), flow.reload.live_version ]
+    end
+
+    test "accepting the warning at Create version gives a version without the unconnected steps" do
+      leave_a_step_aside
+
+      post "#{canvas_path}/versions", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal %w[start a b end], flow.reload.definition_versions.order(:number).last.definition["nodes"].map { |node| node["id"] }
+    end
+
+    test "pressing Create version on a flow with an unconnected step names it in a warning" do
+      leave_a_step_aside
+
+      post "#{canvas_path}/versions"
+
+      assert_equal [ "aside" ], response.parsed_body["unconnected"].map { |step| step["id"] }
+    end
+
+    test "accepting the warning at Publish makes live a version without the unconnected steps" do
+      leave_a_step_aside
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_not_includes flow.reload.live_version.definition["nodes"].map { |node| node["id"] }, "aside"
+    end
+
+    test "accepting a warning that names other steps than the flow now has warns again and removes nothing" do
+      leave_a_step_aside
+      add_step_with_answers("later")
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal [ %w[aside later], nil, true ], [ response.parsed_body["unconnected"].map { |step| step["id"] }, flow.reload.live_version, nodes.include?("aside") ]
+    end
+
+    test "accepting while a step that stays has a problem refuses and removes nothing" do
+      leave_a_step_aside
+      post "#{canvas_path}/steps", params: { id: "gate", type: "condition", from: "b", to: "end" }
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal [ 422, nil, true ], [ response.status, flow.reload.live_version, nodes.include?("aside") ]
+    end
+
+    test "a problem only on the step being removed does not block" do
+      post "#{canvas_path}/steps", params: { id: "aside", type: "question" }
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal flow.reload.definition_versions.order(:number).last, flow.live_version
+    end
+
+    test "a step left to the side is still on the canvas after edits and on reopening" do
+      leave_a_step_aside
+      patch "#{canvas_path}/steps/a", params: { config: { question: "Changed" } }
+
+      get canvas_path, headers: { "Accept" => "application/json" }
+
+      assert_includes response.parsed_body["nodes"].select { |node| node["loose"] }.map { |node| node["id"] }, "aside"
+    end
+
+    test "the versions page shows that unconnected steps were removed" do
+      leave_a_step_aside
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      get easy_flow.manage_flow_versions_path(flow)
+
+      assert_select "[data-version] [data-captured]", text: "Removed unconnected “New”"
+    end
+
+    test "a builder can return to the version from before the removal with the removed steps in it" do
+      leave_a_step_aside
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+      before_the_removal = flow.reload.definition_versions.order(:number).second_to_last
+
+      post easy_flow.return_manage_flow_version_path(flow, before_the_removal)
+
+      assert_includes nodes, "aside"
+    end
+
+    test "the versions page offers a return to the version from before the removal" do
+      leave_a_step_aside
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      get easy_flow.manage_flow_versions_path(flow)
+
+      assert_select "[data-version='#{flow.reload.definition_versions.maximum(:number) - 1}'] form[data-turbo='false']"
+    end
+
+    test "the version kept from before the removal never goes live" do
+      leave_a_step_aside
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert flow.reload.definition_versions.order(:number).second_to_last.draft?
+    end
+
+    test "undo after the removal brings the steps back to the working document and leaves the version alone" do
+      leave_a_step_aside
+      post "#{canvas_path}/versions", params: { remove_unconnected: [ "aside" ] }
+      newest = flow.reload.definition_versions.maximum(:number)
+
+      post "#{canvas_path}/undo"
+
+      assert_equal [ true, newest ], [ nodes.include?("aside"), flow.reload.definition_versions.maximum(:number) ]
+    end
+
+    test "accepting when nothing is unconnected any more removes nothing and goes on" do
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal "Published version 1. Visitors run it now.", response.parsed_body["notice"]
+    end
+
+    test "publishing after a removal leaves the version visitors ran as it was" do
+      post "#{canvas_path}/publish"
+      running = flow.reload.live_version
+      run = Run.start(flow)
+      held = running.definition.deep_dup
+      leave_a_step_aside
+
+      post "#{canvas_path}/publish", params: { remove_unconnected: [ "aside" ] }
+
+      assert_equal [ held, held ], [ running.reload.definition, run.reload.pinned_definition ]
+    end
+
+    test "publishing from the model does not remove an unconnected step" do
+      leave_a_step_aside
+
+      flow.reload.publish
+
+      assert_includes flow.live_version.definition["nodes"].map { |node| node["id"] }, "aside"
+    end
   end
 end

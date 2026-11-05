@@ -26,7 +26,7 @@ export const Choosing = ({ port, onCancel }) => (
 )
 
 const Canvas = ({ base, token, initial }) => {
-  const { flow, error, notice, send, pickPicture } = useFlow(base, token, initial)
+  const { flow, error, notice, warning, setWarning, send, pickPicture } = useFlow(base, token, initial)
   const [ selected, setSelected ] = useState(null)
   const [ adding, setAdding ] = useState(null)
   const [ armed, setArmed ] = useState(null)
@@ -42,10 +42,13 @@ const Canvas = ({ base, token, initial }) => {
   }, [])
 
   useEffect(() => {
-    if (!showing) return
+    if (!showing) {
+      setWarning(null)
+      return
+    }
 
     const away = (event) => {
-      if (!event.target.closest("[data-builder-panel], [data-open-panel]")) setShowing(false)
+      if (event.target.isConnected && !event.target.closest("[data-builder-panel], [data-open-panel]")) setShowing(false)
     }
     document.addEventListener("click", away)
     return () => document.removeEventListener("click", away)
@@ -178,10 +181,12 @@ const Canvas = ({ base, token, initial }) => {
       </div>
 
       {showing && !selectedNode && (
-        <Panel flow={flow.flow || {}} changes={flow.changes || []} problems={flow.violations} refusal={error} notice={notice} publishNote={flow.publish_note}
+        <Panel flow={flow.flow || {}} changes={flow.changes || []} problems={flow.violations} refusal={error} notice={notice} publishNote={flow.publish_note} warning={warning}
                onClose={() => setShowing(false)}
                onCreate={() => send("/versions", "POST")}
                onPublish={() => send("/publish", "POST")}
+               onAccept={() => send(warning.path, "POST", { remove_unconnected: warning.steps.map((step) => step.id) })}
+               onDecline={() => setWarning(null)}
                onSaveDetails={(details) => send("/details", "PATCH", { flow: details })} />
       )}
 

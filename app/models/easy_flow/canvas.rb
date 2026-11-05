@@ -110,13 +110,20 @@ module EasyFlow
         "record_choices" => step_type.settings.record_choices.to_h { |name, offered| [ name.to_s, offered.transform_keys(&:to_s) ] },
         "record_outputs_of" => step_type.settings.record_outputs_of.to_h { |name, sources| [ name.to_s, sources.to_h { |field, source| [ field.to_s, source.to_s ] } ] },
         "record_labels" => step_type.settings.record_labels.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
-        "record_explanations" => step_type.settings.record_explanations.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
+        "record_explanations" => record_explanations_of(step_type),
         "awaits_input" => step_type.awaits_input? }
     end
 
     def explanations_of(step_type)
       settings = step_type.settings
       settings.fields.keys.to_h { |name| [ name.to_s, @host&.explanation_for(step_type.id, name) || settings.explanations[name] ] }.compact
+    end
+
+    def record_explanations_of(step_type)
+      settings = step_type.settings
+      settings.record_fields.to_h do |list, holds|
+        [ list.to_s, holds.keys.to_h { |name| [ name.to_s, @host&.explanation_for(step_type.id, "#{list}.#{name}") || settings.record_explanations.dig(list, name) ] }.compact ]
+      end
     end
 
     def holdings_of(step_type)

@@ -562,6 +562,17 @@ module EasyFlow
       assert_selector "[data-inspector] [data-setting-explanation]", text: "Sent to the visitor when the step is reached."
     end
 
+    test "a step's settings show its host's explanation for a setting inside a list" do
+      EasyFlow.host_named("dummy").setting_explanations = { question: { "answers.weight" => "Points this answer adds to the score." } }
+      canvas_for(flow)
+
+      step_card("first").click
+
+      assert_selector "[data-inspector] [data-setting-explanation]", text: "Points this answer adds to the score."
+    ensure
+      EasyFlow.host_named("dummy").setting_explanations = nil
+    end
+
     test "creating a version empties the change list" do
       canvas_for(wired)
       step_card("first").click

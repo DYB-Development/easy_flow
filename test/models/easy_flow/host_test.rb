@@ -78,6 +78,13 @@ module EasyFlow
       assert_equal "The round this question counts toward.", host.explanation_for(:question, :category)
     end
 
+    test "a host gives no explanation for a setting it sets a blank one for" do
+      host = Host.new(:alembic)
+      host.setting_explanations = { question: { category: "" } }
+
+      assert_nil host.explanation_for(:question, :category)
+    end
+
     test "a host names no back link unless it sets one" do
       assert_nil Host.new(:alembic).back_link
     end

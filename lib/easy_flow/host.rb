@@ -47,7 +47,7 @@ module EasyFlow
     end
 
     def explanation_for(step_type, setting)
-      @setting_explanations.to_h.dig(step_type.to_s, setting.to_s)
+      @setting_explanations.to_h.dig(step_type.to_s, setting.to_s).presence
     end
 
     def offers?(step_type)

@@ -11,5 +11,9 @@ module EasyFlow
     test "shows a step by the name it was given" do
       assert_equal "Ask first", Name.shown(Node.new(id: "first", type: "told", config: { "text" => "Ask first" }), registry)
     end
+
+    test "shows a step with no name of its own by its type's name" do
+      assert_equal "Told", Name.shown(Node.new(id: "first", type: "told", config: {}), registry)
+    end
   end
 end

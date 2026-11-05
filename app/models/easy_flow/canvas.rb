@@ -104,7 +104,7 @@ module EasyFlow
       { "type" => step_type.id.to_s, "label" => step_type.step_name,
         "fields" => step_type.settings.fields.transform_keys(&:to_s).transform_values(&:to_s),
         "labels" => step_type.settings.labels.transform_keys(&:to_s),
-        "explanations" => step_type.settings.explanations.transform_keys(&:to_s),
+        "explanations" => explanations_of(step_type),
         "choices" => step_type.settings.choices.transform_keys(&:to_s),
         "records" => holdings_of(step_type),
         "record_choices" => step_type.settings.record_choices.to_h { |name, offered| [ name.to_s, offered.transform_keys(&:to_s) ] },
@@ -112,6 +112,11 @@ module EasyFlow
         "record_labels" => step_type.settings.record_labels.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
         "record_explanations" => step_type.settings.record_explanations.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
         "awaits_input" => step_type.awaits_input? }
+    end
+
+    def explanations_of(step_type)
+      settings = step_type.settings
+      settings.fields.keys.to_h { |name| [ name.to_s, @host&.explanation_for(step_type.id, name) || settings.explanations[name] ] }.compact
     end
 
     def holdings_of(step_type)

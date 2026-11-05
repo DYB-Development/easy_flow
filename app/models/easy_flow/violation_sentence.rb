@@ -34,5 +34,13 @@ module EasyFlow
     def unfollowed_path(violation)
       "The connection from #{step(violation.node)} to #{step(violation.detail)} is never followed, because #{step(violation.node)} only follows its first connection. Remove the connection to #{step(violation.detail)}."
     end
+
+    def missing_setting(violation)
+      "#{step(violation.node)} needs a value for #{setting_label(violation)}. Set it in the step's settings."
+    end
+
+    def setting_label(violation)
+      @registry.fetch(@document.node(violation.node).type).settings.labels[violation.detail.to_sym]
+    end
   end
 end

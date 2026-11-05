@@ -49,5 +49,9 @@ module EasyFlow
     test "names both steps of a connection that is never followed" do
       assert_equal "The connection from Check the new test fails to Fix the tests is never followed, because Check the new test fails only follows its first connection. Remove the connection to Fix the tests.", sentence(:unfollowed_path, detail: "fix")
     end
+
+    test "names a missing setting by its label" do
+      assert_equal "Check the new test fails needs a value for Other output. Set it in the step's settings.", sentence(:missing_setting, detail: "other_output")
+    end
   end
 end

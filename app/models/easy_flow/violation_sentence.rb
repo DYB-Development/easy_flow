@@ -30,5 +30,9 @@ module EasyFlow
     def past_the_end(violation)
       "#{step(violation.node)} ends the flow, but a connection leaves it. Remove that connection."
     end
+
+    def unfollowed_path(violation)
+      "The connection from #{step(violation.node)} to #{step(violation.detail)} is never followed, because #{step(violation.node)} only follows its first connection. Remove the connection to #{step(violation.detail)}."
+    end
   end
 end

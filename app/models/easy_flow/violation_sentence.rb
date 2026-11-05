@@ -50,5 +50,9 @@ module EasyFlow
     def missing_value(violation)
       "#{step(violation.node)} picks the answer #{violation.detail}, which the earlier step no longer offers. Pick another answer in the step's settings."
     end
+
+    def unmet_requirement(violation)
+      "#{step(violation.node)} reads #{step(violation.detail)}, which not every path to it goes through. Move #{step(violation.detail)} ahead of it on every path, or pick another step in its settings."
+    end
   end
 end

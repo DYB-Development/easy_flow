@@ -61,5 +61,9 @@ module EasyFlow
     test "says a picked answer is no longer offered" do
       assert_equal "Check the new test fails picks the answer maybe later, which the earlier step no longer offers. Pick another answer in the step's settings.", sentence(:missing_value, detail: "maybe_later")
     end
+
+    test "says a step reads one that not every path goes through" do
+      assert_equal "Check the new test fails reads Fix the tests, which not every path to it goes through. Move Fix the tests ahead of it on every path, or pick another step in its settings.", sentence(:unmet_requirement, detail: "fix")
+    end
   end
 end

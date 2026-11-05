@@ -15,11 +15,11 @@ module EasyFlow
       output :answer
     end
 
-    def process(node, state)
+    def process(node, state, run: nil)
       raise ArgumentError, "#{node.config["data"]} is not offered by this step" unless self.class.step_type.settings.choices[:data].include?(node.config["data"])
 
       answer = ActiveRecord::Base.transaction(requires_new: true) do
-        EasyFlow.data_source.carry_out(node.config["data"], Inputs.values_of(node, state))
+        EasyFlow.data_source.carry_out(node.config["data"], Inputs.values_of(node, state, run: run))
       end.as_json
       (answer.is_a?(Hash) ? answer : { "answer" => answer }).merge("result" => "passed")
     rescue => error

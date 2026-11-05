@@ -42,6 +42,14 @@ module EasyFlow
       assert_equal [ "stock", "A1" ], recorded.values_at("name", "sku")
     end
 
+    test "gives the app the run's owner's id for an input marked as the run's owner" do
+      answering { |_name, values| { "item" => values["item"] } }
+
+      recorded = ReadData.step_type.process(read("inputs" => [ { "name" => "item", "from_run_owner" => true } ]), {}, run: Run.new(owner_id: 42))
+
+      assert_equal 42, recorded["item"]
+    end
+
     test "records what the app answers to a write given the input values" do
       answering { |name, values| { "name" => name, "sku" => values["sku"] } }
       node = Node.new(id: "add", type: "write_data", config: { "data" => "restock", "inputs" => [ { "name" => "sku", "value" => "A1" } ] })

@@ -77,5 +77,9 @@ module EasyFlow
     test "says a connection comes from a step that does not exist" do
       assert_equal "A connection into Check the new test fails comes from a step that does not exist. Remove it in the flow's definition.", sentence(:missing_edge_source, detail: "gone")
     end
+
+    test "says two steps share an id without showing it" do
+      assert_equal "Check the new test fails has the same id as another step. Change one of the ids in the flow's definition.", sentence(:duplicate_id)
+    end
   end
 end

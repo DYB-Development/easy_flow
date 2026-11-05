@@ -64,5 +64,9 @@ module EasyFlow
     def missing_edge_source(violation)
       "A connection into #{step(violation.node)} comes from a step that does not exist. Remove it in the flow's definition."
     end
+
+    def duplicate_id(violation)
+      "#{step(violation.node)} has the same id as another step. Change one of the ids in the flow's definition."
+    end
   end
 end

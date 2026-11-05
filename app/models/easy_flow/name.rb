@@ -7,6 +7,8 @@ module EasyFlow
     end
 
     def self.shown(node, registry = EasyFlow.registry)
+      return "a step" unless node
+
       named(node, registry) || type_name(node, registry) || "Unnamed step"
     end
 

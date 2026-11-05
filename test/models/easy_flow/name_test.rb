@@ -19,5 +19,9 @@ module EasyFlow
     test "shows a step of an unknown type without its id" do
       assert_equal "Unnamed step", Name.shown(Node.new(id: "first", type: "gone", config: {}), registry)
     end
+
+    test "shows a step that is not in the flow as a step" do
+      assert_equal "a step", Name.shown(nil, registry)
+    end
   end
 end

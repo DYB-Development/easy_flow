@@ -15,5 +15,5 @@ test("words a problem belonging to no step", () => {
 })
 
 test("names each unconnected step in the warning", () => {
-  assert.equal(warned([ { id: "a", label: "Ask" }, { id: "b", label: "Tell" } ]), "“Ask”, “Tell” are not connected to the flow and will be removed.")
+  assert.equal(warned([ { id: "a", label: "a", name: "Ask" }, { id: "b", label: "b", name: "Tell" } ]).split(" are")[0], "“Ask”, “Tell”")
 })

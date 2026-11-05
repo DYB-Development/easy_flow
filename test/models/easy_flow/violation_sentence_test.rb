@@ -105,5 +105,9 @@ module EasyFlow
     test "says a step names a version that cannot run" do
       assert_equal "Check the new test fails names a version that cannot run. Pick a published version in its settings.", sentence(:unrunnable_version)
     end
+
+    test "says a step names another owner's flow" do
+      assert_equal "Check the new test fails names a flow that belongs to another owner. Pick another flow in its settings.", sentence(:owned_by_another_owner)
+    end
   end
 end

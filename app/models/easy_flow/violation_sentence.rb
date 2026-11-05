@@ -92,5 +92,9 @@ module EasyFlow
     def unrunnable_version(violation)
       "#{step(violation.node)} names a version that cannot run. Pick a published version in its settings."
     end
+
+    def owned_by_another_owner(violation)
+      "#{step(violation.node)} names a flow that belongs to another owner. Pick another flow in its settings."
+    end
   end
 end

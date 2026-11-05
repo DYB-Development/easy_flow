@@ -104,6 +104,7 @@ module EasyFlow
       { "type" => step_type.id.to_s, "label" => step_type.step_name,
         "fields" => step_type.settings.fields.transform_keys(&:to_s).transform_values(&:to_s),
         "labels" => step_type.settings.labels.transform_keys(&:to_s),
+        "explanations" => step_type.settings.explanations.transform_keys(&:to_s),
         "choices" => step_type.settings.choices.transform_keys(&:to_s),
         "records" => holdings_of(step_type),
         "record_choices" => step_type.settings.record_choices.to_h { |name, offered| [ name.to_s, offered.transform_keys(&:to_s) ] },

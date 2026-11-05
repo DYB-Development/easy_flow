@@ -71,6 +71,13 @@ module EasyFlow
       assert_nil Host.new(:alembic).explanation_for(:question, :category)
     end
 
+    test "a host gives the explanation it sets for one setting of one step type" do
+      host = Host.new(:alembic)
+      host.setting_explanations = { question: { category: "The round this question counts toward." } }
+
+      assert_equal "The round this question counts toward.", host.explanation_for(:question, :category)
+    end
+
     test "a host names no back link unless it sets one" do
       assert_nil Host.new(:alembic).back_link
     end

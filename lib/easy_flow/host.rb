@@ -14,6 +14,10 @@ module EasyFlow
       @back_link = link && BackLink.new(**link)
     end
 
+    def setting_explanations=(explanations)
+      @setting_explanations = explanations.to_h.deep_stringify_keys
+    end
+
     def layout
       @layout || "easy_flow/application"
     end

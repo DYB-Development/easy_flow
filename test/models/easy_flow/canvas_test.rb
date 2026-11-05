@@ -185,6 +185,14 @@ module EasyFlow
       assert_equal({ "text" => "Shown to the visitor." }, palette.find { |entry| entry["type"] == "ask" }["explanations"])
     end
 
+    test "keeps a list entry's own explanation when its host explains only another setting" do
+      host = Host.new(:alembic)
+      host.setting_explanations = { ask: { text: "Read aloud to the player." } }
+      palette = Canvas.new(Document.new(flowing(flow)), registry: registry, host: host).to_h["palette"]
+
+      assert_equal({ "options" => { "weight" => "Counts toward the score." } }, palette.find { |entry| entry["type"] == "ask" }["record_explanations"])
+    end
+
     test "carries the violations the document has" do
       stranded = flow.merge("nodes" => flow["nodes"] + [ { "id" => "loose", "type" => "ask" } ])
 

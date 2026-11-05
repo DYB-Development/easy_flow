@@ -117,5 +117,9 @@ module EasyFlow
     test "says a step reads one that is not connected" do
       assert_equal "Check the new test fails reads a step that is not connected to the flow. Connect that step, or pick another in its settings.", sentence(:reading_an_unconnected_step)
     end
+
+    test "words a problem with no sentence of its own by naming the step and the problem" do
+      assert_equal "Check the new test fails has a problem: needs a human look.", sentence(:needs_a_human_look)
+    end
   end
 end

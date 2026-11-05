@@ -1,15 +1,25 @@
 module EasyFlow
   class ViolationSentence
+    def self.worded?(problem)
+      private_method_defined?(problem, false)
+    end
+
     def initialize(document, registry: EasyFlow.registry)
       @document = document
       @registry = registry
     end
 
     def of(violation)
-      send(violation.problem, violation).tr("_", " ")
+      sentence = self.class.worded?(violation.problem) ? send(violation.problem, violation) : unworded(violation)
+
+      sentence.tr("_", " ")
     end
 
     private
+
+    def unworded(violation)
+      "#{step(violation.node)} has a problem: #{violation.problem}."
+    end
 
     def step(id)
       Name.shown(@document.node(id), @registry)

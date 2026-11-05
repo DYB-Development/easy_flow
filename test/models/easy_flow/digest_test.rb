@@ -185,6 +185,12 @@ module EasyFlow
       assert_equal [ { "value" => "answer", "label" => "Answer" } ], digest(document).outputs_of("a")
     end
 
+    test "takes a step's plain recorded value as the only output it declares" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "pick" } ], "edges" => [] }
+
+      assert digest(document).plain_value_is?("a", "answer")
+    end
+
     test "reports the values one named output of a step can take" do
       document = { "entry" => "a",
                    "nodes" => [ { "id" => "a", "type" => "pick", "options" => [ { "value" => "high" } ] } ],

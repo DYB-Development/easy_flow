@@ -52,6 +52,10 @@ module EasyFlow
       records_a_value?(named) ? declared + CompletedAt.outputs : declared
     end
 
+    def plain_value_is?(_id, _output_name)
+      true
+    end
+
     def values_out_of(id)
       named = step(id)
       return [] unless named

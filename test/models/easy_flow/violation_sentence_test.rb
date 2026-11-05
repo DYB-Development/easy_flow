@@ -57,5 +57,9 @@ module EasyFlow
     test "names a missing setting inside a list by the list and the entry's position" do
       assert_equal "Check the new test fails needs a value for Other output in Comparisons entry 2. Set it in the step's settings.", sentence(:missing_setting, detail: "comparisons 2 other_output")
     end
+
+    test "says a picked answer is no longer offered" do
+      assert_equal "Check the new test fails picks the answer maybe later, which the earlier step no longer offers. Pick another answer in the step's settings.", sentence(:missing_value, detail: "maybe_later")
+    end
   end
 end

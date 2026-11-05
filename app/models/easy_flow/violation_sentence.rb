@@ -46,5 +46,9 @@ module EasyFlow
 
       "#{settings.record_labels[list.to_sym][name.to_sym]} in #{settings.labels[list.to_sym]} entry #{position}"
     end
+
+    def missing_value(violation)
+      "#{step(violation.node)} picks the answer #{violation.detail}, which the earlier step no longer offers. Pick another answer in the step's settings."
+    end
   end
 end

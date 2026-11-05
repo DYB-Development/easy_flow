@@ -34,6 +34,10 @@ module EasyFlow
       assert_equal({ "item" => 42 }, Inputs.values_of(taking(input), {}, run: Run.new(owner_id: 42)))
     end
 
+    test "gives no value for an input marked as the run's owner when there is no run" do
+      assert_equal({ "item" => nil }, Inputs.values_of(taking({ "name" => "item", "from_run_owner" => true }), {}))
+    end
+
     test "gives a step type that includes it a list of named inputs" do
       assert_equal %i[name value step output], HostStep.step_type.settings.record_fields[:inputs].keys
     end

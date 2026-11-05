@@ -16,7 +16,7 @@ module EasyFlow
     end
 
     def self.value_of(input, state, run)
-      return run.owner_id if input["from_run_owner"]
+      return run&.owner_id if input["from_run_owner"]
 
       input["step"].present? ? latest_output(input, state) : input["value"]
     end

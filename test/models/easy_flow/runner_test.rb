@@ -17,6 +17,7 @@ module EasyFlow
           displays_by { |_node, run| "For #{run}" }
         end)
         built.register(StepType.define(:act) { process { |node, _state| "ran #{node.id}" } })
+        built.register(StepType.define(:reads_inputs) { process { |node, state, run: nil| Inputs.values_of(node, state, run: run) } })
         built.register(StepType.define(:approve) { process { |_node, _state| "yes" } })
         built.register(StepType.define(:hold) { waits_until { |node, _state| node.config["ready"] } })
         built.register(StepType.define(:fork) do
@@ -185,6 +186,16 @@ module EasyFlow
       runner(acting).run(kept)
 
       assert_equal "ran work", kept.recorded[:work]
+    end
+
+    test "gives no value for an input marked as the run's owner in a flow that saves no run" do
+      document = acting.merge("nodes" => [ { "id" => "opening", "type" => "opening" },
+                                           { "id" => "work", "type" => "reads_inputs", "inputs" => [ { "name" => "item", "from_run_owner" => true } ] },
+                                           { "id" => "after", "type" => "ask", "text" => "After?" } ])
+      kept = Progress::Loose.new(nil, {}, document)
+      runner(document).run(kept)
+
+      assert_equal({ "item" => nil }, kept.recorded[:work])
     end
 
     test "names the template that draws the step it stops at" do

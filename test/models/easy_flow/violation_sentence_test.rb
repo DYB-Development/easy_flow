@@ -65,5 +65,9 @@ module EasyFlow
     test "says a step reads one that not every path goes through" do
       assert_equal "Check the new test fails reads Fix the tests, which not every path to it goes through. Move Fix the tests ahead of it on every path, or pick another step in its settings.", sentence(:unmet_requirement, detail: "fix")
     end
+
+    test "says a step reads one that no longer exists" do
+      assert_equal "Check the new test fails reads a step that no longer exists. Pick another step in its settings.", sentence(:unmet_requirement, detail: "gone")
+    end
   end
 end

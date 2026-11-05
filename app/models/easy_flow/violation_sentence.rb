@@ -52,6 +52,8 @@ module EasyFlow
     end
 
     def unmet_requirement(violation)
+      return "#{step(violation.node)} reads a step that no longer exists. Pick another step in its settings." unless @document.node(violation.detail)
+
       "#{step(violation.node)} reads #{step(violation.detail)}, which not every path to it goes through. Move #{step(violation.detail)} ahead of it on every path, or pick another step in its settings."
     end
   end

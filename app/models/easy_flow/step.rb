@@ -28,8 +28,8 @@ module EasyFlow
       end
 
       def behaviour(word)
-        asks_for_times = instance_method(word).arity.abs >= 3
         asks_for_run = StepType.asks_for_run?(instance_method(word))
+        asks_for_times = instance_method(word).arity.abs - (asks_for_run ? 1 : 0) >= 3
         lambda do |node, state, times = {}, run: nil|
           arguments = asks_for_times ? [ node, state, times ] : [ node, state ]
           new.public_send(word, *arguments, **(asks_for_run ? { run: run } : {}))

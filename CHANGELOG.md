@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-11-05
+
 ### Added
 
 - A step type can give a setting a one-sentence explanation with `explanation:` on `setting`, including a setting inside a list. It shows under that setting in the step's settings. A setting with none looks as it did. The canvas payload's palette entries carry `explanations` and `record_explanations`.

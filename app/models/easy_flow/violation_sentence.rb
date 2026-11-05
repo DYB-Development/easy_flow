@@ -84,5 +84,9 @@ module EasyFlow
     def before_the_beginning(violation)
       "A connection leads into #{step(violation.node)}, where the flow starts. Remove that connection."
     end
+
+    def missing_flow(violation)
+      "#{step(violation.node)} is missing a flow. Pick the flow in its settings."
+    end
   end
 end

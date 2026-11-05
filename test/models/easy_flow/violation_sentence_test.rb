@@ -97,5 +97,9 @@ module EasyFlow
     test "says a connection leads into the start step" do
       assert_equal "A connection leads into Check the new test fails, where the flow starts. Remove that connection.", sentence(:before_the_beginning)
     end
+
+    test "says a step is missing a flow" do
+      assert_equal "Check the new test fails is missing a flow. Pick the flow in its settings.", sentence(:missing_flow)
+    end
   end
 end

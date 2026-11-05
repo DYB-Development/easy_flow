@@ -1,6 +1,8 @@
 module EasyFlow
   module Progress
     class Kept
+      attr_reader :run
+
       def initialize(run)
         @run = run
       end

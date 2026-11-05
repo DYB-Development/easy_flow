@@ -14,6 +14,8 @@ module EasyFlow
         false
       end
 
+      def run; end
+
       def definition
         @definition || @flow.live_definition
       end

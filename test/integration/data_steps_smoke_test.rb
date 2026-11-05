@@ -95,6 +95,34 @@ module EasyFlow
       assert_equal owner.id, run.recorded[:read]["answer"]
     end
 
+    test "a stored run gives its owner's id to its write data step" do
+      owner = Definition.create!(host: "dummy", slug: "the-owner")
+      run = Run.start(owner_flow("owner-write")).tap { |started| started.update!(owner: owner) }
+
+      run.advance
+
+      assert_equal owner.id, run.recorded[:write]["answer"]
+    end
+
+    test "a run started by a Flow step gives its parent's owner's id to its read data step" do
+      owner = Definition.create!(host: "dummy", slug: "the-owner")
+      nodes = [ { "id" => "start", "type" => "start" }, { "id" => "inner", "type" => "flow_step", "flow" => owner_flow("owner-inner").id.to_s, "version" => 1 }, { "id" => "done", "type" => "terminal" } ]
+      parent = Run.start(publishing("owner-parent", :each_step, nodes, [ { "from" => "start", "to" => "inner" }, { "from" => "inner", "to" => "done" } ]))
+      parent.update!(owner: owner)
+
+      parent.advance
+
+      assert_equal owner.id, parent.inner_runs.first.recorded[:read]["answer"]
+    end
+
+    test "a stored run with no owner gives its read data step no value and still follows passed" do
+      run = Run.start(owner_flow("owner-none"))
+
+      run.advance
+
+      assert_equal "passed", run.recorded[:read]["result"]
+    end
+
     test "a flow that saves no run tells the visitor it cannot read data and goes no further" do
       unsaved = flow.tap { |built| built.update!(persists: :unsaved) }
 

@@ -5,6 +5,7 @@
 ### Added
 
 - A step type can give a setting a one-sentence explanation with `explanation:` on `setting`, including a setting inside a list. It shows under that setting in the step's settings. A setting with none looks as it did. The canvas payload's palette entries carry `explanations` and `record_explanations`.
+- A host can set `setting_explanations` to give its own explanation for one setting of one step type, such as `{ multiple_select: { category: "The round this question counts toward.", "answers.weight" => "Points this answer adds to the score." } }`, with a setting inside a list named by the list and the setting joined with a dot. It shows in place of the step type's own, and a setting it gives none for shows the step type's own. A host that does not set it sees no change.
 
 ### Changed
 

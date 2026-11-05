@@ -358,7 +358,7 @@ module EasyFlow
 
       post "#{canvas_path}/publish"
 
-      assert_equal "Cannot publish: “adrift” is unreachable, “adrift” is missing setting, “adrift” is dead end.",
+      assert_equal "Cannot publish: Question is not connected to the flow. Connect a step to it, or delete it. Question needs a value for Answers. Set it in the step's settings. Question leads nowhere. Connect it to the step that should come next.",
         response.parsed_body["error"]
     end
 
@@ -561,7 +561,7 @@ module EasyFlow
 
       post "#{easy_flow.manage_flow_canvas_path(looping)}/publish"
 
-      assert_includes response.parsed_body["error"], "circular"
+      assert_includes response.parsed_body["error"], "leads back to the flow it sits in"
     end
 
     test "the canvas flags a Flow step that runs the flow it sits in" do

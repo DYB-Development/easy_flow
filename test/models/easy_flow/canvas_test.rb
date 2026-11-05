@@ -7,8 +7,8 @@ module EasyFlow
         built.register(StepType.define(:ask) do
           step_name "Ask"
           output :answer, values: ->(node) { Array(node.config["options"]) }
-          setting :text, type: :string
-          setting(:options, type: :list) { setting :value, type: :string; setting :weight, type: :integer }
+          setting :text, type: :string, explanation: "Shown to the visitor."
+          setting(:options, type: :list) { setting :value, type: :string; setting :weight, type: :integer, explanation: "Counts toward the score." }
           names_by :text
         end)
         built.register(StepType.define(:switch) do
@@ -169,10 +169,24 @@ module EasyFlow
         canvas(flow)["edges"].reject { |edge| edge["placeholder"] }.map { |edge| [ edge["source"], edge["target"] ] }
     end
 
+    test "carries a setting's explanation in the palette" do
+      assert_equal({ "text" => "Shown to the visitor." }, canvas(flow)["palette"].find { |entry| entry["type"] == "ask" }["explanations"])
+    end
+
+    test "carries the explanation of a setting inside a list in the palette" do
+      assert_equal({ "options" => { "weight" => "Counts toward the score." } }, canvas(flow)["palette"].find { |entry| entry["type"] == "ask" }["record_explanations"])
+    end
+
     test "carries the violations the document has" do
       stranded = flow.merge("nodes" => flow["nodes"] + [ { "id" => "loose", "type" => "ask" } ])
 
       assert_includes canvas(stranded)["violations"].map { |violation| violation["node"] }, "loose"
+    end
+
+    test "carries each violation's sentence beside its problem" do
+      stranded = flow.merge("nodes" => flow["nodes"] + [ { "id" => "loose", "type" => "ask" } ])
+
+      assert_includes canvas(stranded)["violations"].map { |violation| violation["sentence"] }, "Ask is not connected to the flow. Connect a step to it, or delete it."
     end
 
     test "offers a step-naming setting the steps that come before that node" do

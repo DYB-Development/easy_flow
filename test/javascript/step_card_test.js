@@ -80,6 +80,12 @@ test("writes each of the step's problems in red", () => {
   assert.ok(classes(problem).includes("text-red-600"))
 })
 
+test("writes each of the step's problems as its sentence", () => {
+  const problem = child(card({ violations: [ { problem: "dead_end", detail: null, sentence: "Gate leads nowhere." } ] }), (element) => element.key === "dead_endnull")
+
+  assert.equal(problem.props.children, "Gate leads nowhere.")
+})
+
 test("marks a step that runs another flow", () => {
   assert.ok(child(card({ starts_a_flow: true }), (element) => element.props?.children === "Runs a flow"))
 })

@@ -104,11 +104,13 @@ module EasyFlow
       { "type" => step_type.id.to_s, "label" => step_type.step_name,
         "fields" => step_type.settings.fields.transform_keys(&:to_s).transform_values(&:to_s),
         "labels" => step_type.settings.labels.transform_keys(&:to_s),
+        "explanations" => step_type.settings.explanations.transform_keys(&:to_s),
         "choices" => step_type.settings.choices.transform_keys(&:to_s),
         "records" => holdings_of(step_type),
         "record_choices" => step_type.settings.record_choices.to_h { |name, offered| [ name.to_s, offered.transform_keys(&:to_s) ] },
         "record_outputs_of" => step_type.settings.record_outputs_of.to_h { |name, sources| [ name.to_s, sources.to_h { |field, source| [ field.to_s, source.to_s ] } ] },
         "record_labels" => step_type.settings.record_labels.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
+        "record_explanations" => step_type.settings.record_explanations.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
         "awaits_input" => step_type.awaits_input? }
     end
 
@@ -120,8 +122,12 @@ module EasyFlow
 
     def violations
       Validator.new(@document, registry: @registry, flow: @flow).violations.map do |violation|
-        { "node" => violation.node, "problem" => violation.problem.to_s, "detail" => violation.detail }
+        { "node" => violation.node, "problem" => violation.problem.to_s, "detail" => violation.detail, "sentence" => sentences.of(violation) }
       end
+    end
+
+    def sentences
+      ViolationSentence.new(@document, registry: @registry)
     end
 
     def kept_values(node)

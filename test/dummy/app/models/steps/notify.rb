@@ -8,7 +8,7 @@ module Steps
     drawn_by "steps/notify"
     displays_by { |node| EasyFlow::Asked.new(id: node.id.to_sym, text: node.config["message"], choices: []) }
 
-    setting :message, type: :string
+    setting :message, type: :string, explanation: "Sent to the visitor when the step is reached."
     setting :channels, type: :multi_select, options: %w[email sms push], limit: 2,
       check: ->(chosen) { "Channels needs at least one" if chosen.blank? }
   end

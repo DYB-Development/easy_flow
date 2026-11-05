@@ -1,0 +1,131 @@
+require "test_helper"
+
+module EasyFlow
+  class ViolationSentenceTest < ActiveSupport::TestCase
+    def registry
+      Registry.new.tap do |built|
+        built.register(StepType.define(:told) do
+          step_name "Told"
+          setting :text, type: :string
+          setting :other_output, type: :string
+          setting(:comparisons, type: :list) { setting :other_output, type: :string }
+          names_by :text
+        end)
+      end
+    end
+
+    def document
+      Document.new({ "entry" => "check", "edges" => [],
+        "nodes" => [ { "id" => "check", "type" => "told", "text" => "Check the new test fails" },
+                     { "id" => "fix", "type" => "told", "text" => "Fix the tests" },
+                     { "id" => "nameless_step", "type" => "told" },
+                     { "id" => "snake", "type" => "told", "text" => "run_tests" } ] }, registry: registry)
+    end
+
+    def sentence(problem, node: "check", detail: nil)
+      ViolationSentence.new(document, registry: registry).of(Violation.new(node: node, problem: problem, detail: detail))
+    end
+
+    test "says a step that goes nowhere leads nowhere and what to do" do
+      assert_equal "Check the new test fails leads nowhere. Connect it to the step that should come next.", sentence(:dead_end)
+    end
+
+    test "writes an underscore in a step's name as a space" do
+      assert_equal "run tests leads nowhere. Connect it to the step that should come next.", sentence(:dead_end, node: "snake")
+    end
+
+    test "says which way out of a step leads nowhere" do
+      assert_equal "Passed on Check the new test fails leads nowhere. Connect it to the step that should come next.", sentence(:unrouted_value, detail: "passed")
+    end
+
+    test "says a step is not connected to the flow" do
+      assert_equal "Check the new test fails is not connected to the flow. Connect a step to it, or delete it.", sentence(:unreachable)
+    end
+
+    test "says an end step has a connection leaving it" do
+      assert_equal "Check the new test fails ends the flow, but a connection leaves it. Remove that connection.", sentence(:past_the_end)
+    end
+
+    test "names both steps of a connection that is never followed" do
+      assert_equal "The connection from Check the new test fails to Fix the tests is never followed, because Check the new test fails only follows its first connection. Remove the connection to Fix the tests.", sentence(:unfollowed_path, detail: "fix")
+    end
+
+    test "names a missing setting by its label" do
+      assert_equal "Check the new test fails needs a value for Other output. Set it in the step's settings.", sentence(:missing_setting, detail: "other_output")
+    end
+
+    test "names a missing setting inside a list by the list and the entry's position" do
+      assert_equal "Check the new test fails needs a value for Other output in Comparisons entry 2. Set it in the step's settings.", sentence(:missing_setting, detail: "comparisons 2 other_output")
+    end
+
+    test "says a picked answer is no longer offered" do
+      assert_equal "Check the new test fails picks the answer maybe later, which the earlier step no longer offers. Pick another answer in the step's settings.", sentence(:missing_value, detail: "maybe_later")
+    end
+
+    test "says a step reads one that not every path goes through" do
+      assert_equal "Check the new test fails reads Fix the tests, which not every path to it goes through. Move Fix the tests ahead of it on every path, or pick another step in its settings.", sentence(:unmet_requirement, detail: "fix")
+    end
+
+    test "says a step reads one that no longer exists" do
+      assert_equal "Check the new test fails reads a step that no longer exists. Pick another step in its settings.", sentence(:unmet_requirement, detail: "gone")
+    end
+
+    test "says a connection leads to a step that does not exist" do
+      assert_equal "A connection from Check the new test fails leads to a step that does not exist. Remove it in the flow's definition.", sentence(:missing_edge_target, detail: "gone")
+    end
+
+    test "says a connection comes from a step that does not exist" do
+      assert_equal "A connection into Check the new test fails comes from a step that does not exist. Remove it in the flow's definition.", sentence(:missing_edge_source, detail: "gone")
+    end
+
+    test "says two steps share an id without showing it" do
+      assert_equal "Check the new test fails has the same id as another step. Change one of the ids in the flow's definition.", sentence(:duplicate_id)
+    end
+
+    test "says a step's id holds an at sign" do
+      assert_equal "Check the new test fails has an id with an @ in it, which a flow cannot use. Change the id in the flow's definition.", sentence(:reserved_id)
+    end
+
+    test "says a flow has no start step" do
+      assert_equal "This flow has no start step. Add one in the flow's definition.", sentence(:no_beginning, node: nil)
+    end
+
+    test "says a step is a second start step" do
+      assert_equal "Check the new test fails is a second start step. Delete it.", sentence(:many_beginnings)
+    end
+
+    test "says a connection leads into the start step" do
+      assert_equal "A connection leads into Check the new test fails, where the flow starts. Remove that connection.", sentence(:before_the_beginning)
+    end
+
+    test "says a step is missing a flow" do
+      assert_equal "Check the new test fails is missing a flow. Pick the flow in its settings.", sentence(:missing_flow)
+    end
+
+    test "says a step names a version that cannot run" do
+      assert_equal "Check the new test fails names a version that cannot run. Pick a published version in its settings.", sentence(:unrunnable_version)
+    end
+
+    test "says a step names another owner's flow" do
+      assert_equal "Check the new test fails names a flow that belongs to another owner. Pick another flow in its settings.", sentence(:owned_by_another_owner)
+    end
+
+    test "says a step leads back to its own flow" do
+      assert_equal "Check the new test fails leads back to the flow it sits in. Pick a flow in its settings that does not lead back here.", sentence(:circular)
+    end
+
+    test "says a step reads one that is not connected" do
+      assert_equal "Check the new test fails reads a step that is not connected to the flow. Connect that step, or pick another in its settings.", sentence(:reading_an_unconnected_step)
+    end
+
+    test "words a problem with no sentence of its own by naming the step and the problem" do
+      assert_equal "Check the new test fails has a problem: needs a human look.", sentence(:needs_a_human_look)
+    end
+
+    test "has a sentence of its own for every problem the code raises" do
+      raised = %w[validator unconnected_steps].flat_map { |file| Engine.root.join("app/models/easy_flow/#{file}.rb").read.scan(/problem: :(\w+)/).flatten }
+
+      assert_empty raised.uniq.reject { |problem| ViolationSentence.worded?(problem) }
+    end
+  end
+end

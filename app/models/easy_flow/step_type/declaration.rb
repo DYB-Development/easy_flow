@@ -6,8 +6,10 @@ module EasyFlow
         @step_name = id.to_s
         @fields = {}
         @labels = {}
+        @explanations = {}
         @record_fields = {}
         @record_labels = {}
+        @record_explanations = {}
         @record_choices = {}
         @record_outputs_of = {}
         @record_required = {}
@@ -108,7 +110,7 @@ module EasyFlow
         @naming = naming
       end
 
-      def setting(name, type: nil, from: nil, outputs_of: nil, label: nil, options: nil, limit: nil, check: nil, required: false, optional: false, kept_on: nil, attribute: nil, &entries)
+      def setting(name, type: nil, from: nil, outputs_of: nil, label: nil, explanation: nil, options: nil, limit: nil, check: nil, required: false, optional: false, kept_on: nil, attribute: nil, &entries)
         type ||= :from_step if from
         type ||= :from_step if outputs_of
         raise UnknownFieldType, "#{type} is not one of #{FIELD_TYPES.join(', ')}" unless FIELD_TYPES.include?(type)
@@ -124,12 +126,13 @@ module EasyFlow
         @limits[name] = limit if limit
         @checks[name] = check if check
         @labels[name] = label.presence || name.to_s.humanize
+        @explanations[name] = explanation if explanation
         @fields[name] = type
       end
 
       protected
 
-      attr_reader :fields, :labels, :choices, :outputs_of, :required
+      attr_reader :fields, :labels, :explanations, :choices, :outputs_of, :required
 
       private
 
@@ -144,6 +147,7 @@ module EasyFlow
         declared = Declaration.new(:entry).tap { |entry| entry.instance_eval(&entries) }
         @record_fields[name] = declared.fields
         @record_labels[name] = declared.labels
+        @record_explanations[name] = declared.explanations
         @record_choices[name] = declared.choices
         @record_outputs_of[name] = declared.outputs_of
         @record_required[name] = declared.required
@@ -159,8 +163,8 @@ module EasyFlow
       end
 
       def settings
-        Settings.new(fields: @fields, labels: @labels, record_fields: @record_fields,
-          record_labels: @record_labels, record_choices: @record_choices, record_outputs_of: @record_outputs_of, record_required: @record_required, choices: @choices, limits: @limits, checks: @checks,
+        Settings.new(fields: @fields, labels: @labels, explanations: @explanations, record_fields: @record_fields,
+          record_labels: @record_labels, record_explanations: @record_explanations, record_choices: @record_choices, record_outputs_of: @record_outputs_of, record_required: @record_required, choices: @choices, limits: @limits, checks: @checks,
           required: @required, optional: @optional, drawn_from: @drawn_from, outputs_of: @outputs_of, kept: @kept)
       end
     end

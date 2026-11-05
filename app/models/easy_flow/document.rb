@@ -133,7 +133,7 @@ module EasyFlow
     def with(nodes:, edges:)
       Document.new(@document.merge("nodes" => nodes, "edges" => edges), registry: @registry).tap do |edited|
         broken = Validator.new(edited, registry: @registry).malformations
-        raise InvalidEdit, broken.map { |violation| "#{violation.node}: #{violation.problem}" }.join(", ") if broken.any?
+        raise InvalidEdit, broken.map { |violation| ViolationSentence.new(edited, registry: @registry).of(violation) }.join(" ") if broken.any?
       end
     end
   end

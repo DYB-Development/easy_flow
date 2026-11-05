@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- A step type can give a setting a one-sentence explanation with `explanation:` on `setting`, including a setting inside a list. It shows under that setting in the step's settings. A setting with none looks as it did. The canvas payload's palette entries carry `explanations` and `record_explanations`.
+
+### Changed
+
+- On every host, each canvas warning on a step's card and in the flow panel is now a sentence that names the step, says what is wrong and says what to do, such as `Passed on Check the new test fails leads nowhere. Connect it to the step that should come next.` A step with no name of its own is named by its step type's name, never its id. No warning shows an underscore, so one typed into a name or an answer value shows as a space.
+- The `error` text from a refused Create version or Publish keeps its `Cannot publish:` start and now lists those same sentences, joined by spaces instead of commas. A refused edit's `error` text is worded the same way. Code that matched the old text must read the problem symbols instead.
+- The warning about unconnected steps now also says what to do, and names a step with no name of its own by its step type's name. Each entry under `unconnected` gains `name`, and its `id` and `label` are unchanged.
+- What counts as a problem, what blocks saving and publishing, `EasyFlow::Violation` and the `node`, `problem` and `detail` values in the canvas payload are unchanged. Each violation in the payload gains `sentence`.
+
 ## [0.34.0] - 2026-11-05
 
 ### Changed

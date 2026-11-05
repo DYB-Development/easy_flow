@@ -84,6 +84,12 @@ module EasyFlow
       end
     end
 
+    test "says in a sentence why it refused an edit" do
+      refused = assert_raises(InvalidEdit) { three_step_flow.rewire(from: "a", to: "x", target: "ghost") }
+
+      assert_includes refused.message, "leads to a step that does not exist."
+    end
+
     test "leaves the document alone when it refuses an edit" do
       document = three_step_flow
 

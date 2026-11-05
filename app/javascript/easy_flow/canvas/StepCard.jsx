@@ -53,7 +53,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
       {node.opens && <Button variant="secondary" size="sm" className="mt-2" onClick={(event) => { event.stopPropagation(); onSelect() }}>Settings</Button>}
       {node.violations.map((violation) => (
         <div key={violation.problem + violation.detail} className="text-red-600 dark:text-red-400" style={{ fontSize: 11, padding: "0 14px 6px" }}>
-          {violation.problem.replace(/_/g, " ")}{violation.detail ? `: ${violation.detail}` : ""}
+          {violation.sentence}
         </div>
       ))}
       {ports.length > 0 && (

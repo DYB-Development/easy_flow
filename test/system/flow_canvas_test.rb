@@ -121,7 +121,7 @@ module EasyFlow
 
       canvas_for(flow)
 
-      assert_selector "[data-step='adrift']", text: "unreachable"
+      assert_selector "[data-step='adrift']", text: "Adrift is not connected to the flow."
     end
 
     test "adding a step from an unconnected branch wires it to that branch" do
@@ -549,7 +549,17 @@ module EasyFlow
 
       find("[data-open-panel]").click
 
-      assert_selector "[data-problem]", text: "unreachable"
+      assert_selector "[data-problem]", text: "Adrift is not connected to the flow."
+    end
+
+    test "a step's settings show a setting's explanation under it" do
+      flow.record_definition(flow.definition.merge(
+        "nodes" => flow.definition["nodes"] + [ { "id" => "told", "type" => "notify" } ]))
+      canvas_for(flow)
+
+      step_card("told").click
+
+      assert_selector "[data-inspector] [data-setting-explanation]", text: "Sent to the visitor when the step is reached."
     end
 
     test "creating a version empties the change list" do

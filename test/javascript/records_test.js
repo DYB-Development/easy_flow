@@ -25,6 +25,10 @@ test("shows the explanation of a setting in each record", () => {
   assert.match(html, /data-setting-explanation="true"[^>]*>Sent with the answer\.</)
 })
 
+test("shows nothing under a record's setting with no explanation", () => {
+  assert.doesNotMatch(drawn(), /data-setting-explanation/)
+})
+
 test("offers removing a record as keystone's secondary button", () => {
   assert.ok(classesOf(drawn(), "Remove").includes("ks-button-secondary"))
 })

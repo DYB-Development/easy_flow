@@ -27,7 +27,7 @@ const Records = ({ holds, labels, explanations, rows, choices, outputsOf, onChan
               <Control type={type} value={row[name]} choices={offeredFor(choices, outputsOf, name, row)}
                        onChange={(next) => amend(index, name, next, false)}
                        onSettle={(next) => amend(index, name, next, true)} />
-              <Explanation text={(explanations || {})[name]} />
+              {(explanations || {})[name] && <Explanation text={explanations[name]} />}
             </label>
           ))}
           <Button variant="secondary" size="sm" className="mb-1.5"

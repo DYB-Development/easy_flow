@@ -17,6 +17,11 @@ module EasyFlow
           setting(:values, type: :list) { setting :name, type: :string }
           outputs_named_by :values
         end)
+        built.register(StepType.define(:reported) do
+          setting(:values, type: :list) { setting :name, type: :string }
+          outputs_named_by :values
+          output :result, values: %w[passed failed]
+        end)
         built.register(StepType.define(:repeat) { awaits_input; comes_back_while { |node, state| !state.key?("#{node.id}@2") } })
         built.register(StepType.define(:branch) do
           setting :answer, type: :previous_step
@@ -189,6 +194,12 @@ module EasyFlow
       document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "pick" } ], "edges" => [] }
 
       assert digest(document).plain_value_is?("a", "answer")
+    end
+
+    test "does not take a step's plain recorded value as an output an admin named on it" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "reported", "values" => [ { "name" => "title" } ] } ], "edges" => [] }
+
+      assert_not digest(document).plain_value_is?("a", "title")
     end
 
     test "reports the values one named output of a step can take" do

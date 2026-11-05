@@ -11,6 +11,19 @@ module EasyFlow
       Node.new(id: "lookup", type: "read_data", config: { "inputs" => inputs })
     end
 
+    def run_through_reported_step
+      registry = Registry.new.tap do |built|
+        built.register(StepType.define(:reported) do
+          setting(:values, type: :list) { setting :name, type: :string }
+          outputs_named_by :values
+          output :result, values: %w[passed failed]
+        end)
+      end
+      document = { "entry" => "write", "nodes" => [ { "id" => "write", "type" => "reported", "values" => [ { "name" => "title" } ] } ], "edges" => [] }
+
+      Struct.new(:digest).new(Digest.new(Document.new(document, registry: registry), registry: registry))
+    end
+
     test "reads an input with a fixed value as that value" do
       assert_equal({ "sku" => "A1" }, Inputs.values_of(taking({ "name" => "sku", "value" => "A1" }), {}))
     end
@@ -26,6 +39,24 @@ module EasyFlow
       state = { "pick" => { "code" => "A1" }, "pick@2" => { "code" => "B2" }, "pick@10" => { "code" => "C3" } }
 
       assert_equal({ "sku" => "C3" }, Inputs.values_of(taking(input), state))
+    end
+
+    test "gives no value for an output the step did not report when it recorded a plain value" do
+      input = { "name" => "title", "step" => "write", "output" => "title" }
+
+      assert_equal({ "title" => nil }, Inputs.values_of(taking(input), { "write" => "passed" }, run: run_through_reported_step))
+    end
+
+    test "reads a plain recorded value for an input naming no output" do
+      input = { "name" => "verdict", "step" => "write" }
+
+      assert_equal({ "verdict" => "passed" }, Inputs.values_of(taking(input), { "write" => "passed" }, run: run_through_reported_step))
+    end
+
+    test "reads a plain recorded value under any output when called with no run to read declared outputs from" do
+      input = { "name" => "sku", "step" => "pick", "output" => "answer" }
+
+      assert_equal({ "sku" => "A1" }, Inputs.values_of(taking(input), { "pick" => "A1" }))
     end
 
     test "reads an input marked as the run's owner as that owner's id" do

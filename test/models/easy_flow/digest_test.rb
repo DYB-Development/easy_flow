@@ -17,6 +17,12 @@ module EasyFlow
           setting(:values, type: :list) { setting :name, type: :string }
           outputs_named_by :values
         end)
+        built.register(StepType.define(:reported) do
+          setting(:values, type: :list) { setting :name, type: :string }
+          outputs_named_by :values
+          output :result, values: %w[passed failed]
+        end)
+        built.register(StepType.define(:several) { output :result; output :reason })
         built.register(StepType.define(:repeat) { awaits_input; comes_back_while { |node, state| !state.key?("#{node.id}@2") } })
         built.register(StepType.define(:branch) do
           setting :answer, type: :previous_step
@@ -183,6 +189,36 @@ module EasyFlow
       document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "pick" } ], "edges" => [] }
 
       assert_equal [ { "value" => "answer", "label" => "Answer" } ], digest(document).outputs_of("a")
+    end
+
+    test "takes a step's plain recorded value as the only output it declares" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "pick" } ], "edges" => [] }
+
+      assert digest(document).plain_value_is?("a", "answer")
+    end
+
+    test "does not take a step's plain recorded value as an output an admin named on it" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "reported", "values" => [ { "name" => "title" } ] } ], "edges" => [] }
+
+      assert_not digest(document).plain_value_is?("a", "title")
+    end
+
+    test "does not take a step's plain recorded value as one of several outputs it declares" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "several" } ], "edges" => [] }
+
+      assert_not digest(document).plain_value_is?("a", "result")
+    end
+
+    test "takes a plain recorded value as any output of a step that declares none" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask" } ], "edges" => [] }
+
+      assert digest(document).plain_value_is?("a", "answer")
+    end
+
+    test "takes a plain recorded value as any output of a step whose type is not registered" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "retired" } ], "edges" => [] }
+
+      assert digest(document).plain_value_is?("a", "answer")
     end
 
     test "reports the values one named output of a step can take" do

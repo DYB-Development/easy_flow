@@ -121,5 +121,11 @@ module EasyFlow
     test "words a problem with no sentence of its own by naming the step and the problem" do
       assert_equal "Check the new test fails has a problem: needs a human look.", sentence(:needs_a_human_look)
     end
+
+    test "has a sentence of its own for every problem the code raises" do
+      raised = %w[validator unconnected_steps].flat_map { |file| Engine.root.join("app/models/easy_flow/#{file}.rb").read.scan(/problem: :(\w+)/).flatten }
+
+      assert_empty raised.uniq.reject { |problem| ViolationSentence.worded?(problem) }
+    end
   end
 end

@@ -5,6 +5,10 @@ module EasyFlow
         @run = run
       end
 
+      def saved?
+        true
+      end
+
       def definition
         @run.pinned_definition
       end

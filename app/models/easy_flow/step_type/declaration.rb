@@ -59,6 +59,10 @@ module EasyFlow
         @answer_labelling = labelling
       end
 
+      def needs_a_saved_run(refusal)
+        @unsaved_refusal = refusal
+      end
+
       def comes_back_while(&return_rule)
         @return_rule = return_rule
       end
@@ -151,7 +155,7 @@ module EasyFlow
         StepType.new(id: @id, step_name: @step_name, settings: settings, awaits_input: @awaits_input,
           ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, plays_the_picked_flow: @plays_the_picked_flow, flow_chooser: @flow_chooser, run_chooser: @run_chooser, behaviour: @behaviour, routing: @routing,
           display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming,
-          outputs: @declared_outputs, outputs_named_by: @outputs_named_by, answer_check: @answer_check, answer_labelling: @answer_labelling, readiness: @readiness, return_rule: @return_rule)
+          outputs: @declared_outputs, outputs_named_by: @outputs_named_by, answer_check: @answer_check, answer_labelling: @answer_labelling, readiness: @readiness, return_rule: @return_rule, unsaved_refusal: @unsaved_refusal)
       end
 
       def settings

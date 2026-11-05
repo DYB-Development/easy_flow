@@ -4,11 +4,11 @@ module EasyFlow
       Declaration.new(id).tap { |decl| decl.instance_eval(&declaration) }.to_step_type
     end
 
-    attr_reader :id, :step_name, :settings, :naming_field, :naming, :outputs, :drawn_by
+    attr_reader :id, :step_name, :settings, :naming_field, :naming, :outputs, :drawn_by, :unsaved_refusal
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
       ends_here: false, begins_here: false, starts_a_flow: false, plays_the_picked_flow: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,
-      naming_field: nil, naming: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil, return_rule: nil)
+      naming_field: nil, naming: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil, return_rule: nil, unsaved_refusal: nil)
       @id = id
       @step_name = step_name
       @settings = settings
@@ -31,6 +31,7 @@ module EasyFlow
       @answer_labelling = answer_labelling
       @readiness = readiness
       @return_rule = return_rule
+      @unsaved_refusal = unsaved_refusal
     end
 
     def display_of(node, run = nil)

@@ -17,6 +17,9 @@ module EasyFlow
       return redirect_to run_location(run.waiting_on) if run&.waiting_on
 
       @answers = @progress.recorded
+      @unsaved_refusal = @guide.unsaved_refusal(@answers, times: @progress.completed_at) unless @progress.saved?
+      return render :refused if @unsaved_refusal
+
       @question = @guide.next_step(@answers, run: run, times: @progress.completed_at)
       @drawing = @guide.drawing_at(@answers, times: @progress.completed_at)
       flash.now[:alert] = @refused if @refused

@@ -177,6 +177,14 @@ module EasyFlow
       assert_equal({ "options" => { "weight" => "Counts toward the score." } }, canvas(flow)["palette"].find { |entry| entry["type"] == "ask" }["record_explanations"])
     end
 
+    test "keeps a setting's own explanation when its host explains only another setting" do
+      host = Host.new(:alembic)
+      host.setting_explanations = { ask: { "options.weight" => "Points for this answer." } }
+      palette = Canvas.new(Document.new(flowing(flow)), registry: registry, host: host).to_h["palette"]
+
+      assert_equal({ "text" => "Shown to the visitor." }, palette.find { |entry| entry["type"] == "ask" }["explanations"])
+    end
+
     test "carries the violations the document has" do
       stranded = flow.merge("nodes" => flow["nodes"] + [ { "id" => "loose", "type" => "ask" } ])
 

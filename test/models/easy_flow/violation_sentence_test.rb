@@ -53,5 +53,9 @@ module EasyFlow
     test "names a missing setting by its label" do
       assert_equal "Check the new test fails needs a value for Other output. Set it in the step's settings.", sentence(:missing_setting, detail: "other_output")
     end
+
+    test "names a missing setting inside a list by the list and the entry's position" do
+      assert_equal "Check the new test fails needs a value for Other output in Comparisons entry 2. Set it in the step's settings.", sentence(:missing_setting, detail: "comparisons 2 other_output")
+    end
   end
 end

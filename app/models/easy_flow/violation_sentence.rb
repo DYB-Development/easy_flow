@@ -40,7 +40,11 @@ module EasyFlow
     end
 
     def setting_label(violation)
-      @registry.fetch(@document.node(violation.node).type).settings.labels[violation.detail.to_sym]
+      settings = @registry.fetch(@document.node(violation.node).type).settings
+      list, position, name = violation.detail.split(" ", 3)
+      return settings.labels[list.to_sym] unless name
+
+      "#{settings.record_labels[list.to_sym][name.to_sym]} in #{settings.labels[list.to_sym]} entry #{position}"
     end
   end
 end

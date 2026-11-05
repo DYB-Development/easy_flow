@@ -81,5 +81,9 @@ module EasyFlow
     test "says two steps share an id without showing it" do
       assert_equal "Check the new test fails has the same id as another step. Change one of the ids in the flow's definition.", sentence(:duplicate_id)
     end
+
+    test "says a step's id holds an at sign" do
+      assert_equal "Check the new test fails has an id with an @ in it, which a flow cannot use. Change the id in the flow's definition.", sentence(:reserved_id)
+    end
   end
 end

@@ -68,5 +68,9 @@ module EasyFlow
     def duplicate_id(violation)
       "#{step(violation.node)} has the same id as another step. Change one of the ids in the flow's definition."
     end
+
+    def reserved_id(violation)
+      "#{step(violation.node)} has an id with an @ in it, which a flow cannot use. Change the id in the flow's definition."
+    end
   end
 end

@@ -179,13 +179,9 @@ module EasyFlow
       end
 
       def refusal(objections)
-        "Cannot publish: #{objections.map { |problem| worded(problem) }.join(', ')}."
-      end
+        sentences = ViolationSentence.new(document)
 
-      def worded(problem)
-        trouble = problem.problem.to_s.humanize(capitalize: false)
-
-        problem.node ? "“#{problem.node}” is #{trouble}" : trouble
+        "Cannot publish: #{objections.map { |objection| sentences.of(objection) }.join(' ')}"
       end
 
       def coerced(edited, id)

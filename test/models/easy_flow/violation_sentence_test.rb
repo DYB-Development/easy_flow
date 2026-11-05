@@ -93,5 +93,9 @@ module EasyFlow
     test "says a step is a second start step" do
       assert_equal "Check the new test fails is a second start step. Delete it.", sentence(:many_beginnings)
     end
+
+    test "says a connection leads into the start step" do
+      assert_equal "A connection leads into Check the new test fails, where the flow starts. Remove that connection.", sentence(:before_the_beginning)
+    end
   end
 end

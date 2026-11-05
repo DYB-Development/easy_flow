@@ -80,5 +80,9 @@ module EasyFlow
     def many_beginnings(violation)
       "#{step(violation.node)} is a second start step. Delete it."
     end
+
+    def before_the_beginning(violation)
+      "A connection leads into #{step(violation.node)}, where the flow starts. Remove that connection."
+    end
   end
 end

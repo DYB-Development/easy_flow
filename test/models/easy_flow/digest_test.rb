@@ -209,6 +209,12 @@ module EasyFlow
       assert_not digest(document).plain_value_is?("a", "result")
     end
 
+    test "takes a plain recorded value as any output of a step that declares none" do
+      document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "ask" } ], "edges" => [] }
+
+      assert digest(document).plain_value_is?("a", "answer")
+    end
+
     test "reports the values one named output of a step can take" do
       document = { "entry" => "a",
                    "nodes" => [ { "id" => "a", "type" => "pick", "options" => [ { "value" => "high" } ] } ],

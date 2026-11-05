@@ -54,8 +54,10 @@ module EasyFlow
 
     def plain_value_is?(id, output_name)
       named = step(id)
-      outputs = step_type(named).outputs
-      step_type(named).outputs_for(named).empty? || (outputs.one? && outputs.first.name.to_s == output_name.to_s)
+      type = step_type(named)
+      return true if type.nil? || type.outputs_for(named).empty?
+
+      type.outputs.one? && type.outputs.first.name.to_s == output_name.to_s
     end
 
     def values_out_of(id)

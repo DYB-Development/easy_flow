@@ -36,7 +36,11 @@ module EasyFlow
     end
 
     test "names each step that would be removed by its id and label" do
-      assert_equal [ { "id" => "aside", "label" => "Aside" } ], checked([ asking("aside", question: "Aside") ]).named
+      assert_equal [ { "id" => "aside", "label" => "Aside", "name" => "Aside" } ], checked([ asking("aside", question: "Aside") ]).named
+    end
+
+    test "names a step with no name of its own by its type's name and no underscore" do
+      assert_equal [ "Question" ], checked([ { "id" => "the_aside", "type" => "question" } ]).named.map { |step| step["name"] }
     end
 
     test "the removal is accepted only when it names the same steps" do

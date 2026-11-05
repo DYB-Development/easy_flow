@@ -11,7 +11,7 @@ module EasyFlow
     end
 
     def named
-      ids.map { |id| { "id" => id, "label" => Name.of(@document.node(id), @registry) } }
+      ids.map { |id| { "id" => id, "label" => Name.of(@document.node(id), @registry), "name" => Name.shown(@document.node(id), @registry).tr("_", " ") } }
     end
 
     def accepted?(named_steps)

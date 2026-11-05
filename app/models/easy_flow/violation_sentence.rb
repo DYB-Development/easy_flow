@@ -88,5 +88,9 @@ module EasyFlow
     def missing_flow(violation)
       "#{step(violation.node)} is missing a flow. Pick the flow in its settings."
     end
+
+    def unrunnable_version(violation)
+      "#{step(violation.node)} names a version that cannot run. Pick a published version in its settings."
+    end
   end
 end

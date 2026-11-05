@@ -101,5 +101,9 @@ module EasyFlow
     test "says a step is missing a flow" do
       assert_equal "Check the new test fails is missing a flow. Pick the flow in its settings.", sentence(:missing_flow)
     end
+
+    test "says a step names a version that cannot run" do
+      assert_equal "Check the new test fails names a version that cannot run. Pick a published version in its settings.", sentence(:unrunnable_version)
+    end
   end
 end

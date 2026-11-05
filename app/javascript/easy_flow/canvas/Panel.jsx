@@ -4,7 +4,7 @@ import Button from "keystone_ui-react/src/Button.jsx"
 import Input from "keystone_ui-react/src/Input.jsx"
 import Alert from "keystone_ui-react/src/Alert.jsx"
 import { Label } from "keystone_ui-react/src/FieldText.jsx"
-import { warned, worded } from "./changes"
+import { warned } from "./changes"
 import { standing } from "./flow"
 
 const sheet = { width: 280, padding: 20, overflowY: "auto" }
@@ -47,7 +47,7 @@ const Panel = ({ flow, changes, problems, refusal, notice, publishNote, warning,
     {problems.length === 0 && !refusal
       ? <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: 12 }}>Nothing wrong with this flow.</p>
       : problems.map((problem) => (
-          <p key={`${problem.node}-${problem.problem}`} className="text-amber-700 dark:text-amber-400" style={item} data-problem>⚠ {worded(problem)}</p>
+          <p key={`${problem.node}-${problem.problem}`} className="text-amber-700 dark:text-amber-400" style={item} data-problem>⚠ {problem.sentence}</p>
         ))}
 
     <h2 style={heading}>Changes since the last version</h2>

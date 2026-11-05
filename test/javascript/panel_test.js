@@ -37,6 +37,12 @@ test("names each problem it was given", () => {
   assert.equal(shown(tree, "data-problem").length, 1)
 })
 
+test("writes each problem as its sentence", () => {
+  const tree = panel({ problems: [ { node: "a", problem: "dead_end", sentence: "Ask leads nowhere." } ] })
+
+  assert.deepEqual(shown(tree, "data-problem")[0].props.children, [ "⚠ ", "Ask leads nowhere." ])
+})
+
 test("shows a notice when something was done", () => {
   assert.equal(shown(panel({ notice: "Created version 2." }), "data-notice").length, 1)
 })
@@ -185,7 +191,7 @@ test("shows no note when the host set none", () => {
   assert.equal(shown(panel({}), "data-publish-note").length, 0)
 })
 
-const warning = { path: "/publish", steps: [ { id: "aside", label: "Aside" } ] }
+const warning = { path: "/publish", steps: [ { id: "aside", label: "Aside", name: "Aside" } ] }
 
 test("a warning names each step that will be removed", () => {
   assert.match(renderToStaticMarkup(panel({ warning })), /“Aside” is not connected to the flow and will be removed\./)

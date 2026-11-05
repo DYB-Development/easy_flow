@@ -32,7 +32,7 @@ module EasyFlow
     private_class_method :latest_output
 
     def self.unreported?(input, recorded, run)
-      input["output"].present? && !recorded.is_a?(Hash) && !run.digest.plain_value_is?(input["step"], input["output"])
+      run && input["output"].present? && !recorded.is_a?(Hash) && !run.digest.plain_value_is?(input["step"], input["output"])
     end
     private_class_method :unreported?
   end

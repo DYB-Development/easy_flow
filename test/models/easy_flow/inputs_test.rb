@@ -53,6 +53,12 @@ module EasyFlow
       assert_equal({ "verdict" => "passed" }, Inputs.values_of(taking(input), { "write" => "passed" }, run: run_through_reported_step))
     end
 
+    test "reads a plain recorded value under any output when called with no run to read declared outputs from" do
+      input = { "name" => "sku", "step" => "pick", "output" => "answer" }
+
+      assert_equal({ "sku" => "A1" }, Inputs.values_of(taking(input), { "pick" => "A1" }))
+    end
+
     test "reads an input marked as the run's owner as that owner's id" do
       input = { "name" => "item", "from_run_owner" => true }
 

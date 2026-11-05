@@ -6,7 +6,7 @@ module EasyFlow
     end
 
     def of(violation)
-      send(violation.problem, violation)
+      send(violation.problem, violation).tr("_", " ")
     end
 
     private

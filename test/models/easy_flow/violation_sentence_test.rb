@@ -109,5 +109,9 @@ module EasyFlow
     test "says a step names another owner's flow" do
       assert_equal "Check the new test fails names a flow that belongs to another owner. Pick another flow in its settings.", sentence(:owned_by_another_owner)
     end
+
+    test "says a step leads back to its own flow" do
+      assert_equal "Check the new test fails leads back to the flow it sits in. Pick a flow in its settings that does not lead back here.", sentence(:circular)
+    end
   end
 end

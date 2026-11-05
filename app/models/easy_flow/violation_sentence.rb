@@ -96,5 +96,9 @@ module EasyFlow
     def owned_by_another_owner(violation)
       "#{step(violation.node)} names a flow that belongs to another owner. Pick another flow in its settings."
     end
+
+    def circular(violation)
+      "#{step(violation.node)} leads back to the flow it sits in. Pick a flow in its settings that does not lead back here."
+    end
   end
 end

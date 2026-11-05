@@ -30,7 +30,7 @@ module EasyFlow
 
     def run(progress)
       while (node = @digest.next_step(named(progress.recorded), named(progress.completed_at))) && goes_on?(node, named(progress.recorded), CompletedAt.latest(named(progress.completed_at))) && (progress.saved? || refusal_of(node).nil?)
-        progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded)))
+        progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded), progress.run))
       end
       progress.start_inner(node) if node && starts_a_flow?(node)
       progress.ended unless node
@@ -99,10 +99,10 @@ module EasyFlow
       @registry.registered?(node.type) && @registry.fetch(node.type).waits? && @registry.fetch(node.type).ready?(node, state, times)
     end
 
-    def result_of(node, state)
+    def result_of(node, state, run)
       return allowed(node, state).first.to_s if decided?(node, state)
 
-      acts?(node) ? @registry.fetch(node.type).process(node, state) : true
+      acts?(node) ? @registry.fetch(node.type).process(node, state, run: run) : true
     end
 
     def shown(node, run = nil)

@@ -573,6 +573,24 @@ module EasyFlow
       EasyFlow.host_named("dummy").setting_explanations = nil
     end
 
+    test "an admin can mark an input as taking its value from the run's owner" do
+      reading = Definition.create!(host: "dummy", slug: "canvas-reading").tap do |built|
+        built.record_definition(flowing(
+          "slug" => "canvas-reading", "entry" => "lookup",
+          "nodes" => [ { "id" => "lookup", "type" => "read_data", "inputs" => [ { "name" => "item" } ] } ],
+          "edges" => []
+        ))
+      end
+      canvas_for(reading)
+      step_card("lookup").click
+
+      within("[data-inspector]") { check "The run's owner" }
+      find("[data-open-panel]").click
+      assert_selector "[data-builder-panel] [data-change]"
+
+      assert_equal true, reading.reload.document["nodes"].find { |node| node["id"] == "lookup" }["inputs"].first["from_run_owner"]
+    end
+
     test "creating a version empties the change list" do
       canvas_for(wired)
       step_card("first").click

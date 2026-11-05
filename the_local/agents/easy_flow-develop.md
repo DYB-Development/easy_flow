@@ -17,7 +17,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - `EasyFlow.step` — declares and registers a step type in one call from a block of the same words, for a type small enough not to need its own class.
 - `labels_answer_by` — a word in a step type's declaration giving the label a run's recorded answer to a step of that type is shown by, on the completion page and from `EasyFlow::QuestionRunner#choice_label`.
 - `outputs_named_by` — a word in a step type's declaration adding one output for each entry an admin enters in one of the type's list settings, named by that entry, so the admin decides the names of the values the step records.
-- `EasyFlow::Inputs` — a module a step type's class includes, after `EasyFlow::Step`, to declare the list of named inputs an admin fills in, each a fixed value or an output of an earlier step. `EasyFlow::Inputs.values_of(node, state)` returns those values as a hash with string keys, reading a step reached more than once at its latest visit.
+- `EasyFlow::Inputs` — a module a step type's class includes, after `EasyFlow::Step`, to declare the list of named inputs an admin fills in, each a fixed value, an output of an earlier step, or the id of the run's owner. `EasyFlow::Inputs.values_of(node, state, run: run)` returns those values as a hash with string keys, reading a step reached more than once at its latest visit.
 - `host.allowed_answers=` — set on a host to a lambda given a step and the answers recorded so far, returning the answers that step may take in this run: several narrows the answers shown, one is recorded without showing the step, and none records a blank and skips it.
 - `EasyFlow::FlowsController` — the visitor controller; the app subclasses it to serve one host's flows from its own routes and to change what happens at the start, on each step and at the finish.
 - `hosted_by` — class method on a `FlowsController` subclass naming the host whose flows it serves.
@@ -291,19 +291,22 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 
      step_name "Script"
 
-     def process(node, state)
-       ScriptRunner.call(EasyFlow::Inputs.values_of(node, state))
+     def process(node, state, run: nil)
+       ScriptRunner.call(EasyFlow::Inputs.values_of(node, state, run: run))
      end
    end
    ```
 
 2. What then holds:
-   - The step's settings on the canvas hold an `inputs` list, and each entry takes a name, a fixed value, an earlier step and that step's output.
+   - The step's settings on the canvas hold an `inputs` list, and each entry takes a name, a fixed value, an earlier step, that step's output and a tick box, `The run's owner`.
+   - An entry with `The run's owner` ticked gives the owner's id, whatever else it holds. It is stored as `"from_run_owner" => true`. It gives nothing in a flow that saves no runs or a run with no owner, and raises nothing.
+   - `run: nil` in `process` is optional and must be written with its default. With it the step is given the stored run, or `nil` in a flow that saves no runs. A `process` without it keeps working as `process(node, state)`.
+   - `EasyFlow::Inputs.values_of(node, state)` keeps working with those two arguments, and an entry with `The run's owner` ticked then gives nothing. Code outside `process` that reads a stored run's inputs passes the run itself, as `EasyFlow::Inputs.values_of(step, run.recorded.stringify_keys, run: run)`.
    - An entry that names an earlier step reads that step's output, at its latest visit when a loop reached it more than once. Any other entry gives its fixed value.
    - `state` in `process` still holds every visit under its own key, so a step type that adds up every visit keeps working.
    - An earlier step that recorded a plain value gives that value for whichever output the entry names.
    - `process` is not given completion times, so an entry naming "Hour completed", "Weekday completed" or "Minutes since 1970 when completed" gives nothing.
-3. Publish a flow set to save each step with a loop back to a question before the step, answer it twice, and check the step reads the second answer.
+3. Publish a flow set to save each step with a loop back to a question before the step, answer it twice, and check the step reads the second answer. Give a stored run an owner, tick `The run's owner` on an input, and check the step reads the owner's id.
 
 ### Keep a setting on one of the app's records
 

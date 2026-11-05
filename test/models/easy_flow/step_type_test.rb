@@ -42,6 +42,18 @@ module EasyFlow
       assert_equal({ "out" => 1 }, step_type.process(node_testing("a"), { "in" => 1 }))
     end
 
+    test "hands the run to a behaviour that asks for it" do
+      step_type = StepType.define(:agent) { process { |_node, _state, run: nil| run.owner_id } }
+
+      assert_equal 7, step_type.process(node_testing("a"), {}, run: Run.new(owner_id: 7))
+    end
+
+    test "calls a behaviour that does not ask for the run with the node and the state alone" do
+      step_type = StepType.define(:agent) { process(&->(_node, state) { state["in"] }) }
+
+      assert_equal 1, step_type.process(node_testing("a"), { "in" => 1 }, run: Run.new)
+    end
+
     test "contributes nothing when it declares no behaviour" do
       step_type = StepType.define(:agent) { }
 

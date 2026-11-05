@@ -8,12 +8,20 @@ module EasyFlow
         setting :value, type: :string
         setting :step, type: :previous_step, label: "Earlier step"
         setting :output, outputs_of: :step, label: "Earlier step's output"
+        setting :from_run_owner, type: :boolean, label: "The run's owner"
       end
     end
 
-    def self.values_of(node, state)
-      Array(node.config["inputs"]).to_h { |input| [ input["name"], input["step"].present? ? latest_output(input, state) : input["value"] ] }
+    def self.values_of(node, state, run: nil)
+      Array(node.config["inputs"]).to_h { |input| [ input["name"], value_of(input, state, run) ] }
     end
+
+    def self.value_of(input, state, run)
+      return run&.owner_id if input["from_run_owner"]
+
+      input["step"].present? ? latest_output(input, state) : input["value"]
+    end
+    private_class_method :value_of
 
     def self.latest_output(input, state)
       latest_visit = state.keys.select { |key| key.split("@").first == input["step"] }.max_by { |key| key.split("@")[1].to_i }

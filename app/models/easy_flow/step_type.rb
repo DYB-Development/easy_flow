@@ -4,6 +4,10 @@ module EasyFlow
       Declaration.new(id).tap { |decl| decl.instance_eval(&declaration) }.to_step_type
     end
 
+    def self.asks_for_run?(behaviour)
+      behaviour.present? && behaviour.parameters.include?([ :key, :run ])
+    end
+
     attr_reader :id, :step_name, :settings, :naming_field, :naming, :outputs, :drawn_by, :unsaved_refusal
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
@@ -40,8 +44,10 @@ module EasyFlow
       @display.arity == 1 ? @display.call(node) : @display.call(node, run)
     end
 
-    def process(node, state)
-      @behaviour&.call(node, state)
+    def process(node, state, run: nil)
+      return @behaviour&.call(node, state) unless StepType.asks_for_run?(@behaviour)
+
+      @behaviour.call(node, state, run: run)
     end
 
     def route(node, state, times = {})

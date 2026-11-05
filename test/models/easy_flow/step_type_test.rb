@@ -289,6 +289,12 @@ module EasyFlow
       assert_equal "Groups the answers.", step_type.settings.explanations[:tag]
     end
 
+    test "keeps the explanation of a setting inside a list" do
+      step_type = StepType.define(:note) { setting(:answers, type: :list) { setting :weight, type: :integer, explanation: "Counts toward the score." } }
+
+      assert_equal "Counts toward the score.", step_type.settings.record_explanations[:answers][:weight]
+    end
+
     test "labels a setting after its key" do
       step_type = StepType.define(:ask) { setting :question, type: :string }
 

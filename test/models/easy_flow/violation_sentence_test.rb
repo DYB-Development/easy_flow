@@ -37,5 +37,9 @@ module EasyFlow
     test "says which way out of a step leads nowhere" do
       assert_equal "Passed on Check the new test fails leads nowhere. Connect it to the step that should come next.", sentence(:unrouted_value, detail: "passed")
     end
+
+    test "says a step is not connected to the flow" do
+      assert_equal "Check the new test fails is not connected to the flow. Connect a step to it, or delete it.", sentence(:unreachable)
+    end
   end
 end

@@ -22,5 +22,9 @@ module EasyFlow
     def unrouted_value(violation)
       "#{violation.detail.to_s.upcase_first} on #{step(violation.node)} leads nowhere. Connect it to the step that should come next."
     end
+
+    def unreachable(violation)
+      "#{step(violation.node)} is not connected to the flow. Connect a step to it, or delete it."
+    end
   end
 end

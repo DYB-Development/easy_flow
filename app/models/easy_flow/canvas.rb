@@ -120,8 +120,12 @@ module EasyFlow
 
     def violations
       Validator.new(@document, registry: @registry, flow: @flow).violations.map do |violation|
-        { "node" => violation.node, "problem" => violation.problem.to_s, "detail" => violation.detail }
+        { "node" => violation.node, "problem" => violation.problem.to_s, "detail" => violation.detail, "sentence" => sentences.of(violation) }
       end
+    end
+
+    def sentences
+      ViolationSentence.new(@document, registry: @registry)
     end
 
     def kept_values(node)

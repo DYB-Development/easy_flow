@@ -175,6 +175,12 @@ module EasyFlow
       assert_includes canvas(stranded)["violations"].map { |violation| violation["node"] }, "loose"
     end
 
+    test "carries each violation's sentence beside its problem" do
+      stranded = flow.merge("nodes" => flow["nodes"] + [ { "id" => "loose", "type" => "ask" } ])
+
+      assert_includes canvas(stranded)["violations"].map { |violation| violation["sentence"] }, "Ask is not connected to the flow. Connect a step to it, or delete it."
+    end
+
     test "offers a step-naming setting the steps that come before that node" do
       assert_includes canvas(flow)["nodes"].find { |node| node["id"] == "b" }["choices"]["step"], { "value" => "a", "label" => "Budget?" }
     end

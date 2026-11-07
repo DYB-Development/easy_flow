@@ -77,10 +77,11 @@ module EasyFlow
     end
 
     def output(state, times = {})
-      ended = nil
-      walk(state, times) { |cursor| ended = cursor }
+      ended_setting(state, times, "output")
+    end
 
-      ended.config["output"].presence if step_type(ended)&.ends_here?
+    def end_mark(state, times = {})
+      ended_setting(state, times, "mark")
     end
 
     def ended_at_end?(state, times = {})
@@ -111,6 +112,13 @@ module EasyFlow
     end
 
     private
+
+    def ended_setting(state, times, name)
+      ended = nil
+      walk(state, times) { |cursor| ended = cursor }
+
+      ended.config[name].presence if step_type(ended)&.ends_here?
+    end
 
     def walk(state, times = {})
       recorded = []

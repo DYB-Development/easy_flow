@@ -146,6 +146,18 @@ module EasyFlow
       end
     end
 
+    def ended_document(end_config = {})
+      { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "start" }, { "id" => "done", "type" => "terminal", **end_config } ],
+        "edges" => [ { "from" => "a", "to" => "done" } ] }
+    end
+
+    test "reports an End left unmarked in a flow whose host asks for each End to be marked" do
+      EasyFlow.host(:marking) { |host| host.marks_ends = true }
+      flow = Definition.create!(host: "marking", slug: "marked")
+
+      assert_includes Validator.new(Document.new(flowing(ended_document)), flow: flow).violations.map { |violation| [ violation.node, violation.problem, violation.detail ] }, [ "done", :missing_setting, "mark" ]
+    end
+
     test "reports a step left without a setting it cannot run without" do
       document = { "entry" => "a", "nodes" => [ { "id" => "a", "type" => "needs" } ], "edges" => [] }
 

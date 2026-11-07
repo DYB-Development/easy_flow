@@ -8,6 +8,8 @@ module EasyFlow
 
     setting :output, type: :string
 
+    setting :mark, type: :select, options: %w[success failure]
+
     names_by { |_node| "End" }
   end
 end

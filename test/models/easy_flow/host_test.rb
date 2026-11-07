@@ -16,6 +16,13 @@ module EasyFlow
       assert_empty Host.new(:alembic).flows
     end
 
+    test "asks for each End to be marked success or failure when it says so" do
+      host = Host.new(:alembic)
+      host.marks_ends = true
+
+      assert host.marks_ends?
+    end
+
     test "offers every step type when it names none" do
       assert Host.new(:alembic).offers?(:question)
     end

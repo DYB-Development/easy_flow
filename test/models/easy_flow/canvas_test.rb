@@ -177,6 +177,12 @@ module EasyFlow
       assert_equal({ "options" => { "weight" => "Counts toward the score." } }, canvas(flow)["palette"].find { |entry| entry["type"] == "ask" }["record_explanations"])
     end
 
+    test "offers no mark on an End when its host asks for none" do
+      palette = Canvas.new(Document.new(flowing(flow)), host: Host.new(:alembic)).to_h["palette"]
+
+      assert_not_includes palette.find { |entry| entry["type"] == "terminal" }["fields"].keys, "mark"
+    end
+
     test "keeps a setting's own explanation when its host explains only another setting" do
       host = Host.new(:alembic)
       host.setting_explanations = { ask: { "options.weight" => "Points for this answer." } }

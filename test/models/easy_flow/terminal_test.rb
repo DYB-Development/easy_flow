@@ -10,6 +10,10 @@ module EasyFlow
       assert_equal :string, Terminal.step_type.settings.fields[:output]
     end
 
+    test "offers success and failure as the mark an admin gives it" do
+      assert_equal %w[success failure], Terminal.step_type.settings.choices[:mark]
+    end
+
     test "is registered for a flow to use" do
       assert_equal :terminal, EasyFlow.registry.fetch("terminal").id
     end

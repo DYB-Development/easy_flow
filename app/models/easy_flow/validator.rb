@@ -235,7 +235,11 @@ module EasyFlow
     def required_of(node)
       return [] unless @registry.registered?(node.type)
 
-      @registry.fetch(node.type).settings.required
+      @registry.fetch(node.type).settings.required + marks_required_of(node)
+    end
+
+    def marks_required_of(node)
+      node.type == "terminal" && @flow && EasyFlow.host_named(@flow.host).marks_ends? ? [ :mark ] : []
     end
 
     def requirements_for(node)

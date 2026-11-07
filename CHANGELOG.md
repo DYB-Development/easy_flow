@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- A host can set `marks_ends = true` to have its admins mark each End step as success or failure. The End step's settings then show a Mark with those two choices, and publishing one of that host's flows with an End left unmarked is refused with "End needs a value for Mark", shown on that End's card. Other hosts' End steps show no mark and publish as they did.
+- `EasyFlow::Run#end_mark` gives the mark of the End step a run reached, as `"success"` or `"failure"`. A run that has not reached an End, or that reached one left unmarked, such as one on a version published before its host asked for marks, gives `nil`.
+
 ## [0.37.0] - 2026-11-05
 
 ### Fixed

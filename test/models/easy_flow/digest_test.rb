@@ -49,6 +49,12 @@ module EasyFlow
       assert_equal "bought", digest(ending).output({ "q" => "yes" })
     end
 
+    test "gives the mark of the End step a finished walk ends on" do
+      marked = ending.merge("nodes" => [ { "id" => "q", "type" => "ask" }, { "id" => "done", "type" => "terminal", "mark" => "success" } ])
+
+      assert_equal "success", digest(marked).end_mark({ "q" => "yes" })
+    end
+
     test "gives no output when the End step a finished walk ends on was left blank" do
       blank = ending.merge("nodes" => [ { "id" => "q", "type" => "ask" }, { "id" => "done", "type" => "terminal", "output" => "" } ])
 

@@ -52,6 +52,10 @@ module EasyFlow
       digest.output(recorded.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
     end
 
+    def end_mark
+      digest.end_mark(recorded.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
+    end
+
     def held_until
       stopped_at = next_step(recorded)
       Wait.held_until(digest.step(stopped_at.id), CompletedAt.latest(completed_at)) if stopped_at&.type == "wait"

@@ -190,6 +190,18 @@ module EasyFlow
       assert_equal "tally", response.stopped_on_loop
     end
 
+    test "gives the mark of the End step it reached" do
+      flow = Definition.create!(host: "dummy", slug: "marked")
+      flow.definition_versions.create!(number: 1, definition: flowing({ "slug" => "marked", "entry" => "a",
+        "nodes" => [ { "id" => "a", "type" => "question", "text" => "A", "options" => [ "x" ] }, { "id" => "done", "type" => "terminal", "mark" => "failure" } ],
+        "edges" => [ { "from" => "a", "to" => "done" } ] }))
+      flow.publish_version(flow.definition_versions.first)
+      response = Run.start(flow)
+      response.record("a", "x")
+
+      assert_equal "failure", response.end_mark
+    end
+
     test "says it ended at an End step once it reached one" do
       response = run_routing_to_an_end
       response.record("a", "x")

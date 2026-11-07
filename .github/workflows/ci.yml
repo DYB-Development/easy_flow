@@ -7,7 +7,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       RUBY_VERSION: 3.3.5
       RUBOCOP_CACHE_ROOT: tmp/rubocop
@@ -35,7 +35,7 @@ jobs:
         run: bin/rubocop -f github
 
   assets:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -59,7 +59,7 @@ jobs:
         run: git diff --exit-code -- app/assets/builds
 
   system:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -89,7 +89,7 @@ jobs:
           if-no-files-found: ignore
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

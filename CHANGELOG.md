@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.38.0] - 2026-11-07
+
 ### Added
 
 - A host can set `marks_ends = true` to have its admins mark each End step as success or failure. The End step's settings then show a Mark with those two choices, and publishing one of that host's flows with an End left unmarked is refused with "End needs a value for Mark", shown on that End's card. Other hosts' End steps show no mark and publish as they did.

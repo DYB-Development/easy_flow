@@ -655,6 +655,41 @@ module EasyFlow
       EasyFlow.host_named("dummy").back_link = nil
     end
 
+    test "the builder header shows the label its host worked out for the flow" do
+      EasyFlow.host_named("dummy").back_link = ->(shown) { { label: "Back to #{shown.slug}", address: "/admin/games" } }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a", text: "Back to canvas"
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
+
+    test "the builder header's back link goes to the address its host worked out for the flow" do
+      EasyFlow.host_named("dummy").back_link = ->(shown) { { label: "Games", address: "/admin/games/#{shown.slug}" } }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a[href=?]", "/admin/games/canvas"
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
+
+    test "two flows that belong to different records show the back links their host worked out for each record" do
+      EasyFlow.host_named("dummy").back_link = ->(shown) { { label: shown.owner.name, address: "/customers/#{shown.owner.name}" } }
+      ours = Definition.create!(host: "dummy", slug: "ours", owner: Customer.create!(name: "ours"))
+      theirs = Definition.create!(host: "dummy", slug: "theirs", owner: Customer.create!(name: "theirs"))
+
+      shown = [ ours, theirs ].map do |owned|
+        get easy_flow.manage_flow_path(owned)
+        css_select("header a[href^='/customers/']").map { |link| link["href"] }
+      end
+
+      assert_equal [ [ "/customers/ours" ], [ "/customers/theirs" ] ], shown
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
+
     test "the builder header shows no All flows button once its host set a back link" do
       EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
 

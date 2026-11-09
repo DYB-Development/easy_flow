@@ -100,6 +100,20 @@ module EasyFlow
       assert_nil Host.new(:alembic).back_link
     end
 
+    test "a host works out a flow's back link from the flow when it sets one that takes the flow" do
+      host = Host.new(:alembic)
+      host.back_link = ->(flow) { { label: flow.slug, address: "/games/#{flow.slug}" } }
+
+      assert_equal Host::BackLink.new(label: "setup", address: "/games/setup"), host.back_link_for(Definition.new(slug: "setup"))
+    end
+
+    test "a host with one fixed back link gives that same link for every flow" do
+      host = Host.new(:alembic)
+      host.back_link = { label: "Games", address: "/games" }
+
+      assert_equal [ Host::BackLink.new(label: "Games", address: "/games") ] * 2, [ Definition.new(slug: "one"), Definition.new(slug: "two") ].map { |flow| host.back_link_for(flow) }
+    end
+
     test "a host refuses a back link with no address" do
       assert_raises(ArgumentError) { Host.new(:alembic).back_link = { label: "Games" } }
     end

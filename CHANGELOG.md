@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- A host can set `back_link` to a callable that takes the flow being shown and returns its `label` and `address`, such as `->(flow) { { label: "Funnel", address: "/funnels/#{flow.owner_id}" } }`. Each flow's canvas then shows the back link worked out for that flow. A host that sets one fixed hash keeps the same back link on every flow's canvas.
+
 ## [0.38.0] - 2026-11-07
 
 ### Added

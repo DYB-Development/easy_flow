@@ -665,6 +665,16 @@ module EasyFlow
       EasyFlow.host_named("dummy").back_link = nil
     end
 
+    test "the builder header's back link goes to the address its host worked out for the flow" do
+      EasyFlow.host_named("dummy").back_link = ->(shown) { { label: "Games", address: "/admin/games/#{shown.slug}" } }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a[href=?]", "/admin/games/canvas"
+    ensure
+      EasyFlow.host_named("dummy").back_link = nil
+    end
+
     test "the builder header shows no All flows button once its host set a back link" do
       EasyFlow.host_named("dummy").back_link = { label: "Games", address: "/admin/games" }
 

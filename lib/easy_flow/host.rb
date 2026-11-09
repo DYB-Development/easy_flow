@@ -11,7 +11,11 @@ module EasyFlow
     end
 
     def back_link=(link)
-      @back_link = link && BackLink.new(**link)
+      @back_link = link.respond_to?(:call) ? link : link && BackLink.new(**link)
+    end
+
+    def back_link_for(flow)
+      @back_link.respond_to?(:call) ? BackLink.new(**@back_link.call(flow)) : @back_link
     end
 
     def setting_explanations=(explanations)

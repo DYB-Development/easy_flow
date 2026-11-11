@@ -382,6 +382,18 @@ module EasyFlow
       assert_predicate flow.current_definition_version.reload, :live?
     end
 
+    test "publishing tells the flow's host which flow went live" do
+      published = []
+      EasyFlow.host(:announcing) { |host| host.on_publish = ->(flow) { published << flow } }
+      flow = Definition.create!(host: "announcing", slug: "demo", document: { "slug" => "demo" })
+
+      flow.publish
+
+      assert_equal [ flow ], published
+    ensure
+      EasyFlow.hosts.delete("announcing")
+    end
+
     test "a retired version is no longer the live one" do
       flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish

@@ -407,6 +407,18 @@ module EasyFlow
       EasyFlow.hosts.delete("announcing")
     end
 
+    test "publishing a flow of another host does not tell this host" do
+      published = []
+      EasyFlow.host(:announcing) { |host| host.on_publish = ->(flow) { published << flow } }
+      flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
+
+      flow.publish
+
+      assert_empty published
+    ensure
+      EasyFlow.hosts.delete("announcing")
+    end
+
     test "a retired version is no longer the live one" do
       flow = Definition.create!(host: "dummy", slug: "demo", document: { "slug" => "demo" })
       flow.publish

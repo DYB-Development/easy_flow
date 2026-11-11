@@ -87,6 +87,7 @@ module EasyFlow
 
       live_version&.update!(status: :superseded)
       version.update!(status: :live)
+      EasyFlow.host_named(host).published(self)
     end
 
     def available?

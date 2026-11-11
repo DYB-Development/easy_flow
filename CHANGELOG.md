@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.40.0] - 2026-11-11
+
 ### Added
 
 - A host can set `on_publish` to a callable that takes a flow, such as `->(flow) { RecountJob.perform_later(flow.id) }`. easy_flow calls it each time a new version of one of that host's flows goes live, whether an admin pressed Publish on the canvas or the app published the flow itself. Publishing a version that is already live does not call it, and a host that sets none publishes as before.

@@ -256,6 +256,17 @@ module EasyFlow
       assert_nil flow.reload.live_version
     end
 
+    test "publishing from the canvas tells the flow's host which flow went live" do
+      published = []
+      EasyFlow.host_named(:dummy).on_publish = ->(live) { published << live }
+
+      post "#{canvas_path}/publish"
+
+      assert_equal [ flow ], published
+    ensure
+      EasyFlow.host_named(:dummy).on_publish = nil
+    end
+
     test "publishing a sound document marks it for visitors" do
       post "#{canvas_path}/publish"
 

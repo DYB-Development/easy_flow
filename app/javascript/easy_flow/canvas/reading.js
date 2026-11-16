@@ -20,3 +20,11 @@ export const blocksOf = (nodes) => {
     return [ ...blocks, { steps: [ node ] } ]
   }, [])
 }
+
+const nextAfter = (ordered, node) => ordered[ordered.findIndex((step) => step.id === node.id) + 1]?.id
+
+export const branchesOf = (node, edges, nodes) => {
+  const next = nextAfter(readingOrder(nodes), node)
+
+  return edges.filter((edge) => edge.source === node.id && edge.target !== next)
+}

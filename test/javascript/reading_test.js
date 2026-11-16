@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { blocksOf, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
+import { blocksOf, branchesOf, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
 
 const ids = (nodes) => nodes.map((node) => node.id)
 
@@ -29,4 +29,12 @@ test("puts a group step's box on a row of its own between the steps before and a
   const named = blocksOf(nodes).map((block) => ({ group: block.group?.id, steps: ids(block.steps) }))
 
   assert.deepEqual(named, [ { group: undefined, steps: [ "outline" ] }, { group: "loop", steps: [ "write" ] }, { group: undefined, steps: [ "approve" ] } ])
+})
+
+const chain = [ { id: "ask", row: 0, column: 0 }, { id: "gate", row: 1, column: 0 }, { id: "retry", row: 2, column: 0 } ]
+
+test("names a branch that leads somewhere other than the next step", () => {
+  const edges = [ { source: "gate", target: "ask" }, { source: "gate", target: "retry" } ]
+
+  assert.deepEqual(branchesOf(chain[1], edges, chain).map((edge) => edge.target), [ "ask" ])
 })

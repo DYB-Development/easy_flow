@@ -198,7 +198,7 @@ const Canvas = ({ base, token, initial }) => {
           </div>
         )}
 
-        {leftToRight && <LeftToRight nodes={attached} draw={draw} />}
+        {leftToRight && <LeftToRight nodes={attached} edges={flow.edges} draw={draw} />}
 
         {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
           {attached.map((node) => (

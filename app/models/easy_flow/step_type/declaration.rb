@@ -20,6 +20,7 @@ module EasyFlow
         @outputs_of = {}
         @kept = {}
         @declared_outputs = []
+        @details = []
         @required = []
         @optional = []
         @awaits_input = false
@@ -119,6 +120,18 @@ module EasyFlow
         @summarizing = summarizing
       end
 
+      def shows_values(heading = nil, columns: false, &values)
+        @details += [ ShownValues.new(heading: heading, columns: columns, values: values) ]
+      end
+
+      def shows_code(heading = nil, &code)
+        @details += [ ShownCode.new(heading: heading, code: code) ]
+      end
+
+      def links_to(&linking)
+        @linking = linking
+      end
+
       def setting(name, type: nil, from: nil, outputs_of: nil, label: nil, explanation: nil, options: nil, limit: nil, check: nil, required: false, optional: false, kept_on: nil, attribute: nil, &entries)
         type ||= :from_step if from
         type ||= :from_step if outputs_of
@@ -167,7 +180,7 @@ module EasyFlow
       def to_step_type
         StepType.new(id: @id, step_name: @step_name, settings: settings, awaits_input: @awaits_input,
           ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, plays_the_picked_flow: @plays_the_picked_flow, holds_steps: @holds_steps, flow_chooser: @flow_chooser, run_chooser: @run_chooser, behaviour: @behaviour, routing: @routing,
-          display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming, summarizing: @summarizing,
+          display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming, summarizing: @summarizing, details: @details, linking: @linking,
           outputs: @declared_outputs, outputs_named_by: @outputs_named_by, answer_check: @answer_check, answer_labelling: @answer_labelling, readiness: @readiness, return_rule: @return_rule, unsaved_refusal: @unsaved_refusal)
       end
 

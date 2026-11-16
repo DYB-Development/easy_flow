@@ -16,7 +16,7 @@ const settling = (flow, name, onSaveDetails) => (event) => {
   if (event.target.value !== (flow[name] ?? "")) onSaveDetails({ [name]: event.target.value })
 }
 
-const Panel = ({ flow, changes, problems, refusal, notice, publishNote, warning, onCreate, onPublish, onAccept, onDecline, onSaveDetails, onClose }) => (
+const Panel = ({ flow, changes, refusal, notice, publishNote, warning, onCreate, onPublish, onAccept, onDecline, onSaveDetails, onClose }) => (
   <KeystonePanel as="aside" style={sheet} data-builder-panel>
     <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: 8 }}>
       <h2 style={{ fontWeight: 600 }} data-flow-name>{flow.title || flow.slug}</h2>
@@ -41,14 +41,8 @@ const Panel = ({ flow, changes, problems, refusal, notice, publishNote, warning,
         </div>
       )}
 
-    <h2 style={heading}>Problems</h2>
-    {refusal && <p className="text-red-800 dark:text-red-400" style={{ ...item, fontWeight: 600 }} data-refusal>{refusal}</p>}
-    {notice && !refusal && <p className="text-emerald-800 dark:text-emerald-400" style={{ ...item, fontWeight: 600 }} data-notice>{notice}</p>}
-    {problems.length === 0 && !refusal
-      ? <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: 12 }}>Nothing wrong with this flow.</p>
-      : problems.map((problem) => (
-          <p key={`${problem.node}-${problem.problem}`} className="text-amber-700 dark:text-amber-400" style={item} data-problem>⚠ {problem.sentence}</p>
-        ))}
+    {refusal && <p className="text-red-800 dark:text-red-400" style={{ ...item, fontWeight: 600, marginTop: 8 }} data-refusal>{refusal}</p>}
+    {notice && !refusal && <p className="text-emerald-800 dark:text-emerald-400" style={{ ...item, fontWeight: 600, marginTop: 8 }} data-notice>{notice}</p>}
 
     <h2 style={heading}>Changes since the last version</h2>
     {changes.length === 0

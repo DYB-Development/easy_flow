@@ -662,6 +662,16 @@ module EasyFlow
       assert_select "[data-captured]", 2
     end
 
+    test "the canvas carries the drawer tabs its host adds" do
+      EasyFlow.host_named("dummy").drawer_tabs = [ { label: "Dry-run", content: "<p>No dry-run yet.</p>" } ]
+
+      get "#{canvas_path}.json"
+
+      assert_equal [ { "label" => "Dry-run", "count" => nil, "content" => "<p>No dry-run yet.</p>" } ], response.parsed_body["drawer_tabs"]
+    ensure
+      EasyFlow.host_named("dummy").drawer_tabs = nil
+    end
+
     test "the canvas carries the note a host sets for Publish" do
       EasyFlow.host_named("dummy").publish_note = "Publishing changes the live game."
 

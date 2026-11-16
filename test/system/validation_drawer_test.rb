@@ -1,0 +1,88 @@
+require "application_system_test_case"
+
+module EasyFlow
+  class ValidationDrawerTest < ApplicationSystemTestCase
+    def flow
+      @flow ||= Definition.create!(host: "dummy", slug: "validation-drawer").tap do |built|
+        built.record_definition(flowing(
+          "slug" => "validation-drawer", "entry" => "publish_to_cms",
+          "nodes" => [ { "id" => "publish_to_cms", "type" => "integration", "effect" => "keyed" },
+                       { "id" => "ab_test_created", "type" => "emit_event" },
+                       { "id" => "end", "type" => "terminal" } ],
+          "edges" => [ { "from" => "publish_to_cms", "to" => "ab_test_created" }, { "from" => "ab_test_created", "to" => "end" } ]
+        ))
+      end
+    end
+
+    test "the drawer under the canvas lists a flow's problem with the step it is on" do
+      canvas_for(flow)
+
+      assert_selector "[data-drawer] [data-check-row]", text: "error\nab_test_created"
+    end
+
+    test "clicking a Validation row selects its step on the canvas" do
+      canvas_for(flow)
+
+      find("[data-drawer] [data-check-row]", text: "ab_test_created").click
+
+      assert_selector "[data-inspector]", text: "ab_test_created · emit_event"
+    end
+
+    test "a tab its host adds sits after Validation and shows the host's content once chosen" do
+      canvas_for(flow)
+
+      find("[data-drawer] button", text: "Fixtures 12/12").click
+
+      assert_selector "[data-drawer]", text: "12 of 12 fixtures pass for validation-drawer."
+    end
+
+    def on_a_phone
+      page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
+      yield
+    ensure
+      page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
+    end
+
+    test "on a phone the drawer shows only its row of tabs until one is tapped" do
+      on_a_phone do
+        canvas_for(flow)
+
+        assert_selector "[data-drawer] button", text: "Validation 1"
+        assert_no_selector "[data-drawer] [data-check-row]"
+      end
+    end
+
+    def covers_the_canvas?
+      page.evaluate_script(<<~JS)
+        (() => {
+          const drawer = document.querySelector("[data-drawer]").getBoundingClientRect()
+          const canvas = document.querySelector("[data-drawer]").parentElement.getBoundingClientRect()
+          return [ "top", "left", "right", "bottom" ].every((side) => Math.abs(drawer[side] - canvas[side]) <= 1)
+        })()
+      JS
+    end
+
+    test "on a phone a tapped tab opens the drawer over the whole canvas" do
+      on_a_phone do
+        canvas_for(flow)
+
+        find("[data-drawer] button", text: "Validation 1").click
+        assert_selector "[data-drawer] [data-check-row]", minimum: 1
+
+        assert covers_the_canvas?
+      end
+    end
+
+    test "on a phone tapping the open tab again closes the drawer down to its tabs" do
+      on_a_phone do
+        canvas_for(flow)
+        find("[data-drawer] button", text: "Validation 1").click
+        assert_selector "[data-drawer] [data-check-row]", minimum: 1
+
+        find("[data-drawer] button", text: "Validation 1").click
+
+        assert_no_selector "[data-drawer] [data-check-row]"
+      end
+    end
+  end
+end

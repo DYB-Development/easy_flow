@@ -12,6 +12,24 @@ module Steps
       { value: "candidate", label: "candidate → v23", hint: "p 0.87 · n 240" }
     ]
 
+    shows_values("Inputs") do |_node|
+      { "brief" => "load_brief.out.brief", "voice" => "brand_voice.out.doc", "angle" => "$item.angle", "findings" => "copy_reviewer.out.findings ?" }
+    end
+
+    shows_values(columns: true) do |_node|
+      { "Output format" => "copy_block v3", "Idempotency" => "pure", "Retry" => "3 · invalid_output ok",
+        "Timeout" => "90s", "on_failure" => "continue", "Context budget" => "6k tokens · truncate" }
+    end
+
+    shows_code("Schemas") do |_node|
+      { "input_schema" => "{brief: Brief, voice: string, angle: string, findings?: Finding[]}",
+        "output_schema → copy_block v3" => "{headline: string≤60, body: string≤400, cta: string≤30, meta: {tone, words}}" }
+    end
+
+    links_to do |node|
+      [ { label: "Open agent", address: "/agents/#{node.config['agent']}" }, { label: "Fixtures (4)", address: "/agents/#{node.config['agent']}/fixtures" } ]
+    end
+
     summarizes_by { |node| [ [ node.config["agent"], node.config["release"] ].join(node.config["release"].to_s.start_with?("v") ? " " : "@"), node.config["gate"] ].compact_blank.join(" · ") }
   end
 end

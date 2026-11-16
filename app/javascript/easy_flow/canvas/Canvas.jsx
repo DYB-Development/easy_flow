@@ -10,6 +10,7 @@ import TypePicker from "./TypePicker"
 import StepList from "./StepList"
 import Toolbar from "./Toolbar"
 import Panel from "./Panel"
+import Drawer from "./Drawer"
 import ConnectorLayer from "./ConnectorLayer"
 import LeftToRight from "./LeftToRight"
 import useFlow from "./useFlow"
@@ -20,8 +21,9 @@ import { branchLine, branchesOf } from "./reading"
 
 const HEADER_GAP = 8
 
-const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13 }
-const scroll = { flex: 1, overflow: "auto", position: "relative" }
+const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13, position: "relative" }
+const column = { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", position: "relative" }
+const scroll = { flex: 1, minHeight: 0, overflow: "auto", position: "relative" }
 const waiting = { position: "absolute", top: 56, left: 16, zIndex: 5, width: CARD + 24, padding: 12, borderRadius: 8 }
 
 const waitingInRows = { ...waiting, position: "static", alignSelf: "flex-start" }
@@ -215,59 +217,62 @@ const Canvas = ({ base, token, initial }) => {
          tabIndex={-1}>
       <StepList entries={flow.palette} groups={flow.step_groups || {}}
                 onPick={(entry) => addStep(entry)} onCarry={setCarrying} onDrop={() => setCarrying(null)} />
-      <div ref={surface} className="bg-surface-50 dark:bg-surface-950" style={scroll}
-           onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}
-           onDragOver={(event) => { if (dragging) event.preventDefault() }}
-           onDrop={regroup}>
-        {armed && (
-          <Choosing port={armed[1]} onCancel={() => setArmed(null)} />
-        )}
-        <Toolbar undoable={flow.undoable} redoable={flow.redoable}
-                 onAdd={() => setAdding({ at: { x: 16, y: 52 } })}
-                 onUndo={() => { setSelected(null); send("/undo", "POST") }}
-                 onRedo={() => { setSelected(null); send("/redo", "POST") }} />
+      <div className="bg-surface-50 dark:bg-surface-950" style={column}>
+        <div ref={surface} style={scroll}
+             onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}
+             onDragOver={(event) => { if (dragging) event.preventDefault() }}
+             onDrop={regroup}>
+          {armed && (
+            <Choosing port={armed[1]} onCancel={() => setArmed(null)} />
+          )}
+          <Toolbar undoable={flow.undoable} redoable={flow.redoable}
+                   onAdd={() => setAdding({ at: { x: 16, y: 52 } })}
+                   onUndo={() => { setSelected(null); send("/undo", "POST") }}
+                   onRedo={() => { setSelected(null); send("/redo", "POST") }} />
 
-        {!leftToRight && boxes.map((box) => (
-          <GroupBox key={box.id} id={box.id} bounds={box.bounds}
-                    onDrop={() => { const held = dragging; setDragging(null); if (held) send(`/steps/${held}/group`, "PATCH", { group: box.id }) }} />
-        ))}
-
-        {!leftToRight && <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging || carrying} alwaysShowInsertButtons={flow.always_show_insert_buttons}
-                        onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
-                        onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
-                        onDrop={dropOnLink} />}
-
-        {!leftToRight && waitingSteps}
-
-        {leftToRight && <LeftToRight nodes={attached} edges={flow.edges} draw={draw} joints={{
-          alwaysShowInsertButtons: flow.always_show_insert_buttons,
-          dragging: Boolean(dragging || carrying),
-          onInsert: (link, event) => setAdding({ from: link.source, to: link.target, at: pointed(event) }),
-          onRemove: (link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) },
-          onDrop: dropOnLink
-        }}>{waitingSteps}</LeftToRight>}
-
-        {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
-          {attached.map((node) => (
-            <div key={node.id} style={{ gridRow: node.row + 1, gridColumn: `${node.column + 1} / span 2`, zIndex: 2, marginTop: underHeader(node, flow.nodes) ? HEADER_GAP - GAP_Y : 0 }}>
-              {draw(node)}
-            </div>
+          {!leftToRight && boxes.map((box) => (
+            <GroupBox key={box.id} id={box.id} bounds={box.bounds}
+                      onDrop={() => { const held = dragging; setDragging(null); if (held) send(`/steps/${held}/group`, "PATCH", { group: box.id }) }} />
           ))}
-        </div>}
 
-        {adding && (
-          <TypePicker entries={flow.palette} at={adding.at} onDismiss={() => setAdding(null)} hideStepTypeCodes={flow.hide_step_type_codes}
-                      onConnect={adding.on !== undefined ? () => { setArmed([ adding.from, adding.on ]); setAdding(null) } : null}
-                      onPick={(entry) => {
-                        const where = adding
-                        setAdding(null)
-                        addStep(entry, where)
-                      }} />
-        )}
+          {!leftToRight && <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging || carrying} alwaysShowInsertButtons={flow.always_show_insert_buttons}
+                          onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
+                          onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
+                          onDrop={dropOnLink} />}
+
+          {!leftToRight && waitingSteps}
+
+          {leftToRight && <LeftToRight nodes={attached} edges={flow.edges} draw={draw} joints={{
+            alwaysShowInsertButtons: flow.always_show_insert_buttons,
+            dragging: Boolean(dragging || carrying),
+            onInsert: (link, event) => setAdding({ from: link.source, to: link.target, at: pointed(event) }),
+            onRemove: (link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) },
+            onDrop: dropOnLink
+          }}>{waitingSteps}</LeftToRight>}
+
+          {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
+            {attached.map((node) => (
+              <div key={node.id} style={{ gridRow: node.row + 1, gridColumn: `${node.column + 1} / span 2`, zIndex: 2, marginTop: underHeader(node, flow.nodes) ? HEADER_GAP - GAP_Y : 0 }}>
+                {draw(node)}
+              </div>
+            ))}
+          </div>}
+
+          {adding && (
+            <TypePicker entries={flow.palette} at={adding.at} onDismiss={() => setAdding(null)} hideStepTypeCodes={flow.hide_step_type_codes}
+                        onConnect={adding.on !== undefined ? () => { setArmed([ adding.from, adding.on ]); setAdding(null) } : null}
+                        onPick={(entry) => {
+                          const where = adding
+                          setAdding(null)
+                          addStep(entry, where)
+                        }} />
+          )}
+        </div>
+        <Drawer checks={flow.checks || []} tabs={flow.drawer_tabs || []} onSelect={setSelected} />
       </div>
 
       {showing && !selectedNode && (
-        <Panel flow={flow.flow || {}} changes={flow.changes || []} problems={flow.violations} refusal={error} notice={notice} publishNote={flow.publish_note} warning={warning}
+        <Panel flow={flow.flow || {}} changes={flow.changes || []} refusal={error} notice={notice} publishNote={flow.publish_note} warning={warning}
                onClose={() => setShowing(false)}
                onCreate={() => send("/versions", "POST")}
                onPublish={() => send("/publish", "POST")}

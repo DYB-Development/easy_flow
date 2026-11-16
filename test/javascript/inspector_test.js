@@ -11,7 +11,7 @@ const drawn = (given = {}) => renderToStaticMarkup(React.createElement(Inspector
 }))
 
 test("is drawn as a keystone panel", () => {
-  assert.match(drawn(), /^<aside[^>]* class="ks-panel"/)
+  assert.match(drawn(), /^<aside[^>]* class="ks-panel[ "]/)
 })
 
 const classesOf = (html, text) => (html.match(new RegExp(`<[^<>]*class="([^"]*)"[^<>]*>${text}`))?.[1] || "").split(" ")
@@ -66,4 +66,24 @@ test("groups a radio card setting's cards under the setting's name", () => {
                        choices: { alias: [ { value: "prod", label: "prod → v22" }, { value: "candidate", label: "candidate → v23" } ] } })
 
   assert.equal(html.match(/<input(?=[^>]*type="radio")(?=[^>]*name="alias")[^>]*>/g)?.length, 2)
+})
+
+test("shows the read-only sections the step's type gives it", () => {
+  const html = drawn({ node: { id: "gate", type: "condition", label: "Gate", config: {}, details: [ { heading: "Inputs", values: [ { label: "brief", value: "load_brief.out.brief" } ] } ] } })
+
+  assert.match(html, /<dt[^>]*>brief<\/dt><dd[^>]*>load_brief\.out\.brief<\/dd>/)
+})
+
+test("offers each link the step's type gives it as keystone's secondary button to its address", () => {
+  const html = drawn({ node: { id: "gate", type: "condition", label: "Gate", config: {}, links: [ { label: "Open agent", address: "/agents/copy_writer" } ] } })
+
+  assert.match(html, /<a href="\/agents\/copy_writer" class="ks-button ks-button-secondary[^"]*"[^>]*>Open agent<\/a>/)
+})
+
+test("writes the step's id and type in monospace above the step's name", () => {
+  assert.match(drawn(), /<p class="[^"]*font-mono[^"]*"[^>]*>gate · condition<\/p>[\s\S]*<h2[^>]*>Gate<\/h2>/)
+})
+
+test("sets the panel's text at 12 pixels, as the mock-up does", () => {
+  assert.match(drawn(), /^<aside[^>]*style="[^"]*font-size:12px/)
 })

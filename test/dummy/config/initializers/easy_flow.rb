@@ -3,6 +3,11 @@ EasyFlow.base_controller = "ApplicationController"
 EasyFlow.host(:dummy) do |host|
   host.layout = "application"
   host.visitor_authorization_method = :easy_flow_visitor_permitted?
+  host.drawer_tabs = lambda do |flow|
+    [ { label: "Fixtures", count: "12/12", content: "<p>12 of 12 fixtures pass for #{ERB::Util.html_escape(flow.slug)}.</p>" },
+      { label: "Flow tests", count: "3/3", content: "<p>3 of 3 flow tests pass.</p>" },
+      { label: "Dry-run", content: "<p>No dry-run yet.</p>" } ]
+  end
 end
 
 EasyFlow.host(:owned) do |host|

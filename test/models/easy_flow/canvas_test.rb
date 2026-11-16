@@ -11,6 +11,9 @@ module EasyFlow
           setting(:options, type: :list) { setting :value, type: :string; setting :weight, type: :integer, explanation: "Counts toward the score." }
           names_by :text
           summarizes_by { |node| "#{Array(node.config['options']).size} options" }
+          shows_values("Inputs") { |node| { "text" => "#{node.id}.text" } }
+          shows_code("Schemas") { |node| { "input_schema" => "{text: #{node.id}}" } }
+          links_to { |node| [ { label: "Open agent", address: "/agents/#{node.id}" } ] }
         end)
         built.register(StepType.define(:switch) do
           step_name "Switch"
@@ -100,6 +103,24 @@ module EasyFlow
 
     test "gives a node the summary its type works out from its settings" do
       assert_equal "2 options", canvas(switching)["nodes"].find { |node| node["id"] == "a" }["summary"]
+    end
+
+    test "gives a node the values its type shows under a heading" do
+      assert_equal({ "heading" => "Inputs", "columns" => false, "values" => [ { "label" => "text", "value" => "a.text" } ] },
+        canvas(switching)["nodes"].find { |node| node["id"] == "a" }["details"].first)
+    end
+
+    test "gives a node the code its type shows, each block under the line that opens it" do
+      assert_equal({ "heading" => "Schemas", "code" => [ { "summary" => "input_schema", "code" => "{text: a}" } ] },
+        canvas(switching)["nodes"].find { |node| node["id"] == "a" }["details"].last)
+    end
+
+    test "gives a node the links its type offers" do
+      assert_equal [ { "label" => "Open agent", "address" => "/agents/a" } ], canvas(switching)["nodes"].find { |node| node["id"] == "a" }["links"]
+    end
+
+    test "lists an error row for each problem, naming its step and saying what is wrong" do
+      assert_equal({ "level" => "error", "node" => "b", "sentence" => "Branch needs a value for Step. Set it in the step's settings." }, canvas(flow)["checks"].first)
     end
 
     test "falls back to the node id when its type names no field" do

@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [0.48.0] - 2026-11-16
+
+### Added
+
+- A step type can declare `shows_values(heading, columns:) { |node| ... }` to show a hash of labels and values as a read-only section of the step settings panel, labels in one column beside their values, or two to a row with each label above its value when `columns: true`.
+- A step type can declare `shows_code(heading) { |node| ... }` to show a hash of summary lines and code as blocks in the step settings panel, each closed until its line is clicked, with a line wider than the panel scrolling sideways inside its block.
+- A step type can declare `links_to { |node| ... }` to show `{ label:, address: }` buttons side by side at the foot of the step settings panel, above Delete step.
+- A drawer under the canvas has a Validation tab, counting the flow's problems after its name, that lists an `error` row for each problem with the step's id and sentence and an `ok` row for each check that found nothing, and clicking a row selects its step.
+- A host can set `drawer_tabs` to a list of `{ label:, count:, content: }` hashes, or a callable that takes the flow and returns that list, to add its own tabs after Validation, such as Fixtures `12/12`, Flow tests `3/3` and Dry-run, each showing its HTML content.
+- On a phone the drawer shows only its tabs until one is tapped, an open drawer covers the canvas, and tapping the open tab again closes it.
+
+### Changed
+
+- The step settings panel is 320 pixels wide, writes the step's id and type in monospace above the step's name, and sets its text at 12 pixels.
+- On a phone the step settings panel covers the canvas from edge to edge.
+- The flow panel no longer lists the flow's problems, which the drawer's Validation tab lists, and shows the message from Create version or Publish under those buttons.
+
 ## [0.47.0] - 2026-11-16
 
 ### Added

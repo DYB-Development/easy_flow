@@ -1,0 +1,17 @@
+import { test } from "node:test"
+import assert from "node:assert/strict"
+import Joint from "../../app/javascript/easy_flow/canvas/Joint.jsx"
+
+const link = { id: "ask-gate-0", source: "ask", target: "gate" }
+
+const everyChild = (element) => [ element.props.children ].flat(Infinity).filter(Boolean)
+  .flatMap((each) => (each.props ? [ each, ...everyChild(each) ] : []))
+
+const titled = (element, title) => everyChild(element).find((each) => each.props.title === title)
+
+test("inserts a step on the line's connection when its insert button is used", () => {
+  let inserted = null
+  titled(Joint({ link, onInsert: (on) => { inserted = on } }), "Insert a step here").props.onClick({})
+
+  assert.equal(inserted, link)
+})

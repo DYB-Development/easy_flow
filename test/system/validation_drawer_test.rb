@@ -72,5 +72,17 @@ module EasyFlow
         assert covers_the_canvas?
       end
     end
+
+    test "on a phone tapping the open tab again closes the drawer down to its tabs" do
+      on_a_phone do
+        canvas_for(flow)
+        find("[data-drawer] button", text: "Validation 1").click
+        assert_selector "[data-drawer] [data-check-row]", minimum: 1
+
+        find("[data-drawer] button", text: "Validation 1").click
+
+        assert_no_selector "[data-drawer] [data-check-row]"
+      end
+    end
   end
 end

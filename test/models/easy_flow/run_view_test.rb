@@ -28,5 +28,9 @@ module EasyFlow
 
       assert_equal({ "status" => "8.2s · $0.04", "address" => "/runs/1/outline", "version" => "v9" }, shown.slice("status", "address", "version"))
     end
+
+    test "names each step and its type code" do
+      assert_equal({ "type" => "question", "label" => "Outline" }, step("outline").slice("type", "label"))
+    end
   end
 end

@@ -20,7 +20,7 @@ module EasyFlow
     def drawn_step(node)
       shown = @steps.fetch(node.id, {}).to_h.symbolize_keys
 
-      { "id" => node.id, "state" => shown[:state]&.to_s, "status" => shown[:status], "address" => shown[:address], "version" => shown[:version] }
+      { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => shown[:state]&.to_s, "status" => shown[:status], "address" => shown[:address], "version" => shown[:version] }
     end
   end
 end

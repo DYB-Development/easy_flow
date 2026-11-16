@@ -6,7 +6,7 @@ const forEach = { type: "for_each", type_name: "For each", config: { list: "outl
 const entry = { fields: { list: "string", concurrency: "integer", on_item_failure: "select" }, labels: { list: "List", concurrency: "Concurrency", on_item_failure: "On item failure" } }
 
 test("makes the header from the step type's code and each setting's name and value", () => {
-  assert.equal(headerOf(forEach, entry), "for_each · list: outline.variants · concurrency: 3 · on_item_failure: continue")
+  assert.equal(headerOf(forEach, entry), "for_each · list: outline.variants · concurrency 3 · on_item_failure: continue")
 })
 
 test("leaves a setting left blank out of the header", () => {

@@ -18,13 +18,20 @@ export const listed = (entries, groups, query = "") => {
 
 const sidebar = { width: 200, flex: "none", boxSizing: "border-box", padding: "14px 12px", gap: 6, fontSize: 12, overflowY: "auto", borderWidth: "0 1px 0 0" }
 
-const StepList = () => {
+const heading = { fontSize: 11, textTransform: "uppercase", letterSpacing: ".04em", padding: "8px 4px 2px" }
+
+const StepList = ({ entries, groups }) => {
   const [ query, setQuery ] = useState("")
 
   return (
     <Panel as="aside" aria-label="Steps" data-step-list className="hidden flex-col sm:flex" style={sidebar}>
       <Input type="search" aria-label="Search steps" placeholder="Search steps" value={query}
              onChange={(event) => setQuery(event.target.value)} style={{ marginBottom: 6, fontSize: 12 }} />
+      {listed(entries, groups, query).map((section) => (
+        <React.Fragment key={section.heading || ""}>
+          {section.heading && <div className="text-gray-500 dark:text-gray-400" style={heading}>{section.heading}</div>}
+        </React.Fragment>
+      ))}
     </Panel>
   )
 }

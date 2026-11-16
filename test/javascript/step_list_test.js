@@ -30,3 +30,9 @@ const drawn = (given = {}) => renderToStaticMarkup(React.createElement(StepList,
 test("opens with keystone's search field for the step types", () => {
   assert.match(drawn(), /<input[^>]*aria-label="Search steps"[^>]*class="ks-input/)
 })
+
+const classesOf = (html, text) => (html.match(new RegExp(`<[^<>]*class="([^"]*)"[^<>]*>${text}<`))?.[1] || "").split(" ")
+
+test("writes each group's heading in keystone's muted text color", () => {
+  assert.ok(classesOf(drawn(), "Control").includes("text-gray-500"))
+})

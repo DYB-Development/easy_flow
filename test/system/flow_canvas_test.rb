@@ -928,5 +928,12 @@ module EasyFlow
 
       assert_selector :xpath, "//*[@data-step-list]//div[normalize-space()='Control']/following-sibling::button[1][normalize-space()='Condition']"
     end
+    test "typing in the step list's search field leaves only the step types it matches" do
+      laid_left_to_right { canvas_for(flow) }
+
+      find("[data-step-list] input[aria-label='Search steps']").fill_in(with: "condit")
+
+      assert_equal [ "condition" ], all("[data-step-list] [data-step-type]").map { |button| button["data-step-type"] }
+    end
   end
 end

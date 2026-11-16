@@ -48,3 +48,14 @@ test("draws a step that holds steps as its header line", () => {
 
   assert.match(drawn([ group ], [ { type: "for_each", fields: { list: "string" } } ]), /data-group-header="loop"[^>]*>for_each · list: outline.variants</)
 })
+
+const leftToRight = (nodes, edges = []) => renderToStaticMarkup(React.createElement(Canvas, {
+  base: "/flows/1/canvas", token: "t",
+  initial: { nodes, edges, violations: [], palette: [], undoable: false, redoable: false, flow: {}, direction: "left_to_right" }
+}))
+
+const step = (id, row) => ({ id, label: id, type: "question", config: {}, ports: [], row, column: 0 })
+
+test("draws a left-to-right host's steps side by side in a row", () => {
+  assert.match(leftToRight([ step("ask", 0), step("gate", 1) ]), /data-flow-row[^>]*>.*data-step="ask".*data-step="gate"/)
+})

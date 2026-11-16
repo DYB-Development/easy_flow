@@ -10,6 +10,7 @@ import TypePicker from "./TypePicker"
 import Toolbar from "./Toolbar"
 import Panel from "./Panel"
 import ConnectorLayer from "./ConnectorLayer"
+import LeftToRight from "./LeftToRight"
 import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
@@ -72,6 +73,7 @@ const Canvas = ({ base, token, initial }) => {
     return grouped
   }, [ flow.violations ])
 
+  const leftToRight = flow.direction === "left_to_right"
   const attached = flow.nodes.filter((node) => !node.loose)
   const loose = flow.nodes.filter((node) => node.loose)
   const rows = Math.max(0, ...attached.map((node) => node.row)) + 1
@@ -100,6 +102,50 @@ const Canvas = ({ base, token, initial }) => {
   const selectedNode = flow.nodes.find((node) => node.id === selected)
   const entryFor = entryOf(selectedNode)
 
+  const draw = (node) => (
+    <>
+      {node.placeholder && (
+        <Placeholder node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
+                     dragging={Boolean(dragging)}
+                     onFill={() => setAdding({ from: node.from, on: node.on, at: { x: 16, y: 52 } })}
+                     onDrop={() => {
+                       const held = dragging
+                       setDragging(null)
+                       if (held) send("/edges", "POST", { from: node.from, to: held, on: node.on })
+                     }} />
+      )}
+      {node.holds && (
+        <GroupHeader node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
+                     header={headerOf(node, entryOf(node), flow.hide_step_type_codes)}
+                     onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))} />
+      )}
+      {!node.placeholder && !node.holds && <StepCard
+        node={{
+          ...node,
+          ref: (element) => { cards.current[node.id] = element },
+          violations: violationsFor[node.id] || [],
+          connected: flow.edges.filter((edge) => edge.source === node.id).map((edge) => edge.label || null)
+        }}
+        selected={node.id === selected}
+        armed={armed && armed[0] === node.id ? armed[1] : null}
+        connecting={Boolean(armed) && armed[0] !== node.id}
+        onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))}
+        onOpen={(path) => window.location.assign(path)}
+        onArm={(port, event) => {
+          const frame = surface.current.getBoundingClientRect()
+          setAdding({
+            from: node.id, on: port,
+            at: { x: event.clientX - frame.left + surface.current.scrollLeft + 8,
+                  y: event.clientY - frame.top + surface.current.scrollTop + 8 }
+          })
+        }}
+        onDragEnd={() => setDragging(null)}
+        onDragStart={() => setDragging(node.id)}
+        hideStepTypeCodes={flow.hide_step_type_codes}
+      />}
+    </>
+  )
+
   return (
     <div className="text-gray-900 dark:text-gray-100" style={page} onMouseUp={() => setDragging(null)}
          onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setArmed(null); setAdding(null) } }}
@@ -116,15 +162,15 @@ const Canvas = ({ base, token, initial }) => {
                  onUndo={() => { setSelected(null); send("/undo", "POST") }}
                  onRedo={() => { setSelected(null); send("/redo", "POST") }} />
 
-        {boxes.map((box) => (
+        {!leftToRight && boxes.map((box) => (
           <GroupBox key={box.id} id={box.id} bounds={box.bounds}
                     onDrop={() => { const held = dragging; setDragging(null); if (held) send(`/steps/${held}/group`, "PATCH", { group: box.id }) }} />
         ))}
 
-        <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
+        {!leftToRight && <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
                         onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
                         onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
-                        onDrop={(link) => { const held = dragging; setDragging(null); send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }} />
+                        onDrop={(link) => { const held = dragging; setDragging(null); send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }} />}
 
         {loose.length > 0 && (
           <div data-loose className="border border-dashed border-gray-300 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-900" style={waiting}>
@@ -152,51 +198,15 @@ const Canvas = ({ base, token, initial }) => {
           </div>
         )}
 
-        <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
+        {leftToRight && <LeftToRight nodes={attached} draw={draw} />}
+
+        {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
           {attached.map((node) => (
             <div key={node.id} style={{ gridRow: node.row + 1, gridColumn: `${node.column + 1} / span 2`, zIndex: 2, marginTop: underHeader(node, flow.nodes) ? HEADER_GAP - GAP_Y : 0 }}>
-              {node.placeholder && (
-                <Placeholder node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
-                             dragging={Boolean(dragging)}
-                             onFill={() => setAdding({ from: node.from, on: node.on, at: { x: 16, y: 52 } })}
-                             onDrop={() => {
-                               const held = dragging
-                               setDragging(null)
-                               if (held) send("/edges", "POST", { from: node.from, to: held, on: node.on })
-                             }} />
-              )}
-              {node.holds && (
-                <GroupHeader node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
-                             header={headerOf(node, entryOf(node), flow.hide_step_type_codes)}
-                             onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))} />
-              )}
-              {!node.placeholder && !node.holds && <StepCard
-                node={{
-                  ...node,
-                  ref: (element) => { cards.current[node.id] = element },
-                  violations: violationsFor[node.id] || [],
-                  connected: flow.edges.filter((edge) => edge.source === node.id).map((edge) => edge.label || null)
-                }}
-                selected={node.id === selected}
-                armed={armed && armed[0] === node.id ? armed[1] : null}
-                connecting={Boolean(armed) && armed[0] !== node.id}
-                onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))}
-                onOpen={(path) => window.location.assign(path)}
-                onArm={(port, event) => {
-                  const frame = surface.current.getBoundingClientRect()
-                  setAdding({
-                    from: node.id, on: port,
-                    at: { x: event.clientX - frame.left + surface.current.scrollLeft + 8,
-                          y: event.clientY - frame.top + surface.current.scrollTop + 8 }
-                  })
-                }}
-                onDragEnd={() => setDragging(null)}
-                onDragStart={() => setDragging(node.id)}
-                hideStepTypeCodes={flow.hide_step_type_codes}
-              />}
+              {draw(node)}
             </div>
           ))}
-        </div>
+        </div>}
 
         {adding && (
           <TypePicker entries={flow.palette} at={adding.at} onDismiss={() => setAdding(null)} hideStepTypeCodes={flow.hide_step_type_codes}

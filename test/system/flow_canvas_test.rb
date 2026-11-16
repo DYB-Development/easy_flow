@@ -456,6 +456,14 @@ module EasyFlow
       assert(%w[write_variant length_terms_claims copy_reviewer].all? { |id| inside_box?("[data-step='#{id}']", "variants") })
     end
 
+    test "selecting a group step's header opens its settings" do
+      canvas_for(grouped)
+
+      find("[data-group-header='variants']").click
+
+      assert_selector "[data-inspector]", text: "variants · for_each"
+    end
+
     test "dragging a step onto a waiting spot fills it" do
       canvas_for(adrift)
 

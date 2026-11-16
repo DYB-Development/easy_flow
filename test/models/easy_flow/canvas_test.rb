@@ -10,6 +10,7 @@ module EasyFlow
           setting :text, type: :string, explanation: "Shown to the visitor."
           setting(:options, type: :list) { setting :value, type: :string; setting :weight, type: :integer, explanation: "Counts toward the score." }
           names_by :text
+          summarizes_by { |node| "#{Array(node.config['options']).size} options" }
         end)
         built.register(StepType.define(:switch) do
           step_name "Switch"
@@ -95,6 +96,10 @@ module EasyFlow
 
     test "labels a node from the field its type says names it" do
       assert_equal "Budget?", canvas(flow)["nodes"].find { |node| node["id"] == "a" }["label"]
+    end
+
+    test "gives a node the summary its type works out from its settings" do
+      assert_equal "2 options", canvas(switching)["nodes"].find { |node| node["id"] == "a" }["summary"]
     end
 
     test "falls back to the node id when its type names no field" do

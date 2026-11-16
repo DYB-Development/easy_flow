@@ -65,3 +65,7 @@ test("writes on a left-to-right step's card where each of its branches goes", ()
 
   assert.match(leftToRight([ step("ask", 0), step("gate", 1) ], edges), /data-step="gate".*>false → ask</)
 })
+
+test("draws a left-to-right step as a compact card", () => {
+  assert.match(leftToRight([ step("ask", 0) ]), /data-step="ask"[^>]*min-width:120px/)
+})

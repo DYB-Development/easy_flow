@@ -51,5 +51,26 @@ module EasyFlow
         assert_no_selector "[data-drawer] [data-check-row]"
       end
     end
+
+    def covers_the_canvas?
+      page.evaluate_script(<<~JS)
+        (() => {
+          const drawer = document.querySelector("[data-drawer]").getBoundingClientRect()
+          const canvas = document.querySelector("[data-drawer]").parentElement.getBoundingClientRect()
+          return [ "top", "left", "right", "bottom" ].every((side) => Math.abs(drawer[side] - canvas[side]) <= 1)
+        })()
+      JS
+    end
+
+    test "on a phone a tapped tab opens the drawer over the whole canvas" do
+      on_a_phone do
+        canvas_for(flow)
+
+        find("[data-drawer] button", text: "Validation 1").click
+        assert_selector "[data-drawer] [data-check-row]", minimum: 1
+
+        assert covers_the_canvas?
+      end
+    end
   end
 end

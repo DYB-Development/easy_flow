@@ -6,8 +6,9 @@ module EasyFlow
       @version ||= Definition.create!(host: "dummy", slug: "run-view").record_definition(flowing(
         "entry" => "outline",
         "nodes" => [ { "id" => "outline", "type" => "question", "question" => "Outline", "answers" => [ { "value" => "on" } ] },
+                     { "id" => "draft", "type" => "question", "question" => "Draft", "answers" => [ { "value" => "on" } ] },
                      { "id" => "end", "type" => "terminal" } ],
-        "edges" => [ { "from" => "outline", "to" => "end" } ]
+        "edges" => [ { "from" => "outline", "to" => "draft" }, { "from" => "draft", "to" => "end" } ]
       ))
     end
 
@@ -34,7 +35,11 @@ module EasyFlow
     end
 
     test "leaves out the steps a flow starts and ends at" do
-      assert_equal [ "outline" ], drawn["nodes"].map { |node| node["id"] }
+      assert_equal %w[outline draft], drawn["nodes"].map { |node| node["id"] }
+    end
+
+    test "places each step after the step that leads to it" do
+      assert_operator step("draft")["row"], :>, step("outline")["row"]
     end
   end
 end

@@ -958,5 +958,12 @@ module EasyFlow
 
       assert_selector "[data-connector='first-question']"
     end
+    test "on a phone, the step list is hidden" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(flow) }
+
+        assert_no_selector "[data-step-list]"
+      end
+    end
   end
 end

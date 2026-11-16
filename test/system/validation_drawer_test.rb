@@ -27,5 +27,13 @@ module EasyFlow
 
       assert_selector "[data-inspector]", text: "ab_test_created · emit_event"
     end
+
+    test "a tab its host adds sits after Validation and shows the host's content once chosen" do
+      canvas_for(flow)
+
+      find("[data-drawer] button", text: "Fixtures 12/12").click
+
+      assert_selector "[data-drawer]", text: "12 of 12 fixtures pass for validation-drawer."
+    end
   end
 end

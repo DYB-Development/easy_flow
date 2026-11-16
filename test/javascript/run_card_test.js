@@ -42,3 +42,7 @@ test("writes the status line in the colour of its step's state", () => {
   assert.deepEqual([ "done", "paused", "pending", "failed" ].map(statusOf).map((names) => names.split(" ")[0]),
                    [ "text-green-700", "text-amber-800", "text-gray-500", "text-red-700" ])
 })
+
+test("greys all of a pending card's text", () => {
+  assert.deepEqual([ "done", "paused", "pending", "failed" ].map((state) => classes(card({ state })).includes("text-gray-500")), [ false, false, true, false ])
+})

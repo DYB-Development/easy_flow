@@ -7,7 +7,7 @@ const named = { fontSize: 12, fontWeight: 500, lineHeight: 1.3 }
 const STATES = {
   done: "border-green-600 bg-green-50 dark:border-green-500 dark:bg-green-950",
   paused: "border-amber-500 bg-amber-50 dark:border-amber-400 dark:bg-amber-950",
-  pending: "border-gray-300 bg-white dark:border-zinc-700 dark:bg-zinc-900",
+  pending: "border-gray-300 bg-white text-gray-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-gray-400",
   failed: "border-red-600 bg-red-50 dark:border-red-500 dark:bg-red-950"
 }
 

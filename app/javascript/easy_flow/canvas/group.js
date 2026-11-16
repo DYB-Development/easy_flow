@@ -20,3 +20,8 @@ export const boxAround = (boxes, frame, surface) => {
 
   return { left, top, width: right - left, height: bottom - top }
 }
+
+const inside = ({ left, top, width, height }, point) =>
+  point.x >= left && point.x <= left + width && point.y >= top && point.y <= top + height
+
+export const boxAt = (boxes, point) => boxes.find((box) => inside(box.bounds, point))?.id || null

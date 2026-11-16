@@ -25,6 +25,10 @@ module EasyFlow
       @registry.registered?(node.type) && @registry.fetch(node.type).begins_here?
     end
 
+    def holds_steps?(node)
+      node.present? && @registry.registered?(node.type) && @registry.fetch(node.type).holds_steps?
+    end
+
     def node(id)
       nodes.find { |node| node.id == id }
     end
@@ -94,6 +98,8 @@ module EasyFlow
     end
 
     def group(id, into:)
+      raise InvalidEdit, "#{into} cannot hold steps" if into && !holds_steps?(node(into))
+
       regrouped = released(id).map do |node|
         node["id"] == into ? node.merge("holds" => Array(node["holds"]) + [ id ]) : node
       end

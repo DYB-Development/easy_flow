@@ -44,6 +44,10 @@ module EasyFlow
       assert_equal [ "a" ], held_by(grouping.group("a", into: "loop").configure("loop", { "list" => "outline.variants" }), "loop")
     end
 
+    test "refuses to move a step into a step whose type holds no steps" do
+      assert_raises(InvalidEdit) { grouping.group("loop", into: "a") }
+    end
+
     test "still knows where it begins after it is edited" do
       assert_equal "o", drafting.add({ "id" => "b", "type" => "draft" }).entry
     end

@@ -124,3 +124,9 @@ test("writes where each of a compact card's branches leads", () => {
 test("sizes a compact card to what it says rather than to the full card width", () => {
   assert.equal(card({}, { compact: true }).props.style.width, undefined)
 })
+
+test("writes a compact card's type above its name", () => {
+  const [ first ] = everyChild(card({}, { compact: true }))
+
+  assert.equal(first.props.children, "condition")
+})

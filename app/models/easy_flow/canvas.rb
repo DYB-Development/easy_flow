@@ -228,7 +228,7 @@ module EasyFlow
     end
 
     def holds(node)
-      step_type_for(node)&.holds_steps? ? Array(node.config["holds"]) : []
+      Array(node.config["holds"]) if step_type_for(node)&.holds_steps?
     end
 
     def opens(node)

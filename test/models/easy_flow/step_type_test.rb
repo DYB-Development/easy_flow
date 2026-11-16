@@ -472,6 +472,10 @@ module EasyFlow
       assert_predicate StepType.define(:nested) { starts_a_flow }, :starts_a_flow?
     end
 
+    test "a step type can declare that its steps hold other steps" do
+      assert_predicate StepType.define(:for_each) { holds_steps }, :holds_steps?
+    end
+
     test "a step type can declare that its steps play the flow a visitor picks at them" do
       assert_predicate StepType.define(:picked) { plays_the_picked_flow }, :plays_the_picked_flow?
     end

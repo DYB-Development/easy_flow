@@ -13,6 +13,7 @@ module EasyFlow
           summarizes_by { |node| "#{Array(node.config['options']).size} options" }
           shows_values("Inputs") { |node| { "text" => "#{node.id}.text" } }
           shows_code("Schemas") { |node| { "input_schema" => "{text: #{node.id}}" } }
+          links_to { |node| [ { label: "Open agent", address: "/agents/#{node.id}" } ] }
         end)
         built.register(StepType.define(:switch) do
           step_name "Switch"
@@ -112,6 +113,10 @@ module EasyFlow
     test "gives a node the code its type shows, each block under the line that opens it" do
       assert_equal({ "heading" => "Schemas", "code" => [ { "summary" => "input_schema", "code" => "{text: a}" } ] },
         canvas(switching)["nodes"].find { |node| node["id"] == "a" }["details"].last)
+    end
+
+    test "gives a node the links its type offers" do
+      assert_equal [ { "label" => "Open agent", "address" => "/agents/a" } ], canvas(switching)["nodes"].find { |node| node["id"] == "a" }["links"]
     end
 
     test "falls back to the node id when its type names no field" do

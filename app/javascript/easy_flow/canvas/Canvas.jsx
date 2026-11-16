@@ -53,7 +53,7 @@ const Canvas = ({ base, token, initial }) => {
   }, [])
 
   useEffect(() => {
-    const paths = { publish: "/publish" }
+    const paths = { publish: "/publish", save_draft: "/versions" }
     const pressed = (event) => {
       const path = paths[event.target.closest?.("[data-bar-action]")?.dataset.barAction]
       if (!path) return

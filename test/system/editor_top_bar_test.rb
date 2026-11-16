@@ -34,5 +34,14 @@ module EasyFlow
 
       assert_selector "[data-notice]", text: "Published version 2."
     end
+
+    test "pressing Save draft in the top bar makes a version from the draft" do
+      canvas_for(flow)
+      change_the_first_step
+
+      find("[data-bar-action=save_draft]").click
+
+      assert_selector "[data-notice]", text: "Created version 2."
+    end
   end
 end

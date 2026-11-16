@@ -102,6 +102,17 @@ module EasyFlow
       find("div[style*='z-index: 9']").click_button(label, match: :first)
     end
 
+    def laid_left_to_right
+      EasyFlow.host_named("dummy").canvas_direction = :left_to_right
+      yield
+    ensure
+      EasyFlow.host_named("dummy").canvas_direction = nil
+    end
+
+    def top_of(id)
+      page.evaluate_script(%(document.querySelector("[data-step='#{id}']").getBoundingClientRect().top))
+    end
+
     def long_flow
       steps = (1..12).map { |n| { "id" => "s#{n}", "type" => "question", "question" => "Step #{n}", "answers" => [ { "value" => "on" } ] } }
       links = (1...12).map { |n| { "from" => "s#{n}", "to" => "s#{n + 1}" } }
@@ -846,6 +857,12 @@ module EasyFlow
       find("[data-accept-removal]").click
 
       assert_selector "[data-unconnected-warning]", text: "“Left aside”, “Added later” are not connected"
+    end
+
+    test "a left-to-right row that reaches the canvas edge goes on in a new row below it" do
+      laid_left_to_right { canvas_for(long_flow) }
+
+      assert_operator top_of("s12"), :>, top_of("s1")
     end
   end
 end

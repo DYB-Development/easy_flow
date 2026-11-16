@@ -24,5 +24,13 @@ module EasyFlow
 
       assert_selector "[data-inspector] .ks-value-list", text: "brief\nload_brief.out.brief"
     end
+
+    test "clicking a schema's line on an agent step shows its code" do
+      open_agent_settings
+
+      find("[data-inspector] summary", text: "input_schema").click
+
+      assert_selector "[data-inspector] .ks-code-block", text: "{brief: Brief, voice: string, angle: string, findings?: Finding[]}"
+    end
   end
 end

@@ -16,6 +16,11 @@ module Steps
       { "brief" => "load_brief.out.brief", "voice" => "brand_voice.out.doc", "angle" => "$item.angle", "findings" => "copy_reviewer.out.findings ?" }
     end
 
+    shows_code("Schemas") do |_node|
+      { "input_schema" => "{brief: Brief, voice: string, angle: string, findings?: Finding[]}",
+        "output_schema → copy_block v3" => "{headline: string≤60, body: string≤400, cta: string≤30, meta: {tone, words}}" }
+    end
+
     summarizes_by { |node| [ [ node.config["agent"], node.config["release"] ].join(node.config["release"].to_s.start_with?("v") ? " " : "@"), node.config["gate"] ].compact_blank.join(" · ") }
   end
 end

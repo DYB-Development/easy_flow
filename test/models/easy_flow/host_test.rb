@@ -135,5 +135,12 @@ module EasyFlow
 
       assert_equal [ Host::Button.new(label: "Run tests", address: "/tests/setup") ], host.editor_buttons_for(Definition.new(slug: "setup"))
     end
+
+    test "works out its drawer tabs from the flow being edited" do
+      host = Host.new(:alembic)
+      host.drawer_tabs = ->(flow) { [ { label: "Fixtures", count: "12/12", content: "<p>#{flow.slug}</p>" } ] }
+
+      assert_equal [ Host::Tab.new(label: "Fixtures", count: "12/12", content: "<p>setup</p>") ], host.drawer_tabs_for(Definition.new(slug: "setup"))
+    end
   end
 end

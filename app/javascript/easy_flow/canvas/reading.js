@@ -26,5 +26,5 @@ const nextAfter = (ordered, node) => ordered[ordered.findIndex((step) => step.id
 export const branchesOf = (node, edges, nodes) => {
   const next = nextAfter(readingOrder(nodes), node)
 
-  return edges.filter((edge) => edge.source === node.id && edge.target !== next)
+  return edges.filter((edge) => edge.source === node.id && (edge.label || edge.target !== next))
 }

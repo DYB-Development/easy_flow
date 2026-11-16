@@ -38,3 +38,9 @@ test("names a branch that leads somewhere other than the next step", () => {
 
   assert.deepEqual(branchesOf(chain[1], edges, chain).map((edge) => edge.target), [ "ask" ])
 })
+
+test("names a branch that carries an answer even when it leads to the next step", () => {
+  const edges = [ { source: "gate", target: "retry", label: "false" } ]
+
+  assert.deepEqual(branchesOf(chain[1], edges, chain).map((edge) => edge.label), [ "false" ])
+})

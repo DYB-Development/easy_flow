@@ -23,6 +23,8 @@ const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13 }
 const scroll = { flex: 1, overflow: "auto", position: "relative" }
 const waiting = { position: "absolute", top: 56, left: 16, zIndex: 5, width: CARD + 24, padding: 12, borderRadius: 8 }
 
+const waitingInRows = { ...waiting, position: "static", alignSelf: "flex-start" }
+
 const grid = { display: "grid", rowGap: GAP_Y, columnGap: 0, padding: 40, justifyContent: "center", position: "relative" }
 const notice = { position: "sticky", zIndex: 8, top: 8, margin: "8px auto 0", width: "fit-content", padding: "6px 12px", borderRadius: 6, fontSize: 12 }
 
@@ -154,6 +156,32 @@ const Canvas = ({ base, token, initial }) => {
     </>
   )
 
+  const waitingSteps = loose.length > 0 && (
+    <div data-loose className="border border-dashed border-gray-300 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-900" style={leftToRight ? waitingInRows : waiting}>
+      <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginBottom: 6 }}>Not in the flow yet — drag one onto a connection</div>
+      {loose.map((node) => (
+        <div key={node.id} style={{ marginBottom: 8 }}>
+          <StepCard
+            node={{
+              ...node,
+              ref: (element) => { cards.current[node.id] = element },
+              violations: violationsFor[node.id] || [],
+              connected: []
+            }}
+            selected={selected === node.id}
+            armed={armed && armed[0] === node.id ? armed[1] : null}
+            connecting={Boolean(armed)}
+            onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))}
+            onOpen={(path) => window.location.assign(path)}
+            onArm={(port, event) => { event.stopPropagation(); setArmed([ node.id, port ]) }}
+            onDragStart={() => setDragging(node.id)}
+            onDragEnd={() => setDragging(null)}
+            hideStepTypeCodes={flow.hide_step_type_codes} />
+        </div>
+      ))}
+    </div>
+  )
+
   return (
     <div className="text-gray-900 dark:text-gray-100" style={page} onMouseUp={() => setDragging(null)}
          onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setArmed(null); setAdding(null) } }}
@@ -180,38 +208,14 @@ const Canvas = ({ base, token, initial }) => {
                         onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
                         onDrop={(link) => { const held = dragging; setDragging(null); send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }} />}
 
-        {loose.length > 0 && (
-          <div data-loose className="border border-dashed border-gray-300 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-900" style={waiting}>
-            <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginBottom: 6 }}>Not in the flow yet — drag one onto a connection</div>
-            {loose.map((node) => (
-              <div key={node.id} style={{ marginBottom: 8 }}>
-                <StepCard
-                  node={{
-                    ...node,
-                    ref: (element) => { cards.current[node.id] = element },
-                    violations: violationsFor[node.id] || [],
-                    connected: []
-                  }}
-                  selected={selected === node.id}
-                  armed={armed && armed[0] === node.id ? armed[1] : null}
-                  connecting={Boolean(armed)}
-                  onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))}
-                  onOpen={(path) => window.location.assign(path)}
-                  onArm={(port, event) => { event.stopPropagation(); setArmed([ node.id, port ]) }}
-                  onDragStart={() => setDragging(node.id)}
-                  onDragEnd={() => setDragging(null)}
-                  hideStepTypeCodes={flow.hide_step_type_codes} />
-              </div>
-            ))}
-          </div>
-        )}
+        {!leftToRight && waitingSteps}
 
         {leftToRight && <LeftToRight nodes={attached} edges={flow.edges} draw={draw} joints={{
           alwaysShowInsertButtons: flow.always_show_insert_buttons,
           onInsert: (link, event) => setAdding({ from: link.source, to: link.target, at: pointed(event) }),
           onRemove: (link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) },
           onDrop: (link) => { const held = dragging; setDragging(null); if (held) send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }
-        }} />}
+        }}>{waitingSteps}</LeftToRight>}
 
         {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
           {attached.map((node) => (

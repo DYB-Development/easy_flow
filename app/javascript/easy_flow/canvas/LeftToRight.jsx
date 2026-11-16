@@ -24,8 +24,9 @@ const Box = ({ group, steps, edges, draw, joints }) => (
   </div>
 )
 
-const LeftToRight = ({ nodes, edges, draw, joints }) => (
+const LeftToRight = ({ nodes, edges, draw, joints, children }) => (
   <div data-flow-rows style={stack}>
+    {children}
     {blocksOf(nodes).map((block) => (block.group
       ? <Box key={block.group.id} group={block.group} steps={block.steps} edges={edges} draw={draw} joints={joints} />
       : <Steps key={block.steps[0].id} steps={block.steps} edges={edges} draw={draw} joints={joints} />))}

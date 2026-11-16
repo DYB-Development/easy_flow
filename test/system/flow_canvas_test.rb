@@ -909,5 +909,11 @@ module EasyFlow
 
       assert_no_selector "[data-joint^='first-gate']"
     end
+
+    test "the steps not in a left-to-right flow yet wait above its rows rather than over them" do
+      laid_left_to_right { canvas_for(adrift) }
+
+      assert_operator page.evaluate_script(%(document.querySelector("[data-loose]").getBoundingClientRect().bottom)), :<=, top_of("start")
+    end
   end
 end

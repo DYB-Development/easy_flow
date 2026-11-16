@@ -12,7 +12,7 @@ module EasyFlow
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
       ends_here: false, begins_here: false, starts_a_flow: false, plays_the_picked_flow: false, holds_steps: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,
-      naming_field: nil, naming: nil, summarizing: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil, return_rule: nil, unsaved_refusal: nil)
+      naming_field: nil, naming: nil, summarizing: nil, details: [], outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil, return_rule: nil, unsaved_refusal: nil)
       @id = id
       @step_name = step_name
       @settings = settings
@@ -31,6 +31,7 @@ module EasyFlow
       @naming_field = naming_field
       @naming = naming
       @summarizing = summarizing
+      @details = details
       @outputs = outputs
       @outputs_named_by = outputs_named_by
       @answer_check = answer_check
@@ -82,6 +83,10 @@ module EasyFlow
 
     def summary_of(node)
       @summarizing&.call(node).presence
+    end
+
+    def details_of(node)
+      @details.map { |detail| detail.drawn(node) }
     end
 
     def acts?

@@ -37,6 +37,6 @@ test("writes each group's heading in keystone's muted text color", () => {
   assert.ok(classesOf(drawn(), "Control").includes("text-gray-500"))
 })
 
-test("offers each step type as keystone's secondary button", () => {
-  assert.ok(classesOf(drawn(), "Condition").includes("ks-button-secondary"))
+test("offers each step type as a box bordered in keystone's panel border on the canvas's surface color", () => {
+  assert.deepEqual([ "ks-panel", "bg-surface-50" ].filter((name) => classesOf(drawn(), "Condition").includes(name)), [ "ks-panel", "bg-surface-50" ])
 })

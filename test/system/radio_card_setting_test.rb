@@ -65,6 +65,16 @@ module EasyFlow
       assert_equal({ "oneCardPerRow" => true, "eachFillsTheRow" => true }, stacked_layout)
     end
 
+    test "the alias card an author chooses is still chosen when the flow is opened again" do
+      open_agent_settings
+      find("[data-inspector] .ks-radio-card", text: "candidate → v23").click
+      assert_selector "[data-inspector] input[type='radio'][value='candidate']:checked", visible: :all
+
+      open_agent_settings
+
+      assert_selector "[data-inspector] input[type='radio'][value='candidate']:checked", visible: :all
+    end
+
     test "opening an agent step shows each alias choice as a radio card with its hint" do
       open_agent_settings
 

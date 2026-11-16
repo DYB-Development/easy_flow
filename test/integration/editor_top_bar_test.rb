@@ -21,5 +21,11 @@ module EasyFlow
 
       assert_equal "draft from v1 · unsaved 0 changes", response.parsed_body["flow"]["status"]
     end
+
+    test "the editor's top bar switches to the definition text" do
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header [data-view-switch] a[href=?]", easy_flow.edit_manage_flow_definition_path(flow), text: "Text"
+    end
   end
 end

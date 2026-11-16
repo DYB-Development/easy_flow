@@ -10,6 +10,10 @@
       <p class="text-sm text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]"><%= @flow.slug %></p>
       <p class="font-mono text-xs text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]" data-version-status><%= EasyFlow::DraftStatus.new(@flow) %></p>
     </div>
+    <nav class="flex overflow-hidden rounded-md border border-[var(--ks-color-border-control)] dark:border-[var(--ks-color-border-control-dark)] text-xs" data-view-switch>
+      <span class="bg-accent-600 px-3 py-1.5 text-white" aria-current="page">Canvas</span>
+      <%= link_to "Text", flow_routes.edit_manage_flow_definition_path(@flow), class: "px-3 py-1.5 text-[var(--ks-color-text)] dark:text-[var(--ks-color-text-dark)]" %>
+    </nav>
     <div class="flex items-center gap-2">
       <button type="button" data-open-panel
               onclick="document.dispatchEvent(new CustomEvent('easy_flow:open-flow'))"

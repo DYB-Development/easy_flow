@@ -50,3 +50,9 @@ test("writes a branch as its answer, an arrow and the name of the step it leads 
 
   assert.equal(branchLine({ target: "ask", label: "false" }, nodes), "false → Ask again")
 })
+
+test("writes a branch that leads to no step yet as leading nowhere yet", () => {
+  const nodes = [ { id: "gate--false", label: "false", placeholder: true } ]
+
+  assert.equal(branchLine({ target: "gate--false", label: "false" }, nodes), "false → nowhere yet")
+})

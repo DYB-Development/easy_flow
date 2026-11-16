@@ -11,6 +11,9 @@ export const anchor = (box, side, frame, surface) => {
   return { x: left + box.width / 2, y: top + box.height }
 }
 
+export const entering = (point, side, bounds) =>
+  bounds && side === "top" ? { x: point.x, y: bounds.top } : point
+
 export const shy = (point, side) => {
   if (side === "top") return { x: point.x, y: point.y - 3 }
   if (side === "left") return { x: point.x - 3, y: point.y }
@@ -45,26 +48,28 @@ const useConnectors = (flow, surface, cards, watching) => {
 
       setExtent({ width: surface.current.scrollWidth, height: surface.current.scrollHeight })
 
-      setLinks(flow.edges.flatMap((edge) => {
-        const fromBox = cards.current[edge.source]?.getBoundingClientRect()
-        const toBox = cards.current[edge.target]?.getBoundingClientRect()
-        if (!fromBox || !toBox) return []
-
-        const a = anchor(fromBox, edge.leaves, frame, surface.current)
-        const b = shy(anchor(toBox, edge.enters, frame, surface.current), edge.enters)
-        const lane = (anchor(fromBox, "bottom", frame, surface.current).y + anchor(toBox, "top", frame, surface.current).y) / 2
-        const detour = edge.leaves === "left" ? Math.min(a.x, b.x) - 28 : Math.max(a.x, b.x) + 28
-
-        return [ drawn(edge, a, b, lane, detour) ]
-      }))
-
-      setBoxes(flow.nodes.filter((node) => node.holds && !node.loose && cards.current[node.id]).map((node) => {
+      const measuredBoxes = flow.nodes.filter((node) => node.holds && !node.loose && cards.current[node.id]).map((node) => {
         const header = cards.current[node.id]
         const headerBox = header.getBoundingClientRect()
         const held = node.holds.flatMap((id) => (cards.current[id] ? [ cards.current[id].getBoundingClientRect() ] : []))
         const measured = [ { left: headerBox.left, top: headerBox.top, width: Math.max(headerBox.width, header.scrollWidth), height: headerBox.height }, ...held ]
 
         return { id: node.id, bounds: boxAround(measured, frame, surface.current) }
+      })
+      setBoxes(measuredBoxes)
+
+      setLinks(flow.edges.flatMap((edge) => {
+        const fromBox = cards.current[edge.source]?.getBoundingClientRect()
+        const toBox = cards.current[edge.target]?.getBoundingClientRect()
+        if (!fromBox || !toBox) return []
+
+        const a = anchor(fromBox, edge.leaves, frame, surface.current)
+        const box = measuredBoxes.find((measured) => measured.id === edge.target)?.bounds
+        const b = shy(entering(anchor(toBox, edge.enters, frame, surface.current), edge.enters, box), edge.enters)
+        const lane = (anchor(fromBox, "bottom", frame, surface.current).y + anchor(toBox, "top", frame, surface.current).y) / 2
+        const detour = edge.leaves === "left" ? Math.min(a.x, b.x) - 28 : Math.max(a.x, b.x) + 28
+
+        return [ drawn(edge, a, b, lane, detour) ]
       }))
     }
 

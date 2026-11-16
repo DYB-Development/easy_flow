@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import Panel from "keystone_ui-react/src/Panel.jsx"
 import Input from "keystone_ui-react/src/Input.jsx"
+import Button from "keystone_ui-react/src/Button.jsx"
 
 const matching = (query) => (entry) => entry.label.toLowerCase().includes(query.trim().toLowerCase())
 
@@ -20,7 +21,9 @@ const sidebar = { width: 200, flex: "none", boxSizing: "border-box", padding: "1
 
 const heading = { fontSize: 11, textTransform: "uppercase", letterSpacing: ".04em", padding: "8px 4px 2px" }
 
-const StepList = ({ entries, groups }) => {
+const item = { justifyContent: "flex-start", textAlign: "left", padding: "7px 9px", fontSize: 12, fontWeight: 400, cursor: "grab" }
+
+const StepList = ({ entries, groups, onPick, onCarry, onDrop }) => {
   const [ query, setQuery ] = useState("")
 
   return (
@@ -30,6 +33,12 @@ const StepList = ({ entries, groups }) => {
       {listed(entries, groups, query).map((section) => (
         <React.Fragment key={section.heading || ""}>
           {section.heading && <div className="text-gray-500 dark:text-gray-400" style={heading}>{section.heading}</div>}
+          {section.entries.map((entry) => (
+            <Button key={entry.type} variant="secondary" size="sm" data-step-type={entry.type} style={item} draggable
+                    onClick={() => onPick(entry)}
+                    onDragStart={(event) => { event.dataTransfer.effectAllowed = "copy"; event.dataTransfer.setData("text/plain", entry.type); onCarry(entry) }}
+                    onDragEnd={onDrop}>{entry.label}</Button>
+          ))}
         </React.Fragment>
       ))}
     </Panel>

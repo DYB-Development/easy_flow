@@ -156,3 +156,9 @@ test("writes a full-size card's type above its name when the card asks for it", 
 test("counts a step's problem as one error", () => {
   assert.ok(child(card({ violations: [ { problem: "dead_end", detail: null, sentence: "Gate leads nowhere." } ] }), (element) => element.props?.children === "1 error"))
 })
+
+test("counts a step's two problems as two errors", () => {
+  const problems = [ { problem: "dead_end", detail: null }, { problem: "unreachable", detail: null } ]
+
+  assert.ok(child(card({ violations: problems }), (element) => element.props?.children === "2 errors"))
+})

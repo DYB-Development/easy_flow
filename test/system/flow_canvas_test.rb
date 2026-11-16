@@ -891,5 +891,14 @@ module EasyFlow
         assert page.evaluate_script(%((() => { const surface = document.querySelector("[data-flow-rows]").parentElement; return surface.scrollWidth <= surface.clientWidth })()))
       end
     end
+
+    test "on a phone, the line below a left-to-right step starts at the step's card" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(long_flow) }
+
+        assert_equal page.evaluate_script(%(document.querySelector("[data-step='s1']").getBoundingClientRect().bottom)),
+                     page.evaluate_script(%(document.querySelector("[data-joint^='s1-s2']").getBoundingClientRect().top))
+      end
+    end
   end
 end

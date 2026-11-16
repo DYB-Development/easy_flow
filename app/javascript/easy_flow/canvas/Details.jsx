@@ -7,7 +7,7 @@ const SECTION = "flex flex-col gap-1 mb-3"
 
 const VALUES = "[&_dd]:font-mono"
 
-const COLUMNS = "[&_.ks-value-list]:gap-2"
+const COLUMNS = "[&_.ks-value-list]:grid-cols-2 [&_.ks-value-list]:gap-2"
 
 const ROWS = "[&_.ks-value-list]:font-mono [&_.ks-value-list]:flex [&_.ks-value-list]:flex-col [&_.ks-value-list]:gap-1 [&_.ks-value-list-row]:gap-2 [&_.ks-value-list-row]:py-0 [&_.ks-value-list-row]:border-0 [&_.ks-value-list-label]:basis-[90px]"
 

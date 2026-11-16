@@ -43,3 +43,7 @@ test("stacks a section's heading over its contents, leaving room under the secti
 test("leaves a row section's heading in the panel's own font", () => {
   assert.ok(!sectionClasses(drawn([ inputs ])).includes("font-mono"))
 })
+
+test("keeps a column section two to a row on a phone, since the panel keeps its width there", () => {
+  assert.ok(sectionClasses(drawn([ { ...inputs, columns: true } ])).includes("[&_.ks-value-list]:grid-cols-2"))
+})

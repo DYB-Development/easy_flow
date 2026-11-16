@@ -47,10 +47,20 @@ const Canvas = ({ base, token, initial }) => {
   const surface = useRef(null)
 
   useEffect(() => {
-    const open = () => { setSelected(null); setShowing(true) }
-    document.addEventListener("easy_flow:open-flow", open)
-    return () => document.removeEventListener("easy_flow:open-flow", open)
-  }, [])
+    const paths = { open: null, publish: "/publish", save_draft: "/versions" }
+    const pressed = (event) => {
+      const button = event.target.closest?.("[data-bar-action]")
+      if (!button || !(button.dataset.barAction in paths)) return
+
+      button.closest("details")?.removeAttribute("open")
+      setSelected(null)
+      setShowing(true)
+      const path = paths[button.dataset.barAction]
+      if (path) send(path, "POST")
+    }
+    document.addEventListener("click", pressed)
+    return () => document.removeEventListener("click", pressed)
+  }, [ send ])
 
   useEffect(() => {
     if (!showing) {
@@ -59,7 +69,7 @@ const Canvas = ({ base, token, initial }) => {
     }
 
     const away = (event) => {
-      if (event.target.isConnected && !event.target.closest("[data-builder-panel], [data-open-panel]")) setShowing(false)
+      if (event.target.isConnected && !event.target.closest("[data-builder-panel], [data-open-panel], [data-bar-action]")) setShowing(false)
     }
     document.addEventListener("click", away)
     return () => document.removeEventListener("click", away)
@@ -68,6 +78,10 @@ const Canvas = ({ base, token, initial }) => {
   useEffect(() => {
     document.dispatchEvent(new CustomEvent("easy_flow:flow-named", { detail: flow.flow?.title || flow.flow?.slug }))
   }, [ flow.flow?.title, flow.flow?.slug ])
+
+  useEffect(() => {
+    document.dispatchEvent(new CustomEvent("easy_flow:flow-status", { detail: { status: flow.flow?.status, publishes: flow.flow?.publishes } }))
+  }, [ flow.flow?.status, flow.flow?.publishes ])
 
   const byId = useMemo(() => Object.fromEntries(flow.nodes.map((node) => [ node.id, node ])), [ flow.nodes ])
   const { links, extent, boxes } = useConnectors(flow, surface, cards, [ flow, selected, byId ])

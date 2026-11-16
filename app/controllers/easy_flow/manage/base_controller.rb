@@ -17,7 +17,7 @@ module EasyFlow
 
       before_action { AppRoutesHelper.define_app_route_helpers }
 
-      helper_method :flow_routes
+      helper_method :flow_routes, :flow_host
 
       private
 

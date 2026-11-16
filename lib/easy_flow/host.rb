@@ -1,9 +1,10 @@
 module EasyFlow
   class Host
     BackLink = Data.define(:label, :address)
+    Button = Data.define(:label, :address)
 
     attr_reader :name, :back_link
-    attr_writer :layout, :admin_layout, :offers, :allowed_answers, :always_show_insert_buttons, :hide_step_type_codes, :marks_ends, :on_publish, :canvas_direction
+    attr_writer :layout, :admin_layout, :offers, :allowed_answers, :always_show_insert_buttons, :hide_step_type_codes, :marks_ends, :on_publish, :canvas_direction, :editor_buttons
     attr_accessor :admin_authentication_method, :visitor_authorization_method, :refusal_method, :owner_method, :finds_flows_across_owners, :publish_note
 
     def initialize(name)
@@ -16,6 +17,11 @@ module EasyFlow
 
     def back_link_for(flow)
       @back_link.respond_to?(:call) ? BackLink.new(**@back_link.call(flow)) : @back_link
+    end
+
+    def editor_buttons_for(flow)
+      listed = @editor_buttons.respond_to?(:call) ? @editor_buttons.call(flow) : @editor_buttons
+      Array(listed).map { |button| Button.new(**button) }
     end
 
     def setting_explanations=(explanations)

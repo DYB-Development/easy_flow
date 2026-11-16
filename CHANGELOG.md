@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.45.0] - 2026-11-16
+
+### Added
+
+- The canvas has a top bar showing a back link, the flow's name, the draft's status such as `draft from v14 · unsaved 2 changes`, and a Canvas / Text switch between the canvas and the definition text page, which shows the same bar. On the canvas the bar also holds `This flow`, `Try it`, `Save draft` and a `Publish` button naming the version it will create, such as `Publish v15`. `Save draft` creates a version as Create version does, and both open the flow panel with the result. The status and the Publish label follow each change made on the canvas. On a screen narrower than 640 pixels the bar wraps its back link, name, status and switch onto more lines, and its buttons are reached from an actions menu.
+- A host can set `editor_buttons` to a list of `{ label:, address: }` hashes, or a callable that takes the flow and returns that list, to add its own buttons to the top bar, such as Run tests and Dry-run.
+
+### Changed
+
+- The host's back link, or `All flows`, is now a link at the start of the top bar instead of a button at its end.
+
 ## [0.44.0] - 2026-11-16
 
 ### Added

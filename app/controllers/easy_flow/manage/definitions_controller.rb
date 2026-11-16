@@ -3,6 +3,7 @@ module EasyFlow
     class DefinitionsController < BaseController
       def edit
         @flow = hosted_flows.find_by_public_code!(params[:flow_id])
+        @back_link = flow_host.back_link_for(@flow)
       end
 
       def update

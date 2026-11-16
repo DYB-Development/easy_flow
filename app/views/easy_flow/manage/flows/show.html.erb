@@ -4,29 +4,7 @@
 <% end %>
 
 <div class="flex h-screen flex-col overflow-hidden">
-  <header class="flex shrink-0 items-center justify-between gap-4 border-b border-[var(--ks-color-divider)] dark:border-[var(--ks-color-divider-dark)] px-6 py-3">
-    <div>
-      <h1 class="text-lg font-semibold text-[var(--ks-color-text)] dark:text-[var(--ks-color-text-dark)]" data-flow-heading><%= @flow.title.presence || @flow.slug %></h1>
-      <p class="text-sm text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]"><%= @flow.slug %></p>
-    </div>
-    <div class="flex items-center gap-2">
-      <button type="button" data-open-panel
-              onclick="document.dispatchEvent(new CustomEvent('easy_flow:open-flow'))"
-              class="inline-flex items-center justify-center font-semibold rounded-lg border-0 cursor-pointer bg-accent-600 text-white hover:bg-accent-700 text-base px-4 py-2">This flow</button>
-
-      <%= ui_button(label: "Try it", href: flow_routes.manage_flow_preview_path(@flow), variant: :secondary) %>
-
-      <% if @parent %>
-        <%= ui_button(label: "Back to #{@parent.title.presence || @parent.slug}", href: flow_routes.manage_flow_path(@parent), variant: :secondary) %>
-      <% end %>
-
-      <% if @back_link %>
-        <%= ui_button(label: @back_link.label, href: @back_link.address, variant: :secondary) %>
-      <% else %>
-        <%= ui_button(label: "All flows", href: flow_routes.manage_flows_path, variant: :secondary) %>
-      <% end %>
-    </div>
-  </header>
+  <%= render "easy_flow/manage/flows/top_bar", flow: @flow, showing: :canvas, parent: @parent, back_link: @back_link %>
 
   <%= react_ui("easy_flow/flow-editor", { base: flow_routes.manage_flow_canvas_path(@flow), token: form_authenticity_token, initial: @canvas },
                class: "min-h-0 flex-1",

@@ -13,3 +13,13 @@ const text = (markup) => markup.replace(/<[^>]+>/g, "|").split("|").filter(Boole
 test("writes the step's type code, name, version and status line in that order", () => {
   assert.deepEqual(text(drawn()), [ "agent", "outline", "v9", "8.2s · $0.04" ])
 })
+
+const card = (node = {}, given = {}) => RunCard({ node: { ...step, ...node }, ...given })
+
+const classes = (element) => (element.props.className || "").split(" ")
+
+const borderOf = (state) => classes(card({ state })).find((name) => /^border-(gray|green|amber|red)-\d+$/.test(name))
+
+test("borders each card in the colour of its step's state", () => {
+  assert.deepEqual([ "done", "paused", "pending", "failed" ].map(borderOf), [ "border-green-600", "border-amber-500", "border-gray-300", "border-red-600" ])
+})

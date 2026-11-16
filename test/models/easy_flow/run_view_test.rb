@@ -22,5 +22,11 @@ module EasyFlow
     test "gives each step the state its host supplied" do
       assert_equal "paused", step("outline", "outline" => { state: :paused })["state"]
     end
+
+    test "gives each step the status line, address and version its host supplied" do
+      shown = step("outline", "outline" => { state: :done, status: "8.2s · $0.04", address: "/runs/1/outline", version: "v9" })
+
+      assert_equal({ "status" => "8.2s · $0.04", "address" => "/runs/1/outline", "version" => "v9" }, shown.slice("status", "address", "version"))
+    end
   end
 end

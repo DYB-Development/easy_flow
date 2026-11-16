@@ -64,3 +64,23 @@ test("removes a step's picture when the author asks", () => {
 
   assert.equal(settled, "")
 })
+
+const aliases = [
+  { value: "prod", label: "prod → v22", hint: "p 0.84 · n 1,920" },
+  { value: "candidate", label: "candidate → v23", hint: "p 0.87 · n 240" }
+]
+
+test("draws each choice of a radio card setting as a keystone radio card", () => {
+  assert.equal(drawn({ type: "radio_cards", value: "prod", choices: aliases }).match(/class="ks-radio-card /g)?.length, 2)
+})
+
+test("saves the value of the radio card the author chooses", () => {
+  let settled = null
+  const tree = Control({ type: "radio_cards", value: "prod", choices: aliases, onSettle: (value) => { settled = value } })
+
+  const cards = [ tree, tree.props.children ].flat(Infinity).find((element) => element?.props?.onChange)
+
+  cards.props.onChange({ target: { value: "candidate" } })
+
+  assert.equal(settled, "candidate")
+})

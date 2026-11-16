@@ -345,6 +345,26 @@ module EasyFlow
       assert_equal 3, coerced["options"].first["weight"]
     end
 
+    test "a radio card setting offers each choice with the hint the host gives it" do
+      step_type = StepType.define(:probe) do
+        setting :alias, type: :radio_cards, options: [ { value: "prod", label: "prod → v22", hint: "p 0.84 · n 1,920" } ]
+      end
+
+      assert_equal "p 0.84 · n 1,920", step_type.settings.choices[:alias].first[:hint]
+    end
+
+    test "a radio card setting accepts the value of one of its choices" do
+      step_type = StepType.define(:probe) do
+        setting :alias, type: :radio_cards, options: [ { value: "prod", label: "prod → v22", hint: "p 0.84 · n 1,920" } ]
+      end
+
+      assert_empty step_type.settings.objections("alias" => "prod")
+    end
+
+    test "refuses a radio card setting that offers no options" do
+      assert_raises(UnknownFieldType) { StepType.define(:probe) { setting :alias, type: :radio_cards } }
+    end
+
     test "refuses a multi select that offers no options" do
       assert_raises(UnknownFieldType) { StepType.define(:probe) { setting :channels, type: :multi_select } }
     end

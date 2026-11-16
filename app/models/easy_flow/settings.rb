@@ -79,8 +79,12 @@ module EasyFlow
       offered = choices[name]
       return unless offered
 
-      stray = Array(value).find { |chosen| offered.exclude?(chosen) }
+      stray = Array(value).find { |chosen| values_of(offered).exclude?(chosen) }
       "#{labels[name]} does not offer #{stray}" if stray
+    end
+
+    def values_of(offered)
+      offered.map { |choice| choice.is_a?(Hash) ? choice.stringify_keys["value"] : choice }
     end
 
     def over_limit(name, value)

@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.47.0] - 2026-11-16
+
+### Added
+
+- A step type can declare a setting with `type: :radio_cards`, whose `options:` give each choice a value, a label and a hint, either as a fixed list or as a lambda that works them out from the app's records.
+- The step's settings draw a radio card setting as one keystone radio card per choice with its hint under its label, side by side with each card taking an equal share of the row, and one card per row when the panel is too narrow.
+- A radio card setting accepts the value of one of its choices and refuses any other.
+
+### Changed
+
+- The canvas is built against keystone_ui-react 0.5.0.
+
 ## [0.46.0] - 2026-11-16
 
 ### Added

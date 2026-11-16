@@ -3,11 +3,12 @@ import { toggled } from "./choices"
 import Input from "keystone_ui-react/src/Input.jsx"
 import Select from "keystone_ui-react/src/Select.jsx"
 import Checkbox from "keystone_ui-react/src/Checkbox.jsx"
+import RadioCards from "keystone_ui-react/src/RadioCards.jsx"
 
 const offered = (choices) =>
   (choices || []).map((choice) => (typeof choice === "object" ? choice : { value: choice, label: choice }))
 
-const Control = ({ type, value, choices, onChange, onSettle, onPick, pictureUrl }) => {
+const Control = ({ name, type, value, choices, onChange, onSettle, onPick, pictureUrl }) => {
   if (type === "picture") {
     return <div className="mb-3">
       {value && pictureUrl && <img src={pictureUrl} alt="The step's picture" style={{ maxWidth: "100%" }} />}
@@ -23,6 +24,12 @@ const Control = ({ type, value, choices, onChange, onSettle, onPick, pictureUrl 
       <option value=""></option>
       {offered(choices).map((choice) => <option key={choice.value} value={choice.value}>{choice.label}</option>)}
     </Select>
+  }
+
+  if (type === "radio_cards") {
+    return <div data-radio-cards className="mb-3 [&_label]:flex-[1_1_7rem] [&_.ks-radio-card]:flex [&_.ks-radio-card]:h-full">
+      <RadioCards name={name} value={value} options={choices || []} onChange={(e) => onSettle(e.target.value)} />
+    </div>
   }
 
   if (type === "multi_select") {

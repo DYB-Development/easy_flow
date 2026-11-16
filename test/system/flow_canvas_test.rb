@@ -472,6 +472,14 @@ module EasyFlow
       assert_selector("[data-group-box='variants']") { inside_box?("[data-step='human_approve']", "variants") }
     end
 
+    test "dragging a step out of a group step's box takes it out of the box" do
+      canvas_for(grouped)
+
+      step_card("copy_reviewer").drag_to(step_card("human_approve"))
+
+      assert_selector("[data-group-box='variants']") { !inside_box?("[data-step='copy_reviewer']", "variants") }
+    end
+
     test "dragging a step onto a waiting spot fills it" do
       canvas_for(adrift)
 

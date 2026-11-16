@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import StepCard from "./StepCard"
 import GroupHeader from "./GroupHeader"
 import GroupBox from "./GroupBox"
-import { headerOf } from "./group"
+import { boxAt, headerOf } from "./group"
 import Inspector from "./Inspector"
 import Placeholder from "./Placeholder"
 import { offeredTo } from "./choices"
@@ -83,6 +83,17 @@ const Canvas = ({ base, token, initial }) => {
     if (source !== target) send("/edges", "POST", { from: source, to: target, on: port || null })
   }
 
+  const regroup = (event) => {
+    if (event.isDefaultPrevented() || !dragging) return
+    event.preventDefault()
+    const held = dragging
+    setDragging(null)
+    const frame = surface.current.getBoundingClientRect()
+    const into = boxAt(boxes, { x: event.clientX - frame.left + surface.current.scrollLeft, y: event.clientY - frame.top + surface.current.scrollTop })
+    const from = flow.nodes.find((node) => node.holds?.includes(held))?.id || null
+    if (into !== from) send(`/steps/${held}/group`, "PATCH", { group: into })
+  }
+
   const entryOf = (node) => [ ...flow.palette, ...(flow.unoffered || []) ].find((entry) => entry.type === node?.type)
   const selectedNode = flow.nodes.find((node) => node.id === selected)
   const entryFor = entryOf(selectedNode)
@@ -92,7 +103,9 @@ const Canvas = ({ base, token, initial }) => {
          onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setArmed(null); setAdding(null) } }}
          tabIndex={-1}>
       <div ref={surface} className="bg-surface-50 dark:bg-surface-950" style={scroll}
-           onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}>
+           onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}
+           onDragOver={(event) => { if (dragging) event.preventDefault() }}
+           onDrop={regroup}>
         {armed && (
           <Choosing port={armed[1]} onCancel={() => setArmed(null)} />
         )}

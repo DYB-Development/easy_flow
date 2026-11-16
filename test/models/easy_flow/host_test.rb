@@ -56,6 +56,13 @@ module EasyFlow
       assert_equal :top_to_bottom, Host.new(:alembic).canvas_direction
     end
 
+    test "names each group heading with the step types listed under it" do
+      host = Host.new(:alembic)
+      host.step_groups = { "Agents" => [ :notify ], "Control" => [ :for_each, :condition ] }
+
+      assert_equal({ "Agents" => [ "notify" ], "Control" => [ "for_each", "condition" ] }, host.step_groups)
+    end
+
     test "keeps showing step type codes when it says nothing" do
       assert_not Host.new(:alembic).hide_step_type_codes?
     end

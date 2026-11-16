@@ -61,6 +61,14 @@ module EasyFlow
       @hide_step_type_codes.present?
     end
 
+    def step_groups=(groups)
+      @step_groups = groups.to_h { |heading, step_types| [ heading.to_s, step_types.map(&:to_s) ] }
+    end
+
+    def step_groups
+      @step_groups || {}
+    end
+
     def explanation_for(step_type, setting)
       @setting_explanations.to_h.dig(step_type.to_s, setting.to_s).presence
     end

@@ -464,6 +464,14 @@ module EasyFlow
       assert_selector "[data-inspector]", text: "variants · for_each"
     end
 
+    test "dragging a step onto a group step's box puts it in the box" do
+      canvas_for(grouped)
+
+      step_card("human_approve").drag_to(find("[data-group-box='variants']"))
+
+      assert_selector("[data-group-box='variants']") { inside_box?("[data-step='human_approve']", "variants") }
+    end
+
     test "dragging a step onto a waiting spot fills it" do
       canvas_for(adrift)
 

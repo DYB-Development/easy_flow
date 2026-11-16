@@ -8,3 +8,7 @@ const entry = { fields: { list: "string", concurrency: "integer", on_item_failur
 test("makes the header from the step type's code and each setting's name and value", () => {
   assert.equal(headerOf(forEach, entry), "for_each · list: outline.variants · concurrency: 3 · on_item_failure: continue")
 })
+
+test("leaves a setting left blank out of the header", () => {
+  assert.equal(headerOf({ ...forEach, config: { list: "outline.variants", concurrency: "" } }, entry), "for_each · list: outline.variants")
+})

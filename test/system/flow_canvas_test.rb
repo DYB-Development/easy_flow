@@ -220,7 +220,7 @@ module EasyFlow
       with_step_type_codes_hidden do
         canvas_for(adrift)
 
-        assert_equal "Adrift\nQuestion", step_card("adrift").text.split("\nAdrift is not connected").first
+        assert_equal "Adrift\nQuestion", step_card("adrift").text.split("\n").first(2).join("\n")
       end
     end
 

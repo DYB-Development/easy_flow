@@ -53,8 +53,8 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
       {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{heading}</div>}
       {!bookend && <div style={compact ? compactName : named}>{heading}</div>}
       {!bookend && node.summary && <div className={selected ? "text-accent-600 dark:text-accent-400" : "text-gray-500 dark:text-gray-400"} style={{ fontSize: 10 }}>{node.summary}</div>}
-      {node.violations.length > 0 && <div data-error-count className="text-red-600 dark:text-red-400" style={{ fontSize: 10 }}>{`${node.violations.length} error${node.violations.length === 1 ? "" : "s"}`}</div>}
       {!bookend && !typeAbove && typeLine && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{typeLine}</div>}
+      {node.violations.length > 0 && <div data-error-count className="text-red-600 dark:text-red-400" style={{ fontSize: 10 }}>{`${node.violations.length} error${node.violations.length === 1 ? "" : "s"}`}</div>}
       {node.picture_url && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Has a picture</div>}
       {node.starts_a_flow && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Runs a flow</div>}
       {node.opens && <Button variant="secondary" size="sm" className="mt-2" onClick={(event) => { event.stopPropagation(); onSelect() }}>Settings</Button>}

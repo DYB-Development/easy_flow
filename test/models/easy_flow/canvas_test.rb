@@ -382,6 +382,14 @@ module EasyFlow
       assert Canvas.new(document, registry: nesting).to_h["nodes"].first["starts_a_flow"]
     end
 
+    test "carries the steps a step that holds steps holds" do
+      grouping = Registry.new.tap { |built| built.register(StepType.define(:for_each) { holds_steps }); built.register(StepType.define(:ask) { }) }
+      document = Document.new({ "nodes" => [ { "id" => "loop", "type" => "for_each", "holds" => [ "write" ] }, { "id" => "write", "type" => "ask" } ],
+                                "edges" => [ { "from" => "loop", "to" => "write" } ] }, registry: grouping)
+
+      assert_equal [ "write" ], Canvas.new(document, registry: grouping).to_h["nodes"].first["holds"]
+    end
+
     test "gives a step that starts another flow the path to that flow's canvas" do
       nesting = Registry.new.tap { |built| built.register(StepType.define(:run_flow) { starts_a_flow; setting :flow, type: :flow }) }
       document = Document.new({ "nodes" => [ { "id" => "inner", "type" => "run_flow", "flow" => "7" } ], "edges" => [] }, registry: nesting)

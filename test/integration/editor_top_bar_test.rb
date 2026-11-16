@@ -41,5 +41,15 @@ module EasyFlow
 
       assert_select "header button[data-bar-action=publish]", text: "Publish v2"
     end
+
+    test "the editor's top bar shows the buttons its host adds" do
+      EasyFlow.host_named("dummy").editor_buttons = ->(shown) { [ { label: "Run tests", address: "/tests/#{shown.slug}" } ] }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header a[href=?]", "/tests/top-bar", text: "Run tests"
+    ensure
+      EasyFlow.host_named("dummy").editor_buttons = nil
+    end
   end
 end

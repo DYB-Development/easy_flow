@@ -30,6 +30,9 @@
               class="inline-flex items-center justify-center font-semibold rounded-lg border-0 cursor-pointer bg-accent-600 text-white hover:bg-accent-700 text-sm px-3 py-1.5">This flow</button>
     <% end %>
     <%= ui_button(label: "Try it", href: flow_routes.manage_flow_preview_path(flow), variant: :secondary, size: :sm) %>
+    <% flow_host.editor_buttons_for(flow).each do |button| %>
+      <%= ui_button(label: button.label, href: button.address, variant: :secondary, size: :sm) %>
+    <% end %>
     <% if showing == :canvas %>
       <%= ui_button(label: "Save draft", type: :button, variant: :secondary, size: :sm, data: { bar_action: "save_draft" }) %>
       <%= ui_button(label: "Publish v#{EasyFlow::DraftStatus.new(flow).publishes}", type: :button, size: :sm, data: { bar_action: "publish" }) %>

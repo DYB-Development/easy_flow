@@ -3,10 +3,12 @@ import ValueList from "keystone_ui-react/src/ValueList.jsx"
 import Disclosure from "keystone_ui-react/src/Disclosure.jsx"
 import Code from "keystone_ui-react/src/Code.jsx"
 
+const VALUES = "[&_dd]:font-mono"
+
 const Details = ({ details }) => (
   <>
     {details.map((section, at) => (
-      <section key={at}>
+      <section key={at} className={section.values ? VALUES : undefined}>
         {section.heading && <div className="text-gray-500 dark:text-gray-400">{section.heading}</div>}
         {section.values && <ValueList rows={section.values} columns={section.columns} />}
         {section.code && section.code.map((block) => (

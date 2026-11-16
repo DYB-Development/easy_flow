@@ -69,5 +69,19 @@ module EasyFlow
         assert_selector "[data-notice]", text: "Published version 2."
       end
     end
+
+    test "on a phone, the top bar wraps its back link, name, status and switch within the screen" do
+      flow.update!(title: "A flow whose name runs longer than a phone is wide")
+
+      on_a_phone do
+        canvas_for(flow)
+
+        assert_equal [], page.evaluate_script(<<~JS)
+          [ ...document.querySelectorAll("[data-top-bar] > *") ]
+            .filter((shown) => shown.getBoundingClientRect().width > 0 && shown.getBoundingClientRect().right > window.innerWidth)
+            .map((shown) => shown.textContent.trim())
+        JS
+      end
+    end
   end
 end

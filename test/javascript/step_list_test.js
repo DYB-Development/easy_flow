@@ -13,9 +13,9 @@ test("lists the step types under the headings their host names, in the host's or
                    [ [ "Control", [ "condition" ] ], [ "Agents", [ "notify", "question" ] ] ])
 })
 
-test("lists the step types its host put in no group after the groups, under no heading", () => {
+test("lists the step types its host put in no group before the groups, under no heading", () => {
   assert.deepEqual(headingsAndTypes(listed(entries, { Control: [ "condition" ] }, "")),
-                   [ [ "Control", [ "condition" ] ], [ null, [ "question", "notify" ] ] ])
+                   [ [ null, [ "question", "notify" ] ], [ "Control", [ "condition" ] ] ])
 })
 
 test("lists only the step types whose name holds what was searched for, in any case", () => {

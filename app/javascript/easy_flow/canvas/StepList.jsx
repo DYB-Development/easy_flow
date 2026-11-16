@@ -11,7 +11,7 @@ export const listed = (entries, groups, query = "") => {
     entries: types.map((type) => entries.find((entry) => entry.type === type)).filter(Boolean)
   }))
 
-  return [ ...sections, { heading: null, entries: entries.filter((entry) => !grouped.includes(entry.type)) } ]
+  return [ { heading: null, entries: entries.filter((entry) => !grouped.includes(entry.type)) }, ...sections ]
     .map((section) => ({ ...section, entries: section.entries.filter(matching(query)) }))
     .filter((section) => section.entries.length > 0)
 }

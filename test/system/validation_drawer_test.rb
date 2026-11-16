@@ -19,5 +19,13 @@ module EasyFlow
 
       assert_selector "[data-drawer] [data-check-row]", text: "error\nab_test_created"
     end
+
+    test "clicking a Validation row selects its step on the canvas" do
+      canvas_for(flow)
+
+      find("[data-drawer] [data-check-row]", text: "ab_test_created").click
+
+      assert_selector "[data-inspector]", text: "ab_test_created · emit_event"
+    end
   end
 end

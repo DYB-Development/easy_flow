@@ -48,5 +48,22 @@ module EasyFlow
 
       assert_equal 320, width_of("[data-inspector]")
     end
+
+    def scrolls_sideways?(selector)
+      page.evaluate_script(<<~JS)
+        (() => {
+          const block = document.querySelector("#{selector}")
+          const before = block.scrollLeft
+          block.scrollLeft = 40
+          return block.scrollWidth > block.clientWidth && block.scrollLeft > before
+        })()
+      JS
+    end
+
+    test "a schema wider than the settings panel scrolls sideways inside its block" do
+      open_the_output_schema
+
+      assert scrolls_sideways?("[data-inspector] details[open] .ks-code-block")
+    end
   end
 end

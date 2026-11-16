@@ -7,6 +7,7 @@ import Inspector from "./Inspector"
 import Placeholder from "./Placeholder"
 import { offeredTo } from "./choices"
 import TypePicker from "./TypePicker"
+import StepList from "./StepList"
 import Toolbar from "./Toolbar"
 import Panel from "./Panel"
 import ConnectorLayer from "./ConnectorLayer"
@@ -105,6 +106,9 @@ const Canvas = ({ base, token, initial }) => {
   const selectedNode = flow.nodes.find((node) => node.id === selected)
   const entryFor = entryOf(selectedNode)
 
+  const addStep = (entry, where = {}) =>
+    send("/steps", "POST", { id: nextId(entry.type, flow.nodes.map((node) => node.id)), type: entry.type, from: where.from, to: where.to, on: where.on })
+
   const pointed = (event) => {
     const frame = surface.current.getBoundingClientRect()
     return { x: event.clientX - frame.left + surface.current.scrollLeft + 8, y: event.clientY - frame.top + surface.current.scrollTop + 8 }
@@ -186,6 +190,8 @@ const Canvas = ({ base, token, initial }) => {
     <div className="text-gray-900 dark:text-gray-100" style={page} onMouseUp={() => setDragging(null)}
          onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setArmed(null); setAdding(null) } }}
          tabIndex={-1}>
+      <StepList entries={flow.palette} groups={flow.step_groups || {}}
+                onPick={(entry) => addStep(entry)} onCarry={() => {}} onDrop={() => {}} />
       <div ref={surface} className="bg-surface-50 dark:bg-surface-950" style={scroll}
            onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}
            onDragOver={(event) => { if (dragging) event.preventDefault() }}
@@ -231,7 +237,7 @@ const Canvas = ({ base, token, initial }) => {
                       onPick={(entry) => {
                         const where = adding
                         setAdding(null)
-                        send("/steps", "POST", { id: nextId(entry.type, flow.nodes.map((node) => node.id)), type: entry.type, from: where.from, to: where.to, on: where.on })
+                        addStep(entry, where)
                       }} />
         )}
       </div>

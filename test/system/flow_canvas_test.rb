@@ -120,6 +120,13 @@ module EasyFlow
       page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
     end
 
+    def with_step_groups(groups)
+      EasyFlow.host_named("dummy").step_groups = groups
+      yield
+    ensure
+      EasyFlow.host_named("dummy").step_groups = {}
+    end
+
     def left_of(id)
       page.evaluate_script(%(document.querySelector("[data-step='#{id}']").getBoundingClientRect().left))
     end
@@ -914,6 +921,12 @@ module EasyFlow
       laid_left_to_right { canvas_for(adrift) }
 
       assert_operator page.evaluate_script(%(document.querySelector("[data-loose]").getBoundingClientRect().bottom)), :<=, top_of("start")
+    end
+
+    test "the step list lists each step type under the heading its host names" do
+      with_step_groups("Control" => [ :condition ]) { laid_left_to_right { canvas_for(flow) } }
+
+      assert_selector :xpath, "//*[@data-step-list]//div[normalize-space()='Control']/following-sibling::button[1][normalize-space()='Condition']"
     end
   end
 end

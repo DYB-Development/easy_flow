@@ -15,3 +15,10 @@ test("reads steps that share a row from left to right", () => {
 
   assert.deepEqual(ids(readingOrder(nodes)), [ "yes", "no" ])
 })
+
+test("reads the steps a group step holds right after the group step", () => {
+  const nodes = [ { id: "loop", row: 0, column: 0, holds: [ "write", "check" ] }, { id: "write", row: 1, column: 0 },
+                  { id: "aside", row: 1, column: 2 }, { id: "check", row: 2, column: 0 } ]
+
+  assert.deepEqual(ids(readingOrder(nodes)), [ "loop", "write", "check", "aside" ])
+})

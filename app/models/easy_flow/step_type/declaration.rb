@@ -147,7 +147,7 @@ module EasyFlow
 
       def declare_choices(name, type, options)
         return @choices[name] = options if options.present?
-        raise UnknownFieldType, "a #{type} must offer options" if %i[select multi_select].include?(type)
+        raise UnknownFieldType, "a #{type} must offer options" if %i[select multi_select radio_cards].include?(type)
       end
 
       def declare_entries(name, entries)

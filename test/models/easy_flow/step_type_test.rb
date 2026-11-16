@@ -361,6 +361,10 @@ module EasyFlow
       assert_empty step_type.settings.objections("alias" => "prod")
     end
 
+    test "refuses a radio card setting that offers no options" do
+      assert_raises(UnknownFieldType) { StepType.define(:probe) { setting :alias, type: :radio_cards } }
+    end
+
     test "refuses a multi select that offers no options" do
       assert_raises(UnknownFieldType) { StepType.define(:probe) { setting :channels, type: :multi_select } }
     end

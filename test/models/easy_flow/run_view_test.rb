@@ -41,5 +41,9 @@ module EasyFlow
     test "places each step after the step that leads to it" do
       assert_operator step("draft")["row"], :>, step("outline")["row"]
     end
+
+    test "joins each step to the step it leads to" do
+      assert_includes drawn["edges"].map { |edge| edge.slice("source", "target") }, { "source" => "outline", "target" => "draft" }
+    end
   end
 end

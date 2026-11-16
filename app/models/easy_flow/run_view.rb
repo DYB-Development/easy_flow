@@ -8,13 +8,19 @@ module EasyFlow
     end
 
     def to_h
-      { "nodes" => nodes }
+      { "nodes" => nodes, "edges" => edges }
     end
 
     private
 
     def nodes
       @document.nodes.reject { |node| bookend?(node) }.map { |node| drawn_step(node) }
+    end
+
+    def edges
+      @document.edges.each_with_index.map do |edge, index|
+        { "id" => "#{edge.from}-#{edge.to}-#{index}", "source" => edge.from, "target" => edge.to, "label" => edge.on&.to_s }
+      end
     end
 
     def placed

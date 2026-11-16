@@ -5,7 +5,7 @@ module EasyFlow
     end
 
     def to_s
-      "draft from v#{@flow.current_definition_version.number} · unsaved #{changes} changes"
+      "draft from v#{@flow.current_definition_version.number} · unsaved #{changes} #{"change".pluralize(changes)}"
     end
 
     private

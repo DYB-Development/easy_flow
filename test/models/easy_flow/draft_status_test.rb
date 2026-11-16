@@ -22,5 +22,11 @@ module EasyFlow
 
       assert_equal "draft from v1 · unsaved 2 changes", DraftStatus.new(flow.reload).to_s
     end
+
+    test "counts a single change as one change" do
+      rename("a", "First")
+
+      assert_equal "draft from v1 · unsaved 1 change", DraftStatus.new(flow.reload).to_s
+    end
   end
 end

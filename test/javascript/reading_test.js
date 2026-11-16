@@ -9,3 +9,9 @@ test("reads the steps in the order of the rows they sit in", () => {
 
   assert.deepEqual(ids(readingOrder(nodes)), [ "first", "middle", "last" ])
 })
+
+test("reads steps that share a row from left to right", () => {
+  const nodes = [ { id: "no", row: 1, column: 2 }, { id: "yes", row: 1, column: 0 } ]
+
+  assert.deepEqual(ids(readingOrder(nodes)), [ "yes", "no" ])
+})

@@ -28,5 +28,11 @@ module EasyFlow
 
       assert_equal "draft from v1 · unsaved 1 change", DraftStatus.new(flow.reload).to_s
     end
+
+    test "says a draft that no version was made from yet is new" do
+      fresh = Definition.create!(host: "dummy", slug: "fresh")
+
+      assert_equal "new draft · unsaved 0 changes", DraftStatus.new(fresh).to_s
+    end
   end
 end

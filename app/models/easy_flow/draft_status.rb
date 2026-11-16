@@ -5,10 +5,15 @@ module EasyFlow
     end
 
     def to_s
-      "draft from v#{@flow.current_definition_version.number} · unsaved #{changes} #{"change".pluralize(changes)}"
+      "#{based_on} · unsaved #{changes} #{"change".pluralize(changes)}"
     end
 
     private
+
+    def based_on
+      version = @flow.current_definition_version
+      version ? "draft from v#{version.number}" : "new draft"
+    end
 
     def changes
       Change.listed(@flow.changes_since_version.to_a).size

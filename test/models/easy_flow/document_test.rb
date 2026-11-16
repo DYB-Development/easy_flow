@@ -48,6 +48,10 @@ module EasyFlow
       assert_raises(InvalidEdit) { grouping.group("loop", into: "a") }
     end
 
+    test "refuses to move a group step into itself" do
+      assert_raises(InvalidEdit) { grouping.group("loop", into: "loop") }
+    end
+
     test "still knows where it begins after it is edited" do
       assert_equal "o", drafting.add({ "id" => "b", "type" => "draft" }).entry
     end

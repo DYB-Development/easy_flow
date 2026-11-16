@@ -21,7 +21,7 @@ import { branchLine, branchesOf } from "./reading"
 
 const HEADER_GAP = 8
 
-const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13 }
+const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13, position: "relative" }
 const column = { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", position: "relative" }
 const scroll = { flex: 1, minHeight: 0, overflow: "auto", position: "relative" }
 const waiting = { position: "absolute", top: 56, left: 16, zIndex: 5, width: CARD + 24, padding: 12, borderRadius: 8 }

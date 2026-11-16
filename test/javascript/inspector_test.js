@@ -11,7 +11,7 @@ const drawn = (given = {}) => renderToStaticMarkup(React.createElement(Inspector
 }))
 
 test("is drawn as a keystone panel", () => {
-  assert.match(drawn(), /^<aside[^>]* class="ks-panel"/)
+  assert.match(drawn(), /^<aside[^>]* class="ks-panel[ "]/)
 })
 
 const classesOf = (html, text) => (html.match(new RegExp(`<[^<>]*class="([^"]*)"[^<>]*>${text}`))?.[1] || "").split(" ")

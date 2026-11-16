@@ -23,7 +23,7 @@ const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, re
   }
 
   return (
-    <Panel as="aside" style={panel} data-inspector>
+    <Panel as="aside" style={panel} className="max-sm:absolute max-sm:inset-0 max-sm:z-30 max-sm:!w-auto" data-inspector>
       <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: 8, marginBottom: 12 }}>
         <div>
           <p className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{node.id} · {node.type}</p>

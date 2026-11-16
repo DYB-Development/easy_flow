@@ -103,5 +103,20 @@ module EasyFlow
 
       assert_equal({ "twoToARow" => true, "labelAboveValue" => true }, grid_layout)
     end
+
+    def on_a_phone
+      page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
+      yield
+    ensure
+      page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
+    end
+
+    test "on a phone a step's settings panel covers the canvas from edge to edge" do
+      on_a_phone do
+        open_agent_settings
+
+        assert_equal [ 0, 390 ], page.evaluate_script(%((() => { const shown = document.querySelector("[data-inspector]").getBoundingClientRect(); return [ shown.left, shown.right ] })()))
+      end
+    end
   end
 end

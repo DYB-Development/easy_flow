@@ -8,7 +8,7 @@ const compactLine = { ...line, width: "auto", whiteSpace: "normal", overflowWrap
 const GroupHeader = ({ node, header, onSelect, compact = false }) => (
   <div ref={node.ref} data-group-header={node.id} onClick={onSelect}
        className="font-mono text-gray-500 dark:text-gray-400"
-       style={compact ? compactLine : line}>{header}</div>
+       style={{ ...(compact ? compactLine : line), ...(onSelect ? {} : { cursor: "default" }) }}>{header}</div>
 )
 
 export default GroupHeader

@@ -20,3 +20,7 @@ test("opens the group step's settings when its header is selected", () => {
 test("lets a compact header line wrap inside its box", () => {
   assert.equal(header({ compact: true }).props.style.whiteSpace, "normal")
 })
+
+test("shows the plain pointer over a header that opens nothing", () => {
+  assert.equal(header({ onSelect: undefined }).props.style.cursor, "default")
+})

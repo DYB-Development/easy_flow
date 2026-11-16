@@ -25,5 +25,14 @@ module EasyFlow
 
       assert_selector "[data-version-status]", text: "draft from v1 · unsaved 1 change"
     end
+
+    test "pressing Publish in the top bar publishes the draft" do
+      canvas_for(flow)
+      change_the_first_step
+
+      find("[data-bar-action=publish]").click
+
+      assert_selector "[data-notice]", text: "Published version 2."
+    end
   end
 end

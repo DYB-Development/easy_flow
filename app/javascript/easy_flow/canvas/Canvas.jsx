@@ -53,13 +53,27 @@ const Canvas = ({ base, token, initial }) => {
   }, [])
 
   useEffect(() => {
+    const paths = { publish: "/publish" }
+    const pressed = (event) => {
+      const path = paths[event.target.closest?.("[data-bar-action]")?.dataset.barAction]
+      if (!path) return
+
+      setSelected(null)
+      setShowing(true)
+      send(path, "POST")
+    }
+    document.addEventListener("click", pressed)
+    return () => document.removeEventListener("click", pressed)
+  }, [ send ])
+
+  useEffect(() => {
     if (!showing) {
       setWarning(null)
       return
     }
 
     const away = (event) => {
-      if (event.target.isConnected && !event.target.closest("[data-builder-panel], [data-open-panel]")) setShowing(false)
+      if (event.target.isConnected && !event.target.closest("[data-builder-panel], [data-open-panel], [data-bar-action]")) setShowing(false)
     }
     document.addEventListener("click", away)
     return () => document.removeEventListener("click", away)

@@ -39,7 +39,7 @@ module EasyFlow
 
       get easy_flow.manage_flow_path(flow)
 
-      assert_select "header button[data-bar-publish]", text: "Publish v2"
+      assert_select "header button[data-bar-action=publish]", text: "Publish v2"
     end
   end
 end

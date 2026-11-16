@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { boxAround, boxAt, headerOf, linksOutside } from "../../app/javascript/easy_flow/canvas/group.js"
+import { boxAround, boxAt, headerOf, linksOutside, underHeader } from "../../app/javascript/easy_flow/canvas/group.js"
 
 const forEach = { type: "for_each", type_name: "For each", config: { list: "outline.variants", concurrency: 3, on_item_failure: "continue" } }
 const entry = { fields: { list: "string", concurrency: "integer", on_item_failure: "select" }, labels: { list: "List", concurrency: "Concurrency", on_item_failure: "On item failure" } }
@@ -40,4 +40,10 @@ test("draws no connection from a group step to a step it holds", () => {
   const links = [ { source: "loop", target: "write" }, { source: "write", target: "after" } ]
 
   assert.deepEqual(linksOutside(links, nodes), [ { source: "write", target: "after" } ])
+})
+
+test("knows a held step sits in the row right under its group step's header", () => {
+  const nodes = [ { id: "loop", row: 2, holds: [ "write", "check" ] }, { id: "write", row: 3 }, { id: "check", row: 4 } ]
+
+  assert.deepEqual(nodes.filter((node) => underHeader(node, nodes)).map((node) => node.id), [ "write" ])
 })

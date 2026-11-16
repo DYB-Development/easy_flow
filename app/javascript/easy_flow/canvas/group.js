@@ -30,3 +30,6 @@ export const boxAt = (boxes, point) => boxes.find((box) => inside(box.bounds, po
 
 export const linksOutside = (links, nodes) =>
   links.filter((link) => !nodes.some((node) => node.id === link.source && node.holds?.includes(link.target)))
+
+export const underHeader = (node, nodes) =>
+  nodes.some((group) => group.holds?.includes(node.id) && !group.loose && group.row === node.row - 1)

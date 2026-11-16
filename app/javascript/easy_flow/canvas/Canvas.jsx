@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import StepCard from "./StepCard"
 import GroupHeader from "./GroupHeader"
 import GroupBox from "./GroupBox"
-import { boxAt, headerOf, linksOutside } from "./group"
+import { boxAt, headerOf, linksOutside, underHeader } from "./group"
 import Inspector from "./Inspector"
 import Placeholder from "./Placeholder"
 import { offeredTo } from "./choices"
@@ -14,6 +14,8 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
+
+const HEADER_GAP = 8
 
 const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13 }
 const scroll = { flex: 1, overflow: "auto", position: "relative" }
@@ -152,7 +154,7 @@ const Canvas = ({ base, token, initial }) => {
 
         <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
           {attached.map((node) => (
-            <div key={node.id} style={{ gridRow: node.row + 1, gridColumn: `${node.column + 1} / span 2`, zIndex: 2 }}>
+            <div key={node.id} style={{ gridRow: node.row + 1, gridColumn: `${node.column + 1} / span 2`, zIndex: 2, marginTop: underHeader(node, flow.nodes) ? HEADER_GAP - GAP_Y : 0 }}>
               {node.placeholder && (
                 <Placeholder node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
                              dragging={Boolean(dragging)}

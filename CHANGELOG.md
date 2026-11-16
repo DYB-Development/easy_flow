@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.42.0] - 2026-11-15
+
+### Added
+
+- A host can set `canvas_direction` to `:left_to_right` to lay its canvas out left to right. Steps sit as compact cards in rows joined by short lines, and a row that reaches the edge of the canvas goes on in a new row below it. Each branch or loop that leads anywhere but the step beside it, and each branch that carries an answer, is written on its step's card as the answer, an arrow and the step it leads to. A group step's box takes a row of its own, with the steps it holds in a row under its header line. On a screen narrower than 640 pixels each step sits on a row of its own. Hosts that set nothing keep the top-to-bottom canvas.
+
 ## [0.41.0] - 2026-11-15
 
 ### Added

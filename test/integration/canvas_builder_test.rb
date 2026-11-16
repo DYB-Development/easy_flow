@@ -599,6 +599,16 @@ module EasyFlow
       assert_equal false, response.parsed_body["always_show_insert_buttons"]
     end
 
+    test "the canvas says which direction its host lays the steps out in" do
+      EasyFlow.host_named("dummy").canvas_direction = :left_to_right
+
+      get "#{canvas_path}.json"
+
+      assert_equal "left_to_right", response.parsed_body["direction"]
+    ensure
+      EasyFlow.host_named("dummy").canvas_direction = nil
+    end
+
     test "the canvas says a host that names no setting keeps step type codes showing" do
       get "#{canvas_path}.json"
 

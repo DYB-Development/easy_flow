@@ -5,9 +5,13 @@ import { CARD } from "./styles"
 
 const card = { width: CARD, boxSizing: "border-box", borderRadius: 8 }
 
+const compactCard = { minWidth: 120, boxSizing: "border-box", borderRadius: 6 }
+
 const bookendCard = { padding: "8px 14px", textAlign: "center", fontWeight: 600 }
 
 const named = { fontWeight: 600, lineHeight: 1.3 }
+
+const compactName = { fontSize: 12, fontWeight: 500, lineHeight: 1.3 }
 
 const edge = (target, troubled, selected) => {
   const lift = selected ? "ring-4 ring-accent-600/15" : "shadow-sm"
@@ -24,7 +28,7 @@ const typeLineOf = (node, heading, hideStepTypeCodes) => {
   return heading === node.type_name ? null : node.type_name
 }
 
-const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes }) => {
+const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes, branches = [], compact = false }) => {
   const bookend = node.begins_here || node.ends_here
   const pinned = node.begins_here
   const ports = node.ends_here ? [] : node.ports
@@ -39,18 +43,22 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
          onDragStart={(event) => { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", node.id); onDragStart() }}
          onDragEnd={onDragEnd}
          onClick={node.opens && !connecting ? () => onOpen(node.opens) : onSelect}
-         className={`bg-white border-2 dark:bg-zinc-900 ${edge(target, node.violations.length > 0, selected)}`}
+         className={`bg-white ${compact && !selected ? "border" : "border-2"} dark:bg-zinc-900 ${edge(target, node.violations.length > 0, selected)}`}
          style={{
-           ...card,
-           padding: bookend ? 0 : "12px 14px",
+           ...(compact ? compactCard : card),
+           padding: bookend ? 0 : compact ? "8px 10px" : "12px 14px",
            cursor: pinned ? "default" : connecting ? "crosshair" : "grab"
          }}>
+      {!bookend && compact && typeLine && <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{typeLine}</div>}
       {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{heading}</div>}
-      {!bookend && <div style={named}>{heading}</div>}
-      {!bookend && typeLine && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{typeLine}</div>}
+      {!bookend && <div style={compact ? compactName : named}>{heading}</div>}
+      {!bookend && !compact && typeLine && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{typeLine}</div>}
       {node.picture_url && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Has a picture</div>}
       {node.starts_a_flow && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Runs a flow</div>}
       {node.opens && <Button variant="secondary" size="sm" className="mt-2" onClick={(event) => { event.stopPropagation(); onSelect() }}>Settings</Button>}
+      {branches.map((branch) => (
+        <div key={branch} className="text-gray-500 dark:text-gray-400" style={{ fontSize: 10 }}>{branch}</div>
+      ))}
       {node.violations.map((violation) => (
         <div key={violation.problem + violation.detail} className="text-red-600 dark:text-red-400" style={{ fontSize: 11, padding: "0 14px 6px" }}>
           {violation.sentence}

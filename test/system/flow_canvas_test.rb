@@ -102,6 +102,28 @@ module EasyFlow
       find("div[style*='z-index: 9']").click_button(label, match: :first)
     end
 
+    def laid_left_to_right
+      EasyFlow.host_named("dummy").canvas_direction = :left_to_right
+      yield
+    ensure
+      EasyFlow.host_named("dummy").canvas_direction = nil
+    end
+
+    def top_of(id)
+      page.evaluate_script(%(document.querySelector("[data-step='#{id}']").getBoundingClientRect().top))
+    end
+
+    def on_a_phone
+      page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
+      yield
+    ensure
+      page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
+    end
+
+    def left_of(id)
+      page.evaluate_script(%(document.querySelector("[data-step='#{id}']").getBoundingClientRect().left))
+    end
+
     def long_flow
       steps = (1..12).map { |n| { "id" => "s#{n}", "type" => "question", "question" => "Step #{n}", "answers" => [ { "value" => "on" } ] } }
       links = (1...12).map { |n| { "from" => "s#{n}", "to" => "s#{n + 1}" } }
@@ -846,6 +868,52 @@ module EasyFlow
       find("[data-accept-removal]").click
 
       assert_selector "[data-unconnected-warning]", text: "“Left aside”, “Added later” are not connected"
+    end
+
+    test "a left-to-right row that reaches the canvas edge goes on in a new row below it" do
+      laid_left_to_right { canvas_for(long_flow) }
+
+      assert_operator top_of("s12"), :>, top_of("s1")
+    end
+
+    test "on a phone, a left-to-right canvas shows each step on a row of its own" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(long_flow) }
+
+        assert_equal [ left_of("s1") ], [ left_of("s1"), left_of("s2"), left_of("s3") ].uniq
+      end
+    end
+
+    test "on a phone, a left-to-right canvas fits within the width of the screen" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(grouped) }
+
+        assert page.evaluate_script(%((() => { const surface = document.querySelector("[data-flow-rows]").parentElement; return surface.scrollWidth <= surface.clientWidth })()))
+      end
+    end
+
+    test "on a phone, the line below a left-to-right step starts at the step's card" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(long_flow) }
+
+        assert_equal page.evaluate_script(%(document.querySelector("[data-step='s1']").getBoundingClientRect().bottom)),
+                     page.evaluate_script(%(document.querySelector("[data-joint^='s1-s2']").getBoundingClientRect().top))
+      end
+    end
+
+    test "removing the connection on a left-to-right short line unlinks the two steps" do
+      laid_left_to_right { canvas_for(flow) }
+
+      find("[data-joint^='first-gate']").hover
+      find("[data-joint^='first-gate']").click_button("×")
+
+      assert_no_selector "[data-joint^='first-gate']"
+    end
+
+    test "the steps not in a left-to-right flow yet wait above its rows rather than over them" do
+      laid_left_to_right { canvas_for(adrift) }
+
+      assert_operator page.evaluate_script(%(document.querySelector("[data-loose]").getBoundingClientRect().bottom)), :<=, top_of("start")
     end
   end
 end

@@ -48,3 +48,36 @@ test("draws a step that holds steps as its header line", () => {
 
   assert.match(drawn([ group ], [ { type: "for_each", fields: { list: "string" } } ]), /data-group-header="loop"[^>]*>for_each · list: outline.variants</)
 })
+
+const leftToRight = (nodes, edges = []) => renderToStaticMarkup(React.createElement(Canvas, {
+  base: "/flows/1/canvas", token: "t",
+  initial: { nodes, edges, violations: [], palette: [], undoable: false, redoable: false, flow: {}, direction: "left_to_right" }
+}))
+
+const step = (id, row) => ({ id, label: id, type: "question", config: {}, ports: [], row, column: 0 })
+
+test("draws a left-to-right host's steps side by side in a row", () => {
+  assert.match(leftToRight([ step("ask", 0), step("gate", 1) ]), /data-flow-row[^>]*>.*data-step="ask".*data-step="gate"/)
+})
+
+test("writes on a left-to-right step's card where each of its branches goes", () => {
+  const edges = [ { id: "gate-ask-0", source: "gate", target: "ask", label: "false" } ]
+
+  assert.match(leftToRight([ step("ask", 0), step("gate", 1) ], edges), /data-step="gate".*>false → ask</)
+})
+
+test("draws a left-to-right step as a compact card", () => {
+  assert.match(leftToRight([ step("ask", 0) ]), /data-step="ask"[^>]*min-width:120px/)
+})
+
+test("draws a left-to-right result spot as a compact one", () => {
+  const spot = { id: "ask--", label: "next", type: "placeholder", placeholder: true, from: "ask", on: null, config: {}, ports: [], row: 1, column: 0 }
+
+  assert.match(leftToRight([ step("ask", 0), spot ]), /data-placeholder="ask--"[^>]*min-width:120px/)
+})
+
+test("lets a left-to-right group step's header line wrap inside its box", () => {
+  const group = { id: "loop", label: "loop", type: "for_each", config: {}, holds: [], ports: [], row: 0, column: 0 }
+
+  assert.match(leftToRight([ group ]), /data-group-header="loop"[^>]*white-space:normal/)
+})

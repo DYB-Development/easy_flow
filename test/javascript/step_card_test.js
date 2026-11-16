@@ -116,3 +116,21 @@ test("a Settings button on a step that runs another flow selects the step", () =
 
   assert.ok(selected)
 })
+
+test("writes where each of a compact card's branches leads", () => {
+  assert.ok(child(card({}, { compact: true, branches: [ "false → Ask again" ] }), (element) => element.props?.children === "false → Ask again"))
+})
+
+test("sizes a compact card to what it says rather than to the full card width", () => {
+  assert.equal(card({}, { compact: true }).props.style.width, undefined)
+})
+
+test("writes a compact card's type above its name", () => {
+  const [ first ] = everyChild(card({}, { compact: true }))
+
+  assert.equal(first.props.children, "condition")
+})
+
+test("borders a compact card with a thin line", () => {
+  assert.ok(classes(card({}, { compact: true })).includes("border"))
+})

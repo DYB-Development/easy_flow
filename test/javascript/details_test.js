@@ -35,3 +35,7 @@ test("lines a row section's labels up in one column 90 pixels wide", () => {
 test("draws a code section's summary lines plain, with no border around them", () => {
   assert.ok(sectionClasses(drawn([ schemas ])).includes("[&_.ks-disclosure]:border-0"))
 })
+
+test("stacks a section's heading over its contents, leaving room under the section", () => {
+  assert.deepEqual([ "flex", "flex-col", "gap-1", "mb-3" ].filter((name) => sectionClasses(drawn([ inputs ])).includes(name)), [ "flex", "flex-col", "gap-1", "mb-3" ])
+})

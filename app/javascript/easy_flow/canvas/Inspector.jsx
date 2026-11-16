@@ -7,7 +7,9 @@ import Panel from "keystone_ui-react/src/Panel.jsx"
 import Button from "keystone_ui-react/src/Button.jsx"
 import { Label } from "keystone_ui-react/src/FieldText.jsx"
 
-const panel = { width: 320, padding: "14px 16px", overflowY: "auto" }
+const panel = { width: 320, padding: "14px 16px", overflowY: "auto", display: "flex", flexDirection: "column" }
+
+const foot = { marginTop: "auto", paddingTop: 12, display: "flex", flexDirection: "column", gap: 8 }
 
 const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, recordExplanations, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose, onPickPicture, refusal }) => {
   const [ draft, setDraft ] = useState(node.config)
@@ -51,10 +53,16 @@ const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, re
         </Label>
       ))}
       <Details details={node.details || []} />
-      {(node.links || []).map((link) => (
-        <Button key={link.address} variant="secondary" size="sm" href={link.address}>{link.label}</Button>
-      ))}
-      <Button variant="danger" size="sm" className="w-full" onClick={onDelete}>Delete step</Button>
+      <div style={foot}>
+        {(node.links || []).length > 0 && (
+          <div style={{ display: "flex", gap: 8 }}>
+            {node.links.map((link) => (
+              <Button key={link.address} variant="secondary" size="sm" className="flex-1" href={link.address}>{link.label}</Button>
+            ))}
+          </div>
+        )}
+        <Button variant="danger" size="sm" className="w-full" onClick={onDelete}>Delete step</Button>
+      </div>
     </Panel>
   )
 }

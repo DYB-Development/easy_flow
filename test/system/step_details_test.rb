@@ -65,5 +65,25 @@ module EasyFlow
 
       assert scrolls_sideways?("[data-inspector] details[open] .ks-code-block")
     end
+
+    def foot_layout
+      page.evaluate_script(<<~JS)
+        (() => {
+          const panel = document.querySelector("[data-inspector]").getBoundingClientRect()
+          const link = [...document.querySelectorAll("[data-inspector] a")].find((each) => each.textContent === "Open agent").getBoundingClientRect()
+          const remove = [...document.querySelectorAll("[data-inspector] button")].find((each) => each.textContent === "Delete step").getBoundingClientRect()
+          return { linkAboveDelete: link.bottom <= remove.top, deleteAtFoot: Math.abs(panel.bottom - 14 - remove.bottom) <= 1 }
+        })()
+      JS
+    end
+
+    test "an agent step's links sit at the foot of a settings panel taller than its contents, above Delete step" do
+      page.current_window.resize_to(1400, 1600)
+      open_agent_settings
+
+      assert_equal({ "linkAboveDelete" => true, "deleteAtFoot" => true }, foot_layout)
+    ensure
+      page.current_window.resize_to(1400, 1000)
+    end
   end
 end

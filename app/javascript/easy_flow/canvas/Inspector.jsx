@@ -7,7 +7,7 @@ import Panel from "keystone_ui-react/src/Panel.jsx"
 import Button from "keystone_ui-react/src/Button.jsx"
 import { Label } from "keystone_ui-react/src/FieldText.jsx"
 
-const panel = { width: 280, padding: 20, overflowY: "auto" }
+const panel = { width: 320, padding: "14px 16px", overflowY: "auto" }
 
 const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, recordExplanations, recordChoices, recordOutputsOf, choices, onSave, onDelete, onClose, onPickPicture, refusal }) => {
   const [ draft, setDraft ] = useState(node.config)

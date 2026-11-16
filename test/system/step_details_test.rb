@@ -32,5 +32,21 @@ module EasyFlow
 
       assert_selector "[data-inspector] .ks-code-block", text: "{brief: Brief, voice: string, angle: string, findings?: Finding[]}"
     end
+
+    def open_the_output_schema
+      open_agent_settings
+      find("[data-inspector] summary", text: "output_schema").click
+      assert_selector "[data-inspector] .ks-code-block", text: "headline"
+    end
+
+    def width_of(selector)
+      page.evaluate_script(%(document.querySelector("#{selector}").getBoundingClientRect().width))
+    end
+
+    test "opening a schema wider than the settings panel leaves the panel 320 pixels wide" do
+      open_the_output_schema
+
+      assert_equal 320, width_of("[data-inspector]")
+    end
   end
 end

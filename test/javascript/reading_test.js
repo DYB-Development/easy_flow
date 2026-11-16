@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { blocksOf, branchLine, branchesOf, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
+import { blocksOf, branchLine, branchesOf, joining, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
 
 const ids = (nodes) => nodes.map((node) => node.id)
 
@@ -55,4 +55,10 @@ test("writes a branch that leads to no step yet as leading nowhere yet", () => {
   const nodes = [ { id: "gate--false", label: "false", placeholder: true } ]
 
   assert.equal(branchLine({ target: "gate--false", label: "false" }, nodes), "false → nowhere yet")
+})
+
+test("finds the connection that joins a step to the step after it in a row", () => {
+  const edges = [ { id: "ask-gate", source: "ask", target: "gate" }, { id: "gate-ask", source: "gate", target: "ask" } ]
+
+  assert.equal(joining(edges, chain[0], chain[1])?.id, "ask-gate")
 })

@@ -8,3 +8,15 @@ export const headerOf = (node, entry, hideStepTypeCodes) => {
 
   return [ hideStepTypeCodes ? node.type_name || node.type : node.type, ...named ].join(" · ")
 }
+
+const ROOM_ABOVE = 10
+const ROOM_BESIDE = 12
+
+export const boxAround = (boxes, frame, surface) => {
+  const left = Math.min(...boxes.map((box) => box.left)) - frame.left + surface.scrollLeft - ROOM_BESIDE
+  const top = Math.min(...boxes.map((box) => box.top)) - frame.top + surface.scrollTop - ROOM_ABOVE
+  const right = Math.max(...boxes.map((box) => box.left + box.width)) - frame.left + surface.scrollLeft + ROOM_BESIDE
+  const bottom = Math.max(...boxes.map((box) => box.top + box.height)) - frame.top + surface.scrollTop + ROOM_ABOVE
+
+  return { left, top, width: right - left, height: bottom - top }
+}

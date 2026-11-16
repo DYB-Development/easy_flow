@@ -13,6 +13,10 @@ module EasyFlow
       KeystoneUi.configuration.tailwind_sources << root.join("app/assets/builds/easy_flow/*.js").to_s
     end
 
+    initializer "easy_flow.run_view_helper" do
+      ActiveSupport.on_load(:action_view) { include EasyFlow::RunViewHelper }
+    end
+
     initializer "easy_flow.step_types" do |app|
       app.config.to_prepare do
         EasyFlow::Start.register

@@ -220,7 +220,7 @@ module EasyFlow
       with_step_type_codes_hidden do
         canvas_for(adrift)
 
-        assert_equal "Adrift\nQuestion", step_card("adrift").text.split("\n").first(2).join("\n")
+        assert_equal [ "Adrift", "Question" ], step_card("adrift").text.split("\n").grep_v(/\A\d+ errors?\z/)
       end
     end
 

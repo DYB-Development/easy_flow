@@ -160,3 +160,9 @@ test("counts a step's two problems as two errors", () => {
 
   assert.ok(child(card({ violations: problems }), (element) => element.props?.children === "2 errors"))
 })
+
+test("writes a step's error count in place of its summary when the step has problems", () => {
+  const lines = everyChild(card({ summary: "copy_writer@prod", violations: [ { problem: "dead_end", detail: null } ] })).map((element) => element.props?.children)
+
+  assert.deepEqual(lines.slice(lines.indexOf("Gate") + 1, lines.indexOf("Gate") + 2).concat(lines.includes("copy_writer@prod")), [ "1 error", false ])
+})

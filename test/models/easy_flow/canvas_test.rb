@@ -119,6 +119,10 @@ module EasyFlow
       assert_equal [ { "label" => "Open agent", "address" => "/agents/a" } ], canvas(switching)["nodes"].find { |node| node["id"] == "a" }["links"]
     end
 
+    test "lists an error row for each problem, naming its step and saying what is wrong" do
+      assert_equal({ "level" => "error", "node" => "b", "sentence" => "Branch needs a value for Step. Set it in the step's settings." }, canvas(flow)["checks"].first)
+    end
+
     test "falls back to the node id when its type names no field" do
       assert_equal "b", canvas(flow)["nodes"].find { |node| node["id"] == "b" }["label"]
     end

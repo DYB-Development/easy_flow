@@ -10,7 +10,7 @@ module EasyFlow
     end
 
     def to_h
-      { "nodes" => nodes, "edges" => edges, "palette" => palette, "unoffered" => unoffered, "violations" => violations }
+      { "nodes" => nodes, "edges" => edges, "palette" => palette, "unoffered" => unoffered, "violations" => violations, "checks" => CheckList.new(violations).rows }
     end
 
     private

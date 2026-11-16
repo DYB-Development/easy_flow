@@ -79,3 +79,7 @@ test("offers each link the step's type gives it as keystone's secondary button t
 
   assert.match(html, /<a href="\/agents\/copy_writer" class="ks-button ks-button-secondary[^"]*"[^>]*>Open agent<\/a>/)
 })
+
+test("writes the step's id and type in monospace above the step's name", () => {
+  assert.match(drawn(), /<p class="[^"]*font-mono[^"]*"[^>]*>gate · condition<\/p>[\s\S]*<h2[^>]*>Gate<\/h2>/)
+})

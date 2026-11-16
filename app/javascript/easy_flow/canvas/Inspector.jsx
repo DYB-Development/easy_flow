@@ -24,12 +24,14 @@ const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, re
 
   return (
     <Panel as="aside" style={panel} data-inspector>
-      <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: 8 }}>
-        <h2 style={{ fontWeight: 600, marginBottom: 2 }}>{node.label}</h2>
+      <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: 8, marginBottom: 12 }}>
+        <div>
+          <p className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{node.id} · {node.type}</p>
+          <h2 style={{ fontSize: 15, fontWeight: 600 }}>{node.label}</h2>
+        </div>
         <button title="Close" onClick={onClose} className="text-gray-500 dark:text-gray-400"
                 style={{ border: "none", background: "none", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
       </div>
-      <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginBottom: 16 }}>{node.id} · {node.type}</p>
       {refusal && <p className="text-red-800 dark:text-red-400" style={{ fontWeight: 600, marginBottom: 12 }} data-refusal>{refusal}</p>}
       {Object.entries(fields).map(([ name, type ]) => (
         <Label key={name}>

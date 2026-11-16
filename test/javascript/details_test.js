@@ -11,3 +11,7 @@ const inputs = { heading: "Inputs", columns: false, values: [ { label: "brief", 
 test("shows a section's values as keystone's value list", () => {
   assert.match(drawn([ inputs ]), /class="ks-value-list[^"]*"[\s\S]*<dt[^>]*>brief<\/dt><dd[^>]*>load_brief\.out\.brief<\/dd>/)
 })
+
+test("writes a section's heading in keystone's muted text color", () => {
+  assert.match(drawn([ inputs ]), /class="[^"]*text-gray-500[^"]*"[^>]*>Inputs</)
+})

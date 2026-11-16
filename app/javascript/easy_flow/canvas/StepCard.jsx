@@ -5,6 +5,8 @@ import { CARD } from "./styles"
 
 const card = { width: CARD, boxSizing: "border-box", borderRadius: 8 }
 
+const compactCard = { minWidth: 120, boxSizing: "border-box", borderRadius: 6 }
+
 const bookendCard = { padding: "8px 14px", textAlign: "center", fontWeight: 600 }
 
 const named = { fontWeight: 600, lineHeight: 1.3 }
@@ -24,7 +26,7 @@ const typeLineOf = (node, heading, hideStepTypeCodes) => {
   return heading === node.type_name ? null : node.type_name
 }
 
-const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes, branches = [] }) => {
+const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes, branches = [], compact = false }) => {
   const bookend = node.begins_here || node.ends_here
   const pinned = node.begins_here
   const ports = node.ends_here ? [] : node.ports
@@ -41,8 +43,8 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
          onClick={node.opens && !connecting ? () => onOpen(node.opens) : onSelect}
          className={`bg-white border-2 dark:bg-zinc-900 ${edge(target, node.violations.length > 0, selected)}`}
          style={{
-           ...card,
-           padding: bookend ? 0 : "12px 14px",
+           ...(compact ? compactCard : card),
+           padding: bookend ? 0 : compact ? "8px 10px" : "12px 14px",
            cursor: pinned ? "default" : connecting ? "crosshair" : "grab"
          }}>
       {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{heading}</div>}

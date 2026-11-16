@@ -15,3 +15,10 @@ test("inserts a step on the line's connection when its insert button is used", (
 
   assert.equal(inserted, link)
 })
+
+test("removes the line's connection when its remove button is used", () => {
+  let removed = null
+  titled(Joint({ link, onInsert: () => {}, onRemove: (on) => { removed = on } }), "Remove this connection").props.onClick()
+
+  assert.equal(removed, link)
+})

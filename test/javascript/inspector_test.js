@@ -73,3 +73,9 @@ test("shows the read-only sections the step's type gives it", () => {
 
   assert.match(html, /<dt[^>]*>brief<\/dt><dd[^>]*>load_brief\.out\.brief<\/dd>/)
 })
+
+test("offers each link the step's type gives it as keystone's secondary button to its address", () => {
+  const html = drawn({ node: { id: "gate", type: "condition", label: "Gate", config: {}, links: [ { label: "Open agent", address: "/agents/copy_writer" } ] } })
+
+  assert.match(html, /<a href="\/agents\/copy_writer" class="ks-button ks-button-secondary[^"]*"[^>]*>Open agent<\/a>/)
+})

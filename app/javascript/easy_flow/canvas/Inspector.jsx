@@ -51,6 +51,9 @@ const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, re
         </Label>
       ))}
       <Details details={node.details || []} />
+      {(node.links || []).map((link) => (
+        <Button key={link.address} variant="secondary" size="sm" href={link.address}>{link.label}</Button>
+      ))}
       <Button variant="danger" size="sm" className="w-full" onClick={onDelete}>Delete step</Button>
     </Panel>
   )

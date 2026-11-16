@@ -1,9 +1,19 @@
 import React, { useState } from "react"
 import Tabs from "keystone_ui-react/src/Tabs.jsx"
 
+const LEVELS = { error: "text-red-800 dark:text-red-400", ok: "text-emerald-800 dark:text-emerald-400" }
+
+const row = { display: "flex", gap: 8, textAlign: "left" }
+
 const Rows = ({ checks }) => (
   <div>
-    {checks.map((check, at) => <div key={at} data-check-row>{check.sentence}</div>)}
+    {checks.map((check, at) => (
+      <div key={at} data-check-row style={row}>
+        <span className={LEVELS[check.level]} style={{ fontWeight: 500 }}>{check.level}</span>
+        {check.node && <span className="font-mono">{check.node}</span>}
+        <span>{check.sentence}</span>
+      </div>
+    ))}
   </div>
 )
 

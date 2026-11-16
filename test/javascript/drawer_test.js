@@ -32,3 +32,7 @@ test("writes only the name of a host tab with nothing to count", () => {
 test("opens on the Validation tab with one row per check", () => {
   assert.equal(drawn().match(/data-check-row/g)?.length, 2)
 })
+
+test("writes each row's level, its step id in monospace, then the check's message", () => {
+  assert.match(drawn(), /data-check-row[^>]*><span[^>]*>error<\/span><span class="font-mono">ab_test_created<\/span><span>Emit event needs a value for Event\.<\/span>/)
+})

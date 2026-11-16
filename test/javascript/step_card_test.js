@@ -140,3 +140,9 @@ test("writes the step's summary on the line under its name", () => {
 
   assert.equal(lines[lines.indexOf("Gate") + 1], "copy_writer@prod")
 })
+
+test("writes a selected step's summary in the accent color", () => {
+  const summary = child(card({ summary: "copy_writer@prod" }, { selected: true }), (element) => element.props?.children === "copy_writer@prod")
+
+  assert.ok(classes(summary).includes("text-accent-600"))
+})

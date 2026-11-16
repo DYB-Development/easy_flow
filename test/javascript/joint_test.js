@@ -35,3 +35,10 @@ test("keeps the insert button showing for a host that always shows them", () => 
 
   assert.ok(insert.props.className.split(" ").includes("opacity-100"))
 })
+
+test("marks itself as under the pointer when the pointer moves onto the line", () => {
+  const line = { dataset: {} }
+  Joint({ link, onInsert: () => {}, onRemove: () => {} }).props.onMouseEnter({ currentTarget: line })
+
+  assert.equal(line.dataset.over, "true")
+})

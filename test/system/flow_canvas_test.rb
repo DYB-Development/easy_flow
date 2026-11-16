@@ -183,10 +183,11 @@ module EasyFlow
     end
 
     test "a step's card shows the summary its type works out from its settings" do
-      flow.record_definition(flow.definition.merge(
-        "nodes" => flow.definition["nodes"] + [ { "id" => "tell", "type" => "notify", "message" => "Hi", "channels" => [ "email", "sms" ] } ]))
+      wired.record_definition(wired.definition.merge(
+        "nodes" => wired.definition["nodes"] + [ { "id" => "tell", "type" => "notify", "message" => "Hi", "channels" => [ "email", "sms" ] } ],
+        "edges" => wired.definition["edges"].map { |edge| edge["to"] == "end" ? edge.merge("to" => "tell") : edge } + [ { "from" => "tell", "to" => "end" } ]))
 
-      canvas_for(flow)
+      canvas_for(wired)
 
       assert_selector "[data-step='tell']", text: "email · sms"
     end

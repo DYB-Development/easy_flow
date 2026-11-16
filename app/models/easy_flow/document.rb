@@ -25,6 +25,10 @@ module EasyFlow
       @registry.registered?(node.type) && @registry.fetch(node.type).begins_here?
     end
 
+    def holds_steps?(node)
+      node.present? && @registry.registered?(node.type) && @registry.fetch(node.type).holds_steps?
+    end
+
     def node(id)
       nodes.find { |node| node.id == id }
     end
@@ -82,15 +86,25 @@ module EasyFlow
       step = raw_nodes.find { |node| node["id"] == id }
       return self unless step
 
-      remove(id).insert(step, on: on, leaving: leaving)
+      detach(id, raw_nodes).insert(step, on: on, leaving: leaving)
     end
 
     def configure(id, config)
       reconfigured = raw_nodes.map do |node|
-        node["id"] == id ? node.slice("id", "type").merge(config) : node
+        node["id"] == id ? node.slice("id", "type", "holds").merge(config.except("holds")) : node
       end
 
       with(nodes: reconfigured, edges: raw_edges)
+    end
+
+    def group(id, into:)
+      raise InvalidEdit, "#{into} cannot hold steps" if into && (into == id || !holds_steps?(node(into)))
+
+      regrouped = released(id).map do |node|
+        node["id"] == into ? node.merge("holds" => Array(node["holds"]) + [ id ]) : node
+      end
+
+      with(nodes: regrouped, edges: raw_edges)
     end
 
     def rewire(from:, to:, target:)
@@ -102,11 +116,7 @@ module EasyFlow
     end
 
     def remove(id)
-      incoming = raw_edges.select { |edge| edge["to"] == id }
-      outgoing = raw_edges.select { |edge| edge["from"] == id }
-
-      with(nodes: raw_nodes.reject { |node| node["id"] == id },
-           edges: (raw_edges - incoming - outgoing) + bridges(incoming, outgoing))
+      detach(id, released(id))
     end
 
     def without(ids)
@@ -115,6 +125,18 @@ module EasyFlow
     end
 
     private
+
+    def detach(id, nodes)
+      incoming = raw_edges.select { |edge| edge["to"] == id }
+      outgoing = raw_edges.select { |edge| edge["from"] == id }
+
+      with(nodes: nodes.reject { |node| node["id"] == id },
+           edges: (raw_edges - incoming - outgoing) + bridges(incoming, outgoing))
+    end
+
+    def released(id)
+      raw_nodes.map { |node| node.key?("holds") ? node.merge("holds" => node["holds"] - [ id ]) : node }
+    end
 
     def bridges(incoming, outgoing)
       incoming.product(outgoing).map do |arriving, leaving|

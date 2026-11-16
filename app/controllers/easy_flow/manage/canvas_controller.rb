@@ -65,6 +65,10 @@ module EasyFlow
         apply(:moved, params[:step]) { |edited| edited.move(params[:step], on: edge_endpoints, leaving: port_for(params[:step])) }
       end
 
+      def group_step
+        apply(:moved, params[:step]) { |edited| edited.group(params[:step], into: params[:group].presence) }
+      end
+
       def remove_step
         return render json: { error: refusal_to_remove }, status: :unprocessable_entity if begins_the_flow?(params[:step])
 

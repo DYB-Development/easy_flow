@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import StepCard from "./StepCard"
+import GroupHeader from "./GroupHeader"
+import GroupBox from "./GroupBox"
+import { boxAt, headerOf, linksOutside, underHeader } from "./group"
 import Inspector from "./Inspector"
 import Placeholder from "./Placeholder"
 import { offeredTo } from "./choices"
@@ -11,6 +14,8 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
+
+const HEADER_GAP = 8
 
 const page = { display: "flex", height: "100%", minHeight: 0, fontSize: 13 }
 const scroll = { flex: 1, overflow: "auto", position: "relative" }
@@ -59,7 +64,7 @@ const Canvas = ({ base, token, initial }) => {
   }, [ flow.flow?.title, flow.flow?.slug ])
 
   const byId = useMemo(() => Object.fromEntries(flow.nodes.map((node) => [ node.id, node ])), [ flow.nodes ])
-  const { links, extent } = useConnectors(flow, surface, cards, [ flow, selected, byId ])
+  const { links, extent, boxes } = useConnectors(flow, surface, cards, [ flow, selected, byId ])
 
   const violationsFor = useMemo(() => {
     const grouped = {}
@@ -80,15 +85,29 @@ const Canvas = ({ base, token, initial }) => {
     if (source !== target) send("/edges", "POST", { from: source, to: target, on: port || null })
   }
 
+  const regroup = (event) => {
+    if (event.isDefaultPrevented() || !dragging) return
+    event.preventDefault()
+    const held = dragging
+    setDragging(null)
+    const frame = surface.current.getBoundingClientRect()
+    const into = boxAt(boxes, { x: event.clientX - frame.left + surface.current.scrollLeft, y: event.clientY - frame.top + surface.current.scrollTop })
+    const from = flow.nodes.find((node) => node.holds?.includes(held))?.id || null
+    if (into !== from) send(`/steps/${held}/group`, "PATCH", { group: into })
+  }
+
+  const entryOf = (node) => [ ...flow.palette, ...(flow.unoffered || []) ].find((entry) => entry.type === node?.type)
   const selectedNode = flow.nodes.find((node) => node.id === selected)
-  const entryFor = [ ...flow.palette, ...(flow.unoffered || []) ].find((entry) => entry.type === selectedNode?.type)
+  const entryFor = entryOf(selectedNode)
 
   return (
     <div className="text-gray-900 dark:text-gray-100" style={page} onMouseUp={() => setDragging(null)}
          onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setArmed(null); setAdding(null) } }}
          tabIndex={-1}>
       <div ref={surface} className="bg-surface-50 dark:bg-surface-950" style={scroll}
-           onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}>
+           onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}
+           onDragOver={(event) => { if (dragging) event.preventDefault() }}
+           onDrop={regroup}>
         {armed && (
           <Choosing port={armed[1]} onCancel={() => setArmed(null)} />
         )}
@@ -97,7 +116,12 @@ const Canvas = ({ base, token, initial }) => {
                  onUndo={() => { setSelected(null); send("/undo", "POST") }}
                  onRedo={() => { setSelected(null); send("/redo", "POST") }} />
 
-        <ConnectorLayer links={links} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
+        {boxes.map((box) => (
+          <GroupBox key={box.id} id={box.id} bounds={box.bounds}
+                    onDrop={() => { const held = dragging; setDragging(null); if (held) send(`/steps/${held}/group`, "PATCH", { group: box.id }) }} />
+        ))}
+
+        <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
                         onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
                         onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
                         onDrop={(link) => { const held = dragging; setDragging(null); send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }} />
@@ -130,7 +154,7 @@ const Canvas = ({ base, token, initial }) => {
 
         <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
           {attached.map((node) => (
-            <div key={node.id} style={{ gridRow: node.row + 1, gridColumn: `${node.column + 1} / span 2`, zIndex: 2 }}>
+            <div key={node.id} style={{ gridRow: node.row + 1, gridColumn: `${node.column + 1} / span 2`, zIndex: 2, marginTop: underHeader(node, flow.nodes) ? HEADER_GAP - GAP_Y : 0 }}>
               {node.placeholder && (
                 <Placeholder node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
                              dragging={Boolean(dragging)}
@@ -141,7 +165,12 @@ const Canvas = ({ base, token, initial }) => {
                                if (held) send("/edges", "POST", { from: node.from, to: held, on: node.on })
                              }} />
               )}
-              {!node.placeholder && <StepCard
+              {node.holds && (
+                <GroupHeader node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
+                             header={headerOf(node, entryOf(node), flow.hide_step_type_codes)}
+                             onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))} />
+              )}
+              {!node.placeholder && !node.holds && <StepCard
                 node={{
                   ...node,
                   ref: (element) => { cards.current[node.id] = element },

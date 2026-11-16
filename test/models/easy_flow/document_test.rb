@@ -6,12 +6,50 @@ module EasyFlow
       @foreign ||= Registry.new.tap do |built|
         built.register(StepType.define(:opening) { begins_here })
         built.register(StepType.define(:draft) { awaits_input })
+        built.register(StepType.define(:repeat) { holds_steps })
       end
     end
 
     def drafting
       Document.new({ "nodes" => [ { "id" => "o", "type" => "opening" }, { "id" => "a", "type" => "draft" } ],
                      "edges" => [ { "from" => "o", "to" => "a" } ] }, registry: foreign)
+    end
+
+    def grouping
+      Document.new({ "nodes" => [ { "id" => "o", "type" => "opening" }, { "id" => "loop", "type" => "repeat" }, { "id" => "a", "type" => "draft" } ],
+                     "edges" => [ { "from" => "o", "to" => "loop" }, { "from" => "loop", "to" => "a" } ] }, registry: foreign)
+    end
+
+    def held_by(document, id)
+      document.to_h["nodes"].find { |node| node["id"] == id }["holds"]
+    end
+
+    test "puts a step into the group step it is moved into" do
+      assert_equal [ "a" ], held_by(grouping.group("a", into: "loop"), "loop")
+    end
+
+    test "takes a step out of the group step that held it when it is moved into none" do
+      assert_empty held_by(grouping.group("a", into: "loop").group("a", into: nil), "loop")
+    end
+
+    test "no group step holds a step once that step is removed" do
+      assert_empty held_by(grouping.group("a", into: "loop").remove("a"), "loop")
+    end
+
+    test "a group step still holds a step moved onto another connection" do
+      assert_equal [ "a" ], held_by(grouping.group("a", into: "loop").move("a", on: [ "o", "loop" ]), "loop")
+    end
+
+    test "a group step still holds its steps after its settings are saved" do
+      assert_equal [ "a" ], held_by(grouping.group("a", into: "loop").configure("loop", { "list" => "outline.variants" }), "loop")
+    end
+
+    test "refuses to move a step into a step whose type holds no steps" do
+      assert_raises(InvalidEdit) { grouping.group("loop", into: "a") }
+    end
+
+    test "refuses to move a group step into itself" do
+      assert_raises(InvalidEdit) { grouping.group("loop", into: "loop") }
     end
 
     test "still knows where it begins after it is edited" do

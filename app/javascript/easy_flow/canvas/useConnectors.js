@@ -1,4 +1,5 @@
 import { useLayoutEffect, useState } from "react"
+import { boxAround } from "./group"
 
 export const anchor = (box, side, frame, surface) => {
   const left = box.left - frame.left + surface.scrollLeft
@@ -9,6 +10,9 @@ export const anchor = (box, side, frame, surface) => {
   if (side === "top") return { x: left + box.width / 2, y: top }
   return { x: left + box.width / 2, y: top + box.height }
 }
+
+export const entering = (point, side, bounds) =>
+  bounds && side === "top" ? { x: point.x, y: bounds.top } : point
 
 export const shy = (point, side) => {
   if (side === "top") return { x: point.x, y: point.y - 3 }
@@ -35,6 +39,7 @@ export const drawn = (edge, a, b, lane, detour) => {
 const useConnectors = (flow, surface, cards, watching) => {
   const [ links, setLinks ] = useState([])
   const [ extent, setExtent ] = useState({ width: "100%", height: "100%" })
+  const [ boxes, setBoxes ] = useState([])
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -43,13 +48,24 @@ const useConnectors = (flow, surface, cards, watching) => {
 
       setExtent({ width: surface.current.scrollWidth, height: surface.current.scrollHeight })
 
+      const measuredBoxes = flow.nodes.filter((node) => node.holds && !node.loose && cards.current[node.id]).map((node) => {
+        const header = cards.current[node.id]
+        const headerBox = header.getBoundingClientRect()
+        const held = node.holds.flatMap((id) => (cards.current[id] ? [ cards.current[id].getBoundingClientRect() ] : []))
+        const measured = [ { left: headerBox.left, top: headerBox.top, width: Math.max(headerBox.width, header.scrollWidth), height: headerBox.height }, ...held ]
+
+        return { id: node.id, bounds: boxAround(measured, frame, surface.current) }
+      })
+      setBoxes(measuredBoxes)
+
       setLinks(flow.edges.flatMap((edge) => {
         const fromBox = cards.current[edge.source]?.getBoundingClientRect()
         const toBox = cards.current[edge.target]?.getBoundingClientRect()
         if (!fromBox || !toBox) return []
 
         const a = anchor(fromBox, edge.leaves, frame, surface.current)
-        const b = shy(anchor(toBox, edge.enters, frame, surface.current), edge.enters)
+        const box = measuredBoxes.find((measured) => measured.id === edge.target)?.bounds
+        const b = shy(entering(anchor(toBox, edge.enters, frame, surface.current), edge.enters, box), edge.enters)
         const lane = (anchor(fromBox, "bottom", frame, surface.current).y + anchor(toBox, "top", frame, surface.current).y) / 2
         const detour = edge.leaves === "left" ? Math.min(a.x, b.x) - 28 : Math.max(a.x, b.x) + 28
 
@@ -69,7 +85,7 @@ const useConnectors = (flow, surface, cards, watching) => {
     }
   }, watching)
 
-  return { links, extent }
+  return { links, extent, boxes }
 }
 
 export default useConnectors

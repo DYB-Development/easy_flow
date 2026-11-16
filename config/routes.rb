@@ -14,6 +14,7 @@ EasyFlow::Engine.routes.draw do
         patch  "steps/:step", action: :configure_step
         delete "steps/:step",      action: :remove_step
         patch  "steps/:step/move", action: :move_step
+        patch  "steps/:step/group", action: :group_step
         post   "versions",    action: :create
         post   "publish",     action: :publish
         patch  "details",     action: :details

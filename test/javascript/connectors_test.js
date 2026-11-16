@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { anchor, shy, drawn } from "../../app/javascript/easy_flow/canvas/useConnectors.js"
+import { anchor, shy, drawn, entering } from "../../app/javascript/easy_flow/canvas/useConnectors.js"
 
 const frame = { left: 0, top: 0 }
 const surface = { scrollLeft: 0, scrollTop: 0 }
@@ -72,4 +72,8 @@ test("puts a lane route's controls on the lane", () => {
 
 test("puts a detour route's controls out on the detour", () => {
   assert.equal(drawn({ route: "detour" }, a, b, 70, 88).midX, 88)
+})
+
+test("ends an arrow into a group step at the top of its box", () => {
+  assert.deepEqual(entering({ x: 220, y: 50 }, "top", { left: 88, top: 40, width: 264, height: 160 }), { x: 220, y: 40 })
 })

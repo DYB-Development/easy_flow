@@ -11,7 +11,7 @@ module EasyFlow
     attr_reader :id, :step_name, :settings, :naming_field, :naming, :outputs, :drawn_by, :unsaved_refusal
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
-      ends_here: false, begins_here: false, starts_a_flow: false, plays_the_picked_flow: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,
+      ends_here: false, begins_here: false, starts_a_flow: false, plays_the_picked_flow: false, holds_steps: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,
       naming_field: nil, naming: nil, outputs: [], outputs_named_by: nil, answer_check: nil, answer_labelling: nil, readiness: nil, return_rule: nil, unsaved_refusal: nil)
       @id = id
       @step_name = step_name
@@ -21,6 +21,7 @@ module EasyFlow
       @begins_here = begins_here
       @starts_a_flow = starts_a_flow
       @plays_the_picked_flow = plays_the_picked_flow
+      @holds_steps = holds_steps
       @flow_chooser = flow_chooser
       @run_chooser = run_chooser
       @behaviour = behaviour
@@ -112,6 +113,10 @@ module EasyFlow
 
     def plays_the_picked_flow?
       @plays_the_picked_flow
+    end
+
+    def holds_steps?
+      @holds_steps
     end
 
     def chooses_flow_from_run?

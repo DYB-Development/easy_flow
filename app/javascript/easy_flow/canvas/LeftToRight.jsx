@@ -15,11 +15,20 @@ const Steps = ({ steps, edges, draw }) => (
   </div>
 )
 
+const box = { display: "flex", flexDirection: "column", gap: 8, padding: "10px 12px", borderRadius: 8 }
+
+const Box = ({ group, steps, edges, draw }) => (
+  <div data-group-box={group.id} className="border border-dashed border-gray-400 bg-white/60 dark:border-zinc-600 dark:bg-zinc-900/60" style={box}>
+    {draw(group)}
+    <Steps steps={steps} edges={edges} draw={draw} />
+  </div>
+)
+
 const LeftToRight = ({ nodes, edges, draw }) => (
   <div data-flow-rows style={stack}>
-    {blocksOf(nodes).map((block) => (
-      <Steps key={block.group?.id || block.steps[0].id} steps={block.steps} edges={edges} draw={draw} />
-    ))}
+    {blocksOf(nodes).map((block) => (block.group
+      ? <Box key={block.group.id} group={block.group} steps={block.steps} edges={edges} draw={draw} />
+      : <Steps key={block.steps[0].id} steps={block.steps} edges={edges} draw={draw} />))}
   </div>
 )
 

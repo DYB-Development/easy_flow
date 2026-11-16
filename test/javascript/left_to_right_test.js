@@ -14,3 +14,9 @@ const drawn = (nodes, edges = [], given = {}) => renderToStaticMarkup(React.crea
 test("joins a step to the next step it leads to with a short line", () => {
   assert.match(drawn(chain, [ { id: "ask-gate-0", source: "ask", target: "gate" } ]), /data-joint="ask-gate-0"/)
 })
+
+test("lays a group step's steps out in a row inside its box below its header", () => {
+  const nodes = [ { ...step("loop", 0), holds: [ "write", "check" ] }, step("write", 1), step("check", 2) ]
+
+  assert.match(drawn(nodes), /data-group-box="loop"[^>]*><div data-step="loop"><\/div><div data-flow-row[^>]*>.*data-step="write".*data-step="check"/)
+})

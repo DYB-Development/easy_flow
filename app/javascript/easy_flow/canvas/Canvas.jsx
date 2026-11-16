@@ -15,6 +15,7 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
+import { branchLine, branchesOf } from "./reading"
 
 const HEADER_GAP = 8
 
@@ -142,6 +143,7 @@ const Canvas = ({ base, token, initial }) => {
         onDragEnd={() => setDragging(null)}
         onDragStart={() => setDragging(node.id)}
         hideStepTypeCodes={flow.hide_step_type_codes}
+        branches={leftToRight ? branchesOf(node, flow.edges, attached).map((edge) => branchLine(edge, flow.nodes)) : []}
       />}
     </>
   )

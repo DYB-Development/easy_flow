@@ -59,3 +59,9 @@ const step = (id, row) => ({ id, label: id, type: "question", config: {}, ports:
 test("draws a left-to-right host's steps side by side in a row", () => {
   assert.match(leftToRight([ step("ask", 0), step("gate", 1) ]), /data-flow-row[^>]*>.*data-step="ask".*data-step="gate"/)
 })
+
+test("writes on a left-to-right step's card where each of its branches goes", () => {
+  const edges = [ { id: "gate-ask-0", source: "gate", target: "ask", label: "false" } ]
+
+  assert.match(leftToRight([ step("ask", 0), step("gate", 1) ], edges), /data-step="gate".*>false → ask</)
+})

@@ -60,3 +60,10 @@ test("shows a step's picture from the address the canvas gave it", () => {
 test("shows why the last change was refused", () => {
   assert.match(drawn({ refusal: "That file is not a picture." }), /data-refusal[^>]*>That file is not a picture\.</)
 })
+
+test("groups a radio card setting's cards under the setting's name", () => {
+  const html = drawn({ fields: { alias: "radio_cards" }, labels: { alias: "Alias" },
+                       choices: { alias: [ { value: "prod", label: "prod → v22" }, { value: "candidate", label: "candidate → v23" } ] } })
+
+  assert.equal(html.match(/<input(?=[^>]*type="radio")(?=[^>]*name="alias")[^>]*>/g)?.length, 2)
+})

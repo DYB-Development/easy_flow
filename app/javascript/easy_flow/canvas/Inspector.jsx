@@ -37,7 +37,7 @@ const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, re
                        outputsOf={(recordOutputsOf || {})[name]}
                        onChange={(next) => setDraft({ ...draft, [name]: next })}
                        onSettle={(next) => settle({ ...draft, [name]: next })} />
-            : <Control type={type} value={draft[name]} choices={choices[name]} pictureUrl={pictureUrl}
+            : <Control name={name} type={type} value={draft[name]} choices={choices[name]} pictureUrl={pictureUrl}
                        onChange={(next) => setDraft({ ...draft, [name]: next })}
                        onSettle={(next) => settle({ ...draft, [name]: next })}
                        onPick={async (file) => {

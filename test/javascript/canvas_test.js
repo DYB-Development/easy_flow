@@ -4,9 +4,9 @@ import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import Canvas, { Choosing } from "../../app/javascript/easy_flow/canvas/Canvas.jsx"
 
-const drawn = (nodes = []) => renderToStaticMarkup(React.createElement(Canvas, {
+const drawn = (nodes = [], palette = []) => renderToStaticMarkup(React.createElement(Canvas, {
   base: "/flows/1/canvas", token: "t",
-  initial: { nodes, edges: [], violations: [], palette: [], undoable: false, redoable: false, flow: {} }
+  initial: { nodes, edges: [], violations: [], palette, undoable: false, redoable: false, flow: {} }
 }))
 
 test("writes the editor's text in keystone's text color", () => {
@@ -41,4 +41,10 @@ test("colors the notice's cancel link with the accent color", () => {
   const notice = renderToStaticMarkup(React.createElement(Choosing, { port: "yes", onCancel: () => {} }))
 
   assert.ok(classesOf(notice, "cancel").includes("text-accent-800"))
+})
+
+test("draws a step that holds steps as its header line", () => {
+  const group = { id: "loop", label: "loop", type: "for_each", config: { list: "outline.variants" }, holds: [], ports: [], row: 0, column: 0 }
+
+  assert.match(drawn([ group ], [ { type: "for_each", fields: { list: "string" } } ]), /data-group-header="loop"[^>]*>for_each · list: outline.variants</)
 })

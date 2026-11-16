@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import StepCard from "./StepCard"
+import GroupHeader from "./GroupHeader"
+import { headerOf } from "./group"
 import Inspector from "./Inspector"
 import Placeholder from "./Placeholder"
 import { offeredTo } from "./choices"
@@ -80,8 +82,9 @@ const Canvas = ({ base, token, initial }) => {
     if (source !== target) send("/edges", "POST", { from: source, to: target, on: port || null })
   }
 
+  const entryOf = (node) => [ ...flow.palette, ...(flow.unoffered || []) ].find((entry) => entry.type === node?.type)
   const selectedNode = flow.nodes.find((node) => node.id === selected)
-  const entryFor = [ ...flow.palette, ...(flow.unoffered || []) ].find((entry) => entry.type === selectedNode?.type)
+  const entryFor = entryOf(selectedNode)
 
   return (
     <div className="text-gray-900 dark:text-gray-100" style={page} onMouseUp={() => setDragging(null)}
@@ -141,7 +144,12 @@ const Canvas = ({ base, token, initial }) => {
                                if (held) send("/edges", "POST", { from: node.from, to: held, on: node.on })
                              }} />
               )}
-              {!node.placeholder && <StepCard
+              {node.holds && (
+                <GroupHeader node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
+                             header={headerOf(node, entryOf(node), flow.hide_step_type_codes)}
+                             onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))} />
+              )}
+              {!node.placeholder && !node.holds && <StepCard
                 node={{
                   ...node,
                   ref: (element) => { cards.current[node.id] = element },

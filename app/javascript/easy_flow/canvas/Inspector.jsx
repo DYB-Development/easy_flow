@@ -7,7 +7,7 @@ import Panel from "keystone_ui-react/src/Panel.jsx"
 import Button from "keystone_ui-react/src/Button.jsx"
 import { Label } from "keystone_ui-react/src/FieldText.jsx"
 
-const panel = { width: 320, padding: "14px 16px", overflowY: "auto", display: "flex", flexDirection: "column" }
+const panel = { width: 320, padding: "14px 16px", overflowY: "auto", display: "flex", flexDirection: "column", fontSize: 12 }
 
 const foot = { marginTop: "auto", paddingTop: 12, display: "flex", flexDirection: "column", gap: 8 }
 

@@ -83,3 +83,7 @@ test("offers each link the step's type gives it as keystone's secondary button t
 test("writes the step's id and type in monospace above the step's name", () => {
   assert.match(drawn(), /<p class="[^"]*font-mono[^"]*"[^>]*>gate · condition<\/p>[\s\S]*<h2[^>]*>Gate<\/h2>/)
 })
+
+test("sets the panel's text at 12 pixels, as the mock-up does", () => {
+  assert.match(drawn(), /^<aside[^>]*style="[^"]*font-size:12px/)
+})

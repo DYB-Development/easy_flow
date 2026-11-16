@@ -1,4 +1,5 @@
 import { useLayoutEffect, useState } from "react"
+import { boxAround } from "./group"
 
 export const anchor = (box, side, frame, surface) => {
   const left = box.left - frame.left + surface.scrollLeft
@@ -35,6 +36,7 @@ export const drawn = (edge, a, b, lane, detour) => {
 const useConnectors = (flow, surface, cards, watching) => {
   const [ links, setLinks ] = useState([])
   const [ extent, setExtent ] = useState({ width: "100%", height: "100%" })
+  const [ boxes, setBoxes ] = useState([])
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -55,6 +57,15 @@ const useConnectors = (flow, surface, cards, watching) => {
 
         return [ drawn(edge, a, b, lane, detour) ]
       }))
+
+      setBoxes(flow.nodes.filter((node) => node.holds && !node.loose && cards.current[node.id]).map((node) => {
+        const header = cards.current[node.id]
+        const headerBox = header.getBoundingClientRect()
+        const held = node.holds.flatMap((id) => (cards.current[id] ? [ cards.current[id].getBoundingClientRect() ] : []))
+        const measured = [ { left: headerBox.left, top: headerBox.top, width: Math.max(headerBox.width, header.scrollWidth), height: headerBox.height }, ...held ]
+
+        return { id: node.id, bounds: boxAround(measured, frame, surface.current) }
+      }))
     }
 
     measure()
@@ -69,7 +80,7 @@ const useConnectors = (flow, surface, cards, watching) => {
     }
   }, watching)
 
-  return { links, extent }
+  return { links, extent, boxes }
 }
 
 export default useConnectors

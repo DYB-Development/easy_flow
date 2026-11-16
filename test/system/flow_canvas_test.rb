@@ -42,6 +42,35 @@ module EasyFlow
       end
     end
 
+    def grouped
+      @grouped ||= Definition.create!(host: "dummy", slug: "canvas-grouped").tap do |built|
+        built.record_definition(flowing(
+          "slug" => "canvas-grouped", "entry" => "outline",
+          "nodes" => [ { "id" => "outline", "type" => "question", "question" => "Outline", "answers" => [ { "value" => "on" } ] },
+                       { "id" => "variants", "type" => "for_each", "list" => "outline.variants", "concurrency" => 3, "on_item_failure" => "continue",
+                         "holds" => [ "write_variant", "length_terms_claims", "copy_reviewer" ] },
+                       { "id" => "write_variant", "type" => "question", "question" => "Write variant", "answers" => [ { "value" => "on" } ] },
+                       { "id" => "length_terms_claims", "type" => "question", "question" => "Length, terms and claims", "answers" => [ { "value" => "on" } ] },
+                       { "id" => "copy_reviewer", "type" => "question", "question" => "Copy reviewer", "answers" => [ { "value" => "on" } ] },
+                       { "id" => "human_approve", "type" => "question", "question" => "Human approve", "answers" => [ { "value" => "on" } ] },
+                       { "id" => "end", "type" => "terminal" } ],
+          "edges" => [ { "from" => "outline", "to" => "variants" }, { "from" => "variants", "to" => "write_variant" },
+                       { "from" => "write_variant", "to" => "length_terms_claims" }, { "from" => "length_terms_claims", "to" => "copy_reviewer" },
+                       { "from" => "copy_reviewer", "to" => "human_approve" }, { "from" => "human_approve", "to" => "end" } ]
+        ))
+      end
+    end
+
+    def inside_box?(selector, group)
+      page.evaluate_script(<<~JS)
+        (() => {
+          const box = document.querySelector("[data-group-box='#{group}']").getBoundingClientRect()
+          const card = document.querySelector("#{selector}").getBoundingClientRect()
+          return card.left >= box.left && card.right <= box.right && card.top >= box.top && card.bottom <= box.bottom
+        })()
+      JS
+    end
+
     def drawn_connectors
       all("[data-connector]").map { |connector| connector["data-connector"] }
     end
@@ -418,6 +447,13 @@ module EasyFlow
       find("[data-inspector]").click_button("Delete step")
 
       assert_no_selector "[data-step='end']"
+    end
+
+    test "a group step's steps are drawn inside its dashed box" do
+      canvas_for(grouped)
+
+      assert_selector "[data-group-box='variants']"
+      assert(%w[write_variant length_terms_claims copy_reviewer].all? { |id| inside_box?("[data-step='#{id}']", "variants") })
     end
 
     test "dragging a step onto a waiting spot fills it" do

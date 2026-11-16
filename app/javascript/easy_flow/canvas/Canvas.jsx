@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import StepCard from "./StepCard"
 import GroupHeader from "./GroupHeader"
+import GroupBox from "./GroupBox"
 import { headerOf } from "./group"
 import Inspector from "./Inspector"
 import Placeholder from "./Placeholder"
@@ -61,7 +62,7 @@ const Canvas = ({ base, token, initial }) => {
   }, [ flow.flow?.title, flow.flow?.slug ])
 
   const byId = useMemo(() => Object.fromEntries(flow.nodes.map((node) => [ node.id, node ])), [ flow.nodes ])
-  const { links, extent } = useConnectors(flow, surface, cards, [ flow, selected, byId ])
+  const { links, extent, boxes } = useConnectors(flow, surface, cards, [ flow, selected, byId ])
 
   const violationsFor = useMemo(() => {
     const grouped = {}
@@ -99,6 +100,11 @@ const Canvas = ({ base, token, initial }) => {
                  onAdd={() => setAdding({ at: { x: 16, y: 52 } })}
                  onUndo={() => { setSelected(null); send("/undo", "POST") }}
                  onRedo={() => { setSelected(null); send("/redo", "POST") }} />
+
+        {boxes.map((box) => (
+          <GroupBox key={box.id} id={box.id} bounds={box.bounds}
+                    onDrop={() => { const held = dragging; setDragging(null); if (held) send(`/steps/${held}/group`, "PATCH", { group: box.id }) }} />
+        ))}
 
         <ConnectorLayer links={links} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
                         onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}

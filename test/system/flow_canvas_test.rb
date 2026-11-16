@@ -179,7 +179,7 @@ module EasyFlow
 
       canvas_for(flow)
 
-      assert_selector "[data-step='adrift']", text: "Adrift is not connected to the flow."
+      assert_selector "[data-step='adrift'] [data-error-count]"
     end
 
     test "adding a step from an unconnected branch wires it to that branch" do

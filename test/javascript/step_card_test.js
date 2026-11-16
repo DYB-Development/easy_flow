@@ -74,16 +74,14 @@ test("writes a start card's label in keystone's muted text color", () => {
   assert.ok(classes(label).includes("text-gray-500"))
 })
 
-test("writes each of the step's problems in red", () => {
-  const problem = child(card({ violations: [ { problem: "unreachable", detail: null } ] }), (element) => element.key === "unreachablenull")
+test("writes the count of the step's problems in red", () => {
+  const count = child(card({ violations: [ { problem: "unreachable", detail: null } ] }), (element) => element.props?.children === "1 error")
 
-  assert.ok(classes(problem).includes("text-red-600"))
+  assert.ok(classes(count).includes("text-red-600"))
 })
 
-test("writes each of the step's problems as its sentence", () => {
-  const problem = child(card({ violations: [ { problem: "dead_end", detail: null, sentence: "Gate leads nowhere." } ] }), (element) => element.key === "dead_endnull")
-
-  assert.equal(problem.props.children, "Gate leads nowhere.")
+test("leaves the sentence of each of the step's problems to the flow's problem list", () => {
+  assert.equal(child(card({ violations: [ { problem: "dead_end", detail: null, sentence: "Gate leads nowhere." } ] }), (element) => element.props?.children === "Gate leads nowhere."), undefined)
 })
 
 test("marks a step that runs another flow", () => {

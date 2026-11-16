@@ -61,11 +61,6 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
       {branches.map((branch) => (
         <div key={branch} className="text-gray-500 dark:text-gray-400" style={{ fontSize: 10 }}>{branch}</div>
       ))}
-      {node.violations.map((violation) => (
-        <div key={violation.problem + violation.detail} className="text-red-600 dark:text-red-400" style={{ fontSize: 11, padding: "0 14px 6px" }}>
-          {violation.sentence}
-        </div>
-      ))}
       {ports.length > 0 && (
         <div style={{ padding: node.begins_here ? "0 14px 8px" : "10px 0 0" }}>
           {ports.map((port) => (

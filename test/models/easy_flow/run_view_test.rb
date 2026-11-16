@@ -65,6 +65,10 @@ module EasyFlow
                    group.slice("config", "fields"))
     end
 
+    test "names the step its host chose as selected" do
+      assert_equal "draft", drawn(selected: :draft)["selected"]
+    end
+
     test "joins each step to the step it leads to" do
       assert_includes drawn["edges"].map { |edge| edge.slice("source", "target") }, { "source" => "outline", "target" => "draft" }
     end

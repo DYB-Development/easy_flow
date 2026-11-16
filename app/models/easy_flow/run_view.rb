@@ -8,7 +8,7 @@ module EasyFlow
     end
 
     def to_h
-      { "nodes" => nodes, "edges" => edges }
+      { "nodes" => nodes, "edges" => edges, "selected" => @selected&.to_s }
     end
 
     private

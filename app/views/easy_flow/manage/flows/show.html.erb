@@ -8,6 +8,7 @@
     <div>
       <h1 class="text-lg font-semibold text-[var(--ks-color-text)] dark:text-[var(--ks-color-text-dark)]" data-flow-heading><%= @flow.title.presence || @flow.slug %></h1>
       <p class="text-sm text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]"><%= @flow.slug %></p>
+      <p class="font-mono text-xs text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]" data-version-status><%= EasyFlow::DraftStatus.new(@flow) %></p>
     </div>
     <div class="flex items-center gap-2">
       <button type="button" data-open-panel

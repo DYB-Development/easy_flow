@@ -44,7 +44,13 @@ module EasyFlow
       shown = @steps.fetch(node.id, {}).to_h.symbolize_keys
 
       { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => shown[:state]&.to_s, "status" => shown[:status], "address" => shown[:address], "version" => shown[:version],
-        "holds" => holds(node), **placed.fetch(node.id, {}) }
+        "holds" => holds(node), **header_of(node), **placed.fetch(node.id, {}) }
+    end
+
+    def header_of(node)
+      return {} unless step_type_for(node)&.holds_steps?
+
+      { "config" => node.config, "fields" => step_type_for(node).settings.fields.transform_keys(&:to_s).transform_values(&:to_s) }
     end
   end
 end

@@ -59,6 +59,12 @@ module EasyFlow
       assert_equal [ "write" ], group["holds"]
     end
 
+    test "gives a group step its settings and their types for its header line" do
+      assert_equal({ "config" => { "list" => "outline.variants", "concurrency" => 3, "holds" => [ "write" ] },
+                     "fields" => { "list" => "string", "concurrency" => "integer", "on_item_failure" => "select" } },
+                   group.slice("config", "fields"))
+    end
+
     test "joins each step to the step it leads to" do
       assert_includes drawn["edges"].map { |edge| edge.slice("source", "target") }, { "source" => "outline", "target" => "draft" }
     end

@@ -3,7 +3,7 @@ module EasyFlow
     BackLink = Data.define(:label, :address)
 
     attr_reader :name, :back_link
-    attr_writer :layout, :admin_layout, :offers, :allowed_answers, :always_show_insert_buttons, :hide_step_type_codes, :marks_ends, :on_publish
+    attr_writer :layout, :admin_layout, :offers, :allowed_answers, :always_show_insert_buttons, :hide_step_type_codes, :marks_ends, :on_publish, :canvas_direction
     attr_accessor :admin_authentication_method, :visitor_authorization_method, :refusal_method, :owner_method, :finds_flows_across_owners, :publish_note
 
     def initialize(name)
@@ -47,6 +47,10 @@ module EasyFlow
 
     def always_show_insert_buttons?
       @always_show_insert_buttons.present?
+    end
+
+    def canvas_direction
+      @canvas_direction || :top_to_bottom
     end
 
     def marks_ends?

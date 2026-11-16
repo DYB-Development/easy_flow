@@ -52,6 +52,10 @@ module EasyFlow
       assert_not Host.new(:alembic).always_show_insert_buttons?
     end
 
+    test "lays its canvas out top to bottom when it says nothing" do
+      assert_equal :top_to_bottom, Host.new(:alembic).canvas_direction
+    end
+
     test "keeps showing step type codes when it says nothing" do
       assert_not Host.new(:alembic).hide_step_type_codes?
     end

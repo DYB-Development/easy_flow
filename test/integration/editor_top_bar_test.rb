@@ -33,5 +33,13 @@ module EasyFlow
 
       assert_select "header [data-view-switch] a[href=?]", easy_flow.manage_flow_path(flow), text: "Canvas"
     end
+
+    test "the editor's top bar names the version Publish will create" do
+      patch "#{easy_flow.manage_flow_canvas_path(flow)}/steps/a", params: { config: { question: "New", answers: [ { "value" => "yes" } ] } }
+
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header button[data-bar-publish]", text: "Publish v2"
+    end
   end
 end

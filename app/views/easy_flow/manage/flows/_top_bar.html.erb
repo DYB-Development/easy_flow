@@ -30,5 +30,8 @@
               class="inline-flex items-center justify-center font-semibold rounded-lg border-0 cursor-pointer bg-accent-600 text-white hover:bg-accent-700 text-sm px-3 py-1.5">This flow</button>
     <% end %>
     <%= ui_button(label: "Try it", href: flow_routes.manage_flow_preview_path(flow), variant: :secondary, size: :sm) %>
+    <% if showing == :canvas %>
+      <%= ui_button(label: "Publish v#{EasyFlow::DraftStatus.new(flow).publishes}", type: :button, size: :sm, data: { bar_publish: true }) %>
+    <% end %>
   </div>
 </header>

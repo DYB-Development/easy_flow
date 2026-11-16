@@ -12,3 +12,7 @@ test("makes the header from the step type's code and each setting's name and val
 test("leaves a setting left blank out of the header", () => {
   assert.equal(headerOf({ ...forEach, config: { list: "outline.variants", concurrency: "" } }, entry), "for_each · list: outline.variants")
 })
+
+test("names the type and settings by their labels when the host hides step type codes", () => {
+  assert.equal(headerOf({ ...forEach, config: { list: "outline.variants" } }, entry, true), "For each · List: outline.variants")
+})

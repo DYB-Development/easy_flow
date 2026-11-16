@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.41.0] - 2026-11-15
+
 ### Added
 
 - A step type can declare `holds_steps`, such as a host's own "for each" step. The canvas draws a step of that type as a dashed box with its header line at the top and the steps it holds inside. The header line is the step type's code followed by each filled-in setting as `name: value`, joined by ` · `, and a host that hides step type codes sees the type's name and the settings' labels instead. Clicking the header opens the step's settings.

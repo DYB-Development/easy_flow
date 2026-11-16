@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.43.0] - 2026-11-15
+
 ### Added
 
 - A host page can show a read-only view of where a run stands with `easy_flow_run_view(version, steps: { "outline" => { state: :done, status: "8.2s · $0.04", version: "v9", address: "/runs/1/outline" } }, selected: "outline")`, a view helper every view in the app can call. Each step is a compact card with its type code, name, the version and status line the host supplies, and an edge coloured by its state, done, paused, pending or failed. A paused step's edge is thicker, the selected step's card is ringed, and a card given an address is a link to it. The steps sit left to right as on a left-to-right canvas, a group step's box holds its steps under its header line, a phone-width screen shows one card per row, and the Start and End steps are left out. It has no editing controls. The page loads the `keystone_ui/react` and `easy_flow/canvas` scripts, as the canvas page does.

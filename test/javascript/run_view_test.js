@@ -23,3 +23,7 @@ test("draws a held step inside its group's box under the group's header line", (
 test("draws no buttons for changing the flow", () => {
   assert.doesNotMatch(drawn(), /<button/)
 })
+
+test("starts its rows at its own top left corner, with none of the room the editing canvas keeps for its toolbar", () => {
+  assert.match(drawn(), /data-flow-rows="true" style="[^"]*padding:0/)
+})

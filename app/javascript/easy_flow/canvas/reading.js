@@ -7,3 +7,16 @@ export const readingOrder = (nodes) => {
   return placed.filter((node) => !held.includes(node))
     .flatMap((node) => [ node, ...held.filter((step) => node.holds?.includes(step.id)) ])
 }
+
+export const blocksOf = (nodes) => {
+  const ordered = readingOrder(nodes)
+  const held = (step) => ordered.some((group) => group.holds?.includes(step.id))
+
+  return ordered.filter((node) => !held(node)).reduce((blocks, node) => {
+    if (node.holds) return [ ...blocks, { group: node, steps: ordered.filter((step) => node.holds.includes(step.id)) } ]
+
+    const last = blocks[blocks.length - 1]
+    if (last && !last.group) return [ ...blocks.slice(0, -1), { steps: [ ...last.steps, node ] } ]
+    return [ ...blocks, { steps: [ node ] } ]
+  }, [])
+}

@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
+import { blocksOf, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
 
 const ids = (nodes) => nodes.map((node) => node.id)
 
@@ -21,4 +21,12 @@ test("reads the steps a group step holds right after the group step", () => {
                   { id: "aside", row: 1, column: 2 }, { id: "check", row: 2, column: 0 } ]
 
   assert.deepEqual(ids(readingOrder(nodes)), [ "loop", "write", "check", "aside" ])
+})
+
+test("puts a group step's box on a row of its own between the steps before and after it", () => {
+  const nodes = [ { id: "outline", row: 0, column: 0 }, { id: "loop", row: 1, column: 0, holds: [ "write" ] },
+                  { id: "write", row: 2, column: 0 }, { id: "approve", row: 3, column: 0 } ]
+  const named = blocksOf(nodes).map((block) => ({ group: block.group?.id, steps: ids(block.steps) }))
+
+  assert.deepEqual(named, [ { group: undefined, steps: [ "outline" ] }, { group: "loop", steps: [ "write" ] }, { group: undefined, steps: [ "approve" ] } ])
 })

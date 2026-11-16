@@ -110,6 +110,14 @@ const Canvas = ({ base, token, initial }) => {
   const addStep = (entry, where = {}) =>
     send("/steps", "POST", { id: nextId(entry.type, flow.nodes.map((node) => node.id)), type: entry.type, from: where.from, to: where.to, on: where.on })
 
+  const dropOnLink = (link) => {
+    const [ entry, held ] = [ carrying, dragging ]
+    setCarrying(null)
+    setDragging(null)
+    if (entry) addStep(entry, { from: link.source, to: link.target })
+    else if (held) send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target })
+  }
+
   const pointed = (event) => {
     const frame = surface.current.getBoundingClientRect()
     return { x: event.clientX - frame.left + surface.current.scrollLeft + 8, y: event.clientY - frame.top + surface.current.scrollTop + 8 }
@@ -213,7 +221,7 @@ const Canvas = ({ base, token, initial }) => {
         {!leftToRight && <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
                         onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
                         onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
-                        onDrop={(link) => { const held = dragging; setDragging(null); send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }} />}
+                        onDrop={dropOnLink} />}
 
         {!leftToRight && waitingSteps}
 
@@ -221,10 +229,7 @@ const Canvas = ({ base, token, initial }) => {
           alwaysShowInsertButtons: flow.always_show_insert_buttons,
           onInsert: (link, event) => setAdding({ from: link.source, to: link.target, at: pointed(event) }),
           onRemove: (link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) },
-          onDrop: (link) => {
-            if (carrying) { setCarrying(null); addStep(carrying, { from: link.source, to: link.target }); return }
-            const held = dragging; setDragging(null); if (held) send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target })
-          }
+          onDrop: dropOnLink
         }}>{waitingSteps}</LeftToRight>}
 
         {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>

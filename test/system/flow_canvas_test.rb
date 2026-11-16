@@ -951,5 +951,12 @@ module EasyFlow
         assert_selector "[data-joint^='first-question']"
       end
     end
+    test "dragging a step type from the step list onto a connector inserts that step on its connection" do
+      canvas_for(flow)
+
+      find("[data-step-list] [data-step-type='question']").drag_to(find("[data-connector='first-gate']"))
+
+      assert_selector "[data-connector='first-question']"
+    end
   end
 end

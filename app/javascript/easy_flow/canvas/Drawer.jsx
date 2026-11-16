@@ -1,7 +1,14 @@
 import React, { useState } from "react"
+import Panel from "keystone_ui-react/src/Panel.jsx"
 import Tabs from "keystone_ui-react/src/Tabs.jsx"
 
 const LEVELS = { error: "text-red-800 dark:text-red-400", ok: "text-emerald-800 dark:text-emerald-400" }
+
+const LOOK = "mx-6 mb-6 flex max-h-[45%] flex-none flex-col overflow-y-auto rounded-lg max-sm:m-0 max-sm:max-h-none max-sm:rounded-none [&_.ks-tab-bar]:mb-0 [&_.ks-tab-bar]:px-2"
+
+const COVERING = "max-sm:absolute max-sm:inset-0 max-sm:z-20"
+
+const body = { padding: "10px 14px", fontSize: 12, display: "flex", flexDirection: "column", gap: 6 }
 
 const row = { display: "flex", gap: 8, textAlign: "left" }
 
@@ -18,12 +25,10 @@ const Row = ({ check, onSelect }) => {
 }
 
 const Rows = ({ checks, onSelect }) => (
-  <div>
+  <div style={body}>
     {checks.map((check, at) => <Row key={at} check={check} onSelect={onSelect} />)}
   </div>
 )
-
-const COVERING = "max-sm:absolute max-sm:inset-0 max-sm:z-20 max-sm:overflow-y-auto"
 
 const onAPhone = () => typeof window !== "undefined" && Boolean(window.matchMedia?.("(max-width: 639px)").matches)
 
@@ -31,11 +36,11 @@ const Drawer = ({ checks, tabs, onSelect, opened = onAPhone() ? null : "validati
   const [ open, setOpen ] = useState(opened)
 
   return (
-    <section aria-label="Validation and tests" data-drawer className={open ? COVERING : undefined}>
+    <Panel as="section" aria-label="Validation and tests" data-drawer className={open ? `${LOOK} ${COVERING}` : LOOK}>
       <Tabs align="start" shape="underline" value={open} onChange={(chosen) => setOpen(chosen === open ? null : chosen)}
             tabs={[ { value: "validation", label: "Validation", count: checks.filter((check) => check.level === "error").length, content: <Rows checks={checks} onSelect={onSelect} /> },
-                    ...tabs.map((tab) => ({ value: tab.label, label: tab.label, count: tab.count ?? "", content: <div data-drawer-content dangerouslySetInnerHTML={{ __html: tab.content }} /> })) ]} />
-    </section>
+                    ...tabs.map((tab) => ({ value: tab.label, label: tab.label, count: tab.count ?? "", content: <div data-drawer-content style={body} dangerouslySetInnerHTML={{ __html: tab.content }} /> })) ]} />
+    </Panel>
   )
 }
 

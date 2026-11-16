@@ -44,3 +44,7 @@ test("shows the content its host gives a tab once that tab is open", () => {
 test("makes a row that names a step a button for that step, and leaves a row with no step plain", () => {
   assert.deepEqual(drawn().match(/<(button|div)[^>]*data-check-row/g).map((tag) => tag.split(" ")[0]), [ "<button", "<div" ])
 })
+
+test("is drawn as a keystone panel", () => {
+  assert.match(drawn(), /^<section[^>]* class="ks-panel/)
+})

@@ -27,3 +27,6 @@ const inside = ({ left, top, width, height }, point) =>
   point.x >= left && point.x <= left + width && point.y >= top && point.y <= top + height
 
 export const boxAt = (boxes, point) => boxes.find((box) => inside(box.bounds, point))?.id || null
+
+export const linksOutside = (links, nodes) =>
+  links.filter((link) => !nodes.some((node) => node.id === link.source && node.holds?.includes(link.target)))

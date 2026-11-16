@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import StepCard from "./StepCard"
 import GroupHeader from "./GroupHeader"
 import GroupBox from "./GroupBox"
-import { boxAt, headerOf } from "./group"
+import { boxAt, headerOf, linksOutside } from "./group"
 import Inspector from "./Inspector"
 import Placeholder from "./Placeholder"
 import { offeredTo } from "./choices"
@@ -119,7 +119,7 @@ const Canvas = ({ base, token, initial }) => {
                     onDrop={() => { const held = dragging; setDragging(null); if (held) send(`/steps/${held}/group`, "PATCH", { group: box.id }) }} />
         ))}
 
-        <ConnectorLayer links={links} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
+        <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
                         onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
                         onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
                         onDrop={(link) => { const held = dragging; setDragging(null); send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }} />

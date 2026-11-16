@@ -12,4 +12,9 @@ document.addEventListener("easy_flow:flow-named", (event) => {
   if (heading) heading.textContent = event.detail
 })
 
+document.addEventListener("easy_flow:flow-status", (event) => {
+  const status = document.querySelector("[data-version-status]")
+  if (status && event.detail) status.textContent = event.detail
+})
+
 startMounting(document, createRoot)

@@ -34,7 +34,7 @@ test("opens on the Validation tab with one row per check", () => {
 })
 
 test("writes each row's level, its step id in monospace, then the check's message", () => {
-  assert.match(drawn(), /data-check-row[^>]*><span[^>]*>error<\/span><span class="font-mono">ab_test_created<\/span><span>Emit event needs a value for Event\.<\/span>/)
+  assert.match(drawn(), /data-check-row[^>]*><span[^>]*>error<\/span><span class="font-mono"[^>]*>ab_test_created<\/span><span>Emit event needs a value for Event\.<\/span>/)
 })
 
 test("shows the content its host gives a tab once that tab is open", () => {
@@ -47,4 +47,8 @@ test("makes a row that names a step a button for that step, and leaves a row wit
 
 test("is drawn as a keystone panel", () => {
   assert.match(drawn(), /^<section[^>]* class="ks-panel/)
+})
+
+test("keeps a row's level word whole when the row is narrow", () => {
+  assert.match(drawn(), /<span class="text-red-800[^"]*" style="[^"]*flex-shrink:0;white-space:nowrap[^"]*">error<\/span>/)
 })

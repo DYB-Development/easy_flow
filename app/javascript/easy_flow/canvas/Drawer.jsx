@@ -12,10 +12,12 @@ const body = { padding: "10px 14px", fontSize: 12, display: "flex", flexDirectio
 
 const row = { display: "flex", gap: 8, textAlign: "left" }
 
+const whole = { flexShrink: 0, whiteSpace: "nowrap" }
+
 const Row = ({ check, onSelect }) => {
   const shown = <>
-    <span className={LEVELS[check.level]} style={{ fontWeight: 500 }}>{check.level}</span>
-    {check.node && <span className="font-mono">{check.node}</span>}
+    <span className={LEVELS[check.level]} style={{ ...whole, fontWeight: 500 }}>{check.level}</span>
+    {check.node && <span className="font-mono" style={whole}>{check.node}</span>}
     <span>{check.sentence}</span>
   </>
 

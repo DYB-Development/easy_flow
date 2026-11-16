@@ -26,5 +26,25 @@ module EasyFlow
 
       assert_selector "[data-flow-run-view] [data-step='human_approve']", text: "waiting · expires 46h"
     end
+
+    def on_a_phone
+      page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
+      yield
+    ensure
+      page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
+    end
+
+    def card_edges(*ids)
+      ids.map { |id| page.evaluate_script(%((() => { const card = document.querySelector("[data-step='#{id}']").getBoundingClientRect(); return [ Math.round(card.left), card.right <= window.innerWidth ] })())) }
+    end
+
+    test "on a phone, the run view stacks its cards one per row within the width of the page" do
+      on_a_phone do
+        visit "/runs/#{run_version.id}"
+        find("[data-step='human_approve']")
+
+        assert_equal [ [ 16, true ] ] * 3, card_edges("load_brief", "outline", "human_approve")
+      end
+    end
   end
 end

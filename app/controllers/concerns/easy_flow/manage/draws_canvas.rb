@@ -13,7 +13,8 @@ module EasyFlow
                  "hide_step_type_codes" => flow_host.hide_step_type_codes?,
                  "direction" => flow_host.canvas_direction.to_s,
                  "step_groups" => flow_host.step_groups,
-                 "publish_note" => flow_host.publish_note)
+                 "publish_note" => flow_host.publish_note,
+                 "drawer_tabs" => flow_host.drawer_tabs_for(flow).map(&:to_h))
       end
 
       def canvas_document(flow)

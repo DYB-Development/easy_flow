@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- A step type can declare `holds_steps`, such as a host's own "for each" step. The canvas draws a step of that type as a dashed box with its header line at the top and the steps it holds inside. The header line is the step type's code followed by each filled-in setting as `name: value`, joined by ` · `, and a host that hides step type codes sees the type's name and the settings' labels instead. Clicking the header opens the step's settings.
+- An admin moves a step into a group step's box by dragging it onto the box, and out of it by dragging it onto the canvas outside the box. Moving a step in or out changes which steps the group holds and leaves its connections as they were. The group step lists the ids of the steps it holds under `holds` in the flow's document, and removing a step takes it out of the group that held it.
+- A run reaching a group step passes straight on along its connection, and the steps it holds run once like any other steps. Flows with no group step load and run as before.
+
 ## [0.40.0] - 2026-11-11
 
 ### Added

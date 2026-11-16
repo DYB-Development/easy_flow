@@ -29,3 +29,9 @@ test("moves a dragged step onto the line's connection when it is dropped there",
 
   assert.equal(moved, link)
 })
+
+test("keeps the insert button showing for a host that always shows them", () => {
+  const insert = titled(Joint({ link, alwaysShowInsertButtons: true, onInsert: () => {}, onRemove: () => {} }), "Insert a step here")
+
+  assert.ok(insert.props.className.split(" ").includes("opacity-100"))
+})

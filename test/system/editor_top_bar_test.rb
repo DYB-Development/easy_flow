@@ -19,6 +19,13 @@ module EasyFlow
       find("body").click
     end
 
+    def on_a_phone
+      page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
+      yield
+    ensure
+      page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
+    end
+
     test "the top bar counts a change made on the canvas" do
       canvas_for(flow)
       change_the_first_step
@@ -49,6 +56,18 @@ module EasyFlow
       change_the_first_step
 
       assert_selector "[data-bar-action=publish]", text: "Publish v2"
+    end
+
+    test "on a phone, Publish is reached from the top bar's actions menu" do
+      on_a_phone do
+        canvas_for(flow)
+        change_the_first_step
+
+        find("[data-bar-menu] summary").click
+        find("[data-bar-menu] [data-bar-action=publish]").click
+
+        assert_selector "[data-notice]", text: "Published version 2."
+      end
     end
   end
 end

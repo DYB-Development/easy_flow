@@ -23,19 +23,31 @@
     <% end %>
   </nav>
 
-  <div class="ml-auto flex flex-wrap items-center gap-2">
-    <% if showing == :canvas %>
-      <button type="button" data-open-panel
-              onclick="document.dispatchEvent(new CustomEvent('easy_flow:open-flow'))"
-              class="inline-flex items-center justify-center font-semibold rounded-lg border-0 cursor-pointer bg-accent-600 text-white hover:bg-accent-700 text-sm px-3 py-1.5">This flow</button>
-    <% end %>
-    <%= ui_button(label: "Try it", href: flow_routes.manage_flow_preview_path(flow), variant: :secondary, size: :sm) %>
-    <% flow_host.editor_buttons_for(flow).each do |button| %>
-      <%= ui_button(label: button.label, href: button.address, variant: :secondary, size: :sm) %>
-    <% end %>
-    <% if showing == :canvas %>
-      <%= ui_button(label: "Save draft", type: :button, variant: :secondary, size: :sm, data: { bar_action: "save_draft" }) %>
-      <%= ui_button(label: "Publish v#{EasyFlow::DraftStatus.new(flow).publishes}", type: :button, size: :sm, data: { bar_action: "publish" }) %>
+  <% actions = [] %>
+  <% actions << { label: "This flow", data: { bar_action: "open", open_panel: true } } if showing == :canvas %>
+  <% actions << { label: "Try it", href: flow_routes.manage_flow_preview_path(flow) } %>
+  <% flow_host.editor_buttons_for(flow).each { |button| actions << { label: button.label, href: button.address } } %>
+  <% if showing == :canvas %>
+    <% actions << { label: "Save draft", data: { bar_action: "save_draft" } } %>
+    <% actions << { label: "Publish v#{EasyFlow::DraftStatus.new(flow).publishes}", data: { bar_action: "publish" }, primary: true } %>
+  <% end %>
+
+  <div class="ml-auto hidden flex-wrap items-center gap-2 sm:flex">
+    <% actions.each do |action| %>
+      <%= ui_button(label: action[:label], href: action[:href], type: :button, variant: action[:primary] ? :primary : :secondary, size: :sm, data: action[:data]) %>
     <% end %>
   </div>
+
+  <details class="relative ml-auto sm:hidden" data-bar-menu>
+    <summary class="ks-button ks-button-secondary ks-button-sm cursor-pointer list-none" aria-label="Actions">⋯</summary>
+    <div class="ks-action-menu absolute right-0 z-50 w-48">
+      <% actions.each do |action| %>
+        <% if action[:href] %>
+          <%= link_to action[:label], action[:href], class: "ks-menu-option block w-full text-left text-sm" %>
+        <% else %>
+          <%= tag.button action[:label], type: "button", class: "ks-menu-option block w-full text-left text-sm", data: action[:data] %>
+        <% end %>
+      <% end %>
+    </div>
+  </details>
 </header>

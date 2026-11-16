@@ -47,20 +47,16 @@ const Canvas = ({ base, token, initial }) => {
   const surface = useRef(null)
 
   useEffect(() => {
-    const open = () => { setSelected(null); setShowing(true) }
-    document.addEventListener("easy_flow:open-flow", open)
-    return () => document.removeEventListener("easy_flow:open-flow", open)
-  }, [])
-
-  useEffect(() => {
-    const paths = { publish: "/publish", save_draft: "/versions" }
+    const paths = { open: null, publish: "/publish", save_draft: "/versions" }
     const pressed = (event) => {
-      const path = paths[event.target.closest?.("[data-bar-action]")?.dataset.barAction]
-      if (!path) return
+      const button = event.target.closest?.("[data-bar-action]")
+      if (!button || !(button.dataset.barAction in paths)) return
 
+      button.closest("details")?.removeAttribute("open")
       setSelected(null)
       setShowing(true)
-      send(path, "POST")
+      const path = paths[button.dataset.barAction]
+      if (path) send(path, "POST")
     }
     document.addEventListener("click", pressed)
     return () => document.removeEventListener("click", pressed)

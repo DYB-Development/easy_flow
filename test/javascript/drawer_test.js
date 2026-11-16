@@ -36,3 +36,7 @@ test("opens on the Validation tab with one row per check", () => {
 test("writes each row's level, its step id in monospace, then the check's message", () => {
   assert.match(drawn(), /data-check-row[^>]*><span[^>]*>error<\/span><span class="font-mono">ab_test_created<\/span><span>Emit event needs a value for Event\.<\/span>/)
 })
+
+test("shows the content its host gives a tab once that tab is open", () => {
+  assert.match(drawn({ tabs: hosted, opened: "Fixtures" }), /<p>12 of 12 pass\.<\/p>/)
+})

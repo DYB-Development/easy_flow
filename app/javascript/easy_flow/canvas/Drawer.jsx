@@ -24,7 +24,7 @@ const Drawer = ({ checks, tabs, onSelect, opened = "validation" }) => {
     <section aria-label="Validation and tests" data-drawer>
       <Tabs align="start" shape="underline" value={open} onChange={setOpen}
             tabs={[ { value: "validation", label: "Validation", count: checks.filter((check) => check.level === "error").length, content: <Rows checks={checks} /> },
-                    ...tabs.map((tab) => ({ value: tab.label, label: tab.label, count: tab.count ?? "" })) ]} />
+                    ...tabs.map((tab) => ({ value: tab.label, label: tab.label, count: tab.count ?? "", content: <div data-drawer-content dangerouslySetInnerHTML={{ __html: tab.content }} /> })) ]} />
     </section>
   )
 }

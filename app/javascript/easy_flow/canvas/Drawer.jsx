@@ -23,12 +23,14 @@ const Rows = ({ checks, onSelect }) => (
   </div>
 )
 
-const Drawer = ({ checks, tabs, onSelect, opened = "validation" }) => {
+const onAPhone = () => typeof window !== "undefined" && Boolean(window.matchMedia?.("(max-width: 639px)").matches)
+
+const Drawer = ({ checks, tabs, onSelect, opened = onAPhone() ? null : "validation" }) => {
   const [ open, setOpen ] = useState(opened)
 
   return (
     <section aria-label="Validation and tests" data-drawer>
-      <Tabs align="start" shape="underline" value={open} onChange={setOpen}
+      <Tabs align="start" shape="underline" value={open} onChange={(chosen) => setOpen(chosen === open ? null : chosen)}
             tabs={[ { value: "validation", label: "Validation", count: checks.filter((check) => check.level === "error").length, content: <Rows checks={checks} onSelect={onSelect} /> },
                     ...tabs.map((tab) => ({ value: tab.label, label: tab.label, count: tab.count ?? "", content: <div data-drawer-content dangerouslySetInnerHTML={{ __html: tab.content }} /> })) ]} />
     </section>

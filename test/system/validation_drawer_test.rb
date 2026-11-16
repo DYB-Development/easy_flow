@@ -35,5 +35,21 @@ module EasyFlow
 
       assert_selector "[data-drawer]", text: "12 of 12 fixtures pass for validation-drawer."
     end
+
+    def on_a_phone
+      page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
+      yield
+    ensure
+      page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
+    end
+
+    test "on a phone the drawer shows only its row of tabs until one is tapped" do
+      on_a_phone do
+        canvas_for(flow)
+
+        assert_selector "[data-drawer] button", text: "Validation 1"
+        assert_no_selector "[data-drawer] [data-check-row]"
+      end
+    end
   end
 end

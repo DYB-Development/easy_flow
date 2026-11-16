@@ -12,6 +12,7 @@ module EasyFlow
                  "always_show_insert_buttons" => flow_host.always_show_insert_buttons?,
                  "hide_step_type_codes" => flow_host.hide_step_type_codes?,
                  "direction" => flow_host.canvas_direction.to_s,
+                 "step_groups" => flow_host.step_groups,
                  "publish_note" => flow_host.publish_note)
       end
 

@@ -31,6 +31,7 @@ module EasyFlow
           "version" => flow.current_definition_version&.number,
           "published" => flow.live_version&.number,
           "status" => DraftStatus.new(flow).to_s,
+          "publishes" => DraftStatus.new(flow).publishes,
           "definition_url" => edit_manage_flow_definition_path(flow),
           "details_url" => edit_manage_flow_path(flow),
           "history_url" => manage_flow_versions_path(flow) }

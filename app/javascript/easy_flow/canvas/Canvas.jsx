@@ -84,8 +84,8 @@ const Canvas = ({ base, token, initial }) => {
   }, [ flow.flow?.title, flow.flow?.slug ])
 
   useEffect(() => {
-    document.dispatchEvent(new CustomEvent("easy_flow:flow-status", { detail: flow.flow?.status }))
-  }, [ flow.flow?.status ])
+    document.dispatchEvent(new CustomEvent("easy_flow:flow-status", { detail: { status: flow.flow?.status, publishes: flow.flow?.publishes } }))
+  }, [ flow.flow?.status, flow.flow?.publishes ])
 
   const byId = useMemo(() => Object.fromEntries(flow.nodes.map((node) => [ node.id, node ])), [ flow.nodes ])
   const { links, extent, boxes } = useConnectors(flow, surface, cards, [ flow, selected, byId ])

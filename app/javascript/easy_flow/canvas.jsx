@@ -12,9 +12,9 @@ document.addEventListener("easy_flow:flow-named", (event) => {
   if (heading) heading.textContent = event.detail
 })
 
-document.addEventListener("easy_flow:flow-status", (event) => {
-  const status = document.querySelector("[data-version-status]")
-  if (status && event.detail) status.textContent = event.detail
+document.addEventListener("easy_flow:flow-status", ({ detail }) => {
+  if (detail.status) document.querySelectorAll("[data-version-status]").forEach((shown) => { shown.textContent = detail.status })
+  if (detail.publishes) document.querySelectorAll("[data-bar-action=publish]").forEach((shown) => { shown.textContent = `Publish v${detail.publishes}` })
 })
 
 startMounting(document, createRoot)

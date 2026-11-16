@@ -43,5 +43,12 @@ module EasyFlow
 
       assert_selector "[data-notice]", text: "Created version 2."
     end
+
+    test "the top bar's Publish names the next version once the canvas changes" do
+      canvas_for(flow)
+      change_the_first_step
+
+      assert_selector "[data-bar-action=publish]", text: "Publish v2"
+    end
   end
 end

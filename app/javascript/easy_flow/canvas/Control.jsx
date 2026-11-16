@@ -27,7 +27,9 @@ const Control = ({ name, type, value, choices, onChange, onSettle, onPick, pictu
   }
 
   if (type === "radio_cards") {
-    return <RadioCards name={name} value={value} options={choices || []} onChange={(e) => onSettle(e.target.value)} />
+    return <div data-radio-cards className="mb-3 [&_label]:flex-[1_1_7rem] [&_.ks-radio-card]:flex [&_.ks-radio-card]:h-full">
+      <RadioCards name={name} value={value} options={choices || []} onChange={(e) => onSettle(e.target.value)} />
+    </div>
   }
 
   if (type === "multi_select") {

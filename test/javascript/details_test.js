@@ -39,3 +39,7 @@ test("draws a code section's summary lines plain, with no border around them", (
 test("stacks a section's heading over its contents, leaving room under the section", () => {
   assert.deepEqual([ "flex", "flex-col", "gap-1", "mb-3" ].filter((name) => sectionClasses(drawn([ inputs ])).includes(name)), [ "flex", "flex-col", "gap-1", "mb-3" ])
 })
+
+test("leaves a row section's heading in the panel's own font", () => {
+  assert.ok(!sectionClasses(drawn([ inputs ])).includes("font-mono"))
+})

@@ -116,3 +116,7 @@ test("a Settings button on a step that runs another flow selects the step", () =
 
   assert.ok(selected)
 })
+
+test("writes where each of a compact card's branches leads", () => {
+  assert.ok(child(card({}, { compact: true, branches: [ "false → Ask again" ] }), (element) => element.props?.children === "false → Ask again"))
+})

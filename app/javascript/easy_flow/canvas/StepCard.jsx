@@ -24,7 +24,7 @@ const typeLineOf = (node, heading, hideStepTypeCodes) => {
   return heading === node.type_name ? null : node.type_name
 }
 
-const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes }) => {
+const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes, branches = [] }) => {
   const bookend = node.begins_here || node.ends_here
   const pinned = node.begins_here
   const ports = node.ends_here ? [] : node.ports
@@ -51,6 +51,9 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
       {node.picture_url && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Has a picture</div>}
       {node.starts_a_flow && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Runs a flow</div>}
       {node.opens && <Button variant="secondary" size="sm" className="mt-2" onClick={(event) => { event.stopPropagation(); onSelect() }}>Settings</Button>}
+      {branches.map((branch) => (
+        <div key={branch} className="text-gray-500 dark:text-gray-400" style={{ fontSize: 10 }}>{branch}</div>
+      ))}
       {node.violations.map((violation) => (
         <div key={violation.problem + violation.detail} className="text-red-600 dark:text-red-400" style={{ fontSize: 11, padding: "0 14px 6px" }}>
           {violation.sentence}

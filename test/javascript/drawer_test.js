@@ -28,3 +28,7 @@ test("adds each tab its host gives it, with the host's count after its name", ()
 test("writes only the name of a host tab with nothing to count", () => {
   assert.match(drawn({ tabs: hosted }), /<button[^>]*>Dry-run<\/button>/)
 })
+
+test("opens on the Validation tab with one row per check", () => {
+  assert.equal(drawn().match(/data-check-row/g)?.length, 2)
+})

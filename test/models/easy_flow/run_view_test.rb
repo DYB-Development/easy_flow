@@ -12,6 +12,19 @@ module EasyFlow
       ))
     end
 
+    def grouped
+      Definition.create!(host: "dummy", slug: "run-view-grouped").record_definition(flowing(
+        "entry" => "variants",
+        "nodes" => [ { "id" => "variants", "type" => "for_each", "list" => "outline.variants", "concurrency" => 3, "holds" => [ "write" ] },
+                     { "id" => "write", "type" => "question", "question" => "Write", "answers" => [ { "value" => "on" } ] } ],
+        "edges" => [ { "from" => "variants", "to" => "write" } ]
+      ))
+    end
+
+    def group
+      RunView.new(grouped).to_h["nodes"].find { |node| node["id"] == "variants" }
+    end
+
     def drawn(steps = {}, selected: nil)
       RunView.new(version, steps: steps, selected: selected).to_h
     end
@@ -40,6 +53,10 @@ module EasyFlow
 
     test "places each step after the step that leads to it" do
       assert_operator step("draft")["row"], :>, step("outline")["row"]
+    end
+
+    test "lists the steps a group step holds" do
+      assert_equal [ "write" ], group["holds"]
     end
 
     test "joins each step to the step it leads to" do

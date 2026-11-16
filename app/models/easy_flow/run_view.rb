@@ -32,6 +32,10 @@ module EasyFlow
       step_type.present? && (step_type.begins_here? || step_type.ends_here?)
     end
 
+    def holds(node)
+      Array(node.config["holds"]) if step_type_for(node)&.holds_steps?
+    end
+
     def step_type_for(node)
       @registry.fetch(node.type) if @registry.registered?(node.type)
     end
@@ -39,7 +43,8 @@ module EasyFlow
     def drawn_step(node)
       shown = @steps.fetch(node.id, {}).to_h.symbolize_keys
 
-      { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => shown[:state]&.to_s, "status" => shown[:status], "address" => shown[:address], "version" => shown[:version], **placed[node.id] }
+      { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => shown[:state]&.to_s, "status" => shown[:status], "address" => shown[:address], "version" => shown[:version],
+        "holds" => holds(node), **placed.fetch(node.id, {}) }
     end
   end
 end

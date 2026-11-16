@@ -599,6 +599,16 @@ module EasyFlow
       assert_equal false, response.parsed_body["always_show_insert_buttons"]
     end
 
+    test "the canvas lists the group headings its host names with their step types" do
+      EasyFlow.host_named("dummy").step_groups = { "Control" => [ :condition ] }
+
+      get "#{canvas_path}.json"
+
+      assert_equal({ "Control" => [ "condition" ] }, response.parsed_body["step_groups"])
+    ensure
+      EasyFlow.host_named("dummy").step_groups = {}
+    end
+
     test "the canvas says which direction its host lays the steps out in" do
       EasyFlow.host_named("dummy").canvas_direction = :left_to_right
 

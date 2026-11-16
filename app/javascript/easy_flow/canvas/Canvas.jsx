@@ -7,6 +7,7 @@ import Inspector from "./Inspector"
 import Placeholder from "./Placeholder"
 import { offeredTo } from "./choices"
 import TypePicker from "./TypePicker"
+import StepList from "./StepList"
 import Toolbar from "./Toolbar"
 import Panel from "./Panel"
 import ConnectorLayer from "./ConnectorLayer"
@@ -40,6 +41,7 @@ const Canvas = ({ base, token, initial }) => {
   const [ adding, setAdding ] = useState(null)
   const [ armed, setArmed ] = useState(null)
   const [ dragging, setDragging ] = useState(null)
+  const [ carrying, setCarrying ] = useState(null)
   const [ showing, setShowing ] = useState(false)
   const cards = useRef({})
   const surface = useRef(null)
@@ -104,6 +106,17 @@ const Canvas = ({ base, token, initial }) => {
   const entryOf = (node) => [ ...flow.palette, ...(flow.unoffered || []) ].find((entry) => entry.type === node?.type)
   const selectedNode = flow.nodes.find((node) => node.id === selected)
   const entryFor = entryOf(selectedNode)
+
+  const addStep = (entry, where = {}) =>
+    send("/steps", "POST", { id: nextId(entry.type, flow.nodes.map((node) => node.id)), type: entry.type, from: where.from, to: where.to, on: where.on })
+
+  const dropOnLink = (link) => {
+    const [ entry, held ] = [ carrying, dragging ]
+    setCarrying(null)
+    setDragging(null)
+    if (entry) addStep(entry, { from: link.source, to: link.target })
+    else if (held) send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target })
+  }
 
   const pointed = (event) => {
     const frame = surface.current.getBoundingClientRect()
@@ -186,6 +199,8 @@ const Canvas = ({ base, token, initial }) => {
     <div className="text-gray-900 dark:text-gray-100" style={page} onMouseUp={() => setDragging(null)}
          onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setArmed(null); setAdding(null) } }}
          tabIndex={-1}>
+      <StepList entries={flow.palette} groups={flow.step_groups || {}}
+                onPick={(entry) => addStep(entry)} onCarry={setCarrying} onDrop={() => setCarrying(null)} />
       <div ref={surface} className="bg-surface-50 dark:bg-surface-950" style={scroll}
            onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}
            onDragOver={(event) => { if (dragging) event.preventDefault() }}
@@ -203,18 +218,19 @@ const Canvas = ({ base, token, initial }) => {
                     onDrop={() => { const held = dragging; setDragging(null); if (held) send(`/steps/${held}/group`, "PATCH", { group: box.id }) }} />
         ))}
 
-        {!leftToRight && <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
+        {!leftToRight && <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging || carrying} alwaysShowInsertButtons={flow.always_show_insert_buttons}
                         onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
                         onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
-                        onDrop={(link) => { const held = dragging; setDragging(null); send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }} />}
+                        onDrop={dropOnLink} />}
 
         {!leftToRight && waitingSteps}
 
         {leftToRight && <LeftToRight nodes={attached} edges={flow.edges} draw={draw} joints={{
           alwaysShowInsertButtons: flow.always_show_insert_buttons,
+          dragging: Boolean(dragging || carrying),
           onInsert: (link, event) => setAdding({ from: link.source, to: link.target, at: pointed(event) }),
           onRemove: (link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) },
-          onDrop: (link) => { const held = dragging; setDragging(null); if (held) send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }
+          onDrop: dropOnLink
         }}>{waitingSteps}</LeftToRight>}
 
         {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
@@ -231,7 +247,7 @@ const Canvas = ({ base, token, initial }) => {
                       onPick={(entry) => {
                         const where = adding
                         setAdding(null)
-                        send("/steps", "POST", { id: nextId(entry.type, flow.nodes.map((node) => node.id)), type: entry.type, from: where.from, to: where.to, on: where.on })
+                        addStep(entry, where)
                       }} />
         )}
       </div>

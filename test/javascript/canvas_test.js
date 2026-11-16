@@ -14,7 +14,7 @@ test("writes the editor's text in keystone's text color", () => {
 })
 
 test("sets the canvas on the palette's surface color", () => {
-  assert.match(drawn(), /^<div[^>]*><div class="bg-surface-50 dark:bg-surface-950"/)
+  assert.match(drawn(), /^<div[^>]*><aside.*?<\/aside><div class="bg-surface-50 dark:bg-surface-950"/)
 })
 
 const loose = [ { id: "orphan", label: "Orphan", type: "question", loose: true, ports: [], row: 0, column: 0 } ]
@@ -46,7 +46,7 @@ test("colors the notice's cancel link with the accent color", () => {
 test("draws a step that holds steps as its header line", () => {
   const group = { id: "loop", label: "loop", type: "for_each", config: { list: "outline.variants" }, holds: [], ports: [], row: 0, column: 0 }
 
-  assert.match(drawn([ group ], [ { type: "for_each", fields: { list: "string" } } ]), /data-group-header="loop"[^>]*>for_each · list: outline.variants</)
+  assert.match(drawn([ group ], [ { type: "for_each", label: "For each", fields: { list: "string" } } ]), /data-group-header="loop"[^>]*>for_each · list: outline.variants</)
 })
 
 const leftToRight = (nodes, edges = []) => renderToStaticMarkup(React.createElement(Canvas, {

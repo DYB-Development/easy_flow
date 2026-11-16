@@ -120,6 +120,13 @@ module EasyFlow
       page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
     end
 
+    def with_step_groups(groups)
+      EasyFlow.host_named("dummy").step_groups = groups
+      yield
+    ensure
+      EasyFlow.host_named("dummy").step_groups = {}
+    end
+
     def left_of(id)
       page.evaluate_script(%(document.querySelector("[data-step='#{id}']").getBoundingClientRect().left))
     end
@@ -914,6 +921,65 @@ module EasyFlow
       laid_left_to_right { canvas_for(adrift) }
 
       assert_operator page.evaluate_script(%(document.querySelector("[data-loose]").getBoundingClientRect().bottom)), :<=, top_of("start")
+    end
+
+    test "the step list lists each step type under the heading its host names" do
+      with_step_groups("Control" => [ :condition ]) { laid_left_to_right { canvas_for(flow) } }
+
+      assert_selector :xpath, "//*[@data-step-list]//div[normalize-space()='Control']/following-sibling::button[1][normalize-space()='Condition']"
+    end
+    test "typing in the step list's search field leaves only the step types it matches" do
+      laid_left_to_right { canvas_for(flow) }
+
+      find("[data-step-list] input[aria-label='Search steps']").fill_in(with: "condit")
+
+      assert_equal [ "condition" ], all("[data-step-list] [data-step-type]").map { |button| button["data-step-type"] }
+    end
+    test "clicking a step type in the step list adds that step unconnected" do
+      laid_left_to_right { canvas_for(flow) }
+
+      find("[data-step-list] [data-step-type='question']").click
+
+      assert_selector "[data-loose] [data-step='question']"
+    end
+    test "dragging a step type from the step list onto a left-to-right short line inserts that step on its connection" do
+      laid_left_to_right do
+        canvas_for(flow)
+
+        find("[data-step-list] [data-step-type='question']").drag_to(find("[data-joint^='first-gate']"))
+
+        assert_selector "[data-joint^='first-question']"
+      end
+    end
+    test "dragging a step type from the step list onto a connector inserts that step on its connection" do
+      canvas_for(flow)
+
+      find("[data-step-list] [data-step-type='question']").drag_to(find("[data-connector='first-gate']"))
+
+      assert_selector "[data-connector='first-question']"
+    end
+    test "on a phone, the step list is hidden" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(flow) }
+
+        assert_no_selector "[data-step-list]"
+      end
+    end
+    test "while a step type is dragged from the step list, each connector shows where it can be dropped" do
+      canvas_for(flow)
+
+      page.execute_script(%(document.querySelector("[data-step-list] [data-step-type='question']").dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: new DataTransfer() }))))
+
+      assert_selector "[data-connector='first-gate'] button[style*='opacity: 1']"
+    end
+    test "while a step type is dragged from the step list, each left-to-right short line shows where it can be dropped" do
+      laid_left_to_right do
+        canvas_for(flow)
+
+        page.execute_script(%(document.querySelector("[data-step-list] [data-step-type='question']").dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: new DataTransfer() }))))
+
+        assert_selector "[data-joint^='first-gate'] button[title='Insert a step here'][style*='opacity: 1']"
+      end
     end
   end
 end

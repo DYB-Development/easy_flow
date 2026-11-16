@@ -85,5 +85,23 @@ module EasyFlow
     ensure
       page.current_window.resize_to(1400, 1000)
     end
+
+    def grid_layout
+      page.evaluate_script(<<~JS)
+        (() => {
+          const pairs = [...document.querySelectorAll("[data-inspector] dt")].filter((label) => ["Output format", "Idempotency", "Retry"].includes(label.textContent))
+          const [ format, idempotency, retry ] = pairs.map((label) => label.parentElement.getBoundingClientRect())
+          const label = pairs[0].getBoundingClientRect()
+          const value = pairs[0].nextElementSibling.getBoundingClientRect()
+          return { twoToARow: format.top === idempotency.top && retry.top > format.top, labelAboveValue: label.bottom <= value.top }
+        })()
+      JS
+    end
+
+    test "an agent step's settings sit two to a row, each label above its value" do
+      open_agent_settings
+
+      assert_equal({ "twoToARow" => true, "labelAboveValue" => true }, grid_layout)
+    end
   end
 end

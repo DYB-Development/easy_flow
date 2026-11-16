@@ -103,6 +103,11 @@ const Canvas = ({ base, token, initial }) => {
   const selectedNode = flow.nodes.find((node) => node.id === selected)
   const entryFor = entryOf(selectedNode)
 
+  const pointed = (event) => {
+    const frame = surface.current.getBoundingClientRect()
+    return { x: event.clientX - frame.left + surface.current.scrollLeft + 8, y: event.clientY - frame.top + surface.current.scrollTop + 8 }
+  }
+
   const draw = (node) => (
     <>
       {node.placeholder && (
@@ -201,7 +206,12 @@ const Canvas = ({ base, token, initial }) => {
           </div>
         )}
 
-        {leftToRight && <LeftToRight nodes={attached} edges={flow.edges} draw={draw} />}
+        {leftToRight && <LeftToRight nodes={attached} edges={flow.edges} draw={draw} joints={{
+          alwaysShowInsertButtons: flow.always_show_insert_buttons,
+          onInsert: (link, event) => setAdding({ from: link.source, to: link.target, at: pointed(event) }),
+          onRemove: (link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) },
+          onDrop: (link) => { const held = dragging; setDragging(null); if (held) send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }
+        }} />}
 
         {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>
           {attached.map((node) => (

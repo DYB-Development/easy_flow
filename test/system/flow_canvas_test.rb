@@ -900,5 +900,14 @@ module EasyFlow
                      page.evaluate_script(%(document.querySelector("[data-joint^='s1-s2']").getBoundingClientRect().top))
       end
     end
+
+    test "removing the connection on a left-to-right short line unlinks the two steps" do
+      laid_left_to_right { canvas_for(flow) }
+
+      find("[data-joint^='first-gate']").hover
+      find("[data-joint^='first-gate']").click_button("×")
+
+      assert_no_selector "[data-joint^='first-gate']"
+    end
   end
 end

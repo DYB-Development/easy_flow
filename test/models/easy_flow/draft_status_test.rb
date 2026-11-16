@@ -40,5 +40,9 @@ module EasyFlow
 
       assert_equal 2, DraftStatus.new(flow.reload).publishes
     end
+
+    test "a draft with no changes since its version publishes that version" do
+      assert_equal 1, DraftStatus.new(flow).publishes
+    end
   end
 end

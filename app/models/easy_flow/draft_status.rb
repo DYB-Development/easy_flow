@@ -9,6 +9,8 @@ module EasyFlow
     end
 
     def publishes
+      return @flow.current_definition_version.number if @flow.current_definition_version && @flow.versioned?
+
       @flow.definition_versions.maximum(:number).to_i + 1
     end
 

@@ -15,5 +15,11 @@ module EasyFlow
 
       assert_select "header [data-version-status]", text: "draft from v1 · unsaved 0 changes"
     end
+
+    test "the canvas carries the draft status the top bar shows" do
+      get "#{easy_flow.manage_flow_canvas_path(flow)}.json"
+
+      assert_equal "draft from v1 · unsaved 0 changes", response.parsed_body["flow"]["status"]
+    end
   end
 end

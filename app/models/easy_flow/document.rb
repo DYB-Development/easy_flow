@@ -94,7 +94,7 @@ module EasyFlow
     end
 
     def group(id, into:)
-      regrouped = raw_nodes.map do |node|
+      regrouped = released(id).map do |node|
         node["id"] == into ? node.merge("holds" => Array(node["holds"]) + [ id ]) : node
       end
 
@@ -123,6 +123,10 @@ module EasyFlow
     end
 
     private
+
+    def released(id)
+      raw_nodes.map { |node| node.key?("holds") ? node.merge("holds" => node["holds"] - [ id ]) : node }
+    end
 
     def bridges(incoming, outgoing)
       incoming.product(outgoing).map do |arriving, leaving|

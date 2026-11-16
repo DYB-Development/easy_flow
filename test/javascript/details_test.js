@@ -27,3 +27,7 @@ const sectionClasses = (html) => (html.match(/<section class="([^"]*)"/)?.[1] ||
 test("sets a section's values in a monospace font", () => {
   assert.ok(sectionClasses(drawn([ { ...inputs, columns: true } ])).includes("[&_dd]:font-mono"))
 })
+
+test("lines a row section's labels up in one column 90 pixels wide", () => {
+  assert.ok(sectionClasses(drawn([ inputs ])).includes("[&_.ks-value-list-label]:basis-[90px]"))
+})

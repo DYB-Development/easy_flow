@@ -130,3 +130,7 @@ test("writes a compact card's type above its name", () => {
 
   assert.equal(first.props.children, "condition")
 })
+
+test("borders a compact card with a thin line", () => {
+  assert.ok(classes(card({}, { compact: true })).includes("border"))
+})

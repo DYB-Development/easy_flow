@@ -43,7 +43,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
          onDragStart={(event) => { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", node.id); onDragStart() }}
          onDragEnd={onDragEnd}
          onClick={node.opens && !connecting ? () => onOpen(node.opens) : onSelect}
-         className={`bg-white border-2 dark:bg-zinc-900 ${edge(target, node.violations.length > 0, selected)}`}
+         className={`bg-white ${compact && !selected ? "border" : "border-2"} dark:bg-zinc-900 ${edge(target, node.violations.length > 0, selected)}`}
          style={{
            ...(compact ? compactCard : card),
            padding: bookend ? 0 : compact ? "8px 10px" : "12px 14px",

@@ -1,8 +1,6 @@
-<%= ui_page(max_width: :lg) do %>
-  <p class="mb-4">
-    <%= link_to "← Back to the flow", flow_routes.manage_flow_path(@flow), class: "text-sm text-accent-600 hover:text-accent-700" %>
-  </p>
+<%= render "easy_flow/manage/flows/top_bar", flow: @flow, showing: :text, parent: nil, back_link: @back_link %>
 
+<%= ui_page(max_width: :lg) do %>
   <%= ui_form_page(title: "Definition", back_url: flow_routes.manage_flow_path(@flow), subtitle: @flow.slug) %>
 
   <%= ui_form(action: flow_routes.manage_flow_definition_path(@flow), method: :patch) do %>

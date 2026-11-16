@@ -27,5 +27,11 @@ module EasyFlow
 
       assert_select "header [data-view-switch] a[href=?]", easy_flow.edit_manage_flow_definition_path(flow), text: "Text"
     end
+
+    test "the definition text's top bar switches back to the canvas" do
+      get easy_flow.edit_manage_flow_definition_path(flow)
+
+      assert_select "header [data-view-switch] a[href=?]", easy_flow.manage_flow_path(flow), text: "Canvas"
+    end
   end
 end

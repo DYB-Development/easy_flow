@@ -1,0 +1,34 @@
+<% muted = "text-[var(--ks-color-text-muted)] dark:text-[var(--ks-color-text-muted-dark)]" %>
+<% segment = "px-3 py-1.5" %>
+<header class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-[var(--ks-color-divider)] dark:border-[var(--ks-color-divider-dark)] px-5 py-2.5" data-top-bar>
+  <% if back_link %>
+    <%= link_to back_link.label, back_link.address, class: "text-sm #{muted} before:content-['←_']" %>
+  <% else %>
+    <%= link_to "All flows", flow_routes.manage_flows_path, class: "text-sm #{muted} before:content-['←_']" %>
+  <% end %>
+  <% if parent %>
+    <%= link_to "Back to #{parent.title.presence || parent.slug}", flow_routes.manage_flow_path(parent), class: "text-sm #{muted} before:content-['←_']" %>
+  <% end %>
+
+  <h1 class="text-base font-semibold text-[var(--ks-color-text)] dark:text-[var(--ks-color-text-dark)]" data-flow-heading><%= flow.title.presence || flow.slug %></h1>
+  <span class="font-mono text-xs <%= muted %>" data-version-status><%= EasyFlow::DraftStatus.new(flow) %></span>
+
+  <nav class="flex overflow-hidden rounded-md border border-[var(--ks-color-border-control)] dark:border-[var(--ks-color-border-control-dark)] text-xs sm:ml-3" data-view-switch>
+    <% { "Canvas" => [ :canvas, flow_routes.manage_flow_path(flow) ], "Text" => [ :text, flow_routes.edit_manage_flow_definition_path(flow) ] }.each do |label, (view, address)| %>
+      <% if view == showing %>
+        <span class="<%= segment %> bg-accent-600 text-white" aria-current="page"><%= label %></span>
+      <% else %>
+        <%= link_to label, address, class: "#{segment} text-[var(--ks-color-text)] dark:text-[var(--ks-color-text-dark)]" %>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <div class="ml-auto flex flex-wrap items-center gap-2">
+    <% if showing == :canvas %>
+      <button type="button" data-open-panel
+              onclick="document.dispatchEvent(new CustomEvent('easy_flow:open-flow'))"
+              class="inline-flex items-center justify-center font-semibold rounded-lg border-0 cursor-pointer bg-accent-600 text-white hover:bg-accent-700 text-sm px-3 py-1.5">This flow</button>
+    <% end %>
+    <%= ui_button(label: "Try it", href: flow_routes.manage_flow_preview_path(flow), variant: :secondary, size: :sm) %>
+  </div>
+</header>

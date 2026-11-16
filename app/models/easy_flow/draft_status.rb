@@ -8,6 +8,10 @@ module EasyFlow
       "#{based_on} · unsaved #{changes} #{"change".pluralize(changes)}"
     end
 
+    def publishes
+      @flow.definition_versions.maximum(:number).to_i + 1
+    end
+
     private
 
     def based_on

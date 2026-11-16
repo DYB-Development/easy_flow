@@ -34,5 +34,11 @@ module EasyFlow
 
       assert_equal "new draft · unsaved 0 changes", DraftStatus.new(fresh).to_s
     end
+
+    test "a draft with changes publishes the next version" do
+      rename("a", "First")
+
+      assert_equal 2, DraftStatus.new(flow.reload).publishes
+    end
   end
 end

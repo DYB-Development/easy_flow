@@ -134,3 +134,9 @@ test("writes a compact card's type above its name", () => {
 test("borders a compact card with a thin line", () => {
   assert.ok(classes(card({}, { compact: true })).includes("border"))
 })
+
+test("writes the step's summary on the line under its name", () => {
+  const lines = everyChild(card({ summary: "copy_writer@prod" })).map((element) => element.props?.children)
+
+  assert.equal(lines[lines.indexOf("Gate") + 1], "copy_writer@prod")
+})

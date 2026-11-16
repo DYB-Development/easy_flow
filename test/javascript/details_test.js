@@ -15,3 +15,9 @@ test("shows a section's values as keystone's value list", () => {
 test("writes a section's heading in keystone's muted text color", () => {
   assert.match(drawn([ inputs ]), /class="[^"]*text-gray-500[^"]*"[^>]*>Inputs</)
 })
+
+const schemas = { heading: "Schemas", code: [ { summary: "input_schema", code: "{brief: Brief}" } ] }
+
+test("shows each code block inside keystone's disclosure, opened from its summary line", () => {
+  assert.match(drawn([ schemas ]), /<details class="ks-disclosure[^"]*"><summary[^>]*><span>input_schema<\/span>[\s\S]*<pre class="ks-code-block[^"]*"><code[^>]*>\{brief: Brief\}<\/code><\/pre>[\s\S]*<\/details>/)
+})

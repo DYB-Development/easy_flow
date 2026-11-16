@@ -972,5 +972,14 @@ module EasyFlow
 
       assert_selector "[data-connector='first-gate'] button[style*='opacity: 1']"
     end
+    test "while a step type is dragged from the step list, each left-to-right short line shows where it can be dropped" do
+      laid_left_to_right do
+        canvas_for(flow)
+
+        page.execute_script(%(document.querySelector("[data-step-list] [data-step-type='question']").dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: new DataTransfer() }))))
+
+        assert_selector "[data-joint^='first-gate'] button[title='Insert a step here'][style*='opacity: 1']"
+      end
+    end
   end
 end

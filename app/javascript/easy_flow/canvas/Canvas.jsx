@@ -227,6 +227,7 @@ const Canvas = ({ base, token, initial }) => {
 
         {leftToRight && <LeftToRight nodes={attached} edges={flow.edges} draw={draw} joints={{
           alwaysShowInsertButtons: flow.always_show_insert_buttons,
+          dragging: Boolean(dragging || carrying),
           onInsert: (link, event) => setAdding({ from: link.source, to: link.target, at: pointed(event) }),
           onRemove: (link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) },
           onDrop: dropOnLink

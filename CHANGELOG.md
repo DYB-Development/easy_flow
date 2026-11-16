@@ -8,7 +8,7 @@
 
 - A step type can declare `summarizes_by { |node| ... }` to work out a one-line summary from a step's settings, such as `copy_writer@prod` or `role: marketing · 48h`, and the step's card on the canvas shows it under the step's name, in the accent color while the step is selected.
 - A step card can show the step's type code above its name, as cards on a left-to-right canvas do.
-- A card for a step with problems keeps its red border and counts the problems in red, such as `1 error` or `2 errors`.
+- A card for a step with problems keeps its red border and counts the problems in red, such as `1 error` or `2 errors`, in place of its summary.
 
 ### Changed
 

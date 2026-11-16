@@ -14,7 +14,16 @@ module EasyFlow
     private
 
     def nodes
-      @document.nodes.map { |node| drawn_step(node) }
+      @document.nodes.reject { |node| bookend?(node) }.map { |node| drawn_step(node) }
+    end
+
+    def bookend?(node)
+      step_type = step_type_for(node)
+      step_type.present? && (step_type.begins_here? || step_type.ends_here?)
+    end
+
+    def step_type_for(node)
+      @registry.fetch(node.type) if @registry.registered?(node.type)
     end
 
     def drawn_step(node)

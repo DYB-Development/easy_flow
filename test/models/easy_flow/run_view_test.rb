@@ -32,5 +32,9 @@ module EasyFlow
     test "names each step and its type code" do
       assert_equal({ "type" => "question", "label" => "Outline" }, step("outline").slice("type", "label"))
     end
+
+    test "leaves out the steps a flow starts and ends at" do
+      assert_equal [ "outline" ], drawn["nodes"].map { |node| node["id"] }
+    end
   end
 end

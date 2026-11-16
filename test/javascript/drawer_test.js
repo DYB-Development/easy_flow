@@ -40,3 +40,7 @@ test("writes each row's level, its step id in monospace, then the check's messag
 test("shows the content its host gives a tab once that tab is open", () => {
   assert.match(drawn({ tabs: hosted, opened: "Fixtures" }), /<p>12 of 12 pass\.<\/p>/)
 })
+
+test("makes a row that names a step a button for that step, and leaves a row with no step plain", () => {
+  assert.deepEqual(drawn().match(/<(button|div)[^>]*data-check-row/g).map((tag) => tag.split(" ")[0]), [ "<button", "<div" ])
+})

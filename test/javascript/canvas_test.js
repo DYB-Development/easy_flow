@@ -69,3 +69,9 @@ test("writes on a left-to-right step's card where each of its branches goes", ()
 test("draws a left-to-right step as a compact card", () => {
   assert.match(leftToRight([ step("ask", 0) ]), /data-step="ask"[^>]*min-width:120px/)
 })
+
+test("draws a left-to-right result spot as a compact one", () => {
+  const spot = { id: "ask--", label: "next", type: "placeholder", placeholder: true, from: "ask", on: null, config: {}, ports: [], row: 1, column: 0 }
+
+  assert.match(leftToRight([ step("ask", 0), spot ]), /data-placeholder="ask--"[^>]*min-width:120px/)
+})

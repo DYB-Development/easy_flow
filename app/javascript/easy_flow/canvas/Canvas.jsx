@@ -107,7 +107,7 @@ const Canvas = ({ base, token, initial }) => {
     <>
       {node.placeholder && (
         <Placeholder node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
-                     dragging={Boolean(dragging)}
+                     dragging={Boolean(dragging)} compact={leftToRight}
                      onFill={() => setAdding({ from: node.from, on: node.on, at: { x: 16, y: 52 } })}
                      onDrop={() => {
                        const held = dragging

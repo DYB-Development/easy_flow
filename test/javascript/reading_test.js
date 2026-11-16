@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { blocksOf, branchesOf, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
+import { blocksOf, branchLine, branchesOf, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
 
 const ids = (nodes) => nodes.map((node) => node.id)
 
@@ -43,4 +43,10 @@ test("names a branch that carries an answer even when it leads to the next step"
   const edges = [ { source: "gate", target: "retry", label: "false" } ]
 
   assert.deepEqual(branchesOf(chain[1], edges, chain).map((edge) => edge.label), [ "false" ])
+})
+
+test("writes a branch as its answer, an arrow and the name of the step it leads to", () => {
+  const nodes = [ { id: "ask", label: "Ask again" } ]
+
+  assert.equal(branchLine({ target: "ask", label: "false" }, nodes), "false → Ask again")
 })

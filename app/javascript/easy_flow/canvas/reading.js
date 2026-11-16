@@ -28,3 +28,6 @@ export const branchesOf = (node, edges, nodes) => {
 
   return edges.filter((edge) => edge.source === node.id && (edge.label || edge.target !== next))
 }
+
+export const branchLine = (edge, nodes) =>
+  [ edge.label, "→", nodes.find((node) => node.id === edge.target)?.label ].filter(Boolean).join(" ")

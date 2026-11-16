@@ -22,7 +22,7 @@ test("shows each code block inside keystone's disclosure, opened from its summar
   assert.match(drawn([ schemas ]), /<details class="ks-disclosure[^"]*"><summary[^>]*><span>input_schema<\/span>[\s\S]*<pre class="ks-code-block[^"]*"><code[^>]*>\{brief: Brief\}<\/code><\/pre>[\s\S]*<\/details>/)
 })
 
-const sectionClasses = (html) => (html.match(/<section class="([^"]*)"/)?.[1] || "").split(" ")
+const sectionClasses = (html) => (html.match(/<section class="([^"]*)"/)?.[1] || "").replaceAll("&amp;", "&").split(" ")
 
 test("sets a section's values in a monospace font", () => {
   assert.ok(sectionClasses(drawn([ { ...inputs, columns: true } ])).includes("[&_dd]:font-mono"))

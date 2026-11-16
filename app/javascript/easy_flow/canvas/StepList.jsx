@@ -36,7 +36,7 @@ const StepList = ({ entries, groups, onPick, onCarry, onDrop }) => {
           {section.entries.map((entry) => (
             <Button key={entry.type} variant="secondary" size="sm" data-step-type={entry.type} style={item} draggable
                     onClick={() => onPick(entry)}
-                    onDragStart={(event) => { event.dataTransfer.effectAllowed = "copy"; event.dataTransfer.setData("text/plain", entry.type); onCarry(entry) }}
+                    onDragStart={(event) => { event.dataTransfer.effectAllowed = "copyMove"; event.dataTransfer.setData("text/plain", entry.type); onCarry(entry) }}
                     onDragEnd={onDrop}>{entry.label}</Button>
           ))}
         </React.Fragment>

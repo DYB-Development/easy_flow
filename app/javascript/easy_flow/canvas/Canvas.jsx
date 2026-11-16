@@ -41,6 +41,7 @@ const Canvas = ({ base, token, initial }) => {
   const [ adding, setAdding ] = useState(null)
   const [ armed, setArmed ] = useState(null)
   const [ dragging, setDragging ] = useState(null)
+  const [ carrying, setCarrying ] = useState(null)
   const [ showing, setShowing ] = useState(false)
   const cards = useRef({})
   const surface = useRef(null)
@@ -191,7 +192,7 @@ const Canvas = ({ base, token, initial }) => {
          onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setArmed(null); setAdding(null) } }}
          tabIndex={-1}>
       <StepList entries={flow.palette} groups={flow.step_groups || {}}
-                onPick={(entry) => addStep(entry)} onCarry={() => {}} onDrop={() => {}} />
+                onPick={(entry) => addStep(entry)} onCarry={setCarrying} onDrop={() => setCarrying(null)} />
       <div ref={surface} className="bg-surface-50 dark:bg-surface-950" style={scroll}
            onClick={(event) => { if (event.target === surface.current) { setSelected(null); setArmed(null); setShowing(false) } }}
            onDragOver={(event) => { if (dragging) event.preventDefault() }}
@@ -220,7 +221,10 @@ const Canvas = ({ base, token, initial }) => {
           alwaysShowInsertButtons: flow.always_show_insert_buttons,
           onInsert: (link, event) => setAdding({ from: link.source, to: link.target, at: pointed(event) }),
           onRemove: (link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) },
-          onDrop: (link) => { const held = dragging; setDragging(null); if (held) send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target }) }
+          onDrop: (link) => {
+            if (carrying) { setCarrying(null); addStep(carrying, { from: link.source, to: link.target }); return }
+            const held = dragging; setDragging(null); if (held) send("/steps/" + held + "/move", "PATCH", { from: link.source, to: link.target })
+          }
         }}>{waitingSteps}</LeftToRight>}
 
         {!leftToRight && <div style={{ ...grid, gridTemplateColumns: `repeat(${columns + 1}, ${(CARD + GAP_X) / 2}px)`, gridTemplateRows: `repeat(${rows}, auto)` }}>

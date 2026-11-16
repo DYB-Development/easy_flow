@@ -942,5 +942,14 @@ module EasyFlow
 
       assert_selector "[data-loose] [data-step='question']"
     end
+    test "dragging a step type from the step list onto a left-to-right short line inserts that step on its connection" do
+      laid_left_to_right do
+        canvas_for(flow)
+
+        find("[data-step-list] [data-step-type='question']").drag_to(find("[data-joint^='first-gate']"))
+
+        assert_selector "[data-joint^='first-question']"
+      end
+    end
   end
 end

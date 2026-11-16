@@ -27,3 +27,7 @@ test("borders each card in the colour of its step's state", () => {
 test("draws a paused step's edge thicker than the other steps' edges", () => {
   assert.deepEqual([ "done", "paused", "pending", "failed" ].map((state) => classes(card({ state })).includes("border-2")), [ false, true, false, false ])
 })
+
+test("links the card to the address its host supplied for the step", () => {
+  assert.match(drawn({ address: "/runs/1/steps/outline" }), /^<a [^>]*href="\/runs\/1\/steps\/outline"/)
+})

@@ -11,12 +11,16 @@ const STATES = {
   failed: "border-red-600 bg-red-50 dark:border-red-500 dark:bg-red-950"
 }
 
-const RunCard = ({ node }) => (
-  <div data-step={node.id} className={`${node.state === "paused" ? "border-2" : "border"} ${STATES[node.state] || STATES.pending}`} style={card}>
-    <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{node.type}</div>
-    <div style={named}>{node.label}{node.version && <span className="text-gray-500 dark:text-gray-400" style={{ fontWeight: 400, marginLeft: 4 }}>{node.version}</span>}</div>
-    {node.status && <div style={{ fontSize: 11 }}>{node.status}</div>}
-  </div>
-)
+const RunCard = ({ node }) => {
+  const Card = node.address ? "a" : "div"
+
+  return (
+    <Card data-step={node.id} href={node.address || undefined} className={`${node.state === "paused" ? "border-2" : "border"} ${STATES[node.state] || STATES.pending}`} style={card}>
+      <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{node.type}</div>
+      <div style={named}>{node.label}{node.version && <span className="text-gray-500 dark:text-gray-400" style={{ fontWeight: 400, marginLeft: 4 }}>{node.version}</span>}</div>
+      {node.status && <div style={{ fontSize: 11 }}>{node.status}</div>}
+    </Card>
+  )
+}
 
 export default RunCard

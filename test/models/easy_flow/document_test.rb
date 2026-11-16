@@ -36,6 +36,10 @@ module EasyFlow
       assert_empty held_by(grouping.group("a", into: "loop").remove("a"), "loop")
     end
 
+    test "a group step still holds a step moved onto another connection" do
+      assert_equal [ "a" ], held_by(grouping.group("a", into: "loop").move("a", on: [ "o", "loop" ]), "loop")
+    end
+
     test "still knows where it begins after it is edited" do
       assert_equal "o", drafting.add({ "id" => "b", "type" => "draft" }).entry
     end

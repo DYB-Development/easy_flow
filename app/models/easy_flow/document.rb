@@ -82,7 +82,7 @@ module EasyFlow
       step = raw_nodes.find { |node| node["id"] == id }
       return self unless step
 
-      remove(id).insert(step, on: on, leaving: leaving)
+      detach(id, raw_nodes).insert(step, on: on, leaving: leaving)
     end
 
     def configure(id, config)
@@ -110,11 +110,7 @@ module EasyFlow
     end
 
     def remove(id)
-      incoming = raw_edges.select { |edge| edge["to"] == id }
-      outgoing = raw_edges.select { |edge| edge["from"] == id }
-
-      with(nodes: released(id).reject { |node| node["id"] == id },
-           edges: (raw_edges - incoming - outgoing) + bridges(incoming, outgoing))
+      detach(id, released(id))
     end
 
     def without(ids)
@@ -123,6 +119,14 @@ module EasyFlow
     end
 
     private
+
+    def detach(id, nodes)
+      incoming = raw_edges.select { |edge| edge["to"] == id }
+      outgoing = raw_edges.select { |edge| edge["from"] == id }
+
+      with(nodes: nodes.reject { |node| node["id"] == id },
+           edges: (raw_edges - incoming - outgoing) + bridges(incoming, outgoing))
+    end
 
     def released(id)
       raw_nodes.map { |node| node.key?("holds") ? node.merge("holds" => node["holds"] - [ id ]) : node }

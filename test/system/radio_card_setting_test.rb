@@ -40,6 +40,31 @@ module EasyFlow
       assert_equal({ "sideBySide" => true, "equalWidths" => true, "fillTheRow" => true }, card_layout)
     end
 
+    def narrow_the_panel
+      page.execute_script(%(document.querySelector("[data-inspector]").style.width = "200px"))
+    end
+
+    def stacked_layout
+      page.evaluate_script(<<~JS)
+        (() => {
+          const cards = [...document.querySelectorAll("[data-inspector] .ks-radio-card")].map((card) => card.getBoundingClientRect())
+          const row = document.querySelector("[data-inspector] [data-radio-cards]").getBoundingClientRect()
+          const near = (a, b) => Math.abs(a - b) <= 1
+          return {
+            oneCardPerRow: cards[1].top >= cards[0].bottom,
+            eachFillsTheRow: cards.every((card) => near(card.left, row.left) && near(card.right, row.right))
+          }
+        })()
+      JS
+    end
+
+    test "a settings panel too narrow for the alias cards side by side puts one card on each row" do
+      open_agent_settings
+      narrow_the_panel
+
+      assert_equal({ "oneCardPerRow" => true, "eachFillsTheRow" => true }, stacked_layout)
+    end
+
     test "opening an agent step shows each alias choice as a radio card with its hint" do
       open_agent_settings
 

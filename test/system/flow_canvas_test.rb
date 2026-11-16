@@ -935,5 +935,12 @@ module EasyFlow
 
       assert_equal [ "condition" ], all("[data-step-list] [data-step-type]").map { |button| button["data-step-type"] }
     end
+    test "clicking a step type in the step list adds that step unconnected" do
+      laid_left_to_right { canvas_for(flow) }
+
+      find("[data-step-list] [data-step-type='question']").click
+
+      assert_selector "[data-loose] [data-step='question']"
+    end
   end
 end

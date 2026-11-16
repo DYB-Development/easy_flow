@@ -13,3 +13,7 @@ test("colors an empty result spot amber", () => {
 test("colors an empty result spot with the accent color while a step is dragged", () => {
   assert.ok(spot(true).props.className.split(" ").includes("border-accent-600"))
 })
+
+test("sizes a compact result spot to what it says", () => {
+  assert.equal(Placeholder({ node: { id: "gate-yes", label: "yes" }, compact: true, onFill: () => {}, onDrop: () => {} }).props.style.width, undefined)
+})

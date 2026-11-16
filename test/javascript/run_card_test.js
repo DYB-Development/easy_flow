@@ -35,3 +35,10 @@ test("links the card to the address its host supplied for the step", () => {
 test("rings the card of the step its host chose as selected", () => {
   assert.deepEqual([ false, true ].map((selected) => classes(card({}, { selected })).includes("ring-accent-600")), [ false, true ])
 })
+
+const statusOf = (state) => drawn({ state }).match(/class="([^"]*)"[^>]*>8\.2s/)[1]
+
+test("writes the status line in the colour of its step's state", () => {
+  assert.deepEqual([ "done", "paused", "pending", "failed" ].map(statusOf).map((names) => names.split(" ")[0]),
+                   [ "text-green-700", "text-amber-800", "text-gray-500", "text-red-700" ])
+})

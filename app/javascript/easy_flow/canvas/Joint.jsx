@@ -3,7 +3,7 @@ import Button from "keystone_ui-react/src/Button.jsx"
 
 const round = { width: 24, height: 24, padding: 0, fontSize: 15, lineHeight: "15px" }
 
-const shownOnHover = "opacity-0 transition-opacity group-hover:opacity-100"
+const shownOnHover = "opacity-0 transition-opacity group-data-[over=true]:opacity-100"
 
 const Joint = ({ link, onInsert, onRemove, onDrop, alwaysShowInsertButtons }) => (
   <div data-joint={link?.id} className="group relative h-7 w-full sm:h-auto sm:w-7 sm:self-stretch"

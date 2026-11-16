@@ -42,3 +42,9 @@ test("marks itself as under the pointer when the pointer moves onto the line", (
 
   assert.equal(line.dataset.over, "true")
 })
+
+test("shows its remove button while the line is marked as under the pointer", () => {
+  const remove = titled(Joint({ link, onInsert: () => {}, onRemove: () => {} }), "Remove this connection")
+
+  assert.ok(remove.props.className.split(" ").includes("group-data-[over=true]:opacity-100"))
+})

@@ -74,16 +74,14 @@ test("writes a start card's label in keystone's muted text color", () => {
   assert.ok(classes(label).includes("text-gray-500"))
 })
 
-test("writes each of the step's problems in red", () => {
-  const problem = child(card({ violations: [ { problem: "unreachable", detail: null } ] }), (element) => element.key === "unreachablenull")
+test("writes the count of the step's problems in red", () => {
+  const count = child(card({ violations: [ { problem: "unreachable", detail: null } ] }), (element) => element.props?.children === "1 error")
 
-  assert.ok(classes(problem).includes("text-red-600"))
+  assert.ok(classes(count).includes("text-red-600"))
 })
 
-test("writes each of the step's problems as its sentence", () => {
-  const problem = child(card({ violations: [ { problem: "dead_end", detail: null, sentence: "Gate leads nowhere." } ] }), (element) => element.key === "dead_endnull")
-
-  assert.equal(problem.props.children, "Gate leads nowhere.")
+test("leaves the sentence of each of the step's problems to the flow's problem list", () => {
+  assert.equal(child(card({ violations: [ { problem: "dead_end", detail: null, sentence: "Gate leads nowhere." } ] }), (element) => element.props?.children === "Gate leads nowhere."), undefined)
 })
 
 test("marks a step that runs another flow", () => {
@@ -133,4 +131,38 @@ test("writes a compact card's type above its name", () => {
 
 test("borders a compact card with a thin line", () => {
   assert.ok(classes(card({}, { compact: true })).includes("border"))
+})
+
+test("writes the step's summary on the line under its name", () => {
+  const lines = everyChild(card({ summary: "copy_writer@prod" })).map((element) => element.props?.children)
+
+  assert.equal(lines[lines.indexOf("Gate") + 1], "copy_writer@prod")
+})
+
+test("writes a selected step's summary in the accent color", () => {
+  const summary = child(card({ summary: "copy_writer@prod" }, { selected: true }), (element) => element.props?.children === "copy_writer@prod")
+
+  assert.ok(classes(summary).includes("text-accent-600"))
+})
+
+test("writes a full-size card's type above its name when the card asks for it", () => {
+  const [ first ] = everyChild(card({}, { typeAbove: true }))
+
+  assert.equal(first.props.children, "condition")
+})
+
+test("counts a step's problem as one error", () => {
+  assert.ok(child(card({ violations: [ { problem: "dead_end", detail: null, sentence: "Gate leads nowhere." } ] }), (element) => element.props?.children === "1 error"))
+})
+
+test("counts a step's two problems as two errors", () => {
+  const problems = [ { problem: "dead_end", detail: null }, { problem: "unreachable", detail: null } ]
+
+  assert.ok(child(card({ violations: problems }), (element) => element.props?.children === "2 errors"))
+})
+
+test("writes a step's error count in place of its summary when the step has problems", () => {
+  const lines = everyChild(card({ summary: "copy_writer@prod", violations: [ { problem: "dead_end", detail: null } ] })).map((element) => element.props?.children)
+
+  assert.deepEqual(lines.slice(lines.indexOf("Gate") + 1, lines.indexOf("Gate") + 2).concat(lines.includes("copy_writer@prod")), [ "1 error", false ])
 })

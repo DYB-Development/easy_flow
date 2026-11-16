@@ -179,7 +179,17 @@ module EasyFlow
 
       canvas_for(flow)
 
-      assert_selector "[data-step='adrift']", text: "Adrift is not connected to the flow."
+      assert_selector "[data-step='adrift'] [data-error-count]"
+    end
+
+    test "a step's card shows the summary its type works out from its settings" do
+      wired.record_definition(wired.definition.merge(
+        "nodes" => wired.definition["nodes"] + [ { "id" => "tell", "type" => "notify", "message" => "Hi", "channels" => [ "email", "sms" ] } ],
+        "edges" => wired.definition["edges"].map { |edge| edge["to"] == "end" ? edge.merge("to" => "tell") : edge } + [ { "from" => "tell", "to" => "end" } ]))
+
+      canvas_for(wired)
+
+      assert_selector "[data-step='tell']", text: "email · sms"
     end
 
     test "adding a step from an unconnected branch wires it to that branch" do
@@ -211,7 +221,7 @@ module EasyFlow
       with_step_type_codes_hidden do
         canvas_for(adrift)
 
-        assert_equal "Adrift\nQuestion", step_card("adrift").text.split("\nAdrift is not connected").first
+        assert_equal [ "Adrift", "Question" ], step_card("adrift").text.split("\n").grep_v(/\A\d+ errors?\z/)
       end
     end
 

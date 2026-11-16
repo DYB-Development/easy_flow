@@ -25,4 +25,9 @@ Rails.application.config.to_prepare do
   Steps::ForTheRun.register
   Steps::NameCustomer.register
   Steps::ForEach.register
+  Steps::Agent.register
+  Steps::Check.register
+  Steps::Review.register
+  Steps::Integration.register
+  Steps::EmitEvent.register
 end

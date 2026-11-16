@@ -31,3 +31,7 @@ test("sets a section's values in a monospace font", () => {
 test("lines a row section's labels up in one column 90 pixels wide", () => {
   assert.ok(sectionClasses(drawn([ inputs ])).includes("[&_.ks-value-list-label]:basis-[90px]"))
 })
+
+test("draws a code section's summary lines plain, with no border around them", () => {
+  assert.ok(sectionClasses(drawn([ schemas ])).includes("[&_.ks-disclosure]:border-0"))
+})

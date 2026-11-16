@@ -124,6 +124,10 @@ module EasyFlow
         @details += [ ShownValues.new(heading: heading, columns: columns, values: values) ]
       end
 
+      def shows_code(heading = nil, &code)
+        @details += [ ShownCode.new(heading: heading, code: code) ]
+      end
+
       def setting(name, type: nil, from: nil, outputs_of: nil, label: nil, explanation: nil, options: nil, limit: nil, check: nil, required: false, optional: false, kept_on: nil, attribute: nil, &entries)
         type ||= :from_step if from
         type ||= :from_step if outputs_of

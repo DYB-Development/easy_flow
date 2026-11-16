@@ -12,6 +12,7 @@ module EasyFlow
           names_by :text
           summarizes_by { |node| "#{Array(node.config['options']).size} options" }
           shows_values("Inputs") { |node| { "text" => "#{node.id}.text" } }
+          shows_code("Schemas") { |node| { "input_schema" => "{text: #{node.id}}" } }
         end)
         built.register(StepType.define(:switch) do
           step_name "Switch"
@@ -104,8 +105,13 @@ module EasyFlow
     end
 
     test "gives a node the values its type shows under a heading" do
-      assert_equal [ { "heading" => "Inputs", "columns" => false, "values" => [ { "label" => "text", "value" => "a.text" } ] } ],
-        canvas(switching)["nodes"].find { |node| node["id"] == "a" }["details"]
+      assert_equal({ "heading" => "Inputs", "columns" => false, "values" => [ { "label" => "text", "value" => "a.text" } ] },
+        canvas(switching)["nodes"].find { |node| node["id"] == "a" }["details"].first)
+    end
+
+    test "gives a node the code its type shows, each block under the line that opens it" do
+      assert_equal({ "heading" => "Schemas", "code" => [ { "summary" => "input_schema", "code" => "{text: a}" } ] },
+        canvas(switching)["nodes"].find { |node| node["id"] == "a" }["details"].last)
     end
 
     test "falls back to the node id when its type names no field" do

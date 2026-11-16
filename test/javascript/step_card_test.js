@@ -146,3 +146,9 @@ test("writes a selected step's summary in the accent color", () => {
 
   assert.ok(classes(summary).includes("text-accent-600"))
 })
+
+test("writes a full-size card's type above its name when the card asks for it", () => {
+  const [ first ] = everyChild(card({}, { typeAbove: true }))
+
+  assert.equal(first.props.children, "condition")
+})

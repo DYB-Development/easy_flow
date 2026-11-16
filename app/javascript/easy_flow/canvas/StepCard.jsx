@@ -28,7 +28,7 @@ const typeLineOf = (node, heading, hideStepTypeCodes) => {
   return heading === node.type_name ? null : node.type_name
 }
 
-const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes, branches = [], compact = false }) => {
+const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, onDragEnd, onDragStart, hideStepTypeCodes, branches = [], compact = false, typeAbove = compact }) => {
   const bookend = node.begins_here || node.ends_here
   const pinned = node.begins_here
   const ports = node.ends_here ? [] : node.ports
@@ -49,11 +49,11 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
            padding: bookend ? 0 : compact ? "8px 10px" : "12px 14px",
            cursor: pinned ? "default" : connecting ? "crosshair" : "grab"
          }}>
-      {!bookend && compact && typeLine && <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{typeLine}</div>}
+      {!bookend && typeAbove && typeLine && <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{typeLine}</div>}
       {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{heading}</div>}
       {!bookend && <div style={compact ? compactName : named}>{heading}</div>}
       {!bookend && node.summary && <div className={selected ? "text-accent-600 dark:text-accent-400" : "text-gray-500 dark:text-gray-400"} style={{ fontSize: 10 }}>{node.summary}</div>}
-      {!bookend && !compact && typeLine && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{typeLine}</div>}
+      {!bookend && !typeAbove && typeLine && <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginTop: 2 }}>{typeLine}</div>}
       {node.picture_url && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Has a picture</div>}
       {node.starts_a_flow && <div className="text-accent-600 dark:text-accent-400" style={{ fontSize: 11, marginTop: 2 }}>Runs a flow</div>}
       {node.opens && <Button variant="secondary" size="sm" className="mt-2" onClick={(event) => { event.stopPropagation(); onSelect() }}>Settings</Button>}

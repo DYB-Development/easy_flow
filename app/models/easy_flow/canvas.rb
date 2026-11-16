@@ -138,7 +138,7 @@ module EasyFlow
     end
 
     def violations
-      Validator.new(@document, registry: @registry, flow: @flow).violations.map do |violation|
+      @violations ||= Validator.new(@document, registry: @registry, flow: @flow).violations.map do |violation|
         { "node" => violation.node, "problem" => violation.problem.to_s, "detail" => violation.detail, "sentence" => sentences.of(violation) }
       end
     end

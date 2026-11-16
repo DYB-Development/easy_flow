@@ -113,6 +113,17 @@ module EasyFlow
       page.evaluate_script(%(document.querySelector("[data-step='#{id}']").getBoundingClientRect().top))
     end
 
+    def on_a_phone
+      page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
+      yield
+    ensure
+      page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
+    end
+
+    def left_of(id)
+      page.evaluate_script(%(document.querySelector("[data-step='#{id}']").getBoundingClientRect().left))
+    end
+
     def long_flow
       steps = (1..12).map { |n| { "id" => "s#{n}", "type" => "question", "question" => "Step #{n}", "answers" => [ { "value" => "on" } ] } }
       links = (1...12).map { |n| { "from" => "s#{n}", "to" => "s#{n + 1}" } }
@@ -863,6 +874,14 @@ module EasyFlow
       laid_left_to_right { canvas_for(long_flow) }
 
       assert_operator top_of("s12"), :>, top_of("s1")
+    end
+
+    test "on a phone, a left-to-right canvas shows each step on a row of its own" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(long_flow) }
+
+        assert_equal [ left_of("s1") ], [ left_of("s1"), left_of("s2"), left_of("s3") ].uniq
+      end
     end
   end
 end

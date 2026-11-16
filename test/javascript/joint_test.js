@@ -22,3 +22,10 @@ test("removes the line's connection when its remove button is used", () => {
 
   assert.equal(removed, link)
 })
+
+test("moves a dragged step onto the line's connection when it is dropped there", () => {
+  let moved = null
+  Joint({ link, onInsert: () => {}, onRemove: () => {}, onDrop: (on) => { moved = on } }).props.onDrop({ preventDefault: () => {} })
+
+  assert.equal(moved, link)
+})

@@ -113,7 +113,7 @@ module EasyFlow
       incoming = raw_edges.select { |edge| edge["to"] == id }
       outgoing = raw_edges.select { |edge| edge["from"] == id }
 
-      with(nodes: raw_nodes.reject { |node| node["id"] == id },
+      with(nodes: released(id).reject { |node| node["id"] == id },
            edges: (raw_edges - incoming - outgoing) + bridges(incoming, outgoing))
     end
 

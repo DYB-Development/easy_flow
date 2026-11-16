@@ -32,6 +32,10 @@ module EasyFlow
       assert_empty held_by(grouping.group("a", into: "loop").group("a", into: nil), "loop")
     end
 
+    test "no group step holds a step once that step is removed" do
+      assert_empty held_by(grouping.group("a", into: "loop").remove("a"), "loop")
+    end
+
     test "still knows where it begins after it is edited" do
       assert_equal "o", drafting.add({ "id" => "b", "type" => "draft" }).entry
     end

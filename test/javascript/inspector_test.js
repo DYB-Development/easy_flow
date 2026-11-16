@@ -67,3 +67,9 @@ test("groups a radio card setting's cards under the setting's name", () => {
 
   assert.equal(html.match(/<input(?=[^>]*type="radio")(?=[^>]*name="alias")[^>]*>/g)?.length, 2)
 })
+
+test("shows the read-only sections the step's type gives it", () => {
+  const html = drawn({ node: { id: "gate", type: "condition", label: "Gate", config: {}, details: [ { heading: "Inputs", values: [ { label: "brief", value: "load_brief.out.brief" } ] } ] } })
+
+  assert.match(html, /<dt[^>]*>brief<\/dt><dd[^>]*>load_brief\.out\.brief<\/dd>/)
+})

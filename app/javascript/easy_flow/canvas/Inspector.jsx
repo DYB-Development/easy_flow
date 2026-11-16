@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import Control from "./Control"
 import Records from "./Records"
 import Explanation from "./Explanation"
+import Details from "./Details"
 import Panel from "keystone_ui-react/src/Panel.jsx"
 import Button from "keystone_ui-react/src/Button.jsx"
 import { Label } from "keystone_ui-react/src/FieldText.jsx"
@@ -49,6 +50,7 @@ const Inspector = ({ node, fields, holds, labels, explanations, recordLabels, re
           {(explanations || {})[name] && <Explanation text={explanations[name]} />}
         </Label>
       ))}
+      <Details details={node.details || []} />
       <Button variant="danger" size="sm" className="w-full" onClick={onDelete}>Delete step</Button>
     </Panel>
   )

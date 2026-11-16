@@ -153,6 +153,13 @@ module EasyFlow
       assert_equal "budget is high", step_type.name_of(node)
     end
 
+    test "works out a one-line summary of a step from a block over its config" do
+      step_type = StepType.define(:agent) { summarizes_by { |node| "#{node.config['agent']}@#{node.config['alias']}" } }
+      node = Node.new(id: "write", type: "agent", config: { "agent" => "copy_writer", "alias" => "prod" })
+
+      assert_equal "copy_writer@prod", step_type.summary_of(node)
+    end
+
     test "declares a setting choosing among the outputs of the step another names" do
       step_type = StepType.define(:reads) do
         setting :step, type: :previous_step

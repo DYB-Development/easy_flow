@@ -6,7 +6,7 @@
 
 ### Added
 
-- The editing canvas shows a step list on its left, on screens 640 pixels and wider, with a search field and every step type the host offers. A host can set `step_groups`, such as `{ "Agents" => [ :question ], "Control" => [ :switch, :wait ] }`, to list its step types under those headings in that order, and the types it puts in no group are listed above the first heading. Typing in the search field keeps only the types whose name holds what was typed. Clicking a type adds the step unconnected, as the add menu does, and dragging a type onto a connection inserts the step on it. While a type is dragged, each connector shows its button to mark where it can be dropped, as it does when a step is dragged. On a phone the list is hidden and the add menu is unchanged.
+- The editing canvas shows a step list on its left, on screens 640 pixels and wider, with a search field and every step type the host offers. A host can set `step_groups`, such as `{ "Agents" => [ :question ], "Control" => [ :switch, :wait ] }`, to list its step types under those headings in that order, and the types it puts in no group are listed above the first heading. Typing in the search field keeps only the types whose name holds what was typed. Clicking a type adds the step unconnected, as the add menu does, and dragging a type onto a connection inserts the step on it. While a type is dragged, each connector shows its button to mark where it can be dropped, as it does when a step is dragged. On a left-to-right canvas, each short line shows its insert button while a type or a step is dragged. On a phone the list is hidden and the add menu is unchanged.
 
 ## [0.43.0] - 2026-11-15
 

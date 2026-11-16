@@ -1,4 +1,4 @@
-const filledIn = (value) => value !== undefined && value !== null && value !== ""
+const filledIn = (value) => value !== undefined && value !== null && value !== "" && typeof value !== "object"
 
 const settingName = (name, entry, hideStepTypeCodes) => (hideStepTypeCodes && entry.labels?.[name]) || name
 

@@ -16,3 +16,9 @@ test("leaves a setting left blank out of the header", () => {
 test("names the type and settings by their labels when the host hides step type codes", () => {
   assert.equal(headerOf({ ...forEach, config: { list: "outline.variants" } }, entry, true), "For each · List: outline.variants")
 })
+
+test("leaves a setting holding a list of entries out of the header", () => {
+  const listing = { ...entry, fields: { ...entry.fields, items: "list" } }
+
+  assert.equal(headerOf({ ...forEach, config: { list: "outline.variants", items: [ { value: "a" } ] } }, listing), "for_each · list: outline.variants")
+})

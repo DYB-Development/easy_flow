@@ -883,5 +883,13 @@ module EasyFlow
         assert_equal [ left_of("s1") ], [ left_of("s1"), left_of("s2"), left_of("s3") ].uniq
       end
     end
+
+    test "on a phone, a left-to-right canvas fits within the width of the screen" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(grouped) }
+
+        assert page.evaluate_script(%((() => { const surface = document.querySelector("[data-flow-rows]").parentElement; return surface.scrollWidth <= surface.clientWidth })()))
+      end
+    end
   end
 end

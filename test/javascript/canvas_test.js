@@ -75,3 +75,9 @@ test("draws a left-to-right result spot as a compact one", () => {
 
   assert.match(leftToRight([ step("ask", 0), spot ]), /data-placeholder="ask--"[^>]*min-width:120px/)
 })
+
+test("lets a left-to-right group step's header line wrap inside its box", () => {
+  const group = { id: "loop", label: "loop", type: "for_each", config: {}, holds: [], ports: [], row: 0, column: 0 }
+
+  assert.match(leftToRight([ group ]), /data-group-header="loop"[^>]*white-space:normal/)
+})

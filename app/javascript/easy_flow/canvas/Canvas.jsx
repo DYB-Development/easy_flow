@@ -117,7 +117,7 @@ const Canvas = ({ base, token, initial }) => {
       )}
       {node.holds && (
         <GroupHeader node={{ ...node, ref: (element) => { cards.current[node.id] = element } }}
-                     header={headerOf(node, entryOf(node), flow.hide_step_type_codes)}
+                     header={headerOf(node, entryOf(node), flow.hide_step_type_codes)} compact={leftToRight}
                      onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))} />
       )}
       {!node.placeholder && !node.holds && <StepCard

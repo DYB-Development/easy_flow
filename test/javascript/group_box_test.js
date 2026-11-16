@@ -7,3 +7,9 @@ const box = (overrides = {}) => GroupBox({ id: "loop", bounds: { left: 88, top: 
 test("borders a group step's box with a dashed line", () => {
   assert.ok(box().props.className.split(" ").includes("border-dashed"))
 })
+
+test("places a group step's box where its header and steps were measured", () => {
+  const { left, top, width, height } = box().props.style
+
+  assert.deepEqual({ left, top, width, height }, { left: 88, top: 40, width: 264, height: 160 })
+})

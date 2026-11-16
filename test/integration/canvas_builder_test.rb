@@ -45,6 +45,14 @@ module EasyFlow
       assert_equal canvas_path, JSON.parse(css_select("[data-react-ui]").first["data-props"])["base"]
     end
 
+    test "moving a step into a group step records the group holding it" do
+      post "#{canvas_path}/steps", params: { id: "loop", type: "for_each", from: "a", to: "b" }
+
+      patch "#{canvas_path}/steps/b/group", params: { group: "loop" }
+
+      assert_equal [ "b" ], flow.reload.document["nodes"].find { |node| node["id"] == "loop" }["holds"]
+    end
+
     test "the canvas screen carries the flow as JSON" do
       get "#{canvas_path}.json"
 

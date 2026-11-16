@@ -6,12 +6,26 @@ module EasyFlow
       @foreign ||= Registry.new.tap do |built|
         built.register(StepType.define(:opening) { begins_here })
         built.register(StepType.define(:draft) { awaits_input })
+        built.register(StepType.define(:repeat) { holds_steps })
       end
     end
 
     def drafting
       Document.new({ "nodes" => [ { "id" => "o", "type" => "opening" }, { "id" => "a", "type" => "draft" } ],
                      "edges" => [ { "from" => "o", "to" => "a" } ] }, registry: foreign)
+    end
+
+    def grouping
+      Document.new({ "nodes" => [ { "id" => "o", "type" => "opening" }, { "id" => "loop", "type" => "repeat" }, { "id" => "a", "type" => "draft" } ],
+                     "edges" => [ { "from" => "o", "to" => "loop" }, { "from" => "loop", "to" => "a" } ] }, registry: foreign)
+    end
+
+    def held_by(document, id)
+      document.to_h["nodes"].find { |node| node["id"] == id }["holds"]
+    end
+
+    test "puts a step into the group step it is moved into" do
+      assert_equal [ "a" ], held_by(grouping.group("a", into: "loop"), "loop")
     end
 
     test "still knows where it begins after it is edited" do

@@ -93,6 +93,14 @@ module EasyFlow
       with(nodes: reconfigured, edges: raw_edges)
     end
 
+    def group(id, into:)
+      regrouped = raw_nodes.map do |node|
+        node["id"] == into ? node.merge("holds" => Array(node["holds"]) + [ id ]) : node
+      end
+
+      with(nodes: regrouped, edges: raw_edges)
+    end
+
     def rewire(from:, to:, target:)
       rewritten = raw_edges.map do |edge|
         edge["from"] == from && edge["to"] == to ? edge.merge("to" => target) : edge

@@ -87,7 +87,7 @@ module EasyFlow
 
     def configure(id, config)
       reconfigured = raw_nodes.map do |node|
-        node["id"] == id ? node.slice("id", "type").merge(config) : node
+        node["id"] == id ? node.slice("id", "type", "holds").merge(config.except("holds")) : node
       end
 
       with(nodes: reconfigured, edges: raw_edges)

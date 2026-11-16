@@ -31,3 +31,7 @@ test("draws a paused step's edge thicker than the other steps' edges", () => {
 test("links the card to the address its host supplied for the step", () => {
   assert.match(drawn({ address: "/runs/1/steps/outline" }), /^<a [^>]*href="\/runs\/1\/steps\/outline"/)
 })
+
+test("rings the card of the step its host chose as selected", () => {
+  assert.deepEqual([ false, true ].map((selected) => classes(card({}, { selected })).includes("ring-accent-600")), [ false, true ])
+})

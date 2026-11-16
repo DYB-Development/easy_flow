@@ -23,3 +23,7 @@ const borderOf = (state) => classes(card({ state })).find((name) => /^border-(gr
 test("borders each card in the colour of its step's state", () => {
   assert.deepEqual([ "done", "paused", "pending", "failed" ].map(borderOf), [ "border-green-600", "border-amber-500", "border-gray-300", "border-red-600" ])
 })
+
+test("draws a paused step's edge thicker than the other steps' edges", () => {
+  assert.deepEqual([ "done", "paused", "pending", "failed" ].map((state) => classes(card({ state })).includes("border-2")), [ false, true, false, false ])
+})

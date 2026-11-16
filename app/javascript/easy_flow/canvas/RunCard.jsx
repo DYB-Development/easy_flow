@@ -12,7 +12,7 @@ const STATES = {
 }
 
 const RunCard = ({ node }) => (
-  <div data-step={node.id} className={`border ${STATES[node.state] || STATES.pending}`} style={card}>
+  <div data-step={node.id} className={`${node.state === "paused" ? "border-2" : "border"} ${STATES[node.state] || STATES.pending}`} style={card}>
     <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{node.type}</div>
     <div style={named}>{node.label}{node.version && <span className="text-gray-500 dark:text-gray-400" style={{ fontWeight: 400, marginLeft: 4 }}>{node.version}</span>}</div>
     {node.status && <div style={{ fontSize: 11 }}>{node.status}</div>}

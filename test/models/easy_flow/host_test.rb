@@ -128,5 +128,12 @@ module EasyFlow
     test "a host refuses a back link with no address" do
       assert_raises(ArgumentError) { Host.new(:alembic).back_link = { label: "Games" } }
     end
+
+    test "works out its editor buttons from the flow being edited" do
+      host = Host.new(:alembic)
+      host.editor_buttons = ->(flow) { [ { label: "Run tests", address: "/tests/#{flow.slug}" } ] }
+
+      assert_equal [ Host::Button.new(label: "Run tests", address: "/tests/setup") ], host.editor_buttons_for(Definition.new(slug: "setup"))
+    end
   end
 end

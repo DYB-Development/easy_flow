@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
   get "home", to: redirect("/"), as: :home
 
+  get "runs/:id", to: "run_views#show"
+
   get "host/:slug", to: "host_flows#show", as: :host_flow
   get "host/:slug/step", to: "host_flows#step", as: :host_flow_step
   post "host/:slug/runs", to: "host_flows#start", as: :host_flow_runs

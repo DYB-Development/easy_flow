@@ -643,12 +643,10 @@ module EasyFlow
       assert_selector "[data-change]", text: "Updated"
     end
 
-    test "the panel names a step that cannot be reached" do
+    test "the drawer names a step that cannot be reached" do
       canvas_for(adrift)
 
-      find("[data-open-panel]").click
-
-      assert_selector "[data-problem]", text: "Adrift is not connected to the flow."
+      assert_selector "[data-drawer] [data-check-row]", text: "Adrift is not connected to the flow."
     end
 
     test "a step's settings show a setting's explanation under it" do

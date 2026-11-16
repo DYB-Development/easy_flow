@@ -18,7 +18,7 @@ const shown = (tree, marker) => {
 
 const panel = (given) => Panel({
   flow: { title: "A flow", version: 1, published: 1 },
-  changes: [], problems: [], refusal: null, notice: null, ...given
+  changes: [], refusal: null, notice: null, ...given
 })
 
 test("says nothing has changed when the flow is untouched", () => {
@@ -29,18 +29,6 @@ test("lists a line for each change", () => {
   const tree = panel({ changes: [ "Added “A”", "Moved “B”" ] })
 
   assert.equal(shown(tree, "data-change").length, 2)
-})
-
-test("names each problem it was given", () => {
-  const tree = panel({ problems: [ { node: "a", problem: "unreachable" } ] })
-
-  assert.equal(shown(tree, "data-problem").length, 1)
-})
-
-test("writes each problem as its sentence", () => {
-  const tree = panel({ problems: [ { node: "a", problem: "dead_end", sentence: "Ask leads nowhere." } ] })
-
-  assert.deepEqual(shown(tree, "data-problem")[0].props.children, [ "⚠ ", "Ask leads nowhere." ])
 })
 
 test("shows a notice when something was done", () => {
@@ -121,10 +109,6 @@ const withText = (tree, text) => {
   return found[0]
 }
 
-test("says a flow with no problems is fine in keystone's muted text color", () => {
-  assert.ok(withText(panel({}), "Nothing wrong with this flow.").props.className?.split(" ").includes("text-gray-500"))
-})
-
 test("says nothing has changed in keystone's muted text color", () => {
   assert.ok(withText(panel({}), "Nothing has changed.").props.className?.split(" ").includes("text-gray-500"))
 })
@@ -135,12 +119,6 @@ test("colors a refusal red", () => {
 
 test("colors a notice green", () => {
   assert.ok(classesOn(panel({ notice: "Created version 2." }), "data-notice").includes("text-emerald-800"))
-})
-
-test("colors a problem amber", () => {
-  const tree = panel({ problems: [ { node: "a", problem: "unreachable" } ] })
-
-  assert.ok(classesOn(tree, "data-problem").includes("text-amber-700"))
 })
 
 test("labels the title field with keystone's label", () => {
@@ -179,8 +157,8 @@ test("colors the close button with keystone's muted text color", () => {
   assert.ok(withText(panel({}), "×").props.className?.split(" ").includes("text-gray-500"))
 })
 
-test("offers creating a version and publishing above its problems and its changes", () => {
-  assert.match(renderToStaticMarkup(panel({})), /Create version.*Publish.*Problems.*Changes since the last version/s)
+test("offers creating a version and publishing above its changes", () => {
+  assert.match(renderToStaticMarkup(panel({})), /Create version.*Publish.*Changes since the last version/s)
 })
 
 test("shows the host's note right after the Publish button", () => {

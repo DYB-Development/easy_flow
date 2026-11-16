@@ -7,6 +7,7 @@ module Steps
     awaits_input
     drawn_by "steps/notify"
     displays_by { |node| EasyFlow::Asked.new(id: node.id.to_sym, text: node.config["message"], choices: []) }
+    summarizes_by { |node| Array(node.config["channels"]).join(" · ") }
 
     setting :message, type: :string, explanation: "Sent to the visitor when the step is reached."
     setting :channels, type: :multi_select, options: %w[email sms push], limit: 2,

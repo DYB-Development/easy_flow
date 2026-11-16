@@ -182,6 +182,15 @@ module EasyFlow
       assert_selector "[data-step='adrift'] [data-error-count]"
     end
 
+    test "a step's card shows the summary its type works out from its settings" do
+      flow.record_definition(flow.definition.merge(
+        "nodes" => flow.definition["nodes"] + [ { "id" => "tell", "type" => "notify", "message" => "Hi", "channels" => [ "email", "sms" ] } ]))
+
+      canvas_for(flow)
+
+      assert_selector "[data-step='tell']", text: "email · sms"
+    end
+
     test "adding a step from an unconnected branch wires it to that branch" do
       canvas_for(flow)
 

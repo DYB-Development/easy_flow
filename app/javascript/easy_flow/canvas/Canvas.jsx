@@ -218,7 +218,7 @@ const Canvas = ({ base, token, initial }) => {
                     onDrop={() => { const held = dragging; setDragging(null); if (held) send(`/steps/${held}/group`, "PATCH", { group: box.id }) }} />
         ))}
 
-        {!leftToRight && <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging} alwaysShowInsertButtons={flow.always_show_insert_buttons}
+        {!leftToRight && <ConnectorLayer links={linksOutside(links, flow.nodes)} extent={extent} dragging={dragging || carrying} alwaysShowInsertButtons={flow.always_show_insert_buttons}
                         onInsert={(link) => setAdding({ from: link.source, to: link.target, at: { x: link.midX + 30, y: link.midY } })}
                         onRemove={(link) => { setSelected(null); send("/edges", "DELETE", { from: link.source, to: link.target }) }}
                         onDrop={dropOnLink} />}

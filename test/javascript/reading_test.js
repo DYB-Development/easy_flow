@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { blocksOf, branchLine, branchesOf, joining, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
+import { blocksOf, branchLine, branchLinesOf, branchesOf, joining, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
 
 const ids = (nodes) => nodes.map((node) => node.id)
 
@@ -61,4 +61,11 @@ test("finds the connection that joins a step to the step after it in a row", () 
   const edges = [ { id: "ask-gate", source: "ask", target: "gate" }, { id: "gate-ask", source: "gate", target: "ask" } ]
 
   assert.equal(joining(edges, chain[0], chain[1])?.id, "ask-gate")
+})
+
+test("writes the branch lines of every step at once, keyed by the step they leave", () => {
+  const nodes = [ ...chain.map((step) => ({ ...step, label: step.id })), { id: "gate--false", label: "false", placeholder: true, row: 1, column: 1 } ]
+  const edges = [ { source: "ask", target: "gate" }, { source: "gate", target: "ask", label: "true" }, { source: "gate", target: "gate--false", label: "false" } ]
+
+  assert.deepEqual(branchLinesOf(chain, edges, nodes), { ask: [], gate: [ "true → ask", "false → nowhere yet" ], retry: [] })
 })

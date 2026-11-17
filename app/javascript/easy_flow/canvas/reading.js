@@ -35,3 +35,6 @@ export const branchLine = (edge, nodes) =>
   [ edge.label, "→", nameOf(nodes.find((node) => node.id === edge.target)) ].filter(Boolean).join(" ")
 
 export const joining = (edges, before, after) => edges.find((edge) => edge.source === before.id && edge.target === after.id)
+
+export const branchLinesOf = (steps, edges, nodes) =>
+  Object.fromEntries(steps.map((step) => [ step.id, branchesOf(step, edges, steps).map((edge) => branchLine(edge, nodes)) ]))

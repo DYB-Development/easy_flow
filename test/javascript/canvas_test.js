@@ -81,3 +81,7 @@ test("lets a left-to-right group step's header line wrap inside its box", () => 
 
   assert.match(leftToRight([ group ]), /data-group-header="loop"[^>]*white-space:normal/)
 })
+
+test("draws a left-to-right step not yet in the flow as the same compact card as the steps in it", () => {
+  assert.match(leftToRight([ step("ask", 0), { ...step("aside", 0), loose: true } ]), /data-step="aside"[^>]*min-width:120px/)
+})

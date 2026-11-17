@@ -66,3 +66,16 @@ test("any other answer clears the warning", async () => {
 
   assert.deepEqual(warnings, [ null ])
 })
+
+test("a change that was saved when the canvas then cannot be drawn again says it was saved but the canvas was not refreshed", async () => {
+  const errors = []
+  const savedThenUnreachable = async (url) => {
+    if (url.endsWith(".json")) throw new TypeError("Failed to fetch")
+    return { ok: true, json: async () => ({}) }
+  }
+  const send = createFlowSender({ base: "/flows/1/canvas", token: "t", fetch: savedThenUnreachable, onFlow: () => {}, onNotice: () => {}, onError: (error) => errors.push(error) })
+
+  await send("/steps", "POST", {}).catch(() => {})
+
+  assert.equal(errors.at(-1), "Your change was saved, but the canvas could not be refreshed. Reload the page to see it.")
+})

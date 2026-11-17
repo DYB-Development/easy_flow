@@ -1,37 +1,52 @@
 const byPlace = (a, b) => a.row - b.row || a.column - b.column
 
+const holdersOf = (nodes) => new Map(nodes.flatMap((group) => (group.holds || []).map((id) => [ id, group.id ])))
+
 export const readingOrder = (nodes) => {
   const placed = [ ...nodes ].sort(byPlace)
-  const held = placed.filter((node) => nodes.some((group) => group.holds?.includes(node.id)))
+  const holders = holdersOf(nodes)
+  const held = new Map(nodes.filter((node) => node.holds).map((group) => [ group.id, [] ]))
+  placed.filter((node) => holders.has(node.id)).forEach((node) => held.get(holders.get(node.id)).push(node))
 
-  return placed.filter((node) => !held.includes(node))
-    .flatMap((node) => [ node, ...held.filter((step) => node.holds?.includes(step.id)) ])
+  return placed.filter((node) => !holders.has(node.id)).flatMap((node) => [ node, ...(held.get(node.id) || []) ])
 }
 
 export const blocksOf = (nodes) => {
+  const holders = holdersOf(nodes)
   const ordered = readingOrder(nodes)
-  const held = (step) => ordered.some((group) => group.holds?.includes(step.id))
+  const blocks = []
+  const boxes = new Map()
 
-  return ordered.filter((node) => !held(node)).reduce((blocks, node) => {
-    if (node.holds) return [ ...blocks, { group: node, steps: ordered.filter((step) => node.holds.includes(step.id)) } ]
-
+  ordered.filter((node) => !holders.has(node.id)).forEach((node) => {
     const last = blocks[blocks.length - 1]
-    if (last && !last.group) return [ ...blocks.slice(0, -1), { steps: [ ...last.steps, node ] } ]
-    return [ ...blocks, { steps: [ node ] } ]
-  }, [])
-}
+    if (node.holds) boxes.set(node.id, blocks[blocks.push({ group: node, steps: [] }) - 1])
+    else if (last && !last.group) last.steps.push(node)
+    else blocks.push({ steps: [ node ] })
+  })
+  ordered.filter((node) => holders.has(node.id)).forEach((node) => boxes.get(holders.get(node.id))?.steps.push(node))
 
-const nextAfter = (ordered, node) => ordered[ordered.findIndex((step) => step.id === node.id) + 1]?.id
-
-export const branchesOf = (node, edges, nodes) => {
-  const next = nextAfter(readingOrder(nodes), node)
-
-  return edges.filter((edge) => edge.source === node.id && (edge.label || edge.target !== next))
+  return blocks
 }
 
 const nameOf = (step) => (step?.placeholder ? "nowhere yet" : step?.label)
 
-export const branchLine = (edge, nodes) =>
-  [ edge.label, "→", nameOf(nodes.find((node) => node.id === edge.target)) ].filter(Boolean).join(" ")
+const joins = new WeakMap()
 
-export const joining = (edges, before, after) => edges.find((edge) => edge.source === before.id && edge.target === after.id)
+const joinsOf = (edges) => {
+  if (!joins.has(edges)) joins.set(edges, new Map([ ...edges ].reverse().map((edge) => [ `${edge.source}\n${edge.target}`, edge ])))
+  return joins.get(edges)
+}
+
+export const joining = (edges, before, after) => joinsOf(edges).get(`${before.id}\n${after.id}`)
+
+export const branchLinesOf = (steps, edges, nodes) => {
+  const ordered = readingOrder(steps)
+  const next = new Map(ordered.map((step, at) => [ step.id, ordered[at + 1]?.id ]))
+  const names = new Map(nodes.map((node) => [ node.id, nameOf(node) ]))
+  const lines = Object.fromEntries(steps.map((step) => [ step.id, [] ]))
+
+  edges.filter((edge) => lines[edge.source] && (edge.label || edge.target !== next.get(edge.source)))
+    .forEach((edge) => lines[edge.source].push([ edge.label, "→", names.get(edge.target) ].filter(Boolean).join(" ")))
+
+  return lines
+}

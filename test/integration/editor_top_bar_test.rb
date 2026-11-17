@@ -22,6 +22,22 @@ module EasyFlow
       assert_equal "draft from v1 · unsaved 0 changes", response.parsed_body["flow"]["status"]
     end
 
+    test "drawing the canvas after an edit looks up the version the draft is based on once" do
+      lookups = []
+      counting = ->(*, payload) { lookups << payload[:sql] if payload[:sql].match?(/FROM "easy_flow_versions" WHERE .*"number" =/) }
+      flow
+
+      ActiveSupport::Notifications.subscribed(counting, "sql.active_record") { get "#{easy_flow.manage_flow_canvas_path(flow)}.json" }
+
+      assert_equal 1, lookups.size
+    end
+
+    test "the editor's Publish button names the canvas request it sends" do
+      get easy_flow.manage_flow_path(flow)
+
+      assert_select "header button[data-bar-action=publish][data-bar-path=?]", "/publish"
+    end
+
     test "the editor's top bar switches to the definition text" do
       get easy_flow.manage_flow_path(flow)
 

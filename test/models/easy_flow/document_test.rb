@@ -48,6 +48,12 @@ module EasyFlow
       assert_raises(InvalidEdit) { grouping.group("loop", into: "a") }
     end
 
+    test "refuses to put one group step inside another" do
+      nested = Document.new(grouping.to_h.merge("nodes" => grouping.to_h["nodes"] + [ { "id" => "outer", "type" => "repeat" } ]), registry: foreign)
+
+      assert_raises(InvalidEdit) { nested.group("loop", into: "outer") }
+    end
+
     test "refuses to move a group step into itself" do
       assert_raises(InvalidEdit) { grouping.group("loop", into: "loop") }
     end

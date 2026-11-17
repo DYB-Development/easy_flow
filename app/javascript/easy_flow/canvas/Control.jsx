@@ -4,6 +4,7 @@ import Input from "keystone_ui-react/src/Input.jsx"
 import Select from "keystone_ui-react/src/Select.jsx"
 import Checkbox from "keystone_ui-react/src/Checkbox.jsx"
 import RadioCards from "keystone_ui-react/src/RadioCards.jsx"
+import Button from "keystone_ui-react/src/Button.jsx"
 
 const offered = (choices) =>
   (choices || []).map((choice) => (typeof choice === "object" ? choice : { value: choice, label: choice }))
@@ -12,7 +13,7 @@ const Control = ({ name, type, value, choices, onChange, onSettle, onPick, pictu
   if (type === "picture") {
     return <div className="mb-3">
       {value && pictureUrl && <img src={pictureUrl} alt="The step's picture" style={{ maxWidth: "100%" }} />}
-      {value && <button type="button" data-remove-picture className="ks-button ks-button-secondary ks-button-sm" onClick={() => onSettle("")}>Remove picture</button>}
+      {value && <Button type="button" variant="secondary" size="sm" data-remove-picture onClick={() => onSettle("")}>Remove picture</Button>}
       <input type="file" accept="image/*" onChange={(e) => e.target.files[0] && onPick(e.target.files[0])} />
     </div>
   }
@@ -28,7 +29,7 @@ const Control = ({ name, type, value, choices, onChange, onSettle, onPick, pictu
 
   if (type === "radio_cards") {
     return <div data-radio-cards className="mb-3 [&_label]:flex-[1_1_7rem] [&_.ks-radio-card]:flex [&_.ks-radio-card]:h-full">
-      <RadioCards name={name} value={value} options={choices || []} onChange={(e) => onSettle(e.target.value)} />
+      <RadioCards name={name} value={value} options={choices || []} onChange={onSettle} />
     </div>
   }
 

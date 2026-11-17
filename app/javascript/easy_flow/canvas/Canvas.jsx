@@ -17,7 +17,8 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
-import { branchLine, branchesOf } from "./reading"
+import { branchLinesOf } from "./reading"
+import { barPressed } from "./topBar"
 
 const HEADER_GAP = 8
 
@@ -37,6 +38,10 @@ export const Choosing = ({ port, onCancel }) => (
   </div>
 )
 
+export const CanvasError = ({ message }) => (
+  <p data-canvas-error className="bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200" style={notice}>{message}</p>
+)
+
 const Canvas = ({ base, token, initial }) => {
   const { flow, error, notice, warning, setWarning, send, pickPicture } = useFlow(base, token, initial)
   const [ selected, setSelected ] = useState(null)
@@ -49,17 +54,7 @@ const Canvas = ({ base, token, initial }) => {
   const surface = useRef(null)
 
   useEffect(() => {
-    const paths = { open: null, publish: "/publish", save_draft: "/versions" }
-    const pressed = (event) => {
-      const button = event.target.closest?.("[data-bar-action]")
-      if (!button || !(button.dataset.barAction in paths)) return
-
-      button.closest("details")?.removeAttribute("open")
-      setSelected(null)
-      setShowing(true)
-      const path = paths[button.dataset.barAction]
-      if (path) send(path, "POST")
-    }
+    const pressed = barPressed({ send, onPress: () => { setSelected(null); setShowing(true) } })
     document.addEventListener("click", pressed)
     return () => document.removeEventListener("click", pressed)
   }, [ send ])
@@ -95,8 +90,14 @@ const Canvas = ({ base, token, initial }) => {
   }, [ flow.violations ])
 
   const leftToRight = flow.direction === "left_to_right"
-  const attached = flow.nodes.filter((node) => !node.loose)
+  const attached = useMemo(() => flow.nodes.filter((node) => !node.loose), [ flow.nodes ])
   const loose = flow.nodes.filter((node) => node.loose)
+  const branchLines = useMemo(() => (leftToRight ? branchLinesOf(attached, flow.edges, flow.nodes) : {}), [ leftToRight, attached, flow.edges, flow.nodes ])
+  const connectedFrom = useMemo(() => {
+    const ports = {}
+    flow.edges.forEach((edge) => (ports[edge.source] ||= []).push(edge.label || null))
+    return ports
+  }, [ flow.edges ])
   const rows = Math.max(0, ...attached.map((node) => node.row)) + 1
   const columns = Math.max(0, ...attached.map((node) => node.column)) + 1
 
@@ -139,6 +140,20 @@ const Canvas = ({ base, token, initial }) => {
     return { x: event.clientX - frame.left + surface.current.scrollLeft + 8, y: event.clientY - frame.top + surface.current.scrollTop + 8 }
   }
 
+  const cardProps = (node, connected) => ({
+    node: { ...node, ref: (element) => { cards.current[node.id] = element }, violations: violationsFor[node.id] || [], connected },
+    selected: node.id === selected,
+    armed: armed && armed[0] === node.id ? armed[1] : null,
+    connecting: Boolean(armed) && armed[0] !== node.id,
+    onSelect: () => (armed ? connectTo(node.id) : setSelected(node.id)),
+    onOpen: (path) => window.location.assign(path),
+    onDragStart: () => setDragging(node.id),
+    onDragEnd: () => setDragging(null),
+    hideStepTypeCodes: flow.hide_step_type_codes,
+    compact: leftToRight,
+    branches: branchLines[node.id] || []
+  })
+
   const draw = (node) => (
     <>
       {node.placeholder && (
@@ -156,32 +171,8 @@ const Canvas = ({ base, token, initial }) => {
                      header={headerOf(node, entryOf(node), flow.hide_step_type_codes)} compact={leftToRight}
                      onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))} />
       )}
-      {!node.placeholder && !node.holds && <StepCard
-        node={{
-          ...node,
-          ref: (element) => { cards.current[node.id] = element },
-          violations: violationsFor[node.id] || [],
-          connected: flow.edges.filter((edge) => edge.source === node.id).map((edge) => edge.label || null)
-        }}
-        selected={node.id === selected}
-        armed={armed && armed[0] === node.id ? armed[1] : null}
-        connecting={Boolean(armed) && armed[0] !== node.id}
-        onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))}
-        onOpen={(path) => window.location.assign(path)}
-        onArm={(port, event) => {
-          const frame = surface.current.getBoundingClientRect()
-          setAdding({
-            from: node.id, on: port,
-            at: { x: event.clientX - frame.left + surface.current.scrollLeft + 8,
-                  y: event.clientY - frame.top + surface.current.scrollTop + 8 }
-          })
-        }}
-        onDragEnd={() => setDragging(null)}
-        onDragStart={() => setDragging(node.id)}
-        hideStepTypeCodes={flow.hide_step_type_codes}
-        compact={leftToRight}
-        branches={leftToRight ? branchesOf(node, flow.edges, attached).map((edge) => branchLine(edge, flow.nodes)) : []}
-      />}
+      {!node.placeholder && !node.holds && <StepCard {...cardProps(node, connectedFrom[node.id] || [])}
+        onArm={(port, event) => setAdding({ from: node.id, on: port, at: pointed(event) })} />}
     </>
   )
 
@@ -190,22 +181,8 @@ const Canvas = ({ base, token, initial }) => {
       <div className="text-gray-500 dark:text-gray-400" style={{ fontSize: 11, marginBottom: 6 }}>Not in the flow yet — drag one onto a connection</div>
       {loose.map((node) => (
         <div key={node.id} style={{ marginBottom: 8 }}>
-          <StepCard
-            node={{
-              ...node,
-              ref: (element) => { cards.current[node.id] = element },
-              violations: violationsFor[node.id] || [],
-              connected: []
-            }}
-            selected={selected === node.id}
-            armed={armed && armed[0] === node.id ? armed[1] : null}
-            connecting={Boolean(armed)}
-            onSelect={() => (armed ? connectTo(node.id) : setSelected(node.id))}
-            onOpen={(path) => window.location.assign(path)}
-            onArm={(port, event) => { event.stopPropagation(); setArmed([ node.id, port ]) }}
-            onDragStart={() => setDragging(node.id)}
-            onDragEnd={() => setDragging(null)}
-            hideStepTypeCodes={flow.hide_step_type_codes} />
+          <StepCard {...cardProps(node, [])}
+                    onArm={(port, event) => { event.stopPropagation(); setArmed([ node.id, port ]) }} />
         </div>
       ))}
     </div>
@@ -225,6 +202,7 @@ const Canvas = ({ base, token, initial }) => {
           {armed && (
             <Choosing port={armed[1]} onCancel={() => setArmed(null)} />
           )}
+          {error && !showing && !selectedNode && <CanvasError message={error} />}
           <Toolbar undoable={flow.undoable} redoable={flow.redoable}
                    onAdd={() => setAdding({ at: { x: 16, y: 52 } })}
                    onUndo={() => { setSelected(null); send("/undo", "POST") }}

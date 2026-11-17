@@ -104,6 +104,75 @@ module EasyFlow
       assert_equal({ "twoToARow" => true, "labelAboveValue" => true }, grid_layout)
     end
 
+    def rows_layout
+      page.evaluate_script(<<~JS)
+        (() => {
+          const section = [...document.querySelectorAll("[data-inspector] section")].find((each) => each.textContent.startsWith("Inputs"))
+          const heading = section.firstElementChild.getBoundingClientRect()
+          const list = section.querySelector(".ks-value-list").getBoundingClientRect()
+          const labels = [...section.querySelectorAll("dt")].map((label) => label.getBoundingClientRect())
+          const gap = section.nextElementSibling.getBoundingClientRect().top - section.getBoundingClientRect().bottom
+          return { headingAbove: heading.bottom <= list.top, labelsInOneColumn: labels.every((label) => label.left === labels[0].left && label.width === 90), roomUnder: gap >= 12 }
+        })()
+      JS
+    end
+
+    test "an agent step's Inputs sit under their heading with room below, each label in one column 90 pixels wide" do
+      open_agent_settings
+
+      assert_equal({ "headingAbove" => true, "labelsInOneColumn" => true, "roomUnder" => true }, rows_layout)
+    end
+
+    def fonts
+      page.evaluate_script(<<~JS)
+        (() => {
+          const section = [...document.querySelectorAll("[data-inspector] section")].find((each) => each.textContent.startsWith("Inputs"))
+          const monospace = (element) => getComputedStyle(element).fontFamily.includes("monospace")
+          return { heading: monospace(section.firstElementChild), values: [...section.querySelectorAll("dd")].every(monospace) }
+        })()
+      JS
+    end
+
+    test "an agent step's Inputs show their values in a monospace font under a heading in the panel's own font" do
+      open_agent_settings
+
+      assert_equal({ "heading" => false, "values" => true }, fonts)
+    end
+
+    def heading_and_title_colours
+      page.evaluate_script(<<~JS)
+        (() => {
+          const section = [...document.querySelectorAll("[data-inspector] section")].find((each) => each.textContent.startsWith("Inputs"))
+          return [ getComputedStyle(section.firstElementChild).color, getComputedStyle(document.querySelector("[data-inspector] h2")).color ]
+        })()
+      JS
+    end
+
+    test "an agent step's Inputs heading is drawn in a muted colour, unlike the step's title" do
+      open_agent_settings
+
+      heading, title = heading_and_title_colours
+      assert_not_equal title, heading
+    end
+
+    def schema_line_border
+      page.evaluate_script(%(getComputedStyle(document.querySelector("[data-inspector] .ks-disclosure")).borderTopWidth))
+    end
+
+    test "an agent step's schema lines are drawn plain, with no border around them" do
+      open_agent_settings
+
+      assert_equal "0px", schema_line_border
+    end
+
+    test "on a phone an agent step's settings still sit two to a row" do
+      on_a_phone do
+        open_agent_settings
+
+        assert_equal({ "twoToARow" => true, "labelAboveValue" => true }, grid_layout)
+      end
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

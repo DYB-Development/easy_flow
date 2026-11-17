@@ -9,15 +9,24 @@ module EasyFlow
     end
 
     def publishes
-      return @flow.current_definition_version.number if @flow.current_definition_version && @flow.versioned?
+      return version.number if version && @flow.document == version.definition
 
       @flow.definition_versions.maximum(:number).to_i + 1
     end
 
+    def number
+      version&.number
+    end
+
     private
 
+    def version
+      return @version if defined?(@version)
+
+      @version = @flow.current_definition_version
+    end
+
     def based_on
-      version = @flow.current_definition_version
       version ? "draft from v#{version.number}" : "new draft"
     end
 

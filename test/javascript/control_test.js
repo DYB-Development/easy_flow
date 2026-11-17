@@ -3,6 +3,7 @@ import assert from "node:assert/strict"
 import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import Control from "../../app/javascript/easy_flow/canvas/Control.jsx"
+import Button from "keystone_ui-react/src/Button.jsx"
 
 const drawn = (given) => renderToStaticMarkup(React.createElement(Control, {
   type: "previous_step", value: "a", choices: [ { value: "a", label: "Budget?" } ],
@@ -65,6 +66,13 @@ test("removes a step's picture when the author asks", () => {
   assert.equal(settled, "")
 })
 
+test("draws Remove picture as keystone's small secondary button", () => {
+  const tree = Control({ type: "picture", value: "picture-1", pictureUrl: "/pictures/picture-1", onSettle: () => {}, onPick: () => {} })
+  const remove = [ tree.props.children ].flat(Infinity).filter(Boolean).find((element) => element.props?.["data-remove-picture"])
+
+  assert.deepEqual([ remove.type === Button, remove.props.variant, remove.props.size ], [ true, "secondary", "sm" ])
+})
+
 const aliases = [
   { value: "prod", label: "prod → v22", hint: "p 0.84 · n 1,920" },
   { value: "candidate", label: "candidate → v23", hint: "p 0.87 · n 240" }
@@ -80,7 +88,7 @@ test("saves the value of the radio card the author chooses", () => {
 
   const cards = [ tree, tree.props.children ].flat(Infinity).find((element) => element?.props?.onChange)
 
-  cards.props.onChange({ target: { value: "candidate" } })
+  cards.props.onChange("candidate")
 
   assert.equal(settled, "candidate")
 })

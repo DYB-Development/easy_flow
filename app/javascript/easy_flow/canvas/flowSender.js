@@ -1,6 +1,16 @@
 const UNREACHABLE = "Your change was not saved because the server could not be reached."
 
+const NOT_REFRESHED = "Your change was saved, but the canvas could not be refreshed. Reload the page to see it."
+
+const redraw = async ({ base, fetch, onFlow, onError }) => {
+  const response = await fetch(base + ".json", { headers: { Accept: "application/json" } }).catch(() => null)
+  const flow = response?.ok ? await response.json().catch(() => null) : null
+
+  return flow ? onFlow(flow) : onError(NOT_REFRESHED)
+}
+
 export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice, onWarning = () => {} }) => async (path, method, body) => {
+  const drawn = { base, fetch, onFlow, onError }
   const response = await fetch(base + path, {
     method, headers: { "Content-Type": "application/json", "X-CSRF-Token": token }, body: body && JSON.stringify(body)
   }).catch(() => null)
@@ -15,7 +25,7 @@ export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice
     onNotice(null)
     onError(null)
     onWarning({ path, steps: answered.unconnected })
-    return onFlow(await (await fetch(base + ".json", { headers: { Accept: "application/json" } })).json())
+    return redraw(drawn)
   }
 
   onWarning(null)
@@ -27,7 +37,7 @@ export const createFlowSender = ({ base, token, fetch, onFlow, onError, onNotice
 
   onError(null)
   onNotice(answered.notice || null)
-  onFlow(await (await fetch(base + ".json", { headers: { Accept: "application/json" } })).json())
+  return redraw(drawn)
 }
 
 export const createPictureSender = ({ base, token, fetch, onError }) => async (file) => {

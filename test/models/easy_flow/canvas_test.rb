@@ -119,6 +119,40 @@ module EasyFlow
       assert_equal [ { "label" => "Open agent", "address" => "/agents/a" } ], canvas(switching)["nodes"].find { |node| node["id"] == "a" }["links"]
     end
 
+    def faulty(type)
+      broken = Registry.new.tap do |built|
+        built.register(StepType.define(:broken_summary) { summarizes_by { |_node| raise "the summary broke" } })
+        built.register(StepType.define(:broken_details) { shows_values("Inputs") { |_node| raise "the details broke" } })
+        built.register(StepType.define(:broken_links) { links_to { |_node| raise "the links broke" } })
+      end
+
+      Canvas.new(Document.new(flowing("entry" => "a", "nodes" => [ { "id" => "a", "type" => type } ], "edges" => [])), registry: broken)
+        .to_h["nodes"].find { |node| node["id"] == "a" }
+    end
+
+    test "draws a step whose type's summary raises an error without a summary" do
+      assert_nil faulty("broken_summary")["summary"]
+    end
+
+    test "draws a step whose type's details raise an error without details" do
+      assert_equal [], faulty("broken_details")["details"]
+    end
+
+    test "draws a step whose type's links raise an error without links" do
+      assert_equal [], faulty("broken_links")["links"]
+    end
+
+    test "writes the error a step type's summary raised to the log" do
+      written = StringIO.new
+      logged_with, Rails.logger = Rails.logger, ActiveSupport::Logger.new(written)
+
+      faulty("broken_summary")
+
+      assert_includes written.string, "the summary broke"
+    ensure
+      Rails.logger = logged_with
+    end
+
     test "lists an error row for each problem, naming its step and saying what is wrong" do
       assert_equal({ "level" => "error", "node" => "b", "sentence" => "Branch needs a value for Step. Set it in the step's settings." }, canvas(flow)["checks"].first)
     end

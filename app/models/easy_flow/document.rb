@@ -99,6 +99,7 @@ module EasyFlow
 
     def group(id, into:)
       raise InvalidEdit, "#{into} cannot hold steps" if into && (into == id || !holds_steps?(node(into)))
+      raise InvalidEdit, "#{id} is a group step and cannot go inside another group step" if into && holds_steps?(node(id))
 
       regrouped = released(id).map do |node|
         node["id"] == into ? node.merge("holds" => Array(node["holds"]) + [ id ]) : node

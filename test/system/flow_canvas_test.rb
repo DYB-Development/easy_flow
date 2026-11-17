@@ -246,6 +246,19 @@ module EasyFlow
       assert_no_selector "[data-connector='first-gate']"
     end
 
+    test "a change saved when the canvas then cannot be fetched again says so on the canvas" do
+      canvas_for(flow)
+      page.execute_script(<<~JS)
+        const fetched = window.fetch
+        window.fetch = (address, options) => String(address).endsWith(".json") ? Promise.reject(new TypeError("Failed to fetch")) : fetched(address, options)
+      JS
+
+      find("[data-connector='first-gate']").hover
+      find("[data-connector='first-gate']").click_button("×")
+
+      assert_selector "[data-canvas-error]", text: "Your change was saved, but the canvas could not be refreshed."
+    end
+
     test "inserting a step on a connector puts it between the two" do
       canvas_for(flow)
 
@@ -509,6 +522,16 @@ module EasyFlow
       step_card("human_approve").drag_to(find("[data-group-box='variants']"))
 
       assert_selector("[data-group-box='variants']") { inside_box?("[data-step='human_approve']", "variants") }
+    end
+
+    test "dragging a step onto a group step's box on a left-to-right canvas puts it in the box" do
+      laid_left_to_right do
+        canvas_for(grouped)
+
+        step_card("human_approve").drag_to(find("[data-group-box='variants']"))
+
+        assert_selector("[data-group-box='variants'] [data-step='human_approve']")
+      end
     end
 
     test "dragging a step out of a group step's box takes it out of the box" do
@@ -917,12 +940,14 @@ module EasyFlow
     end
 
     test "removing the connection on a left-to-right short line unlinks the two steps" do
-      laid_left_to_right { canvas_for(flow) }
+      laid_left_to_right do
+        canvas_for(flow)
 
-      find("[data-joint^='first-gate']").hover
-      find("[data-joint^='first-gate']").click_button("×")
+        find("[data-joint^='first-gate']").hover
+        find("[data-joint^='first-gate']").click_button("×")
 
-      assert_no_selector "[data-joint^='first-gate']"
+        assert_no_selector "[data-joint^='first-gate']"
+      end
     end
 
     test "the steps not in a left-to-right flow yet wait above its rows rather than over them" do

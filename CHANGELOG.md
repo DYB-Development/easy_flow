@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.49.0] - 2026-11-17
+
+### Added
+
+- Each palette entry lists the outputs its step type declares under `outputs`, each with its `name`, `label` and `type`, and its `values` when they are a fixed list or none when they depend on a drawn step's settings.
+- Each palette entry names under `outputs_named_by` the list setting its step type reports one output for each name in, or none when it has no such setting, and `StepType#outputs_named_by` reads it.
+
 ## [0.48.0] - 2026-11-16
 
 ### Added

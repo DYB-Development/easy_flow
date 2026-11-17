@@ -37,6 +37,10 @@ export const Choosing = ({ port, onCancel }) => (
   </div>
 )
 
+export const CanvasError = ({ message }) => (
+  <p data-canvas-error className="bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200" style={notice}>{message}</p>
+)
+
 const Canvas = ({ base, token, initial }) => {
   const { flow, error, notice, warning, setWarning, send, pickPicture } = useFlow(base, token, initial)
   const [ selected, setSelected ] = useState(null)
@@ -207,6 +211,7 @@ const Canvas = ({ base, token, initial }) => {
           {armed && (
             <Choosing port={armed[1]} onCancel={() => setArmed(null)} />
           )}
+          {error && !showing && !selectedNode && <CanvasError message={error} />}
           <Toolbar undoable={flow.undoable} redoable={flow.redoable}
                    onAdd={() => setAdding({ at: { x: 16, y: 52 } })}
                    onUndo={() => { setSelected(null); send("/undo", "POST") }}

@@ -246,6 +246,19 @@ module EasyFlow
       assert_no_selector "[data-connector='first-gate']"
     end
 
+    test "a change saved when the canvas then cannot be fetched again says so on the canvas" do
+      canvas_for(flow)
+      page.execute_script(<<~JS)
+        const fetched = window.fetch
+        window.fetch = (address, options) => String(address).endsWith(".json") ? Promise.reject(new TypeError("Failed to fetch")) : fetched(address, options)
+      JS
+
+      find("[data-connector='first-gate']").hover
+      find("[data-connector='first-gate']").click_button("×")
+
+      assert_selector "[data-canvas-error]", text: "Your change was saved, but the canvas could not be refreshed."
+    end
+
     test "inserting a step on a connector puts it between the two" do
       canvas_for(flow)
 

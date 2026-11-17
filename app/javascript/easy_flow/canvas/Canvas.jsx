@@ -18,6 +18,7 @@ import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
 import { branchLinesOf } from "./reading"
+import { barPressed } from "./topBar"
 
 const HEADER_GAP = 8
 
@@ -53,17 +54,7 @@ const Canvas = ({ base, token, initial }) => {
   const surface = useRef(null)
 
   useEffect(() => {
-    const paths = { open: null, publish: "/publish", save_draft: "/versions" }
-    const pressed = (event) => {
-      const button = event.target.closest?.("[data-bar-action]")
-      if (!button || !(button.dataset.barAction in paths)) return
-
-      button.closest("details")?.removeAttribute("open")
-      setSelected(null)
-      setShowing(true)
-      const path = paths[button.dataset.barAction]
-      if (path) send(path, "POST")
-    }
+    const pressed = barPressed({ send, onPress: () => { setSelected(null); setShowing(true) } })
     document.addEventListener("click", pressed)
     return () => document.removeEventListener("click", pressed)
   }, [ send ])

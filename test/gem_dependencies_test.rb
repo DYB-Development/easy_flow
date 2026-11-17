@@ -8,4 +8,8 @@ class GemDependenciesTest < ActiveSupport::TestCase
   test "requires keystone_ui at the version the editor is built against or a later 0.x release" do
     assert_equal Gem::Requirement.new("~> 0.27"), requirement_for("keystone_ui")
   end
+
+  test "accepts no keystone_ui-react release newer than the one checked against the JavaScript package the canvas is built with" do
+    refute requirement_for("keystone_ui-react").satisfied_by?(Gem::Version.new("0.6.1"))
+  end
 end

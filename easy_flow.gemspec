@@ -20,5 +20,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", ">= 8.1.3"
   spec.add_dependency "public_code", "~> 0.2"
   spec.add_dependency "keystone_ui", "~> 0.27"
-  spec.add_dependency "keystone_ui-react", ">= 0.1.2"
+  spec.add_dependency "keystone_ui-react", ">= 0.1.2", "<= 0.6.0"
 end

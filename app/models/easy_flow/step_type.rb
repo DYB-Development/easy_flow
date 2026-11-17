@@ -8,7 +8,7 @@ module EasyFlow
       behaviour.present? && behaviour.parameters.include?([ :key, :run ])
     end
 
-    attr_reader :id, :step_name, :settings, :naming_field, :naming, :outputs, :drawn_by, :unsaved_refusal
+    attr_reader :id, :step_name, :settings, :naming_field, :naming, :outputs, :outputs_named_by, :drawn_by, :unsaved_refusal
 
     def initialize(id:, step_name:, settings:, awaits_input:, behaviour:, routing:,
       ends_here: false, begins_here: false, starts_a_flow: false, plays_the_picked_flow: false, holds_steps: false, flow_chooser: nil, run_chooser: nil, display: nil, drawn_by: nil,

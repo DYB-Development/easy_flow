@@ -138,6 +138,10 @@ module EasyFlow
       assert_equal [], faulty("broken_details")["details"]
     end
 
+    test "draws a step whose type's links raise an error without links" do
+      assert_equal [], faulty("broken_links")["links"]
+    end
+
     test "lists an error row for each problem, naming its step and saying what is wrong" do
       assert_equal({ "level" => "error", "node" => "b", "sentence" => "Branch needs a value for Step. Set it in the step's settings." }, canvas(flow)["checks"].first)
     end

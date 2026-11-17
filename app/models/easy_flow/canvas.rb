@@ -20,7 +20,7 @@ module EasyFlow
     end
 
     def drawn_step(node)
-      { "id" => node.id, "type" => node.type, "type_name" => step_type_for(node)&.step_name, "label" => label_for(node), "summary" => drawn_by_type(node, :summary_of), "details" => drawn_by_type(node, :details_of).to_a, "links" => step_type_for(node)&.links_of(node).to_a,
+      { "id" => node.id, "type" => node.type, "type_name" => step_type_for(node)&.step_name, "label" => label_for(node), "summary" => drawn_by_type(node, :summary_of), "details" => drawn_by_type(node, :details_of).to_a, "links" => drawn_by_type(node, :links_of).to_a,
         "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
         "starts_a_flow" => starts_a_flow?(node), "holds" => holds(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "record_choices" => record_choices_for(node), "placeholder" => false, "picture_url" => picture_url(node), **placed[node.id] }
     end

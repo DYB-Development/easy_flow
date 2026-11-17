@@ -26,13 +26,14 @@ module EasyFlow
       end
 
       def flow_details(flow)
+        status = DraftStatus.new(flow)
         { "title" => flow.title,
           "slug" => flow.slug,
           "start_label" => flow.start_label,
-          "version" => flow.current_definition_version&.number,
+          "version" => status.number,
           "published" => flow.live_version&.number,
-          "status" => DraftStatus.new(flow).to_s,
-          "publishes" => DraftStatus.new(flow).publishes,
+          "status" => status.to_s,
+          "publishes" => status.publishes,
           "definition_url" => edit_manage_flow_definition_path(flow),
           "details_url" => edit_manage_flow_path(flow),
           "history_url" => manage_flow_versions_path(flow) }

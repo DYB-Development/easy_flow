@@ -139,6 +139,16 @@ module EasyFlow
       assert_equal({ "heading" => false, "values" => true }, fonts)
     end
 
+    def schema_line_border
+      page.evaluate_script(%(getComputedStyle(document.querySelector("[data-inspector] .ks-disclosure")).borderTopWidth))
+    end
+
+    test "an agent step's schema lines are drawn plain, with no border around them" do
+      open_agent_settings
+
+      assert_equal "0px", schema_line_border
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

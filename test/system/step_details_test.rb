@@ -123,6 +123,22 @@ module EasyFlow
       assert_equal({ "headingAbove" => true, "labelsInOneColumn" => true, "roomUnder" => true }, rows_layout)
     end
 
+    def fonts
+      page.evaluate_script(<<~JS)
+        (() => {
+          const section = [...document.querySelectorAll("[data-inspector] section")].find((each) => each.textContent.startsWith("Inputs"))
+          const monospace = (element) => getComputedStyle(element).fontFamily.includes("monospace")
+          return { heading: monospace(section.firstElementChild), values: [...section.querySelectorAll("dd")].every(monospace) }
+        })()
+      JS
+    end
+
+    test "an agent step's Inputs show their values in a monospace font under a heading in the panel's own font" do
+      open_agent_settings
+
+      assert_equal({ "heading" => false, "values" => true }, fonts)
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

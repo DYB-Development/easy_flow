@@ -149,6 +149,14 @@ module EasyFlow
       assert_equal "0px", schema_line_border
     end
 
+    test "on a phone an agent step's settings still sit two to a row" do
+      on_a_phone do
+        open_agent_settings
+
+        assert_equal({ "twoToARow" => true, "labelAboveValue" => true }, grid_layout)
+      end
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

@@ -104,6 +104,25 @@ module EasyFlow
       assert_equal({ "twoToARow" => true, "labelAboveValue" => true }, grid_layout)
     end
 
+    def rows_layout
+      page.evaluate_script(<<~JS)
+        (() => {
+          const section = [...document.querySelectorAll("[data-inspector] section")].find((each) => each.textContent.startsWith("Inputs"))
+          const heading = section.firstElementChild.getBoundingClientRect()
+          const list = section.querySelector(".ks-value-list").getBoundingClientRect()
+          const labels = [...section.querySelectorAll("dt")].map((label) => label.getBoundingClientRect())
+          const gap = section.nextElementSibling.getBoundingClientRect().top - section.getBoundingClientRect().bottom
+          return { headingAbove: heading.bottom <= list.top, labelsInOneColumn: labels.every((label) => label.left === labels[0].left && label.width === 90), roomUnder: gap >= 12 }
+        })()
+      JS
+    end
+
+    test "an agent step's Inputs sit under their heading with room below, each label in one column 90 pixels wide" do
+      open_agent_settings
+
+      assert_equal({ "headingAbove" => true, "labelsInOneColumn" => true, "roomUnder" => true }, rows_layout)
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

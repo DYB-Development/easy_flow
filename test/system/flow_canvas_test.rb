@@ -930,12 +930,14 @@ module EasyFlow
     end
 
     test "removing the connection on a left-to-right short line unlinks the two steps" do
-      laid_left_to_right { canvas_for(flow) }
+      laid_left_to_right do
+        canvas_for(flow)
 
-      find("[data-joint^='first-gate']").hover
-      find("[data-joint^='first-gate']").click_button("×")
+        find("[data-joint^='first-gate']").hover
+        find("[data-joint^='first-gate']").click_button("×")
 
-      assert_no_selector "[data-joint^='first-gate']"
+        assert_no_selector "[data-joint^='first-gate']"
+      end
     end
 
     test "the steps not in a left-to-right flow yet wait above its rows rather than over them" do

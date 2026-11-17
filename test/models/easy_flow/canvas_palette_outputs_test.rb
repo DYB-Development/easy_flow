@@ -11,6 +11,15 @@ module EasyFlow
       assert_equal [ "score", "verdict" ], entry["outputs"].map { |output| output["name"] }
     end
 
+    test "lists the label of each output a step type declares in its palette entry" do
+      entry = palette_entry do
+        output :score, label: "Score out of ten", type: :integer
+        output :verdict, values: %w[pass fail]
+      end
+
+      assert_equal [ "Score out of ten", "Verdict" ], entry["outputs"].map { |output| output["label"] }
+    end
+
     private
 
     def palette_entry(&declare)

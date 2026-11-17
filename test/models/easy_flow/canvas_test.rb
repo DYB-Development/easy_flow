@@ -142,6 +142,17 @@ module EasyFlow
       assert_equal [], faulty("broken_links")["links"]
     end
 
+    test "writes the error a step type's summary raised to the log" do
+      written = StringIO.new
+      logged_with, Rails.logger = Rails.logger, ActiveSupport::Logger.new(written)
+
+      faulty("broken_summary")
+
+      assert_includes written.string, "the summary broke"
+    ensure
+      Rails.logger = logged_with
+    end
+
     test "lists an error row for each problem, naming its step and saying what is wrong" do
       assert_equal({ "level" => "error", "node" => "b", "sentence" => "Branch needs a value for Step. Set it in the step's settings." }, canvas(flow)["checks"].first)
     end

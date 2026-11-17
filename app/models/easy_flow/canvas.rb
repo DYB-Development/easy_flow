@@ -27,7 +27,8 @@ module EasyFlow
 
     def drawn_by_type(node, part)
       step_type_for(node)&.public_send(part, node)
-    rescue StandardError
+    rescue StandardError => error
+      Rails.logger.error("EasyFlow could not draw step #{node.id}'s #{part}: #{error.class}: #{error.message}")
       nil
     end
 

@@ -26,8 +26,8 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 
 ## How to use it
 
-1. Confirm the app has Keystone UI installed (`keystone_ui` in the Gemfile). easy_flow's controllers use its helpers and it is not pulled in by easy_flow. If it is missing, stop and hand off to the `keystone_ui-install` local before continuing.
-2. Read the `keystone_ui` version in the app's `Gemfile.lock`. easy_flow's visitor pages pass each answer's info text to Keystone UI's radio cards and checkbox rows and draw a File upload step with Keystone UI's file upload control, and easy_flow is built against `keystone_ui` 0.27.0. If the app's version is older, ask the developer whether to run `bundle update keystone_ui` before continuing.
+1. Confirm Keystone UI is set up in the app. easy_flow declares `keystone_ui` 0.27 or a later 0.x release as a dependency, so bundling easy_flow installs the gem, but its install generator still has to have been run. If it has not, stop and hand off to the `keystone_ui-install` local before continuing.
+2. Read the `keystone_ui` version in the app's `Gemfile.lock`. easy_flow's visitor pages pass each answer's info text to Keystone UI's radio cards and checkbox rows and draw a File upload step with Keystone UI's file upload control, and easy_flow is built against `keystone_ui` 0.27.0. Bundler will not install an older one alongside easy_flow, so an app whose `Gemfile.lock` holds an older version has to run `bundle update keystone_ui` when it adds easy_flow. It also accepts `keystone_ui-react` releases only up to 0.6.0, so an app that needs a newer `keystone_ui-react` waits for an easy_flow release that accepts it.
 3. Add `gem "easy_flow"` to the host's `Gemfile` and run `bundle install`.
 4. Run `bin/rails easy_flow:install:migrations`, then `bin/rails db:migrate`. This writes eleven migrations into `db/migrate` and updates `db/schema.rb`.
 5. Ask the developer which hosts the app needs. A host is one part of the app that owns its own set of flows, and one host never sees another's flows. Ask for each host's name and the path it is served under.

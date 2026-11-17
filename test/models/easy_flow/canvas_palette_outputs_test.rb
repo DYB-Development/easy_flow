@@ -41,6 +41,15 @@ module EasyFlow
       assert_nil entry["outputs"].first["values"]
     end
 
+    test "names the list setting a step type reports one output for each name in" do
+      entry = palette_entry do
+        setting(:values, type: :list) { setting :name, type: :string }
+        outputs_named_by :values
+      end
+
+      assert_equal "values", entry["outputs_named_by"]
+    end
+
     private
 
     def palette_entry(&declare)

@@ -113,7 +113,11 @@ module EasyFlow
         "record_labels" => step_type.settings.record_labels.to_h { |name, held| [ name.to_s, held.transform_keys(&:to_s) ] },
         "record_explanations" => record_explanations_of(step_type),
         "awaits_input" => step_type.awaits_input?,
-        "outputs" => step_type.outputs.map { |output| { "name" => output.name.to_s, "label" => output.label, "type" => output.type.to_s } } }
+        "outputs" => step_type.outputs.map { |output| palette_output(output) } }
+    end
+
+    def palette_output(output)
+      { "name" => output.name.to_s, "label" => output.label, "type" => output.type.to_s, "values" => output.values }
     end
 
     def hidden_settings_of(step_type)

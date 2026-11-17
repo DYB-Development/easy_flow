@@ -29,6 +29,12 @@ module EasyFlow
       assert_equal [ "integer", "string" ], entry["outputs"].map { |output| output["type"] }
     end
 
+    test "lists the fixed values of an output under it in the palette entry" do
+      entry = palette_entry { output :level, values: %w[high medium low] }
+
+      assert_equal %w[high medium low], entry["outputs"].first["values"]
+    end
+
     private
 
     def palette_entry(&declare)

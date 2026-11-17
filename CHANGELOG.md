@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [0.49.1] - 2026-11-17
+
+### Fixed
+
+- A left-to-right canvas draws a flow of a few hundred steps in time that grows with the number of steps rather than with its cube.
+- A step not yet in a left-to-right flow is drawn as the same compact card as the steps in it.
+- Putting one group step inside another is refused with an error, and the flow is left as it was.
+- A step whose type's `summarizes_by`, `shows_values`, `shows_code` or `links_to` block raises is drawn without the part that failed, the error is written to the log, and the flow still opens.
+- A change that was saved when the canvas then cannot be fetched again says it was saved but the canvas could not be refreshed, at the top of the canvas when no panel is open.
+- Drawing the canvas after an edit looks up the version the draft is based on once.
+- The canvas sends a top bar button's request to the path the button names, so a new top bar button needs no change on the canvas.
+- Remove picture in a step's settings is drawn with keystone's Button as a small secondary button.
+
+### Changed
+
+- easy_flow declares `keystone_ui` `~> 0.27` as a dependency, so a host no longer adds it by itself.
+- easy_flow accepts `keystone_ui-react` releases from 0.1.2 up to 0.6.0 only, and its canvas is built with the 0.6.0 JavaScript package.
+
 ## [0.49.0] - 2026-11-17
 
 ### Added

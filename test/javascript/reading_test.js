@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { blocksOf, branchLine, branchLinesOf, branchesOf, joining, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
+import { blocksOf, branchLinesOf, joining, readingOrder } from "../../app/javascript/easy_flow/canvas/reading.js"
 
 const ids = (nodes) => nodes.map((node) => node.id)
 
@@ -33,28 +33,30 @@ test("puts a group step's box on a row of its own between the steps before and a
 
 const chain = [ { id: "ask", row: 0, column: 0 }, { id: "gate", row: 1, column: 0 }, { id: "retry", row: 2, column: 0 } ]
 
+const labelled = chain.map((step) => ({ ...step, label: step.id }))
+
 test("names a branch that leads somewhere other than the next step", () => {
   const edges = [ { source: "gate", target: "ask" }, { source: "gate", target: "retry" } ]
 
-  assert.deepEqual(branchesOf(chain[1], edges, chain).map((edge) => edge.target), [ "ask" ])
+  assert.deepEqual(branchLinesOf(chain, edges, labelled).gate, [ "→ ask" ])
 })
 
 test("names a branch that carries an answer even when it leads to the next step", () => {
   const edges = [ { source: "gate", target: "retry", label: "false" } ]
 
-  assert.deepEqual(branchesOf(chain[1], edges, chain).map((edge) => edge.label), [ "false" ])
+  assert.deepEqual(branchLinesOf(chain, edges, labelled).gate, [ "false → retry" ])
 })
 
 test("writes a branch as its answer, an arrow and the name of the step it leads to", () => {
-  const nodes = [ { id: "ask", label: "Ask again" } ]
+  const nodes = [ { ...chain[0], label: "Ask again" }, chain[1] ]
 
-  assert.equal(branchLine({ target: "ask", label: "false" }, nodes), "false → Ask again")
+  assert.deepEqual(branchLinesOf(nodes, [ { source: "gate", target: "ask", label: "false" } ], nodes).gate, [ "false → Ask again" ])
 })
 
 test("writes a branch that leads to no step yet as leading nowhere yet", () => {
-  const nodes = [ { id: "gate--false", label: "false", placeholder: true } ]
+  const nodes = [ ...chain, { id: "gate--false", label: "false", placeholder: true } ]
 
-  assert.equal(branchLine({ target: "gate--false", label: "false" }, nodes), "false → nowhere yet")
+  assert.deepEqual(branchLinesOf(chain, [ { source: "gate", target: "gate--false", label: "false" } ], nodes).gate, [ "false → nowhere yet" ])
 })
 
 test("finds the connection that joins a step to the step after it in a row", () => {
@@ -64,7 +66,7 @@ test("finds the connection that joins a step to the step after it in a row", () 
 })
 
 test("writes the branch lines of every step at once, keyed by the step they leave", () => {
-  const nodes = [ ...chain.map((step) => ({ ...step, label: step.id })), { id: "gate--false", label: "false", placeholder: true, row: 1, column: 1 } ]
+  const nodes = [ ...labelled, { id: "gate--false", label: "false", placeholder: true, row: 1, column: 1 } ]
   const edges = [ { source: "ask", target: "gate" }, { source: "gate", target: "ask", label: "true" }, { source: "gate", target: "gate--false", label: "false" } ]
 
   assert.deepEqual(branchLinesOf(chain, edges, nodes), { ask: [], gate: [ "true → ask", "false → nowhere yet" ], retry: [] })

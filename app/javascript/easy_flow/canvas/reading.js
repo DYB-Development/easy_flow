@@ -28,18 +28,7 @@ export const blocksOf = (nodes) => {
   return blocks
 }
 
-const nextAfter = (ordered, node) => ordered[ordered.findIndex((step) => step.id === node.id) + 1]?.id
-
-export const branchesOf = (node, edges, nodes) => {
-  const next = nextAfter(readingOrder(nodes), node)
-
-  return edges.filter((edge) => edge.source === node.id && (edge.label || edge.target !== next))
-}
-
 const nameOf = (step) => (step?.placeholder ? "nowhere yet" : step?.label)
-
-export const branchLine = (edge, nodes) =>
-  [ edge.label, "→", nameOf(nodes.find((node) => node.id === edge.target)) ].filter(Boolean).join(" ")
 
 const joins = new WeakMap()
 

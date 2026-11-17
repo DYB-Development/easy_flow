@@ -28,8 +28,8 @@
   <% actions << { label: "Try it", href: flow_routes.manage_flow_preview_path(flow) } %>
   <% flow_host.editor_buttons_for(flow).each { |button| actions << { label: button.label, href: button.address } } %>
   <% if showing == :canvas %>
-    <% actions << { label: "Save draft", data: { bar_action: "save_draft" } } %>
-    <% actions << { label: "Publish v#{EasyFlow::DraftStatus.new(flow).publishes}", data: { bar_action: "publish" }, primary: true } %>
+    <% actions << { label: "Save draft", data: { bar_action: "save_draft", bar_path: "/versions" } } %>
+    <% actions << { label: "Publish v#{EasyFlow::DraftStatus.new(flow).publishes}", data: { bar_action: "publish", bar_path: "/publish" }, primary: true } %>
   <% end %>
 
   <div class="ml-auto hidden flex-wrap items-center gap-2 sm:flex">

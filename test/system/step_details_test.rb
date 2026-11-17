@@ -139,6 +139,22 @@ module EasyFlow
       assert_equal({ "heading" => false, "values" => true }, fonts)
     end
 
+    def heading_and_title_colours
+      page.evaluate_script(<<~JS)
+        (() => {
+          const section = [...document.querySelectorAll("[data-inspector] section")].find((each) => each.textContent.startsWith("Inputs"))
+          return [ getComputedStyle(section.firstElementChild).color, getComputedStyle(document.querySelector("[data-inspector] h2")).color ]
+        })()
+      JS
+    end
+
+    test "an agent step's Inputs heading is drawn in a muted colour, unlike the step's title" do
+      open_agent_settings
+
+      heading, title = heading_and_title_colours
+      assert_not_equal title, heading
+    end
+
     def schema_line_border
       page.evaluate_script(%(getComputedStyle(document.querySelector("[data-inspector] .ks-disclosure")).borderTopWidth))
     end

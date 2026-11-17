@@ -524,6 +524,16 @@ module EasyFlow
       assert_selector("[data-group-box='variants']") { inside_box?("[data-step='human_approve']", "variants") }
     end
 
+    test "dragging a step onto a group step's box on a left-to-right canvas puts it in the box" do
+      laid_left_to_right do
+        canvas_for(grouped)
+
+        step_card("human_approve").drag_to(find("[data-group-box='variants']"))
+
+        assert_selector("[data-group-box='variants'] [data-step='human_approve']")
+      end
+    end
+
     test "dragging a step out of a group step's box takes it out of the box" do
       canvas_for(grouped)
 

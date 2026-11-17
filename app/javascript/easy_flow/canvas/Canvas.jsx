@@ -17,7 +17,7 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
-import { branchLine, branchesOf } from "./reading"
+import { branchLinesOf } from "./reading"
 
 const HEADER_GAP = 8
 
@@ -95,8 +95,14 @@ const Canvas = ({ base, token, initial }) => {
   }, [ flow.violations ])
 
   const leftToRight = flow.direction === "left_to_right"
-  const attached = flow.nodes.filter((node) => !node.loose)
+  const attached = useMemo(() => flow.nodes.filter((node) => !node.loose), [ flow.nodes ])
   const loose = flow.nodes.filter((node) => node.loose)
+  const branchLines = useMemo(() => (leftToRight ? branchLinesOf(attached, flow.edges, flow.nodes) : {}), [ leftToRight, attached, flow.edges, flow.nodes ])
+  const connectedFrom = useMemo(() => {
+    const ports = {}
+    flow.edges.forEach((edge) => (ports[edge.source] ||= []).push(edge.label || null))
+    return ports
+  }, [ flow.edges ])
   const rows = Math.max(0, ...attached.map((node) => node.row)) + 1
   const columns = Math.max(0, ...attached.map((node) => node.column)) + 1
 
@@ -161,7 +167,7 @@ const Canvas = ({ base, token, initial }) => {
           ...node,
           ref: (element) => { cards.current[node.id] = element },
           violations: violationsFor[node.id] || [],
-          connected: flow.edges.filter((edge) => edge.source === node.id).map((edge) => edge.label || null)
+          connected: connectedFrom[node.id] || []
         }}
         selected={node.id === selected}
         armed={armed && armed[0] === node.id ? armed[1] : null}
@@ -180,7 +186,7 @@ const Canvas = ({ base, token, initial }) => {
         onDragStart={() => setDragging(node.id)}
         hideStepTypeCodes={flow.hide_step_type_codes}
         compact={leftToRight}
-        branches={leftToRight ? branchesOf(node, flow.edges, attached).map((edge) => branchLine(edge, flow.nodes)) : []}
+        branches={branchLines[node.id] || []}
       />}
     </>
   )

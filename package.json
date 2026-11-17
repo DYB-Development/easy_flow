@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/DYB-Development/easy_flow#readme",
   "dependencies": {
-    "keystone_ui-react": "https://github.com/DYB-Development/keystone_ui-react/archive/refs/tags/v0.5.0.tar.gz",
+    "keystone_ui-react": "https://github.com/DYB-Development/keystone_ui-react/archive/refs/tags/v0.6.0.tar.gz",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },

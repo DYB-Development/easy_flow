@@ -80,7 +80,7 @@ test("saves the value of the radio card the author chooses", () => {
 
   const cards = [ tree, tree.props.children ].flat(Infinity).find((element) => element?.props?.onChange)
 
-  cards.props.onChange({ target: { value: "candidate" } })
+  cards.props.onChange("candidate")
 
   assert.equal(settled, "candidate")
 })

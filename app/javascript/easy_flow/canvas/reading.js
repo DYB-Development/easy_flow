@@ -41,7 +41,14 @@ const nameOf = (step) => (step?.placeholder ? "nowhere yet" : step?.label)
 export const branchLine = (edge, nodes) =>
   [ edge.label, "→", nameOf(nodes.find((node) => node.id === edge.target)) ].filter(Boolean).join(" ")
 
-export const joining = (edges, before, after) => edges.find((edge) => edge.source === before.id && edge.target === after.id)
+const joins = new WeakMap()
+
+const joinsOf = (edges) => {
+  if (!joins.has(edges)) joins.set(edges, new Map([ ...edges ].reverse().map((edge) => [ `${edge.source}\n${edge.target}`, edge ])))
+  return joins.get(edges)
+}
+
+export const joining = (edges, before, after) => joinsOf(edges).get(`${before.id}\n${after.id}`)
 
 export const branchLinesOf = (steps, edges, nodes) => {
   const ordered = readingOrder(steps)

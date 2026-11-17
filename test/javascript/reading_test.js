@@ -96,3 +96,9 @@ test("reads each step about as often in a flow of 400 steps as in a flow of 100 
 
   assert.ok(readsPerStep(blocks, 400) < 2 * readsPerStep(blocks, 100))
 })
+
+test("reads each connection about as often in a flow of 400 steps as in a flow of 100 when finding the connection between each pair of steps in a row", () => {
+  const joins = (steps, edges) => steps.slice(1).forEach((step, at) => joining(edges, steps[at], step))
+
+  assert.ok(readsPerStep(joins, 400) < 2 * readsPerStep(joins, 100))
+})

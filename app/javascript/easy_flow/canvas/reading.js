@@ -1,11 +1,14 @@
 const byPlace = (a, b) => a.row - b.row || a.column - b.column
 
+const holdersOf = (nodes) => new Map(nodes.flatMap((group) => (group.holds || []).map((id) => [ id, group.id ])))
+
 export const readingOrder = (nodes) => {
   const placed = [ ...nodes ].sort(byPlace)
-  const held = placed.filter((node) => nodes.some((group) => group.holds?.includes(node.id)))
+  const holders = holdersOf(nodes)
+  const held = new Map(nodes.filter((node) => node.holds).map((group) => [ group.id, [] ]))
+  placed.filter((node) => holders.has(node.id)).forEach((node) => held.get(holders.get(node.id)).push(node))
 
-  return placed.filter((node) => !held.includes(node))
-    .flatMap((node) => [ node, ...held.filter((step) => node.holds?.includes(step.id)) ])
+  return placed.filter((node) => !holders.has(node.id)).flatMap((node) => [ node, ...(held.get(node.id) || []) ])
 }
 
 export const blocksOf = (nodes) => {
@@ -36,5 +39,14 @@ export const branchLine = (edge, nodes) =>
 
 export const joining = (edges, before, after) => edges.find((edge) => edge.source === before.id && edge.target === after.id)
 
-export const branchLinesOf = (steps, edges, nodes) =>
-  Object.fromEntries(steps.map((step) => [ step.id, branchesOf(step, edges, steps).map((edge) => branchLine(edge, nodes)) ]))
+export const branchLinesOf = (steps, edges, nodes) => {
+  const ordered = readingOrder(steps)
+  const next = new Map(ordered.map((step, at) => [ step.id, ordered[at + 1]?.id ]))
+  const names = new Map(nodes.map((node) => [ node.id, nameOf(node) ]))
+  const lines = Object.fromEntries(steps.map((step) => [ step.id, [] ]))
+
+  edges.filter((edge) => lines[edge.source] && (edge.label || edge.target !== next.get(edge.source)))
+    .forEach((edge) => lines[edge.source].push([ edge.label, "→", names.get(edge.target) ].filter(Boolean).join(" ")))
+
+  return lines
+}

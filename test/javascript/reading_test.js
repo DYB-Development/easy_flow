@@ -69,3 +69,24 @@ test("writes the branch lines of every step at once, keyed by the step they leav
 
   assert.deepEqual(branchLinesOf(chain, edges, nodes), { ask: [], gate: [ "true → ask", "false → nowhere yet" ], retry: [] })
 })
+
+const counted = (count) => {
+  const reads = { count: 0 }
+  const watched = (value) => new Proxy(value, { get: (target, key) => { reads.count += 1; return target[key] } })
+  const steps = Array.from({ length: count }, (_, at) => watched({ id: `s${at}`, label: `s${at}`, row: at, column: 0 }))
+  const edges = steps.slice(1).map((step, at) => watched({ source: `s${at}`, target: step.id }))
+
+  return { reads, steps, edges }
+}
+
+const readsPerStep = (work, count) => {
+  const { reads, steps, edges } = counted(count)
+  work(steps, edges)
+  return reads.count / count
+}
+
+test("reads each step about as often in a flow of 400 steps as in a flow of 100 when writing branch lines", () => {
+  const lines = (steps, edges) => branchLinesOf(steps, edges, steps)
+
+  assert.ok(readsPerStep(lines, 400) < 2 * readsPerStep(lines, 100))
+})

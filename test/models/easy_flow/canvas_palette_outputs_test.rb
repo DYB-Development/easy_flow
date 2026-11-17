@@ -35,6 +35,12 @@ module EasyFlow
       assert_equal %w[high medium low], entry["outputs"].first["values"]
     end
 
+    test "shows an output whose values depend on a drawn step's settings with no values" do
+      entry = palette_entry { output :answer, values: ->(node) { Array(node.config["options"]) } }
+
+      assert_nil entry["outputs"].first["values"]
+    end
+
     private
 
     def palette_entry(&declare)

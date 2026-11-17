@@ -117,7 +117,8 @@ module EasyFlow
     end
 
     def palette_output(output)
-      { "name" => output.name.to_s, "label" => output.label, "type" => output.type.to_s, "values" => output.values }
+      { "name" => output.name.to_s, "label" => output.label, "type" => output.type.to_s,
+        "values" => output.values.respond_to?(:call) ? nil : output.values }
     end
 
     def hidden_settings_of(step_type)

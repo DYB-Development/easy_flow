@@ -12,16 +12,20 @@ export const readingOrder = (nodes) => {
 }
 
 export const blocksOf = (nodes) => {
+  const holders = holdersOf(nodes)
   const ordered = readingOrder(nodes)
-  const held = (step) => ordered.some((group) => group.holds?.includes(step.id))
+  const blocks = []
+  const boxes = new Map()
 
-  return ordered.filter((node) => !held(node)).reduce((blocks, node) => {
-    if (node.holds) return [ ...blocks, { group: node, steps: ordered.filter((step) => node.holds.includes(step.id)) } ]
-
+  ordered.filter((node) => !holders.has(node.id)).forEach((node) => {
     const last = blocks[blocks.length - 1]
-    if (last && !last.group) return [ ...blocks.slice(0, -1), { steps: [ ...last.steps, node ] } ]
-    return [ ...blocks, { steps: [ node ] } ]
-  }, [])
+    if (node.holds) boxes.set(node.id, blocks[blocks.push({ group: node, steps: [] }) - 1])
+    else if (last && !last.group) last.steps.push(node)
+    else blocks.push({ steps: [ node ] })
+  })
+  ordered.filter((node) => holders.has(node.id)).forEach((node) => boxes.get(holders.get(node.id))?.steps.push(node))
+
+  return blocks
 }
 
 const nextAfter = (ordered, node) => ordered[ordered.findIndex((step) => step.id === node.id) + 1]?.id

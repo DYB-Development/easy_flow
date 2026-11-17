@@ -90,3 +90,9 @@ test("reads each step about as often in a flow of 400 steps as in a flow of 100 
 
   assert.ok(readsPerStep(lines, 400) < 2 * readsPerStep(lines, 100))
 })
+
+test("reads each step about as often in a flow of 400 steps as in a flow of 100 when splitting it into rows and boxes", () => {
+  const blocks = (steps) => blocksOf(steps)
+
+  assert.ok(readsPerStep(blocks, 400) < 2 * readsPerStep(blocks, 100))
+})

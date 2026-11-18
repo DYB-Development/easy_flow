@@ -192,6 +192,12 @@ module EasyFlow
       assert_selector "[data-step='tell']", text: "email · sms"
     end
 
+    test "a step of one of easy_flow's own types shows the summary easy_flow works out from its settings" do
+      canvas_for(wired)
+
+      assert_selector "[data-step='gate']", text: "first.answer is yes"
+    end
+
     test "adding a step from an unconnected branch wires it to that branch" do
       canvas_for(flow)
 

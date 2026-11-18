@@ -28,15 +28,6 @@ test("fans the branches of a step out into separate rows", () => {
   assert.notEqual(rowOf(graph, "yes"), rowOf(graph, "no"))
 })
 
-test("puts a step in a lower row below the tallest card in the row above it", () => {
-  const nodes = [ step("start"), step("gate"), step("yes"), step("no") ]
-  const graph = layOut(nodes, [ link("start", "gate"), link("gate", "yes", "true"), link("gate", "no", "false") ], { heights: { start: 140 } })
-  const above = graph.places.yes.row < graph.places.no.row ? "yes" : "no"
-  const below = above === "yes" ? "no" : "yes"
-
-  assert.ok(graph.places[below].y >= graph.places.start.y + 140)
-})
-
 const routeOf = (graph, id) => graph.links.find((each) => each.id === id).points
 
 test("draws a connection as a line from the right edge of one card to the left edge of the next", () => {
@@ -142,4 +133,13 @@ test("leaves at most 64px between a card's right edge and the next column", () =
   const { ask, gate } = graph.places
 
   assert.ok(gate.x - (ask.x + ask.width) <= 64)
+})
+
+test("puts a branch just below its sibling, however tall a card in another column is", () => {
+  const nodes = [ step("start"), step("tall"), step("gate"), step("yes"), step("no") ]
+  const edges = [ link("start", "tall"), link("start", "gate"), link("gate", "yes", "true"), link("gate", "no", "false") ]
+  const graph = layOut(nodes, edges, { heights: { tall: 400 } })
+  const [ upper, lower ] = [ graph.places.yes, graph.places.no ].sort((a, b) => a.y - b.y)
+
+  assert.equal(lower.y, upper.y + upper.height + 24)
 })

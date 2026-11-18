@@ -94,6 +94,19 @@ const startsOf = (sizes, gap, from) => {
 
 const endOf = (starts, sizes) => (starts.length > 0 ? starts[starts.length - 1] + sizes[sizes.length - 1] : 0)
 
+const deepestOf = (values) => {
+  const levels = [ values ]
+  for (let width = 1; width * 2 <= values.length; width *= 2) {
+    const below = levels[levels.length - 1]
+    levels.push(below.slice(0, values.length - width * 2 + 1).map((value, at) => Math.max(value, below[at + width])))
+  }
+
+  return (from, to) => {
+    const level = Math.floor(Math.log2(to - from + 1))
+    return Math.max(levels[level][from], levels[level][to - (1 << level) + 1])
+  }
+}
+
 const arrange = (ids, edges, sizeOf, room) => {
   const backward = loopingBack(ids, edges)
   const forward = edges.filter((edge) => !backward.has(edge))
@@ -101,10 +114,10 @@ const arrange = (ids, edges, sizeOf, room) => {
   const rows = rowsOf(ids, forward, columns)
 
   const columnWidths = []
-  const rowHeights = []
+  const stacks = []
   ids.forEach((id) => {
     columnWidths[columns.get(id)] = Math.max(columnWidths[columns.get(id)] || 0, sizeOf(id).width)
-    rowHeights[rows.get(id)] = Math.max(rowHeights[rows.get(id)] || 0, sizeOf(id).height)
+    ;(stacks[columns.get(id)] ||= [])[rows.get(id)] = id
   })
   const skipping = (edge) => columns.get(edge.target) > columns.get(edge.source) + 1
   const channelsOf = (taken) => {
@@ -116,17 +129,27 @@ const arrange = (ids, edges, sizeOf, room) => {
   const below = channelsOf(forward.filter(skipping))
 
   const lefts = startsOf(columnWidths, COLUMN_GAP, room.left)
-  const tops = startsOf(rowHeights, ROW_GAP, room.top + above.size * CHANNEL_GAP)
-  const bottom = endOf(tops, rowHeights)
+  const top = room.top + above.size * CHANNEL_GAP
+  const tops = new Map()
+  const bottoms = stacks.map((stack) => {
+    const heights = stack.map((id) => sizeOf(id).height)
+    startsOf(heights, ROW_GAP, top).forEach((y, at) => tops.set(stack[at], y))
+    return endOf(startsOf(heights, ROW_GAP, top), heights)
+  })
+  const lowestBetween = deepestOf(bottoms)
 
   const places = Object.fromEntries(ids.map((id) => [ id, {
     column: columns.get(id), row: rows.get(id),
-    x: lefts[columns.get(id)], y: tops[rows.get(id)], width: sizeOf(id).width, height: sizeOf(id).height
+    x: lefts[columns.get(id)], y: tops.get(id), width: sizeOf(id).width, height: sizeOf(id).height
   } ]))
+
+  const floors = new Map()
+  forward.filter(skipping).forEach((edge) => floors.set(edge.target,
+    Math.max(floors.get(edge.target) || 0, lowestBetween(columns.get(edge.source) + 1, columns.get(edge.target) - 1))))
 
   const channelOf = (edge) => {
     if (backward.has(edge)) return room.top + (above.size - 1 - above.get(edge.target)) * CHANNEL_GAP
-    if (skipping(edge)) return bottom + (below.get(edge.target) + 1) * CHANNEL_GAP
+    if (skipping(edge)) return floors.get(edge.target) + (below.get(edge.target) + 1) * CHANNEL_GAP
     return null
   }
 

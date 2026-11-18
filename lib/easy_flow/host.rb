@@ -85,6 +85,14 @@ module EasyFlow
       @step_groups || {}
     end
 
+    def summaries=(summaries)
+      @summaries = summaries.to_h.transform_keys(&:to_s)
+    end
+
+    def summary_of(node)
+      @summaries.to_h[node.type.to_s]&.call(node).presence
+    end
+
     def explanation_for(step_type, setting)
       @setting_explanations.to_h.dig(step_type.to_s, setting.to_s).presence
     end

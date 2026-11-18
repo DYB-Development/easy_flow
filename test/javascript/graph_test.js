@@ -76,3 +76,9 @@ test("measures the graph past its rightmost card and below its lowest line", () 
 
   assert.deepEqual([ graph.width > Math.max(...cards.map((card) => card.x + card.width)), graph.height > Math.max(...lines.map(([ , y ]) => y)) ], [ true, true ])
 })
+
+test("leaves out a connection to or from a step that is not drawn", () => {
+  const graph = layOut([ step("ask"), step("gate") ], [ link("start", "ask"), link("ask", "gate"), link("gate", "end") ])
+
+  assert.deepEqual(graph.links.map((each) => each.id), [ "ask-gate" ])
+})

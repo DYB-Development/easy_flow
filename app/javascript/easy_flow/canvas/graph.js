@@ -92,8 +92,10 @@ const startsOf = (sizes, gap, from) => {
   return starts
 }
 
-export const layOut = (nodes, edges, { heights = {} } = {}) => {
+export const layOut = (nodes, given, { heights = {} } = {}) => {
   const ids = nodes.map((node) => node.id)
+  const drawn = new Set(ids)
+  const edges = given.filter((edge) => drawn.has(edge.source) && drawn.has(edge.target))
   const backward = loopingBack(ids, edges)
   const forward = edges.filter((edge) => !backward.has(edge))
   const columns = columnsOf(ids, forward)

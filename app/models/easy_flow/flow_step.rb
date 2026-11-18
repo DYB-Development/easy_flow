@@ -14,7 +14,12 @@ module EasyFlow
     waits_until { |_node, _state| false }
 
     names_by { |node| ChosenFlow.of(node).name }
-    summarizes_by { |node| "runs version #{node.config["version"]}" if node.config["version"].present? }
+    summarizes_by { |node| FlowStep.steps_in(node)&.then { |count| "#{count} #{"step".pluralize(count)}" } }
+
+    def self.steps_in(node)
+      version = ChosenFlow.of(node).version
+      Array(version.definition.to_h["nodes"]).count { |step| %w[start terminal].exclude?(step["type"]) } if version
+    end
 
     def self.endings_of(node)
       version = ChosenFlow.of(node).version

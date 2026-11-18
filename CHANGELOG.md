@@ -13,6 +13,7 @@
 ### Changed
 
 - Saving a step clears a radio card choice its other settings no longer offer, instead of refusing the save, and the settings panel shows a notice naming what was cleared.
+- Saving a step whose radio card options raise while they are worked out writes the error to the log and is refused with a message in the settings panel naming the setting, instead of a server error.
 
 ## [0.49.1] - 2026-11-17
 

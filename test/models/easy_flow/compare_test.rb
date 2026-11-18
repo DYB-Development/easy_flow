@@ -67,5 +67,11 @@ module EasyFlow
 
       assert_equal true, Compare.step_type.route(node, { "tests" => "passed" }, { "tests" => Time.zone.local(2026, 10, 11, 9, 0) })
     end
+
+    test "summarizes the comparison it makes on the output it reads" do
+      node = compare({ "step" => "tests", "output" => "coverage", "comparison" => "at least", "amount" => 80.5 })
+
+      assert_equal "tests.coverage at least 80.5", Compare.step_type.summary_of(node)
+    end
   end
 end

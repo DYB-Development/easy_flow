@@ -13,6 +13,8 @@ module EasyFlow
 
     output :result, type: :boolean, values: [ true, false ]
 
+    summarizes_by { |node| [ node.config.values_at("step", "output").compact_blank.join("."), *node.config.values_at("comparison", "amount") ].compact_blank.join(" ") }
+
     def route(node, state, times)
       number = Float(CompletedAt.value_of(state, times, *node.config.values_at("step", "output")).to_s, exception: false)
       return false if number.nil?

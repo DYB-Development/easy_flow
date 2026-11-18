@@ -38,8 +38,18 @@ module EasyFlow
     def drawn_step(node)
       shown = @steps.fetch(node.id, {}).to_h.symbolize_keys
 
-      { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => shown[:state]&.to_s, "status" => shown[:status], "address" => shown[:address], "version" => shown[:version],
+      { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => state_of(node, shown), "status" => shown[:status], "address" => shown[:address], "version" => shown[:version],
         "holds" => holds(node), **header_of(node), **placed.fetch(node.id, {}) }
+    end
+
+    def state_of(node, shown)
+      return shown[:state]&.to_s unless step_type_for(node)&.begins_here?
+
+      started? ? "done" : "pending"
+    end
+
+    def started?
+      @steps.values.map { |shown| shown.to_h.symbolize_keys[:state].to_s }.any? { |state| state.present? && state != "pending" }
     end
 
     def header_of(node)

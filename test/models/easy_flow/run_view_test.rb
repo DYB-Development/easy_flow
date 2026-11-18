@@ -51,6 +51,10 @@ module EasyFlow
       assert_equal %w[start outline draft end], drawn["nodes"].map { |node| node["id"] }
     end
 
+    test "shows the Start step as done once any step of the run has left pending" do
+      assert_equal "done", step("start", "outline" => { state: :paused }, "draft" => { state: :pending })["state"]
+    end
+
     test "places each step after the step that leads to it" do
       assert_operator step("draft")["row"], :>, step("outline")["row"]
     end

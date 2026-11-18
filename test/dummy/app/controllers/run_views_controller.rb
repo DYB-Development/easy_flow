@@ -14,6 +14,6 @@ class RunViewsController < ApplicationController
 
   def show
     @version = EasyFlow::Version.find(params[:id])
-    @steps = STEPS.to_h { |id, step| [ id, step.merge(address: "/runs/#{@version.id}?step=#{id}") ] }
+    @steps = @version.definition["nodes"].to_h { |node| [ node["id"], STEPS.fetch(node["id"], {}).merge(address: "/runs/#{@version.id}?step=#{node["id"]}") ] }
   end
 end

@@ -64,6 +64,13 @@ module EasyFlow
       assert_selector "[data-flow-run-view] [data-link-label^='gate-rejected']", text: "false"
     end
 
+    test "a run view draws the Start and End cards as cards that link nowhere, even when its host gives them an address" do
+      visit "/runs/#{branching_version.id}"
+      find("[data-flow-run-view] a[data-step='review']")
+
+      assert_no_selector "[data-flow-run-view] a[data-step='start'], [data-flow-run-view] a[data-step='rejected']"
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

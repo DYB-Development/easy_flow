@@ -88,3 +88,17 @@ test("measures a flow with no steps to draw as an empty graph", () => {
 
   assert.ok(Number.isFinite(graph.width) && Number.isFinite(graph.height))
 })
+
+const grouped = {
+  nodes: [ step("outline"), step("variants", { holds: [ "write", "check" ] }), step("write"), step("check"), step("approve") ],
+  edges: [ link("outline", "variants"), link("variants", "write"), link("write", "check"), link("check", "approve") ]
+}
+
+const within = (card, box) =>
+  card.x >= box.x && card.x + card.width <= box.x + box.width && card.y >= box.y && card.y + card.height <= box.y + box.height
+
+test("draws the steps a group step holds inside the group's box", () => {
+  const graph = layOut(grouped.nodes, grouped.edges)
+
+  assert.deepEqual([ "write", "check" ].map((id) => within(graph.places[id], graph.places.variants)), [ true, true ])
+})

@@ -94,22 +94,17 @@ const startsOf = (sizes, gap, from) => {
 
 const endOf = (starts, sizes) => (starts.length > 0 ? starts[starts.length - 1] + sizes[sizes.length - 1] : 0)
 
-export const layOut = (nodes, given, { heights = {} } = {}) => {
-  const ids = nodes.map((node) => node.id)
-  const drawn = new Set(ids)
-  const edges = given.filter((edge) => drawn.has(edge.source) && drawn.has(edge.target))
+const arrange = (ids, edges, sizeOf, room) => {
   const backward = loopingBack(ids, edges)
   const forward = edges.filter((edge) => !backward.has(edge))
   const columns = columnsOf(ids, forward)
   const rows = rowsOf(ids, forward, columns)
-  const widthOf = () => CARD_WIDTH
-  const heightOf = (id) => heights[id] || CARD_HEIGHT
 
   const columnWidths = []
   const rowHeights = []
   ids.forEach((id) => {
-    columnWidths[columns.get(id)] = Math.max(columnWidths[columns.get(id)] || 0, widthOf(id))
-    rowHeights[rows.get(id)] = Math.max(rowHeights[rows.get(id)] || 0, heightOf(id))
+    columnWidths[columns.get(id)] = Math.max(columnWidths[columns.get(id)] || 0, sizeOf(id).width)
+    rowHeights[rows.get(id)] = Math.max(rowHeights[rows.get(id)] || 0, sizeOf(id).height)
   })
   const skipping = (edge) => columns.get(edge.target) > columns.get(edge.source) + 1
   const channelsOf = (taken) => {
@@ -120,22 +115,23 @@ export const layOut = (nodes, given, { heights = {} } = {}) => {
   const above = channelsOf(edges.filter((edge) => backward.has(edge)))
   const below = channelsOf(forward.filter(skipping))
 
-  const lefts = startsOf(columnWidths, COLUMN_GAP, COLUMN_GAP - EXIT + MARGIN / 2)
-  const tops = startsOf(rowHeights, ROW_GAP, MARGIN + above.size * CHANNEL_GAP)
+  const lefts = startsOf(columnWidths, COLUMN_GAP, room.left)
+  const tops = startsOf(rowHeights, ROW_GAP, room.top + above.size * CHANNEL_GAP)
   const bottom = endOf(tops, rowHeights)
 
   const places = Object.fromEntries(ids.map((id) => [ id, {
     column: columns.get(id), row: rows.get(id),
-    x: lefts[columns.get(id)], y: tops[rows.get(id)], width: widthOf(id), height: heightOf(id)
+    x: lefts[columns.get(id)], y: tops[rows.get(id)], width: sizeOf(id).width, height: sizeOf(id).height
   } ]))
 
   const channelOf = (edge) => {
-    if (backward.has(edge)) return MARGIN + (above.size - 1 - above.get(edge.target)) * CHANNEL_GAP
+    if (backward.has(edge)) return room.top + (above.size - 1 - above.get(edge.target)) * CHANNEL_GAP
     if (skipping(edge)) return bottom + (below.get(edge.target) + 1) * CHANNEL_GAP
     return null
   }
 
-  const heading = (edge) => channelOf(edge) ?? places[edge.target].y + places[edge.target].height / 2
+  const arrivingAt = (id) => places[id].y + (sizeOf(id).arrives ?? places[id].height / 2)
+  const heading = (edge) => channelOf(edge) ?? arrivingAt(edge.target)
   const leavingAt = new Map()
   outgoingOf(ids, edges).forEach((leaving) => [ ...leaving ].sort((a, b) => heading(a) - heading(b))
     .forEach((edge, at) => leavingAt.set(edge, (at + 1) / (leaving.length + 1))))
@@ -144,18 +140,61 @@ export const layOut = (nodes, given, { heights = {} } = {}) => {
     const from = places[edge.source]
     const to = places[edge.target]
     const leaving = from.y + from.height * leavingAt.get(edge)
-    const arriving = to.y + to.height / 2
+    const arriving = arrivingAt(edge.target)
     const turn = lefts[from.column] + columnWidths[from.column] + EXIT
     const channel = channelOf(edge)
     const start = [ [ from.x + from.width, leaving ], [ turn, leaving ] ]
     const end = [ [ to.x - COLUMN_GAP + EXIT, arriving ], [ to.x, arriving ] ]
 
-    return { ...edge, points: channel === null ? [ ...start, [ turn, arriving ], end[1] ] : [ ...start, [ turn, channel ], [ end[0][0], channel ], ...end ] }
+    return { ...edge.drawn, points: channel === null ? [ ...start, [ turn, arriving ], end[1] ] : [ ...start, [ turn, channel ], [ end[0][0], channel ], ...end ] }
   }
 
-  return {
-    places, links: edges.map(routed),
-    width: endOf(lefts, columnWidths) + EXIT + MARGIN / 2,
-    height: bottom + below.size * CHANNEL_GAP + MARGIN
+  const links = edges.map(routed)
+  const corners = [ ...Object.values(places).map((card) => [ card.x + card.width, card.y + card.height ]), ...links.flatMap((each) => each.points) ]
+  const farthest = corners.reduce(([ right, low ], [ x, y ]) => [ Math.max(right, x), Math.max(low, y) ], [ 0, 0 ])
+
+  return { places, links, width: farthest[0] + room.right, height: farthest[1] + room.bottom }
+}
+
+const ENTRY = "\u0000entry"
+const HEADER_HEIGHT = 24
+const OUTSIDE = { left: COLUMN_GAP - EXIT + MARGIN / 2, top: MARGIN, right: MARGIN / 2, bottom: MARGIN }
+const INSIDE = { left: 0, top: 8, right: 16, bottom: 12 }
+
+export const layOut = (nodes, given, { heights = {} } = {}) => {
+  const drawn = new Set(nodes.map((node) => node.id))
+  const holders = new Map(nodes.flatMap((group) => (group.holds || []).filter((id) => drawn.has(id)).map((id) => [ id, group.id ])))
+  const levels = new Map([ [ null, { ids: [], edges: [] } ] ])
+  nodes.filter((node) => node.holds).forEach((group) => levels.set(group.id, { ids: [ ENTRY ], edges: [] }))
+  nodes.forEach((node) => levels.get(holders.get(node.id) ?? null).ids.push(node.id))
+
+  given.filter((edge) => drawn.has(edge.source) && drawn.has(edge.target)).forEach((edge) => {
+    const inside = holders.get(edge.target)
+    if (inside && inside === edge.source) levels.get(inside).edges.push({ source: ENTRY, target: edge.target, drawn: edge })
+    else if (inside && inside === holders.get(edge.source)) levels.get(inside).edges.push({ source: edge.source, target: edge.target, drawn: edge })
+    else levels.get(null).edges.push({ source: holders.get(edge.source) ?? edge.source, target: inside ?? edge.target, drawn: edge })
+  })
+
+  const cardSize = (id) => ({ width: CARD_WIDTH, height: heights[id] || CARD_HEIGHT })
+  const insides = new Map([ ...levels ].filter(([ group ]) => group).map(([ group, level ]) =>
+    [ group, arrange(level.ids, level.edges, (id) => (id === ENTRY ? { width: 0, height: CARD_HEIGHT } : cardSize(id)), INSIDE) ]))
+  const headerOf = (id) => heights[id] || HEADER_HEIGHT
+  const sizeOf = (id) => {
+    const inside = insides.get(id)
+    if (!inside) return cardSize(id)
+    return { width: inside.width, height: headerOf(id) + inside.height, arrives: headerOf(id) + inside.places[ENTRY].y + CARD_HEIGHT / 2 }
   }
+
+  const outside = arrange(levels.get(null).ids, levels.get(null).edges, sizeOf, OUTSIDE)
+  const places = { ...outside.places }
+  const links = [ ...outside.links ]
+  insides.forEach((inside, group) => {
+    const box = outside.places[group]
+    const [ x, y ] = [ box.x, box.y + headerOf(group) ]
+    Object.entries(inside.places).filter(([ id ]) => id !== ENTRY)
+      .forEach(([ id, place ]) => { places[id] = { ...place, x: place.x + x, y: place.y + y } })
+    inside.links.forEach((each) => links.push({ ...each, points: each.points.map(([ px, py ]) => [ px + x, py + y ]) }))
+  })
+
+  return { places, links, width: outside.width, height: outside.height }
 }

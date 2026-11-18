@@ -56,5 +56,9 @@ module EasyFlow
     test "is offered to every host's flows" do
       assert EasyFlow.registry.registered?(:all_or_any)
     end
+
+    test "summarizes whether all or any of its comparisons must hold and how many there are" do
+      assert_equal "any of 2 comparisons", AllOrAny.step_type.summary_of(joined("any of", coverage_and_warnings))
+    end
   end
 end

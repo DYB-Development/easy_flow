@@ -1,5 +1,6 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import Joint from "./Joint"
+import StepRows from "./StepRows"
 import { EXIT, layOut } from "./graph"
 
 const stack = { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 14, padding: "64px 0 0" }
@@ -74,11 +75,34 @@ const Graph = ({ nodes, edges, draw, joints }) => {
   )
 }
 
-const LeftToRight = ({ nodes, edges, draw, joints, children, style }) => (
-  <div data-flow-rows style={{ ...stack, ...style }}>
-    {children}
-    <Graph nodes={nodes} edges={edges} draw={draw} joints={joints} />
-  </div>
-)
+const WIDE = "(min-width: 640px)"
+
+const screenIsWide = () => typeof window === "undefined" || !window.matchMedia || window.matchMedia(WIDE).matches
+
+const useWide = () => {
+  const [ wide, setWide ] = useState(screenIsWide)
+
+  useEffect(() => {
+    if (!window.matchMedia) return undefined
+    const screen = window.matchMedia(WIDE)
+    const follow = () => setWide(screen.matches)
+    screen.addEventListener("change", follow)
+    return () => screen.removeEventListener("change", follow)
+  }, [])
+
+  return wide
+}
+
+const LeftToRight = ({ nodes, edges, draw, joints, children, style }) => {
+  const wide = useWide()
+  if (!wide) return <StepRows nodes={nodes} edges={edges} draw={draw} joints={joints} style={style}>{children}</StepRows>
+
+  return (
+    <div data-flow-rows style={{ ...stack, ...style }}>
+      {children}
+      <Graph nodes={nodes} edges={edges} draw={draw} joints={joints} />
+    </div>
+  )
+}
 
 export default LeftToRight

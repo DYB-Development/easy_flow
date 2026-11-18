@@ -31,3 +31,12 @@ test("puts a connection's insert and remove buttons on its line, beside the card
 test("labels a branch's line with the answer it is taken on", () => {
   assert.match(drawn(chain, [ { id: "ask-gate-0", source: "ask", target: "gate", label: "failed" } ]), /data-link-label="ask-gate-0"[^>]*>failed</)
 })
+
+test("draws one step per row instead of the graph on a screen as narrow as a phone", () => {
+  globalThis.window = { matchMedia: (query) => ({ media: query, matches: false, addEventListener: () => {}, removeEventListener: () => {} }) }
+  try {
+    assert.match(drawn(chain, [ { id: "ask-gate-0", source: "ask", target: "gate" } ]), /data-step-row="ask"/)
+  } finally {
+    delete globalThis.window
+  }
+})

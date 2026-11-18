@@ -14,6 +14,7 @@ module EasyFlow
       end
 
       names_by :question
+      summarizes_by { |node| Question.summarized(node.config) }
       awaits_input
       drawn_by "easy_flow/steps/ticking"
       answer_check { |node, value| "Tick at least one to go on." if node.config["required"] && Array(value).compact_blank.empty? }

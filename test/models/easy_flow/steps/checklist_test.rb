@@ -21,6 +21,12 @@ module EasyFlow
       test "an answer carries info the canvas offers for editing" do
         assert_equal :string, Checklist.step_type.settings.record_fields[:answers][:info]
       end
+
+      test "summarizes how many answers it offers to tick" do
+        node = Node.new(id: "conditions", type: "checklist", config: { "answers" => [ { "value" => "sign" } ] })
+
+        assert_equal "1 answer", Checklist.step_type.summary_of(node)
+      end
     end
   end
 end

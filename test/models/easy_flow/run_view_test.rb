@@ -55,6 +55,12 @@ module EasyFlow
       assert_equal "done", step("start", "outline" => { state: :paused }, "draft" => { state: :pending })["state"]
     end
 
+    test "shows the End step the run ended at as done" do
+      ended = RunView.new(version, steps: { "draft" => { state: :done } }, ended_at: :end).to_h["nodes"].find { |node| node["id"] == "end" }
+
+      assert_equal "done", ended["state"]
+    end
+
     test "places each step after the step that leads to it" do
       assert_operator step("draft")["row"], :>, step("outline")["row"]
     end

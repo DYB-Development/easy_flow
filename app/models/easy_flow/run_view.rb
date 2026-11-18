@@ -1,9 +1,10 @@
 module EasyFlow
   class RunView
-    def initialize(version, steps: {}, selected: nil, registry: EasyFlow.registry)
+    def initialize(version, steps: {}, selected: nil, ended_at: nil, registry: EasyFlow.registry)
       @document = Document.new(version.definition || {}, registry: registry)
       @steps = steps.to_h.transform_keys(&:to_s)
       @selected = selected
+      @ended_at = ended_at&.to_s
       @registry = registry
     end
 
@@ -43,6 +44,7 @@ module EasyFlow
     end
 
     def state_of(node, shown)
+      return "done" if node.id == @ended_at
       return shown[:state]&.to_s unless step_type_for(node)&.begins_here?
 
       started? ? "done" : "pending"

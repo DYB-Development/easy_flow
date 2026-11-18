@@ -68,3 +68,11 @@ test("routes no line through a card, including lines that loop back or skip colu
 
   assert.deepEqual(crossed, [])
 })
+
+test("measures the graph past its rightmost card and below its lowest line", () => {
+  const graph = layOut(pipeline.nodes, pipeline.edges)
+  const lines = graph.links.flatMap((each) => each.points)
+  const cards = Object.values(graph.places)
+
+  assert.deepEqual([ graph.width > Math.max(...cards.map((card) => card.x + card.width)), graph.height > Math.max(...lines.map(([ , y ]) => y)) ], [ true, true ])
+})

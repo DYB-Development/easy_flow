@@ -149,5 +149,11 @@ export const layOut = (nodes, edges, { heights = {} } = {}) => {
     return { ...edge, points: channel === null ? [ ...start, [ turn, arriving ], end[1] ] : [ ...start, [ turn, channel ], [ end[0][0], channel ], ...end ] }
   }
 
-  return { places, links: edges.map(routed) }
+  const last = columnWidths.length - 1
+
+  return {
+    places, links: edges.map(routed),
+    width: lefts[last] + columnWidths[last] + EXIT + MARGIN / 2,
+    height: bottom + below.size * CHANNEL_GAP + MARGIN
+  }
 }

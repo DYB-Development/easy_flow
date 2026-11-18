@@ -27,3 +27,7 @@ test("draws a line for every connection, including each branch and the connectio
 test("puts a connection's insert and remove buttons on its line, beside the card the line leaves", () => {
   assert.match(drawn(chain, [ { id: "ask-gate-0", source: "ask", target: "gate" } ], { joints: editing }), /data-joint="ask-gate-0"[^>]*style="position:absolute;left:\d+px;top:\d+px/)
 })
+
+test("labels a branch's line with the answer it is taken on", () => {
+  assert.match(drawn(chain, [ { id: "ask-gate-0", source: "ask", target: "gate", label: "failed" } ]), /data-link-label="ask-gate-0"[^>]*>failed</)
+})

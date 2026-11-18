@@ -4,7 +4,12 @@ import { EXIT, layOut } from "./graph"
 
 const stack = { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 14, padding: "64px 0 0" }
 
-const pathOf = (points) => points.map(([ x, y ], at) => `${at === 0 ? "M" : "L"} ${x} ${y}`).join(" ")
+const label = {
+  position: "absolute", zIndex: 3, maxWidth: EXIT - 10, fontSize: 11, lineHeight: "14px", pointerEvents: "none",
+  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
+}
+
+const pathOf =(points) => points.map(([ x, y ], at) => `${at === 0 ? "M" : "L"} ${x} ${y}`).join(" ")
 
 const measuredHeights = (slots) =>
   Object.fromEntries(Object.entries(slots).filter(([ , slot ]) => slot?.firstElementChild).map(([ id, slot ]) => [ id, slot.firstElementChild.offsetHeight ]))
@@ -55,6 +60,11 @@ const Graph = ({ nodes, edges, draw, joints }) => {
           </div>
         )
       })}
+
+      {graph.links.filter((link) => link.label).map((link) => (
+        <div key={`${link.id}-label`} data-link-label={link.id} title={link.label} className="text-gray-500 dark:text-gray-400"
+             style={{ ...label, left: link.points[0][0] + 6, top: link.points[0][1] - 16 }}>{link.label}</div>
+      ))}
 
       {joints.onInsert && graph.links.filter((link) => !link.placeholder).map((link) => (
         <Joint key={link.id} link={link} {...joints}

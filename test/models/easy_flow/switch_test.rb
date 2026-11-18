@@ -37,5 +37,9 @@ module EasyFlow
     test "cannot run without the step it directs on" do
       assert_equal [ :step ], Switch.step_type.settings.required
     end
+
+    test "summarizes the step whose answer it branches on" do
+      assert_equal "branches on budget", Switch.step_type.summary_of(switch({ "step" => "budget" }))
+    end
   end
 end

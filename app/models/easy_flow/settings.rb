@@ -1,5 +1,14 @@
 module EasyFlow
   class Settings
+    class OptionsUnavailable < StandardError
+      attr_reader :setting
+
+      def initialize(setting, cause)
+        @setting = setting
+        super("#{setting} options could not be worked out: #{cause.class}: #{cause.message}")
+      end
+    end
+
     attr_reader :fields, :labels, :explanations, :record_fields, :record_labels, :record_explanations, :record_choices, :record_outputs_of, :record_required, :drawn_from, :outputs_of
 
     def initialize(fields: {}, labels: {}, explanations: {}, record_fields: {}, record_labels: {}, record_explanations: {}, record_choices: {}, record_outputs_of: {}, record_required: {}, choices: {},
@@ -32,7 +41,11 @@ module EasyFlow
     end
 
     def worked_out_choices(config)
-      @choices.select { |_name, offered| depends_on_settings?(offered) }.transform_values { |offered| offered.call(config.to_h) }
+      @choices.select { |_name, offered| depends_on_settings?(offered) }.to_h do |name, offered|
+        [ name, offered.call(config.to_h) ]
+      rescue StandardError => error
+        raise OptionsUnavailable.new(labels[name], error)
+      end
     end
 
     def strays(config)

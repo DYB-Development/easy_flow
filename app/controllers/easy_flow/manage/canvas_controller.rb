@@ -193,6 +193,9 @@ module EasyFlow
         return configuration unless step_type && EasyFlow.registry.registered?(step_type)
 
         settled(EasyFlow.registry.fetch(step_type))
+      rescue Settings::OptionsUnavailable => unavailable
+        Rails.logger.error("EasyFlow could not save step #{id}: #{unavailable.message}")
+        raise InvalidEdit, "#{unavailable.setting} could not be worked out, so the change was not saved."
       end
 
       def settled(step_type)

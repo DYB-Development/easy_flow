@@ -928,5 +928,16 @@ module EasyFlow
 
       assert_equal "Cleared Alias because candidate is not offered for the step's other settings.", response.parsed_body["notice"]
     end
+
+    test "saving a step whose radio card options raise is refused with a message instead of a server error" do
+      EasyFlow.registry.register(StepType.define(:broken_options) { setting :alias, type: :radio_cards, options: ->(_config) { raise "the alias lookup is down" } })
+      post "#{canvas_path}/steps", params: { id: "w", type: "broken_options", from: "a", to: "b" }
+
+      patch "#{canvas_path}/steps/w", params: { config: { alias: "prod" } }
+
+      assert_equal "Alias could not be worked out, so the change was not saved.", response.parsed_body["error"]
+    ensure
+      EasyFlow.registry.instance_variable_get(:@step_types).delete(:broken_options)
+    end
   end
 end

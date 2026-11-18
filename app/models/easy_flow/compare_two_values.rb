@@ -15,6 +15,12 @@ module EasyFlow
 
     output :result, type: :boolean, values: [ true, false ]
 
+    summarizes_by { |node| CompareTwoValues.summarized(node.config) }
+
+    def self.summarized(config)
+      [ config.values_at("step", "output").compact_blank.join("."), config["comparison"], config.values_at("other_step", "other_output").compact_blank.join("."), "+", Compare.amount_of(config["amount"]) ].compact_blank.join(" ")
+    end
+
     def route(node, state, times)
       first = number(CompletedAt.value_of(state, times, *node.config.values_at("step", "output")))
       second = node.config["other_step"].present? ? number(CompletedAt.value_of(state, times, *node.config.values_at("other_step", "other_output"))) : 0.0

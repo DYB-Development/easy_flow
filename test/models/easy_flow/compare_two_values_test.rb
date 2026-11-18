@@ -110,5 +110,11 @@ module EasyFlow
 
       assert_equal true, CompareTwoValues.step_type.route(node, { "started" => "passed", "finished" => "passed" }, times)
     end
+
+    test "summarizes a comparison of two outputs with the amount added to the second" do
+      node = compare({ "step" => "a", "output" => "score", "comparison" => "more than", "other_step" => "b", "other_output" => "score", "amount" => 5.0 })
+
+      assert_equal "a.score more than b.score + 5", CompareTwoValues.step_type.summary_of(node)
+    end
   end
 end

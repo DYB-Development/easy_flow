@@ -120,5 +120,9 @@ module EasyFlow
     test "summarizes a comparison with an amount alone when it names no second step" do
       assert_equal "a.score at most 3", CompareTwoValues.step_type.summary_of(compare({ "step" => "a", "output" => "score", "comparison" => "at most", "amount" => 3 }))
     end
+
+    test "summarizes a comparison of two outputs without a plus when no amount is added" do
+      assert_equal "a equal to b", CompareTwoValues.step_type.summary_of(compare({ "step" => "a", "comparison" => "equal to", "other_step" => "b" }))
+    end
   end
 end

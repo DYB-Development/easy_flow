@@ -47,8 +47,8 @@ module EasyFlow
       assert_equal({ "type" => "question", "label" => "Outline" }, step("outline").slice("type", "label"))
     end
 
-    test "leaves out the steps a flow starts and ends at" do
-      assert_equal %w[outline draft], drawn["nodes"].map { |node| node["id"] }
+    test "draws the steps a flow starts and ends at" do
+      assert_equal %w[start outline draft end], drawn["nodes"].map { |node| node["id"] }
     end
 
     test "places each step after the step that leads to it" do

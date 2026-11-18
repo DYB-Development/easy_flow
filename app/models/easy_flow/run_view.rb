@@ -14,7 +14,7 @@ module EasyFlow
     private
 
     def nodes
-      @document.nodes.reject { |node| bookend?(node) }.map { |node| drawn_step(node) }
+      @document.nodes.map { |node| drawn_step(node) }
     end
 
     def edges
@@ -25,11 +25,6 @@ module EasyFlow
 
     def placed
       @placed ||= Layout.new(@document).positions
-    end
-
-    def bookend?(node)
-      step_type = step_type_for(node)
-      step_type.present? && (step_type.begins_here? || step_type.ends_here?)
     end
 
     def holds(node)

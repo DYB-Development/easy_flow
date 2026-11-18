@@ -592,5 +592,9 @@ module EasyFlow
     test "a radio card setting accepts an option worked out from the step's other settings" do
       assert_empty aliased.settings.objections("agent" => "copy_writer", "alias" => "prod")
     end
+
+    test "clears a worked-out radio card option the step's other settings no longer offer" do
+      assert_equal({ "agent" => "copy_reviewer", "alias" => nil }, aliased.settings.cleared("agent" => "copy_reviewer", "alias" => "prod"))
+    end
   end
 end

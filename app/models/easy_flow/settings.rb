@@ -35,6 +35,17 @@ module EasyFlow
       @choices.select { |_name, offered| depends_on_settings?(offered) }.transform_values { |offered| offered.call(config.to_h) }
     end
 
+    def strays(config)
+      worked_out_choices(config).filter_map do |name, offered|
+        chosen = config.to_h[name.to_s]
+        name.to_s if chosen.present? && values_of(offered).exclude?(chosen)
+      end
+    end
+
+    def cleared(config)
+      config.to_h.merge(strays(config).index_with(nil))
+    end
+
     def kept_values(config)
       @kept.to_h { |name, kept| [ name.to_s, kept[:finder].call(config.to_h)&.public_send(kept[:attribute]) ] }
     end

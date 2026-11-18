@@ -52,6 +52,12 @@ module EasyFlow
       assert_selector "[data-flow-run-view] path[data-link^='human_approve-publish_to_cms']", visible: :all
     end
 
+    test "a run view draws the Start step and the line from it to the first step" do
+      visit "/runs/#{run_version.id}"
+
+      assert_selector "[data-flow-run-view] path[data-link^='start-load_brief']", visible: :all
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

@@ -92,6 +92,8 @@ const startsOf = (sizes, gap, from) => {
   return starts
 }
 
+const endOf = (starts, sizes) => (starts.length > 0 ? starts[starts.length - 1] + sizes[sizes.length - 1] : 0)
+
 export const layOut = (nodes, given, { heights = {} } = {}) => {
   const ids = nodes.map((node) => node.id)
   const drawn = new Set(ids)
@@ -120,7 +122,7 @@ export const layOut = (nodes, given, { heights = {} } = {}) => {
 
   const lefts = startsOf(columnWidths, COLUMN_GAP, COLUMN_GAP - EXIT + MARGIN / 2)
   const tops = startsOf(rowHeights, ROW_GAP, MARGIN + above.size * CHANNEL_GAP)
-  const bottom = tops[tops.length - 1] + rowHeights[rowHeights.length - 1]
+  const bottom = endOf(tops, rowHeights)
 
   const places = Object.fromEntries(ids.map((id) => [ id, {
     column: columns.get(id), row: rows.get(id),
@@ -151,11 +153,9 @@ export const layOut = (nodes, given, { heights = {} } = {}) => {
     return { ...edge, points: channel === null ? [ ...start, [ turn, arriving ], end[1] ] : [ ...start, [ turn, channel ], [ end[0][0], channel ], ...end ] }
   }
 
-  const last = columnWidths.length - 1
-
   return {
     places, links: edges.map(routed),
-    width: lefts[last] + columnWidths[last] + EXIT + MARGIN / 2,
+    width: endOf(lefts, columnWidths) + EXIT + MARGIN / 2,
     height: bottom + below.size * CHANNEL_GAP + MARGIN
   }
 }

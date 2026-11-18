@@ -82,3 +82,9 @@ test("leaves out a connection to or from a step that is not drawn", () => {
 
   assert.deepEqual(graph.links.map((each) => each.id), [ "ask-gate" ])
 })
+
+test("measures a flow with no steps to draw as an empty graph", () => {
+  const graph = layOut([], [])
+
+  assert.ok(Number.isFinite(graph.width) && Number.isFinite(graph.height))
+})

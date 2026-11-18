@@ -580,7 +580,7 @@ Use this when a visitor's run should stop until a set time has passed, such as a
    - `address` — optional. A card with one is a link to it, and a card without one is not a link.
    - `selected` — the id of one step whose card is ringed in the accent colour, such as the step whose details the page shows.
    - Any other keyword is passed to the wrapping element, such as `class:`.
-3. The view lays the steps out left to right whatever the host's `canvas_direction`, as compact cards in rows joined by short lines. A group step's box takes a row of its own with its header line and the steps it holds. On a screen narrower than 640 pixels each step sits on a row of its own. The Start and End steps are left out. It has no buttons and nothing on it changes the flow.
+3. The view lays the steps out left to right whatever the host's `canvas_direction`, as the same graph a left-to-right canvas draws: compact cards in columns by stage, every connection drawn as a line labelled with the answer it is taken on, and a group step's box holding its steps as their own small graph. A flow wider than its box scrolls sideways inside it. On a screen narrower than 640 pixels each step sits on a row of its own with its connections listed under it. The Start and End steps are left out. It has no buttons and nothing on it changes the flow.
 4. Ask the developer what each step's status line says and where each card links. Do not pick.
 
 ### Read a run and its answers

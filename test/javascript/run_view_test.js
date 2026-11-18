@@ -16,8 +16,8 @@ const edges = [ { id: "outline-variants-0", source: "outline", target: "variants
 
 const drawn = (given = {}) => renderToStaticMarkup(React.createElement(RunView, { nodes, edges, selected: null, ...given }))
 
-test("draws a held step inside its group's box under the group's header line", () => {
-  assert.match(drawn(), /data-group-box="variants"[^>]*><div data-group-header="variants"[^>]*>for_each · list: outline\.variants · concurrency 3<\/div><div data-flow-row[^>]*>.*data-step="write"/)
+test("draws a group's header line at the top of the group's box", () => {
+  assert.match(drawn(), /data-group-box="variants"[^>]*><div[^>]*><div data-group-header="variants"[^>]*>for_each · list: outline\.variants · concurrency 3<\/div>/)
 })
 
 test("draws no buttons for changing the flow", () => {

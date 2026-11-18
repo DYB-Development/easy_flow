@@ -914,10 +914,15 @@ module EasyFlow
       assert_selector "[data-unconnected-warning]", text: "“Left aside”, “Added later” are not connected"
     end
 
-    test "a left-to-right row that reaches the canvas edge goes on in a new row below it" do
+    test "a left-to-right flow wider than the canvas scrolls sideways inside the canvas while the page does not" do
       laid_left_to_right { canvas_for(long_flow) }
 
-      assert_operator top_of("s12"), :>, top_of("s1")
+      assert_equal [ true, true ], page.evaluate_script(<<~JS)
+        (() => {
+          const surface = document.querySelector("[data-flow-rows]").parentElement
+          return [ surface.scrollWidth > surface.clientWidth, document.documentElement.scrollWidth <= window.innerWidth ]
+        })()
+      JS
     end
 
     test "on a phone, a left-to-right canvas shows each step on a row of its own" do

@@ -22,11 +22,12 @@ const marked = "ring-2 ring-accent-600 ring-offset-2 dark:ring-offset-zinc-950"
 
 const RunCard = ({ node, selected = false }) => {
   const Card = node.address ? "a" : "div"
+  const bookend = node.begins_here || node.ends_here
 
   return (
     <Card data-step={node.id} href={node.address || undefined} className={`${node.state === "paused" ? "border-2" : "border"} ${STATES[node.state] || STATES.pending}${selected ? ` ${marked}` : ""}`} style={card}>
-      <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{node.type}</div>
-      <div style={named}>{node.label}{node.version && <span className="text-gray-500 dark:text-gray-400" style={{ fontWeight: 400, marginLeft: 4 }}>{node.version}</span>}</div>
+      {!bookend && <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{node.type}</div>}
+      <div style={bookend ? { ...named, textAlign: "center" } : named}>{node.label}{node.version && <span className="text-gray-500 dark:text-gray-400" style={{ fontWeight: 400, marginLeft: 4 }}>{node.version}</span>}</div>
       {node.status && <div className={STATUS_LINES[node.state] || STATUS_LINES.pending} style={{ fontSize: 11 }}>{node.status}</div>}
     </Card>
   )

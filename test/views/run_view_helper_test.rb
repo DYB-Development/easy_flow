@@ -16,5 +16,12 @@ module EasyFlow
 
       assert_select "[data-react-ui='easy_flow/run-view'][data-props*='paused']"
     end
+
+    test "leaves out the Start step when its host chooses to hide Start and End" do
+      @version = version
+      render inline: %(<%= easy_flow_run_view(@version, steps: {}, start_and_end: false) %>)
+
+      assert_select "[data-react-ui='easy_flow/run-view'][data-props*='Start']", count: 0
+    end
   end
 end

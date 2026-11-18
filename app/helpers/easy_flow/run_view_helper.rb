@@ -4,8 +4,8 @@ module EasyFlow
   module RunViewHelper
     include KeystoneUi::React::MountHelper
 
-    def easy_flow_run_view(version, steps:, selected: nil, **attributes)
-      react_ui("easy_flow/run-view", RunView.new(version, steps: steps, selected: selected).to_h,
+    def easy_flow_run_view(version, steps:, selected: nil, start_and_end: true, **attributes)
+      react_ui("easy_flow/run-view", RunView.new(version, steps: steps, selected: selected, start_and_end: start_and_end).to_h,
                data: { flow_run_view: true }, **attributes)
     end
   end

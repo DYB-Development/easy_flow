@@ -907,5 +907,18 @@ module EasyFlow
 
       assert_includes flow.live_version.definition["nodes"].map { |node| node["id"] }, "aside"
     end
+
+    def agent_on_candidate
+      post "#{canvas_path}/steps", params: { id: "w", type: "agent", from: "a", to: "b" }
+      patch "#{canvas_path}/steps/w", params: { config: { agent: "copy_writer", alias: "candidate" } }
+    end
+
+    test "saving another agent clears an alias card that agent does not have" do
+      agent_on_candidate
+
+      patch "#{canvas_path}/steps/w", params: { config: { agent: "copy_reviewer", alias: "candidate" } }
+
+      assert_nil flow.reload.document["nodes"].find { |node| node["id"] == "w" }["alias"]
+    end
   end
 end

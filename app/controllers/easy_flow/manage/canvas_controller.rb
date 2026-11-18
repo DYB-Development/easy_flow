@@ -196,7 +196,7 @@ module EasyFlow
       end
 
       def settled(step_type)
-        step_type.settings.coerce(configuration).tap do |values|
+        step_type.settings.cleared(step_type.settings.coerce(configuration)).tap do |values|
           objections = step_type.settings.objections(values)
           raise InvalidEdit, objections.join(", ") if objections.any?
 

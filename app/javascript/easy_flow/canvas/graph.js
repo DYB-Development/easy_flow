@@ -83,6 +83,7 @@ export const CARD_HEIGHT = 64
 export const COLUMN_GAP = 136
 export const ROW_GAP = 32
 export const MARGIN = 40
+export const EXIT = 80
 
 const startsOf = (sizes, gap, from) => {
   const starts = []
@@ -108,10 +109,20 @@ export const layOut = (nodes, edges, { heights = {} } = {}) => {
   const lefts = startsOf(columnWidths, COLUMN_GAP, MARGIN)
   const tops = startsOf(rowHeights, ROW_GAP, MARGIN)
 
-  return {
-    places: Object.fromEntries(ids.map((id) => [ id, {
-      column: columns.get(id), row: rows.get(id),
-      x: lefts[columns.get(id)], y: tops[rows.get(id)], width: widthOf(id), height: heightOf(id)
-    } ]))
+  const places = Object.fromEntries(ids.map((id) => [ id, {
+    column: columns.get(id), row: rows.get(id),
+    x: lefts[columns.get(id)], y: tops[rows.get(id)], width: widthOf(id), height: heightOf(id)
+  } ]))
+
+  const routed = (edge) => {
+    const from = places[edge.source]
+    const to = places[edge.target]
+    const leaving = from.y + from.height / 2
+    const arriving = to.y + to.height / 2
+    const turn = lefts[from.column] + columnWidths[from.column] + EXIT
+
+    return { ...edge, points: [ [ from.x + from.width, leaving ], [ turn, leaving ], [ turn, arriving ], [ to.x, arriving ] ] }
   }
+
+  return { places, links: edges.map(routed) }
 }

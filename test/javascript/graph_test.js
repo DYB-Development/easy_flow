@@ -36,3 +36,13 @@ test("puts a step in a lower row below the tallest card in the row above it", ()
 
   assert.ok(graph.places[below].y >= graph.places.start.y + 140)
 })
+
+const routeOf = (graph, id) => graph.links.find((each) => each.id === id).points
+
+test("draws a connection as a line from the right edge of one card to the left edge of the next", () => {
+  const graph = layOut([ step("ask"), step("gate") ], [ link("ask", "gate") ])
+  const points = routeOf(graph, "ask-gate")
+  const { ask, gate } = graph.places
+
+  assert.deepEqual([ points[0][0], points.at(-1)[0] ], [ ask.x + ask.width, gate.x ])
+})

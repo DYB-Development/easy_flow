@@ -23,3 +23,7 @@ test("draws a line for every connection, including each branch and the connectio
 
   assert.deepEqual([ ...drawn(nodes, edges).matchAll(/<path data-link="([^"]+)"/g) ].map((found) => found[1]), [ "gate-yes-0", "gate-end-1", "yes-end-2" ])
 })
+
+test("puts a connection's insert and remove buttons on its line, beside the card the line leaves", () => {
+  assert.match(drawn(chain, [ { id: "ask-gate-0", source: "ask", target: "gate" } ], { joints: editing }), /data-joint="ask-gate-0"[^>]*style="position:absolute;left:\d+px;top:\d+px/)
+})

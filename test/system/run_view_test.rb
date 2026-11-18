@@ -58,6 +58,12 @@ module EasyFlow
       assert_selector "[data-flow-run-view] path[data-link^='start-load_brief']", visible: :all
     end
 
+    test "a run view draws the line into each End step with its branch label" do
+      visit "/runs/#{branching_version.id}"
+
+      assert_selector "[data-flow-run-view] [data-link-label^='gate-rejected']", text: "false"
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

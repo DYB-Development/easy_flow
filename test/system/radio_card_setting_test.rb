@@ -80,5 +80,19 @@ module EasyFlow
 
       assert_selector "[data-inspector] .ks-radio-card", text: "candidate → v23\np 0.87 · n 240"
     end
+
+    def choose_agent(name)
+      field = find("[data-inspector] input[type='text']", match: :first)
+      field.set(name)
+      field.send_keys(:tab)
+    end
+
+    test "choosing another agent shows no card for an alias that agent does not have" do
+      open_agent_settings
+      choose_agent("copy_reviewer")
+      assert_selector "[data-inspector] .ks-radio-card", text: "prod → v9"
+
+      assert_no_selector "[data-inspector] .ks-radio-card", text: "candidate"
+    end
   end
 end

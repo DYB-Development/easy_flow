@@ -7,17 +7,18 @@ const shownOnHover = "opacity-0 transition-opacity group-data-[over=true]:opacit
 
 const controls = { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2, height: "100%" }
 
-const Joint = ({ link, onInsert, onRemove, onDrop, alwaysShowInsertButtons, dragging, style }) => (
-  <div data-joint={link?.id} className="group" style={style}
+const Joint = ({ link, onInsert, onRemove, onDrop, alwaysShowInsertButtons, dragging, shown = false, className = "", style, children }) => (
+  <div data-joint={link?.id} className={`group ${className}`.trim()} style={style}
        onMouseEnter={(event) => { event.currentTarget.dataset.over = "true" }}
        onMouseLeave={(event) => { delete event.currentTarget.dataset.over }}
        onDragOver={(event) => { if (link && onDrop) { event.preventDefault(); event.dataTransfer.dropEffect = "move" } }}
        onDrop={(event) => { if (!link) return; event.preventDefault(); onDrop(link) }}>
+    {children}
     {link && onInsert && (
       <div style={controls}>
         <Button variant="secondary" title="Insert a step here" onClick={(event) => onInsert(link, event)}
                 className={`rounded-full ${alwaysShowInsertButtons ? "opacity-100" : shownOnHover}`} style={dragging ? { ...round, opacity: 1 } : round}>+</Button>
-        <Button variant="danger" title="Remove this connection" onClick={() => onRemove(link)} className={`rounded-full ${shownOnHover}`} style={round}>×</Button>
+        <Button variant="danger" title="Remove this connection" onClick={() => onRemove(link)} className={`rounded-full ${shown ? "opacity-100" : shownOnHover}`} style={round}>×</Button>
       </div>
     )}
   </div>

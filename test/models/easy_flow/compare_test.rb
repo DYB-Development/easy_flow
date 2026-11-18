@@ -73,5 +73,9 @@ module EasyFlow
 
       assert_equal "tests.coverage at least 80.5", Compare.step_type.summary_of(node)
     end
+
+    test "summarizes a whole amount without a decimal point" do
+      assert_equal "score more than 5", Compare.step_type.summary_of(compare({ "step" => "score", "comparison" => "more than", "amount" => 5.0 }))
+    end
   end
 end

@@ -61,5 +61,9 @@ module EasyFlow
 
       assert_equal "Onboarding, version 2", FlowStep.step_type.name_of(node)
     end
+
+    test "summarizes the version of its flow it runs" do
+      assert_equal "runs version 3", FlowStep.step_type.summary_of(Node.new(id: "inner", type: "flow_step", config: { "flow" => "1", "version" => 3 }))
+    end
   end
 end

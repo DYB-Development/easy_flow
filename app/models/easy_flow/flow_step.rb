@@ -14,6 +14,7 @@ module EasyFlow
     waits_until { |_node, _state| false }
 
     names_by { |node| ChosenFlow.of(node).name }
+    summarizes_by { |node| "runs version #{node.config["version"]}" if node.config["version"].present? }
 
     def self.endings_of(node)
       version = ChosenFlow.of(node).version

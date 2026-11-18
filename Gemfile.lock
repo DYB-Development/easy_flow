@@ -7,7 +7,7 @@ GIT
 PATH
   remote: .
   specs:
-    easy_flow (0.50.0)
+    easy_flow (0.51.0)
       keystone_ui (~> 0.27)
       keystone_ui-react (>= 0.1.2, <= 0.6.0)
       public_code (~> 0.2)

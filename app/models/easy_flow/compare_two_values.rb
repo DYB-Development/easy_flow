@@ -18,7 +18,14 @@ module EasyFlow
     summarizes_by { |node| CompareTwoValues.summarized(node.config) }
 
     def self.summarized(config)
-      [ config.values_at("step", "output").compact_blank.join("."), config["comparison"], config.values_at("other_step", "other_output").compact_blank.join("."), "+", Compare.amount_of(config["amount"]) ].compact_blank.join(" ")
+      [ config.values_at("step", "output").compact_blank.join("."), config["comparison"], compared_with(config) ].compact_blank.join(" ")
+    end
+
+    def self.compared_with(config)
+      amount = Compare.amount_of(config["amount"])
+      return amount if config["other_step"].blank?
+
+      [ config.values_at("other_step", "other_output").compact_blank.join("."), ("+ #{amount}" if amount.present?) ].compact.join(" ")
     end
 
     def route(node, state, times)

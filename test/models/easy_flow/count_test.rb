@@ -97,5 +97,9 @@ module EasyFlow
     test "summarizes the answer it counts on the output it reads" do
       assert_equal "counts tests.result is failed", Count.step_type.summary_of(count({ "step" => "tests", "output" => "result", "answer" => "failed" }))
     end
+
+    test "summarizes every answer of the step it counts when it names no answer" do
+      assert_equal "counts every answer to tests", Count.step_type.summary_of(count({ "step" => "tests" }))
+    end
   end
 end

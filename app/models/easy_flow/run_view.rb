@@ -41,7 +41,7 @@ module EasyFlow
       shown = @steps.fetch(node.id, {}).to_h.symbolize_keys
 
       { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => state_of(node, shown), "status" => shown[:status], "address" => (shown[:address] unless bookend?(node)), "version" => shown[:version],
-        "holds" => holds(node), **header_of(node), **placed.fetch(node.id, {}) }
+        "begins_here" => step_type_for(node)&.begins_here? || false, "ends_here" => step_type_for(node)&.ends_here? || false, "holds" => holds(node), **header_of(node), **placed.fetch(node.id, {}) }
     end
 
     def hidden?(node)

@@ -75,6 +75,10 @@ module EasyFlow
       assert_equal %w[outline draft], RunView.new(version, start_and_end: false).to_h["nodes"].map { |node| node["id"] }
     end
 
+    test "marks the steps a flow starts and ends at, as the editor does" do
+      assert_equal [ [ true, false ], [ false, true ], [ false, false ] ], %w[start end draft].map { |id| step(id).values_at("begins_here", "ends_here") }
+    end
+
     test "places each step after the step that leads to it" do
       assert_operator step("draft")["row"], :>, step("outline")["row"]
     end

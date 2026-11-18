@@ -22,6 +22,8 @@ module EasyFlow
     end
 
     def self.summarized(config)
+      return "waits until #{config["time_of_day"]}" if config["time_of_day"].present?
+
       "waits #{config["minutes"]} #{"minute".pluralize(config["minutes"].to_i)}" if config["minutes"].present?
     end
 

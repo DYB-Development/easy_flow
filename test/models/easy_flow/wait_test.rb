@@ -89,5 +89,9 @@ module EasyFlow
     test "summarizes how many minutes it waits" do
       assert_equal "waits 5 minutes", Wait.step_type.summary_of(wait({ "step" => "signed_up", "minutes" => 5 }))
     end
+
+    test "summarizes the time of day it waits until" do
+      assert_equal "waits until 09:00", Wait.step_type.summary_of(wait({ "step" => "signed_up", "time_of_day" => "09:00" }))
+    end
   end
 end

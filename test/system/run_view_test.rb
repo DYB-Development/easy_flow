@@ -27,6 +27,12 @@ module EasyFlow
       assert_selector "[data-flow-run-view] [data-step='human_approve']", text: "waiting · expires 46h"
     end
 
+    test "a run view draws each connection between its steps as a line" do
+      visit "/runs/#{run_version.id}"
+
+      assert_selector "[data-flow-run-view] path[data-link^='human_approve-publish_to_cms']", visible: :all
+    end
+
     def on_a_phone
       page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride", width: 390, height: 844, deviceScaleFactor: 1, mobile: true)
       yield

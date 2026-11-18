@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.51.0] - 2026-11-18
+
+### Changed
+
+- A left-to-right canvas and a run's flow view draw the flow as a graph, with steps in columns by stage, every connection drawn as a line labelled with the answer it is taken on, loops routed above the steps, group boxes holding their steps as their own small graph, sideways scrolling for a wide flow, and one step per row with its connections listed on a phone.
+- The left-to-right graph keeps at most 64px between a card and the next column, stacks each column's cards just below one another, and runs a line that skips columns just under the columns it passes.
+
 ## [0.50.0] - 2026-11-17
 
 ### Added

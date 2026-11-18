@@ -4,7 +4,7 @@ import GroupHeader from "./GroupHeader"
 import RunCard from "./RunCard"
 import { headerOf } from "./group"
 
-const rows = { gap: 12, padding: 0 }
+const rows = { gap: 12, padding: 0, maxWidth: "100%", overflowX: "auto" }
 
 const RunView = ({ nodes, edges, selected }) => (
   <LeftToRight nodes={nodes} edges={edges} joints={{}} style={rows} draw={(node) => (node.holds

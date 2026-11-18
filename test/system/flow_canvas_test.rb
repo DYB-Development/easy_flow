@@ -536,7 +536,7 @@ module EasyFlow
 
         step_card("human_approve").drag_to(find("[data-group-box='variants']"))
 
-        assert_selector("[data-group-box='variants'] [data-step='human_approve']")
+        assert_selector("[data-group-box='variants']") { inside_box?("[data-step='human_approve']", "variants") }
       end
     end
 
@@ -914,10 +914,15 @@ module EasyFlow
       assert_selector "[data-unconnected-warning]", text: "“Left aside”, “Added later” are not connected"
     end
 
-    test "a left-to-right row that reaches the canvas edge goes on in a new row below it" do
+    test "a left-to-right flow wider than the canvas scrolls sideways inside the canvas while the page does not" do
       laid_left_to_right { canvas_for(long_flow) }
 
-      assert_operator top_of("s12"), :>, top_of("s1")
+      assert_equal [ true, true ], page.evaluate_script(<<~JS)
+        (() => {
+          const surface = document.querySelector("[data-flow-rows]").parentElement
+          return [ surface.scrollWidth > surface.clientWidth, document.documentElement.scrollWidth <= window.innerWidth ]
+        })()
+      JS
     end
 
     test "on a phone, a left-to-right canvas shows each step on a row of its own" do
@@ -953,6 +958,28 @@ module EasyFlow
         find("[data-joint^='first-gate']").click_button("×")
 
         assert_no_selector "[data-joint^='first-gate']"
+      end
+    end
+
+    test "inserting a step on a left-to-right connection's line puts it between the two" do
+      laid_left_to_right do
+        canvas_for(flow)
+
+        find("[data-joint^='first-gate']").hover
+        find("[data-joint^='first-gate']").click_button("+")
+        add_step_named("Question")
+
+        assert_selector "[data-joint^='first-question']"
+      end
+    end
+
+    test "dragging a step onto a left-to-right connection's line moves it there" do
+      laid_left_to_right do
+        canvas_for(adrift)
+
+        step_card("adrift").drag_to(find("[data-joint^='first-gate']"))
+
+        assert_selector "[data-joint^='first-adrift']"
       end
     end
 

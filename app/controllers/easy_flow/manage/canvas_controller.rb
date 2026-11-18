@@ -104,7 +104,7 @@ module EasyFlow
       def apply(action = nil, *steps)
         before = document.to_h
         flow.edit_history.record(yield(document), action, steps, before)
-        head :no_content
+        @notice ? render(json: { notice: @notice }) : head(:no_content)
       rescue InvalidEdit => invalid
         render json: { error: invalid.message }, status: :unprocessable_entity
       end
@@ -193,10 +193,15 @@ module EasyFlow
         return configuration unless step_type && EasyFlow.registry.registered?(step_type)
 
         settled(EasyFlow.registry.fetch(step_type))
+      rescue Settings::OptionsUnavailable => unavailable
+        Rails.logger.error("EasyFlow could not save step #{id}: #{unavailable.message}")
+        raise InvalidEdit, "#{unavailable.setting} could not be worked out, so the change was not saved."
       end
 
       def settled(step_type)
-        step_type.settings.coerce(configuration).tap do |values|
+        coerced = step_type.settings.coerce(configuration)
+        @notice = cleared_notice(step_type, coerced)
+        step_type.settings.cleared(coerced).tap do |values|
           objections = step_type.settings.objections(values)
           raise InvalidEdit, objections.join(", ") if objections.any?
 
@@ -206,6 +211,10 @@ module EasyFlow
           refused = step_type.settings.keep(values)
           raise InvalidEdit, refused.join(", ") if refused.any?
         end.then { |values| step_type.settings.unkept(values) }
+      end
+
+      def cleared_notice(step_type, values)
+        step_type.settings.strays(values).map { |name| "Cleared #{step_type.settings.labels[name.to_sym]} because #{values[name]} is not offered for the step's other settings." }.join(" ").presence
       end
 
       def foreign_flows(step_type, values)

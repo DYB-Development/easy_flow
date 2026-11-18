@@ -61,5 +61,18 @@ module EasyFlow
 
       assert_equal "Onboarding, version 2", FlowStep.step_type.name_of(node)
     end
+
+    test "summarizes how many steps the chosen version holds between its Start and End steps" do
+      inner = Definition.create!(host: "dummy", slug: "offer")
+      inner.definition_versions.create!(number: 1, definition: {
+        "slug" => "offer", "entry" => "start",
+        "nodes" => [ { "id" => "start", "type" => "start" }, { "id" => "ask", "type" => "question" },
+                     { "id" => "check", "type" => "condition" }, { "id" => "done", "type" => "terminal" } ],
+        "edges" => [ { "from" => "start", "to" => "ask" } ]
+      })
+      node = Node.new(id: "inner", type: "flow_step", config: { "flow" => inner.id.to_s, "version" => 1 })
+
+      assert_equal "2 steps", FlowStep.step_type.summary_of(node)
+    end
   end
 end

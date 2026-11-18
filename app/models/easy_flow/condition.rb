@@ -12,6 +12,7 @@ module EasyFlow
     output :result, type: :boolean, values: [ true, false ]
 
     names_by { |node| node.config.values_at("step", "comparison", "answer").compact_blank.join(" ").presence }
+    summarizes_by { |node| [ node.config.values_at("step", "output").compact_blank.join("."), *node.config.values_at("comparison", "answer") ].compact_blank.join(" ") }
 
     def route(node, state)
       answer = state[node.config["step"]]

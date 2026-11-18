@@ -16,6 +16,8 @@ module EasyFlow
 
     output :result, type: :boolean, values: [ true, false ]
 
+    summarizes_by { |node| Array(node.config["comparisons"]).size.then { |count| "#{node.config["join"]} #{count} #{"comparison".pluralize(count)}" } }
+
     def route(node, state, times)
       comparisons = Array(node.config["comparisons"])
       return false if comparisons.empty?

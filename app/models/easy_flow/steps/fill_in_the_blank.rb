@@ -20,6 +20,7 @@ module EasyFlow
       end
 
       names_by :question
+      summarizes_by { |node| Array(node.config["accepted_answers"]).size.then { |count| "accepts #{count} #{"answer".pluralize(count)}" } }
       awaits_input
       drawn_by "easy_flow/steps/typing"
       answer_check { |node, value| "Type an answer to go on." if node.config["required"] && value.blank? }

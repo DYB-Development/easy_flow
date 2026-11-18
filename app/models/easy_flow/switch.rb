@@ -8,6 +8,8 @@ module EasyFlow
 
     output :choice, type: :string, label: "Choice", from: :step
 
+    summarizes_by { |node| "branches on #{node.config["step"]}" if node.config["step"].present? }
+
     def route(node, state)
       state[node.config["step"]]
     end

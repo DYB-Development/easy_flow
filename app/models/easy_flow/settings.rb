@@ -1,5 +1,14 @@
 module EasyFlow
   class Settings
+    class OptionsUnavailable < StandardError
+      attr_reader :setting
+
+      def initialize(setting, cause)
+        @setting = setting
+        super("#{setting} options could not be worked out: #{cause.class}: #{cause.message}")
+      end
+    end
+
     attr_reader :fields, :labels, :explanations, :record_fields, :record_labels, :record_explanations, :record_choices, :record_outputs_of, :record_required, :drawn_from, :outputs_of
 
     def initialize(fields: {}, labels: {}, explanations: {}, record_fields: {}, record_labels: {}, record_explanations: {}, record_choices: {}, record_outputs_of: {}, record_required: {}, choices: {},
@@ -24,7 +33,30 @@ module EasyFlow
     end
 
     def choices
-      @choices.transform_values { |offered| offered.respond_to?(:call) ? offered.call : offered }
+      @choices.transform_values { |offered| depends_on_settings?(offered) ? [] : worked_out(offered) }
+    end
+
+    def choices_for(config)
+      choices.merge(worked_out_choices(config))
+    end
+
+    def worked_out_choices(config)
+      @choices.select { |_name, offered| depends_on_settings?(offered) }.to_h do |name, offered|
+        [ name, offered.call(config.to_h) ]
+      rescue StandardError => error
+        raise OptionsUnavailable.new(labels[name], error)
+      end
+    end
+
+    def strays(config)
+      worked_out_choices(config).filter_map do |name, offered|
+        chosen = config.to_h[name.to_s]
+        name.to_s if chosen.present? && values_of(offered).exclude?(chosen)
+      end
+    end
+
+    def cleared(config)
+      config.to_h.merge(strays(config).index_with(nil))
     end
 
     def kept_values(config)
@@ -66,17 +98,25 @@ module EasyFlow
     end
 
     def objections(config)
-      config.to_h.flat_map { |name, value| objections_to(name.to_sym, value) }.compact
+      offered = choices_for(config)
+      config.to_h.flat_map { |name, value| objections_to(name.to_sym, value, offered) }.compact
     end
 
     private
 
-    def objections_to(name, value)
-      [ unoffered(name, value), over_limit(name, value), refused(name, value) ]
+    def worked_out(offered)
+      offered.respond_to?(:call) ? offered.call : offered
     end
 
-    def unoffered(name, value)
-      offered = choices[name]
+    def depends_on_settings?(offered)
+      offered.respond_to?(:arity) && offered.arity == 1
+    end
+
+    def objections_to(name, value, offered)
+      [ unoffered(name, value, offered[name]), over_limit(name, value), refused(name, value) ]
+    end
+
+    def unoffered(name, value, offered)
       return unless offered
 
       stray = Array(value).find { |chosen| values_of(offered).exclude?(chosen) }

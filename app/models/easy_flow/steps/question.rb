@@ -20,6 +20,7 @@ module EasyFlow
       output :answer, type: :string, label: "Answer", values: ->(node) { Question.offered(node.config) }
 
       names_by :question
+      summarizes_by { |node| Question.summarized(node.config) }
       awaits_input
       answer_check { |node, value| "Fill this in to go on." if node.config["required"] && value.blank? }
 
@@ -27,6 +28,10 @@ module EasyFlow
 
       def self.asked(step)
         step.to_h["question"] || step.to_h["text"]
+      end
+
+      def self.summarized(step)
+        answers_of(step).size.then { |count| "#{count} #{"answer".pluralize(count)}" }
       end
 
       def self.answers_of(step)

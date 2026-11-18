@@ -99,5 +99,11 @@ module EasyFlow
 
       assert_equal true, Condition.step_type.route(node, { "budget" => "high" })
     end
+
+    test "summarizes the comparison it makes on the output it reads" do
+      node = branch({ "step" => "tests", "output" => "result", "comparison" => "is not", "answer" => "passed" })
+
+      assert_equal "tests.result is not passed", Condition.step_type.summary_of(node)
+    end
   end
 end

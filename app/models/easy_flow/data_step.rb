@@ -9,6 +9,7 @@ module EasyFlow
 
       setting(:values, type: :list, label: "Values it reports") { setting :name, type: :string, required: true }
       outputs_named_by :values
+      summarizes_by { |node| Array(node.config["values"]).filter_map { |value| value["name"].presence }.then { |names| "reports #{names.join(", ")}" if names.any? } }
 
       output :result, values: %w[passed failed]
       output :reason

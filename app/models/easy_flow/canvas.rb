@@ -20,13 +20,21 @@ module EasyFlow
     end
 
     def drawn_step(node)
-      { "id" => node.id, "type" => node.type, "type_name" => step_type_for(node)&.step_name, "label" => label_for(node), "summary" => drawn_by_type(node, :summary_of), "details" => drawn_by_type(node, :details_of).to_a, "links" => drawn_by_type(node, :links_of).to_a,
+      { "id" => node.id, "type" => node.type, "type_name" => step_type_for(node)&.step_name, "label" => label_for(node), "summary" => summary_of(node), "details" => drawn_by_type(node, :details_of).to_a, "links" => drawn_by_type(node, :links_of).to_a,
         "config" => node.config.merge(kept_values(node)), "ports" => [], "ends_here" => ends_here?(node), "begins_here" => begins_here?(node),
         "starts_a_flow" => starts_a_flow?(node), "holds" => holds(node), "opens" => opens(node), "loose" => loose?(node), "choices" => choices_for(node), "record_choices" => record_choices_for(node), "placeholder" => false, "picture_url" => picture_url(node), **placed[node.id] }
     end
 
+    def summary_of(node)
+      drawn_safely(node, :summary_of) { (@host&.summarizes?(node.type) ? @host : step_type_for(node))&.summary_of(node) }
+    end
+
     def drawn_by_type(node, part)
-      step_type_for(node)&.public_send(part, node)
+      drawn_safely(node, part) { step_type_for(node)&.public_send(part, node) }
+    end
+
+    def drawn_safely(node, part)
+      yield
     rescue StandardError => error
       Rails.logger.error("EasyFlow could not draw step #{node.id}'s #{part}: #{error.class}: #{error.message}")
       nil
@@ -171,7 +179,11 @@ module EasyFlow
 
     def choices_for(node)
       naming_steps(node).index_with { earlier_than(node) }.merge(naming_flows(node).index_with { offered_flows })
-        .merge(drawn_by(node)).merge(named_outputs_by(node))
+        .merge(drawn_by(node)).merge(named_outputs_by(node)).merge(worked_out_choices(node))
+    end
+
+    def worked_out_choices(node)
+      drawn_safely(node, :options) { step_type_for(node)&.settings&.worked_out_choices(node.config) }.to_h.transform_keys(&:to_s)
     end
 
     def record_choices_for(node)

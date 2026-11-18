@@ -122,5 +122,9 @@ module EasyFlow
 
       assert_equal "passed", read_processed["result"]
     end
+
+    test "summarizes the values it reports" do
+      assert_equal "reports count, shelf", ReadData.step_type.summary_of(read("values" => [ { "name" => "count" }, { "name" => "shelf" } ]))
+    end
   end
 end

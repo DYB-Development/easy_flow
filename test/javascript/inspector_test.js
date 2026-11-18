@@ -87,3 +87,7 @@ test("writes the step's id and type in monospace above the step's name", () => {
 test("sets the panel's text at 12 pixels, as the mock-up does", () => {
   assert.match(drawn(), /^<aside[^>]*style="[^"]*font-size:12px/)
 })
+
+test("shows what the last change cleared", () => {
+  assert.match(drawn({ notice: "Cleared Alias because candidate is not offered for the step's other settings." }), /data-notice[^>]*>Cleared Alias because candidate is not offered for the step&#x27;s other settings\.</)
+})

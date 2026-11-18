@@ -509,5 +509,50 @@ module EasyFlow
 
       assert_equal({ "rows" => { "output" => "step" } }, entry["record_outputs_of"])
     end
+
+    def summarized_by(summaries)
+      host = Host.new(:alembic)
+      host.summaries = summaries
+      Canvas.new(Document.new(flowing(switching)), registry: registry, host: host).to_h["nodes"].find { |node| node["id"] == "a" }
+    end
+
+    test "gives a node the summary its host sets for its type in place of the type's own" do
+      assert_equal "asks 2 things", summarized_by(ask: ->(node) { "asks #{node.config['options'].size} things" })["summary"]
+    end
+
+    test "draws a step without a summary when the summary its host sets raises an error" do
+      assert_nil summarized_by(ask: ->(_node) { raise "the host's summary broke" })["summary"]
+    end
+
+    test "gives a step of one of easy_flow's own types the summary its host sets in place of easy_flow's" do
+      host = Host.new(:alembic)
+      host.summaries = { wait: ->(node) { "pauses #{node.config['minutes']}m" } }
+      document = Document.new(flowing("entry" => "w", "nodes" => [ { "id" => "w", "type" => "wait", "step" => "w", "minutes" => 5 } ], "edges" => []))
+
+      assert_equal "pauses 5m", Canvas.new(document, host: host).to_h["nodes"].find { |node| node["id"] == "w" }["summary"]
+    end
+
+    test "gives no summary to a step whose host-written type gives none" do
+      assert_nil canvas(flow)["nodes"].find { |node| node["id"] == "b" }["summary"]
+    end
+
+    test "gives a step the radio card options its type works out from the step's other settings" do
+      aliased = registry.tap do |built|
+        built.register(StepType.define(:agent) do
+          setting :agent, type: :string
+          setting :alias, type: :radio_cards, options: ->(config) { [ { value: "prod", label: "prod of #{config['agent']}" } ] }
+        end)
+      end
+      document = Document.new(flowing("entry" => "g", "nodes" => [ { "id" => "g", "type" => "agent", "agent" => "copy_writer" } ], "edges" => []))
+
+      assert_equal [ { value: "prod", label: "prod of copy_writer" } ], Canvas.new(document, registry: aliased).to_h["nodes"].find { |node| node["id"] == "g" }["choices"]["alias"]
+    end
+
+    test "draws a step without its worked-out radio card options when working them out raises an error" do
+      broken = Registry.new.tap { |built| built.register(StepType.define(:agent) { setting :alias, type: :radio_cards, options: ->(_config) { raise "the options broke" } }) }
+      document = Document.new(flowing("entry" => "g", "nodes" => [ { "id" => "g", "type" => "agent" } ], "edges" => []))
+
+      assert_nil Canvas.new(document, registry: broken).to_h["nodes"].find { |node| node["id"] == "g" }["choices"]["alias"]
+    end
   end
 end

@@ -95,6 +95,12 @@ module EasyFlow
 
         assert_equal "Fill this in to go on.", Question.step_type.answer_problem(node, "")
       end
+
+      test "summarizes how many answers it offers" do
+        node = Node.new(id: "budget", type: "question", config: { "answers" => [ { "value" => "high" }, { "value" => "low" } ] })
+
+        assert_equal "2 answers", Question.step_type.summary_of(node)
+      end
     end
   end
 end

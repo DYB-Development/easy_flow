@@ -7,10 +7,13 @@ module Steps
     setting :agent, type: :string
     setting :release, type: :string
     setting :gate, type: :string, optional: true
-    setting :alias, type: :radio_cards, options: [
-      { value: "prod", label: "prod → v22", hint: "p 0.84 · n 1,920" },
-      { value: "candidate", label: "candidate → v23", hint: "p 0.87 · n 240" }
-    ]
+    ALIASES = {
+      "copy_writer" => [ { value: "prod", label: "prod → v22", hint: "p 0.84 · n 1,920" },
+                         { value: "candidate", label: "candidate → v23", hint: "p 0.87 · n 240" } ],
+      "copy_reviewer" => [ { value: "prod", label: "prod → v9", hint: "p 0.91 · n 610" } ]
+    }.freeze
+
+    setting :alias, type: :radio_cards, options: ->(config) { ALIASES.fetch(config["agent"].to_s, []) }
 
     shows_values("Inputs") do |_node|
       { "brief" => "load_brief.out.brief", "voice" => "brand_voice.out.doc", "angle" => "$item.angle", "findings" => "copy_reviewer.out.findings ?" }

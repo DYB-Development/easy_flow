@@ -192,6 +192,12 @@ module EasyFlow
       assert_selector "[data-step='tell']", text: "email · sms"
     end
 
+    test "a step of one of easy_flow's own types shows the summary easy_flow works out from its settings" do
+      canvas_for(wired)
+
+      assert_selector "[data-step='gate']", text: "first.answer is yes"
+    end
+
     test "adding a step from an unconnected branch wires it to that branch" do
       canvas_for(flow)
 
@@ -213,7 +219,7 @@ module EasyFlow
       with_step_type_codes_hidden do
         canvas_for(flow)
 
-        assert_equal "First\nQuestion", step_card("first").text
+        assert_equal "First\n1 answer\nQuestion", step_card("first").text
       end
     end
 
@@ -234,7 +240,7 @@ module EasyFlow
     test "a host that names no setting shows a step's type code on its box" do
       canvas_for(flow)
 
-      assert_equal "First\nquestion", step_card("first").text
+      assert_equal "First\n1 answer\nquestion", step_card("first").text
     end
 
     test "removing a connection unlinks the two steps" do

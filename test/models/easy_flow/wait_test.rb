@@ -85,5 +85,17 @@ module EasyFlow
     test "is named after a single minute without a plural" do
       assert_equal "1 minute after deploy", Wait.step_type.name_of(wait({ "step" => "deploy", "minutes" => 1 }))
     end
+
+    test "summarizes how many minutes it waits" do
+      assert_equal "waits 5 minutes", Wait.step_type.summary_of(wait({ "step" => "signed_up", "minutes" => 5 }))
+    end
+
+    test "summarizes the time of day it waits until" do
+      assert_equal "waits until 09:00", Wait.step_type.summary_of(wait({ "step" => "signed_up", "time_of_day" => "09:00" }))
+    end
+
+    test "summarizes the date it waits until ahead of a time of day" do
+      assert_equal "waits until 2026-12-01", Wait.step_type.summary_of(wait({ "step" => "signed_up", "time_of_day" => "09:00", "date" => "2026-12-01" }))
+    end
   end
 end

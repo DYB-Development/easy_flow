@@ -29,6 +29,10 @@ module EasyFlow
 
         assert_equal "A file can only be uploaded in a flow that saves its runs.", FileUpload.step_type.answer_problem(node, "guide.pdf")
       end
+
+      test "summarizes the file types it accepts" do
+        assert_equal "accepts .pdf, .docx", FileUpload.step_type.summary_of(Node.new(id: "guide", type: "file_upload", config: { "accepts" => ".pdf,.docx" }))
+      end
     end
   end
 end

@@ -142,5 +142,12 @@ module EasyFlow
 
       assert_equal [ Host::Tab.new(label: "Fixtures", count: "12/12", content: "<p>setup</p>") ], host.drawer_tabs_for(Definition.new(slug: "setup"))
     end
+
+    test "a host works out a step's summary with the block it sets for the step's type" do
+      host = Host.new(:alembic)
+      host.summaries = { condition: ->(node) { "when #{node.config['step']} says so" } }
+
+      assert_equal "when budget says so", host.summary_of(Node.new(id: "c", type: "condition", config: { "step" => "budget" }))
+    end
   end
 end

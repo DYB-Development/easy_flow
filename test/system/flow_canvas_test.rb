@@ -961,6 +961,18 @@ module EasyFlow
       end
     end
 
+    test "inserting a step on a left-to-right connection's line puts it between the two" do
+      laid_left_to_right do
+        canvas_for(flow)
+
+        find("[data-joint^='first-gate']").hover
+        find("[data-joint^='first-gate']").click_button("+")
+        add_step_named("Question")
+
+        assert_selector "[data-joint^='first-question']"
+      end
+    end
+
     test "the steps not in a left-to-right flow yet wait above its rows rather than over them" do
       laid_left_to_right { canvas_for(adrift) }
 

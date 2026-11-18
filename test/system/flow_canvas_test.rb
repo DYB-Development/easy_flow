@@ -536,7 +536,7 @@ module EasyFlow
 
         step_card("human_approve").drag_to(find("[data-group-box='variants']"))
 
-        assert_selector("[data-group-box='variants'] [data-step='human_approve']")
+        assert_selector("[data-group-box='variants']") { inside_box?("[data-step='human_approve']", "variants") }
       end
     end
 

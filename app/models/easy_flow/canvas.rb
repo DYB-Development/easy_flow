@@ -26,13 +26,15 @@ module EasyFlow
     end
 
     def summary_of(node)
-      return drawn_by_type(node, :summary_of) unless @host&.summarizes?(node.type)
-
-      @host.summary_of(node)
+      drawn_safely(node, :summary_of) { (@host&.summarizes?(node.type) ? @host : step_type_for(node))&.summary_of(node) }
     end
 
     def drawn_by_type(node, part)
-      step_type_for(node)&.public_send(part, node)
+      drawn_safely(node, part) { step_type_for(node)&.public_send(part, node) }
+    end
+
+    def drawn_safely(node, part)
+      yield
     rescue StandardError => error
       Rails.logger.error("EasyFlow could not draw step #{node.id}'s #{part}: #{error.class}: #{error.message}")
       nil

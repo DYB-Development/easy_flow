@@ -519,5 +519,9 @@ module EasyFlow
     test "gives a node the summary its host sets for its type in place of the type's own" do
       assert_equal "asks 2 things", summarized_by(ask: ->(node) { "asks #{node.config['options'].size} things" })["summary"]
     end
+
+    test "draws a step without a summary when the summary its host sets raises an error" do
+      assert_nil summarized_by(ask: ->(_node) { raise "the host's summary broke" })["summary"]
+    end
   end
 end

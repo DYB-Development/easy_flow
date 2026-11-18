@@ -509,5 +509,15 @@ module EasyFlow
 
       assert_equal({ "rows" => { "output" => "step" } }, entry["record_outputs_of"])
     end
+
+    def summarized_by(summaries)
+      host = Host.new(:alembic)
+      host.summaries = summaries
+      Canvas.new(Document.new(flowing(switching)), registry: registry, host: host).to_h["nodes"].find { |node| node["id"] == "a" }
+    end
+
+    test "gives a node the summary its host sets for its type in place of the type's own" do
+      assert_equal "asks 2 things", summarized_by(ask: ->(node) { "asks #{node.config['options'].size} things" })["summary"]
+    end
   end
 end

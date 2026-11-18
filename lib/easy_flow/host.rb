@@ -89,6 +89,10 @@ module EasyFlow
       @summaries = summaries.to_h.transform_keys(&:to_s)
     end
 
+    def summarizes?(step_type)
+      @summaries.to_h.key?(step_type.to_s)
+    end
+
     def summary_of(node)
       @summaries.to_h[node.type.to_s]&.call(node).presence
     end

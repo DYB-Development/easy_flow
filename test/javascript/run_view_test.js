@@ -27,3 +27,7 @@ test("draws no buttons for changing the flow", () => {
 test("starts its rows at its own top left corner, with none of the room the editing canvas keeps for its toolbar", () => {
   assert.match(drawn(), /data-flow-rows="true" style="[^"]*padding:0/)
 })
+
+test("scrolls a flow wider than the page sideways inside its own box", () => {
+  assert.match(drawn(), /data-flow-rows="true" style="[^"]*overflow-x:auto/)
+})

@@ -10,6 +10,7 @@ module EasyFlow
     setting :date, type: :string, label: "Date, as YYYY-MM-DD"
 
     names_by { |node| Wait.named(node.config) }
+    summarizes_by { |node| Wait.summarized(node.config) }
 
     waits_until { |node, _state, times| Wait.held_until(node, times)&.then { |held| held <= Time.current } || false }
 
@@ -18,6 +19,10 @@ module EasyFlow
 
       waited = config["time_of_day"].presence || ("#{config["minutes"]} #{"minute".pluralize(config["minutes"].to_i)}" if config["minutes"].present?)
       "#{waited} after #{config["step"]}" if waited
+    end
+
+    def self.summarized(config)
+      "waits #{config["minutes"]} #{"minute".pluralize(config["minutes"].to_i)}" if config["minutes"].present?
     end
 
     def self.held_until(node, times)

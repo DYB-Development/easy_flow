@@ -531,5 +531,9 @@ module EasyFlow
 
       assert_equal "pauses 5m", Canvas.new(document, host: host).to_h["nodes"].find { |node| node["id"] == "w" }["summary"]
     end
+
+    test "gives no summary to a step whose host-written type gives none" do
+      assert_nil canvas(flow)["nodes"].find { |node| node["id"] == "b" }["summary"]
+    end
   end
 end

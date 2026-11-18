@@ -11,6 +11,7 @@ module EasyFlow
     output :count, type: :integer
 
     names_by { |node| [ "Count", *node.config.values_at("step", "answer") ].compact_blank.join(" ") }
+    summarizes_by { |node| "counts #{node.config.values_at("step", "output").compact_blank.join(".")} is #{node.config["answer"]}" }
 
     def process(node, state)
       visits(node, state).count { |answer| counted?(node, answer) }

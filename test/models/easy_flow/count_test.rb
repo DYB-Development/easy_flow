@@ -93,5 +93,9 @@ module EasyFlow
     test "is offered to every host's flows" do
       assert EasyFlow.registry.registered?(:count)
     end
+
+    test "summarizes the answer it counts on the output it reads" do
+      assert_equal "counts tests.result is failed", Count.step_type.summary_of(count({ "step" => "tests", "output" => "result", "answer" => "failed" }))
+    end
   end
 end

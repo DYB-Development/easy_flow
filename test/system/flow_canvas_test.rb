@@ -973,6 +973,16 @@ module EasyFlow
       end
     end
 
+    test "dragging a step onto a left-to-right connection's line moves it there" do
+      laid_left_to_right do
+        canvas_for(adrift)
+
+        step_card("adrift").drag_to(find("[data-joint^='first-gate']"))
+
+        assert_selector "[data-joint^='first-adrift']"
+      end
+    end
+
     test "the steps not in a left-to-right flow yet wait above its rows rather than over them" do
       laid_left_to_right { canvas_for(adrift) }
 

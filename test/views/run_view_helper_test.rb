@@ -23,5 +23,14 @@ module EasyFlow
 
       assert_select "[data-react-ui='easy_flow/run-view'][data-props*='Start']", count: 0
     end
+
+    test "shows the End step the run ended at as done" do
+      @version = Definition.create!(host: "dummy", slug: "run-view-helper-ended").record_definition(flowing(
+        "entry" => "finish", "nodes" => [ { "id" => "finish", "type" => "terminal" } ]
+      ))
+      render inline: %(<%= easy_flow_run_view(@version, steps: {}, ended_at: "finish") %>)
+
+      assert_select "[data-react-ui='easy_flow/run-view'][data-props*='\"id\":\"finish\",\"type\":\"terminal\",\"label\":\"End\",\"state\":\"done\"']"
+    end
   end
 end

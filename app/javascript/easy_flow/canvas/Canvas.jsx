@@ -17,7 +17,6 @@ import useFlow from "./useFlow"
 import useConnectors from "./useConnectors"
 import { CARD, GAP_X, GAP_Y } from "./styles"
 import { nextId } from "./ids"
-import { branchLinesOf } from "./reading"
 import { barPressed } from "./topBar"
 
 const HEADER_GAP = 8
@@ -92,7 +91,6 @@ const Canvas = ({ base, token, initial }) => {
   const leftToRight = flow.direction === "left_to_right"
   const attached = useMemo(() => flow.nodes.filter((node) => !node.loose), [ flow.nodes ])
   const loose = flow.nodes.filter((node) => node.loose)
-  const branchLines = useMemo(() => (leftToRight ? branchLinesOf(attached, flow.edges, flow.nodes) : {}), [ leftToRight, attached, flow.edges, flow.nodes ])
   const connectedFrom = useMemo(() => {
     const ports = {}
     flow.edges.forEach((edge) => (ports[edge.source] ||= []).push(edge.label || null))
@@ -150,8 +148,7 @@ const Canvas = ({ base, token, initial }) => {
     onDragStart: () => setDragging(node.id),
     onDragEnd: () => setDragging(null),
     hideStepTypeCodes: flow.hide_step_type_codes,
-    compact: leftToRight,
-    branches: branchLines[node.id] || []
+    compact: leftToRight
   })
 
   const draw = (node) => (

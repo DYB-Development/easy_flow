@@ -588,5 +588,9 @@ module EasyFlow
     test "a radio card setting whose options depend on other settings offers none before a step is set" do
       assert_equal [], aliased.settings.choices[:alias]
     end
+
+    test "a radio card setting accepts an option worked out from the step's other settings" do
+      assert_empty aliased.settings.objections("agent" => "copy_writer", "alias" => "prod")
+    end
   end
 end

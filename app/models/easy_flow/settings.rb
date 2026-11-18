@@ -74,7 +74,8 @@ module EasyFlow
     end
 
     def objections(config)
-      config.to_h.flat_map { |name, value| objections_to(name.to_sym, value) }.compact
+      offered = choices_for(config)
+      config.to_h.flat_map { |name, value| objections_to(name.to_sym, value, offered) }.compact
     end
 
     private
@@ -87,12 +88,11 @@ module EasyFlow
       offered.respond_to?(:arity) && offered.arity == 1
     end
 
-    def objections_to(name, value)
-      [ unoffered(name, value), over_limit(name, value), refused(name, value) ]
+    def objections_to(name, value, offered)
+      [ unoffered(name, value, offered[name]), over_limit(name, value), refused(name, value) ]
     end
 
-    def unoffered(name, value)
-      offered = choices[name]
+    def unoffered(name, value, offered)
       return unless offered
 
       stray = Array(value).find { |chosen| values_of(offered).exclude?(chosen) }

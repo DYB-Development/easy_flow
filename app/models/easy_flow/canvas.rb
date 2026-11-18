@@ -179,7 +179,11 @@ module EasyFlow
 
     def choices_for(node)
       naming_steps(node).index_with { earlier_than(node) }.merge(naming_flows(node).index_with { offered_flows })
-        .merge(drawn_by(node)).merge(named_outputs_by(node))
+        .merge(drawn_by(node)).merge(named_outputs_by(node)).merge(worked_out_choices(node))
+    end
+
+    def worked_out_choices(node)
+      step_type_for(node)&.settings&.worked_out_choices(node.config).to_h.transform_keys(&:to_s)
     end
 
     def record_choices_for(node)

@@ -28,7 +28,11 @@ module EasyFlow
     end
 
     def choices_for(config)
-      @choices.transform_values { |offered| depends_on_settings?(offered) ? offered.call(config.to_h) : worked_out(offered) }
+      choices.merge(worked_out_choices(config))
+    end
+
+    def worked_out_choices(config)
+      @choices.select { |_name, offered| depends_on_settings?(offered) }.transform_values { |offered| offered.call(config.to_h) }
     end
 
     def kept_values(config)

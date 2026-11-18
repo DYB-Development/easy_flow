@@ -535,5 +535,17 @@ module EasyFlow
     test "gives no summary to a step whose host-written type gives none" do
       assert_nil canvas(flow)["nodes"].find { |node| node["id"] == "b" }["summary"]
     end
+
+    test "gives a step the radio card options its type works out from the step's other settings" do
+      aliased = registry.tap do |built|
+        built.register(StepType.define(:agent) do
+          setting :agent, type: :string
+          setting :alias, type: :radio_cards, options: ->(config) { [ { value: "prod", label: "prod of #{config['agent']}" } ] }
+        end)
+      end
+      document = Document.new(flowing("entry" => "g", "nodes" => [ { "id" => "g", "type" => "agent", "agent" => "copy_writer" } ], "edges" => []))
+
+      assert_equal [ { value: "prod", label: "prod of copy_writer" } ], Canvas.new(document, registry: aliased).to_h["nodes"].find { |node| node["id"] == "g" }["choices"]["alias"]
+    end
   end
 end

@@ -132,3 +132,7 @@ const failingToOneEnd = (count) => {
 test("reads each step about as often in a flow of 400 steps as in a flow of 100 when laying out a chain", () => {
   assert.ok(counted(400, chain) < 2 * counted(100, chain))
 })
+
+test("reads each step about as often in a flow of 400 steps as in a flow of 100 when every step can fail to one End step", () => {
+  assert.ok(counted(400, failingToOneEnd) < 2 * counted(100, failingToOneEnd))
+})

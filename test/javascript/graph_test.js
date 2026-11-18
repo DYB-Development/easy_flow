@@ -19,3 +19,11 @@ test("puts a step a connection loops back to to the left of the step it loops ba
 
   assert.deepEqual([ "start", "write", "check", "retry" ].map((id) => columnOf(graph, id)), [ 0, 1, 2, 3 ])
 })
+
+const rowOf = (graph, id) => graph.places[id].row
+
+test("fans the branches of a step out into separate rows", () => {
+  const graph = layOut([ step("gate"), step("yes"), step("no") ], [ link("gate", "yes", "true"), link("gate", "no", "false") ])
+
+  assert.notEqual(rowOf(graph, "yes"), rowOf(graph, "no"))
+})

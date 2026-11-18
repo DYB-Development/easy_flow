@@ -55,10 +55,35 @@ const loopingBack = (ids, edges) => {
   return backward
 }
 
+const rowsOf = (ids, forward, columns) => {
+  const stacks = []
+  ids.forEach((id) => (stacks[columns.get(id)] ||= []).push(id))
+  const outgoing = outgoingOf(ids, forward)
+  const exits = new Map()
+  outgoing.forEach((leaving) => leaving.forEach((edge, at) => exits.set(edge, (at + 1) / (leaving.length + 1))))
+  const incoming = new Map(ids.map((id) => [ id, [] ]))
+  forward.forEach((edge) => incoming.get(edge.target).push(edge))
+  const rows = new Map()
+
+  stacks.forEach((stack) => {
+    const keyOf = new Map(stack.map((id) => {
+      const from = incoming.get(id)
+      const total = from.reduce((sum, edge) => sum + rows.get(edge.source) + exits.get(edge), 0)
+      return [ id, from.length > 0 ? total / from.length : Infinity ]
+    }))
+    stack.sort((a, b) => (keyOf.get(a) === keyOf.get(b) ? 0 : keyOf.get(a) < keyOf.get(b) ? -1 : 1))
+    stack.forEach((id, row) => rows.set(id, row))
+  })
+
+  return rows
+}
+
 export const layOut = (nodes, edges) => {
   const ids = nodes.map((node) => node.id)
   const backward = loopingBack(ids, edges)
-  const columns = columnsOf(ids, edges.filter((edge) => !backward.has(edge)))
+  const forward = edges.filter((edge) => !backward.has(edge))
+  const columns = columnsOf(ids, forward)
+  const rows = rowsOf(ids, forward, columns)
 
-  return { places: Object.fromEntries(ids.map((id) => [ id, { column: columns.get(id) } ])) }
+  return { places: Object.fromEntries(ids.map((id) => [ id, { column: columns.get(id), row: rows.get(id) } ])) }
 }

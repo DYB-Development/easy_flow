@@ -80,10 +80,10 @@ const rowsOf = (ids, forward, columns) => {
 
 export const CARD_WIDTH = 184
 export const CARD_HEIGHT = 64
-export const COLUMN_GAP = 136
-export const ROW_GAP = 32
+export const COLUMN_GAP = 64
+export const ROW_GAP = 24
 export const MARGIN = 40
-export const EXIT = 80
+export const EXIT = 40
 export const CHANNEL_GAP = 14
 
 const startsOf = (sizes, gap, from) => {

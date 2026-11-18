@@ -1,12 +1,12 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import Joint from "./Joint"
 import StepRows from "./StepRows"
-import { EXIT, layOut } from "./graph"
+import { COLUMN_GAP, layOut } from "./graph"
 
 const stack = { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 14, padding: "64px 0 0" }
 
 const label = {
-  position: "absolute", zIndex: 3, maxWidth: EXIT - 10, fontSize: 11, lineHeight: "14px", pointerEvents: "none",
+  position: "absolute", zIndex: 3, maxWidth: COLUMN_GAP - 8, fontSize: 10, lineHeight: "13px", pointerEvents: "none",
   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
 }
 
@@ -64,12 +64,12 @@ const Graph = ({ nodes, edges, draw, joints }) => {
 
       {graph.links.filter((link) => link.label).map((link) => (
         <div key={`${link.id}-label`} data-link-label={link.id} title={link.label} className="text-gray-500 dark:text-gray-400"
-             style={{ ...label, left: link.points[0][0] + 6, top: link.points[0][1] - 16 }}>{link.label}</div>
+             style={{ ...label, left: link.points[0][0] + 6, top: link.points[0][1] - 14 }}>{link.label}</div>
       ))}
 
       {joints.onInsert && graph.links.filter((link) => !link.placeholder).map((link) => (
         <Joint key={link.id} link={link} {...joints}
-               style={{ position: "absolute", left: link.points[0][0], top: link.points[0][1] - 12, width: EXIT + 14, height: 24, zIndex: 3 }} />
+               style={{ position: "absolute", left: link.points[0][0], top: link.points[0][1] - 12, width: COLUMN_GAP - 2, height: 24, zIndex: 3 }} />
       ))}
     </div>
   )

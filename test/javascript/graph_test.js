@@ -136,3 +136,10 @@ test("reads each step about as often in a flow of 400 steps as in a flow of 100 
 test("reads each step about as often in a flow of 400 steps as in a flow of 100 when every step can fail to one End step", () => {
   assert.ok(counted(400, failingToOneEnd) < 2 * counted(100, failingToOneEnd))
 })
+
+test("leaves at most 64px between a card's right edge and the next column", () => {
+  const graph = layOut([ step("ask"), step("gate") ], [ link("ask", "gate") ])
+  const { ask, gate } = graph.places
+
+  assert.ok(gate.x - (ask.x + ask.width) <= 64)
+})

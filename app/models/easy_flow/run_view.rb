@@ -1,10 +1,11 @@
 module EasyFlow
   class RunView
-    def initialize(version, steps: {}, selected: nil, ended_at: nil, registry: EasyFlow.registry)
+    def initialize(version, steps: {}, selected: nil, ended_at: nil, start_and_end: true, registry: EasyFlow.registry)
       @document = Document.new(version.definition || {}, registry: registry)
       @steps = steps.to_h.transform_keys(&:to_s)
       @selected = selected
       @ended_at = ended_at&.to_s
+      @start_and_end = start_and_end
       @registry = registry
     end
 
@@ -15,7 +16,7 @@ module EasyFlow
     private
 
     def nodes
-      @document.nodes.map { |node| drawn_step(node) }
+      @document.nodes.reject { |node| hidden?(node) }.map { |node| drawn_step(node) }
     end
 
     def edges
@@ -41,6 +42,10 @@ module EasyFlow
 
       { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => state_of(node, shown), "status" => shown[:status], "address" => (shown[:address] unless bookend?(node)), "version" => shown[:version],
         "holds" => holds(node), **header_of(node), **placed.fetch(node.id, {}) }
+    end
+
+    def hidden?(node)
+      !@start_and_end && bookend?(node)
     end
 
     def bookend?(node)

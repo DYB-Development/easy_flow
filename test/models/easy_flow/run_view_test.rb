@@ -71,6 +71,10 @@ module EasyFlow
       assert_equal [ nil, nil ], shown.values_at(0, -1).map { |node| node["address"] }
     end
 
+    test "leaves out the Start and End steps when its host chooses to hide them" do
+      assert_equal %w[outline draft], RunView.new(version, start_and_end: false).to_h["nodes"].map { |node| node["id"] }
+    end
+
     test "places each step after the step that leads to it" do
       assert_operator step("draft")["row"], :>, step("outline")["row"]
     end

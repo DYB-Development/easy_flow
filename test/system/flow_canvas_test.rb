@@ -219,7 +219,7 @@ module EasyFlow
       with_step_type_codes_hidden do
         canvas_for(flow)
 
-        assert_equal "First\nQuestion", step_card("first").text
+        assert_equal "First\n1 answer\nQuestion", step_card("first").text
       end
     end
 
@@ -240,7 +240,7 @@ module EasyFlow
     test "a host that names no setting shows a step's type code on its box" do
       canvas_for(flow)
 
-      assert_equal "First\nquestion", step_card("first").text
+      assert_equal "First\n1 answer\nquestion", step_card("first").text
     end
 
     test "removing a connection unlinks the two steps" do

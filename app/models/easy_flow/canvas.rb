@@ -183,7 +183,7 @@ module EasyFlow
     end
 
     def worked_out_choices(node)
-      step_type_for(node)&.settings&.worked_out_choices(node.config).to_h.transform_keys(&:to_s)
+      drawn_safely(node, :options) { step_type_for(node)&.settings&.worked_out_choices(node.config) }.to_h.transform_keys(&:to_s)
     end
 
     def record_choices_for(node)

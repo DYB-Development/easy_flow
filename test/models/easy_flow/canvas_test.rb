@@ -547,5 +547,12 @@ module EasyFlow
 
       assert_equal [ { value: "prod", label: "prod of copy_writer" } ], Canvas.new(document, registry: aliased).to_h["nodes"].find { |node| node["id"] == "g" }["choices"]["alias"]
     end
+
+    test "draws a step without its worked-out radio card options when working them out raises an error" do
+      broken = Registry.new.tap { |built| built.register(StepType.define(:agent) { setting :alias, type: :radio_cards, options: ->(_config) { raise "the options broke" } }) }
+      document = Document.new(flowing("entry" => "g", "nodes" => [ { "id" => "g", "type" => "agent" } ], "edges" => []))
+
+      assert_nil Canvas.new(document, registry: broken).to_h["nodes"].find { |node| node["id"] == "g" }["choices"]["alias"]
+    end
   end
 end

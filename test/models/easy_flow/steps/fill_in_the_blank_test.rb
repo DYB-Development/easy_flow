@@ -31,6 +31,12 @@ module EasyFlow
       test "an admin can set a category a host can group it by" do
         assert_equal :string, FillInTheBlank.step_type.settings.fields[:category]
       end
+
+      test "summarizes how many answers it accepts" do
+        node = Node.new(id: "capital", type: "fill_in_the_blank", config: { "accepted_answers" => [ { "value" => "Paris" }, { "value" => "paris" } ] })
+
+        assert_equal "accepts 2 answers", FillInTheBlank.step_type.summary_of(node)
+      end
     end
   end
 end

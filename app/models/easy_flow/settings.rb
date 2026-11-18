@@ -24,7 +24,7 @@ module EasyFlow
     end
 
     def choices
-      @choices.transform_values { |offered| worked_out(offered) }
+      @choices.transform_values { |offered| depends_on_settings?(offered) ? [] : worked_out(offered) }
     end
 
     def choices_for(config)

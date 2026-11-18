@@ -584,5 +584,9 @@ module EasyFlow
     test "a radio card setting works out its options from the step's other settings" do
       assert_equal [ { value: "prod", label: "prod → v22" } ], aliased.settings.choices_for("agent" => "copy_writer")[:alias]
     end
+
+    test "a radio card setting whose options depend on other settings offers none before a step is set" do
+      assert_equal [], aliased.settings.choices[:alias]
+    end
   end
 end

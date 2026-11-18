@@ -102,3 +102,10 @@ test("draws the steps a group step holds inside the group's box", () => {
 
   assert.deepEqual([ "write", "check" ].map((id) => within(graph.places[id], graph.places.variants)), [ true, true ])
 })
+
+test("enters a group's box from the step before it and leaves the box for the step after it", () => {
+  const graph = layOut(grouped.nodes, grouped.edges)
+  const box = graph.places.variants
+
+  assert.deepEqual([ routeOf(graph, "outline-variants").at(-1)[0], routeOf(graph, "check-approve")[0][0] ], [ box.x, box.x + box.width ])
+})

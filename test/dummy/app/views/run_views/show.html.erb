@@ -5,5 +5,5 @@
 
 <main class="mx-auto max-w-5xl p-4">
   <h1 class="mb-3 text-sm font-semibold">Flow overlay</h1>
-  <%= easy_flow_run_view(@version, steps: @steps, selected: params[:step] || "write_variant") %>
+  <%= easy_flow_run_view(@version, steps: @steps, selected: params[:step] || "write_variant", ended_at: params[:ended_at]) %>
 </main>

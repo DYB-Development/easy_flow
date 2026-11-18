@@ -2,6 +2,8 @@ class RunViewsController < ApplicationController
   helper KeystoneUiHelper
 
   STEPS = {
+    "review" => { state: :done, status: "answered no" },
+    "gate" => { state: :done, status: "false" },
     "load_brief" => { state: :done, status: "0.3s · $0", version: nil },
     "outline" => { state: :done, status: "8.2s · $0.04", version: "v9" },
     "write_variant" => { state: :done, status: "3/3 · 41s · $0.31", version: "v22" },

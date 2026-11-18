@@ -21,6 +21,25 @@ module EasyFlow
       ))
     end
 
+    def branching_version
+      Definition.create!(host: "dummy", slug: "branching").record_definition(flowing(
+        "entry" => "review",
+        "nodes" => [ { "id" => "review", "type" => "question", "question" => "Review", "answers" => [ { "value" => "yes" }, { "value" => "no" } ] },
+                     { "id" => "gate", "type" => "condition", "step" => "review", "output" => "answer", "comparison" => "is", "answer" => "yes" },
+                     { "id" => "publish_to_cms", "type" => "question", "question" => "Publish to CMS", "answers" => [ { "value" => "on" } ] },
+                     { "id" => "published", "type" => "terminal" },
+                     { "id" => "rejected", "type" => "terminal" } ],
+        "edges" => [ { "from" => "review", "to" => "gate" }, { "from" => "gate", "to" => "publish_to_cms", "on" => true },
+                     { "from" => "gate", "to" => "rejected", "on" => false }, { "from" => "publish_to_cms", "to" => "published" } ]
+      ))
+    end
+
+    test "a run view shows the End step its run ended at as reached" do
+      visit "/runs/#{branching_version.id}?ended_at=rejected"
+
+      assert_selector "[data-flow-run-view] [data-step='rejected'].border-green-600"
+    end
+
     test "a host page shows the run view of a flow version with each step's state" do
       visit "/runs/#{run_version.id}"
 

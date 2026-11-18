@@ -84,6 +84,7 @@ export const COLUMN_GAP = 136
 export const ROW_GAP = 32
 export const MARGIN = 40
 export const EXIT = 80
+export const CHANNEL_GAP = 14
 
 const startsOf = (sizes, gap, from) => {
   const starts = []
@@ -106,22 +107,46 @@ export const layOut = (nodes, edges, { heights = {} } = {}) => {
     columnWidths[columns.get(id)] = Math.max(columnWidths[columns.get(id)] || 0, widthOf(id))
     rowHeights[rows.get(id)] = Math.max(rowHeights[rows.get(id)] || 0, heightOf(id))
   })
-  const lefts = startsOf(columnWidths, COLUMN_GAP, MARGIN)
-  const tops = startsOf(rowHeights, ROW_GAP, MARGIN)
+  const skipping = (edge) => columns.get(edge.target) > columns.get(edge.source) + 1
+  const channelsOf = (taken) => {
+    const channels = new Map()
+    taken.forEach((edge) => { if (!channels.has(edge.target)) channels.set(edge.target, channels.size) })
+    return channels
+  }
+  const above = channelsOf(edges.filter((edge) => backward.has(edge)))
+  const below = channelsOf(forward.filter(skipping))
+
+  const lefts = startsOf(columnWidths, COLUMN_GAP, COLUMN_GAP - EXIT + MARGIN / 2)
+  const tops = startsOf(rowHeights, ROW_GAP, MARGIN + above.size * CHANNEL_GAP)
+  const bottom = tops[tops.length - 1] + rowHeights[rowHeights.length - 1]
 
   const places = Object.fromEntries(ids.map((id) => [ id, {
     column: columns.get(id), row: rows.get(id),
     x: lefts[columns.get(id)], y: tops[rows.get(id)], width: widthOf(id), height: heightOf(id)
   } ]))
 
+  const channelOf = (edge) => {
+    if (backward.has(edge)) return MARGIN + (above.size - 1 - above.get(edge.target)) * CHANNEL_GAP
+    if (skipping(edge)) return bottom + (below.get(edge.target) + 1) * CHANNEL_GAP
+    return null
+  }
+
+  const heading = (edge) => channelOf(edge) ?? places[edge.target].y + places[edge.target].height / 2
+  const leavingAt = new Map()
+  outgoingOf(ids, edges).forEach((leaving) => [ ...leaving ].sort((a, b) => heading(a) - heading(b))
+    .forEach((edge, at) => leavingAt.set(edge, (at + 1) / (leaving.length + 1))))
+
   const routed = (edge) => {
     const from = places[edge.source]
     const to = places[edge.target]
-    const leaving = from.y + from.height / 2
+    const leaving = from.y + from.height * leavingAt.get(edge)
     const arriving = to.y + to.height / 2
     const turn = lefts[from.column] + columnWidths[from.column] + EXIT
+    const channel = channelOf(edge)
+    const start = [ [ from.x + from.width, leaving ], [ turn, leaving ] ]
+    const end = [ [ to.x - COLUMN_GAP + EXIT, arriving ], [ to.x, arriving ] ]
 
-    return { ...edge, points: [ [ from.x + from.width, leaving ], [ turn, leaving ], [ turn, arriving ], [ to.x, arriving ] ] }
+    return { ...edge, points: channel === null ? [ ...start, [ turn, arriving ], end[1] ] : [ ...start, [ turn, channel ], [ end[0][0], channel ], ...end ] }
   }
 
   return { places, links: edges.map(routed) }

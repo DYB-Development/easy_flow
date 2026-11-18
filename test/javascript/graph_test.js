@@ -46,3 +46,25 @@ test("draws a connection as a line from the right edge of one card to the left e
 
   assert.deepEqual([ points[0][0], points.at(-1)[0] ], [ ask.x + ask.width, gate.x ])
 })
+
+const pipeline = {
+  nodes: [ "start", "brief", "gate", "write", "review", "retries", "publish", "end", "rejected", "failed" ].map((id) => step(id)),
+  edges: [ link("start", "brief"), link("brief", "gate"), link("brief", "failed", "failed"),
+           link("gate", "write", "true"), link("gate", "rejected", "false"),
+           link("write", "review"), link("review", "publish", "approved"), link("review", "write", "changes"), link("review", "retries", "failed"),
+           link("retries", "write", "again"), link("retries", "failed", "give_up"), link("publish", "end") ]
+}
+
+const crossing = ([ [ x1, y1 ], [ x2, y2 ] ], card) => {
+  const [ left, right, top, bottom ] = [ Math.min(x1, x2), Math.max(x1, x2), Math.min(y1, y2), Math.max(y1, y2) ]
+  return left < card.x + card.width && right > card.x && top < card.y + card.height && bottom > card.y &&
+    (left !== right || (left > card.x && left < card.x + card.width)) && (top !== bottom || (top > card.y && top < card.y + card.height))
+}
+
+test("routes no line through a card, including lines that loop back or skip columns", () => {
+  const graph = layOut(pipeline.nodes, pipeline.edges)
+  const crossed = graph.links.flatMap((each) => each.points.slice(1).flatMap((point, at) =>
+    Object.entries(graph.places).filter(([ , card ]) => crossing([ each.points[at], point ], card)).map(([ id ]) => `${each.id} crosses ${id}`)))
+
+  assert.deepEqual(crossed, [])
+})

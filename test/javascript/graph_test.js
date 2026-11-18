@@ -12,3 +12,10 @@ test("puts a step one column to the right of the step that leads into it", () =>
 
   assert.equal(columnOf(graph, "gate"), columnOf(graph, "ask") + 1)
 })
+
+test("puts a step a connection loops back to to the left of the step it loops back from", () => {
+  const graph = layOut([ step("start"), step("write"), step("check"), step("retry") ],
+                       [ link("start", "write"), link("write", "check"), link("check", "retry"), link("retry", "write") ])
+
+  assert.deepEqual([ "start", "write", "check", "retry" ].map((id) => columnOf(graph, id)), [ 0, 1, 2, 3 ])
+})

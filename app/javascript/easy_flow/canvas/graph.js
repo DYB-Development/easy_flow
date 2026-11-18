@@ -20,9 +20,45 @@ const columnsOf = (ids, edges) => {
   return columns
 }
 
+const outgoingOf = (ids, edges) => {
+  const outgoing = new Map(ids.map((id) => [ id, [] ]))
+  edges.forEach((edge) => outgoing.get(edge.source).push(edge))
+  return outgoing
+}
+
+const loopingBack = (ids, edges) => {
+  const outgoing = outgoingOf(ids, edges)
+  const entered = new Set(edges.map((edge) => edge.target))
+  const state = new Map()
+  const backward = new Set()
+
+  const walk = (root) => {
+    const stack = [ [ root, 0 ] ]
+    state.set(root, "open")
+    while (stack.length > 0) {
+      const top = stack[stack.length - 1]
+      const edge = outgoing.get(top[0])[top[1]++]
+      if (!edge) {
+        state.set(top[0], "done")
+        stack.pop()
+      } else if (state.get(edge.target) === "open") backward.add(edge)
+      else if (!state.has(edge.target)) {
+        state.set(edge.target, "open")
+        stack.push([ edge.target, 0 ])
+      }
+    }
+  }
+
+  ids.filter((id) => !entered.has(id)).forEach(walk)
+  ids.forEach((id) => { if (!state.has(id)) walk(id) })
+
+  return backward
+}
+
 export const layOut = (nodes, edges) => {
   const ids = nodes.map((node) => node.id)
-  const columns = columnsOf(ids, edges)
+  const backward = loopingBack(ids, edges)
+  const columns = columnsOf(ids, edges.filter((edge) => !backward.has(edge)))
 
   return { places: Object.fromEntries(ids.map((id) => [ id, { column: columns.get(id) } ])) }
 }

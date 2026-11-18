@@ -8,6 +8,7 @@ module EasyFlow
     setting :flows, type: :flows, required: true
 
     names_by :question
+    summarizes_by { |node| Array(node.config["flows"]).size.then { |count| "offers #{count} #{"flow".pluralize(count)}" } }
     awaits_input
 
     plays_the_picked_flow

@@ -123,5 +123,9 @@ module EasyFlow
 
       assert_equal %w[History], offered(play)
     end
+
+    test "summarizes how many flows it offers" do
+      assert_equal "offers 3 flows", PlayFlows.step_type.summary_of(Node.new(id: "play", type: "play_flows", config: { "flows" => %w[1 2 3] }))
+    end
   end
 end

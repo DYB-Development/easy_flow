@@ -14,6 +14,8 @@ module EasyFlow
     summarizes_by { |node| Count.summarized(node.config) }
 
     def self.summarized(config)
+      return if config["step"].blank?
+
       counted = config.values_at("step", "output").compact_blank.join(".")
       config["answer"].blank? ? "counts every answer to #{counted}" : "counts #{counted} is #{config["answer"]}"
     end

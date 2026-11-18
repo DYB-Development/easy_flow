@@ -109,3 +109,26 @@ test("enters a group's box from the step before it and leaves the box for the st
 
   assert.deepEqual([ routeOf(graph, "outline-variants").at(-1)[0], routeOf(graph, "check-approve")[0][0] ], [ box.x, box.x + box.width ])
 })
+
+const counted = (count, shape) => {
+  const reads = { count: 0 }
+  const watched = (value) => new Proxy(value, { get: (target, key) => { reads.count += 1; return target[key] } })
+  const { nodes, edges } = shape(count)
+
+  layOut(nodes.map(watched), edges.map(watched))
+  return reads.count / count
+}
+
+const chain = (count) => {
+  const nodes = Array.from({ length: count }, (_, at) => step(`s${at}`))
+  return { nodes, edges: nodes.slice(1).map((each, at) => link(`s${at}`, each.id)) }
+}
+
+const failingToOneEnd = (count) => {
+  const { nodes, edges } = chain(count)
+  return { nodes: [ ...nodes, step("failed") ], edges: [ ...edges, ...nodes.map((each) => link(each.id, "failed", "failed")), link(`s${count - 1}`, "s0", "again") ] }
+}
+
+test("reads each step about as often in a flow of 400 steps as in a flow of 100 when laying out a chain", () => {
+  assert.ok(counted(400, chain) < 2 * counted(100, chain))
+})

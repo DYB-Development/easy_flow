@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.50.0] - 2026-11-17
+
+### Added
+
+- easy_flow's own step types show a summary line on their step cards, worked out from their settings, such as the comparison a Condition step makes or how long a Wait step waits.
+- A host sets `summaries`, a hash of step type to a block given the step, to replace the summary of any step type, easy_flow's own included.
+- A `:radio_cards` setting's `options:` lambda that takes one argument is given the step's settings, so its cards follow the step's other settings and change once the admin saves them.
+
+### Changed
+
+- Saving a step clears a radio card choice its other settings no longer offer, instead of refusing the save, and the settings panel shows a notice naming what was cleared.
+
 ## [0.49.1] - 2026-11-17
 
 ### Fixed

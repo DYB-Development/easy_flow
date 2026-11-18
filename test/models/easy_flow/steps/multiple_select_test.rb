@@ -31,6 +31,12 @@ module EasyFlow
       test "an admin can set a category a host can group it by" do
         assert_equal :string, MultipleSelect.step_type.settings.fields[:category]
       end
+
+      test "summarizes how many answers it offers to pick from" do
+        node = Node.new(id: "primes", type: "multiple_select", config: { "answers" => [ { "value" => "2" }, { "value" => "3" }, { "value" => "5" } ] })
+
+        assert_equal "3 answers", MultipleSelect.step_type.summary_of(node)
+      end
     end
   end
 end

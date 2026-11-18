@@ -12,6 +12,7 @@ module EasyFlow
       setting :required, type: :boolean
 
       names_by :question
+      summarizes_by { |node| FileUpload.accepted_extensions(node).then { |extensions| "accepts #{extensions.join(", ")}" if extensions.any? } }
       awaits_input
       drawn_by "easy_flow/steps/uploading"
       answer_check { |node, value| FileUpload.problem_with(node, value) }

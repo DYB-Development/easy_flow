@@ -94,5 +94,15 @@ module EasyFlow
 
       assert_no_selector "[data-inspector] .ks-radio-card", text: "candidate"
     end
+
+    test "choosing an agent without the chosen alias tells the author the alias was cleared" do
+      open_agent_settings
+      find("[data-inspector] .ks-radio-card", text: "candidate → v23").click
+      assert_selector "[data-inspector] input[type='radio'][value='candidate']:checked", visible: :all
+
+      choose_agent("copy_reviewer")
+
+      assert_selector "[data-inspector] [data-notice]", text: "Cleared Alias because candidate is not offered for the step's other settings."
+    end
   end
 end

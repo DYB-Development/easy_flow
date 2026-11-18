@@ -61,6 +61,10 @@ module EasyFlow
       assert_equal "done", ended["state"]
     end
 
+    test "shows an End step the run did not end at as pending" do
+      assert_equal "pending", step("end", "draft" => { state: :done })["state"]
+    end
+
     test "places each step after the step that leads to it" do
       assert_operator step("draft")["row"], :>, step("outline")["row"]
     end

@@ -45,6 +45,7 @@ module EasyFlow
 
     def state_of(node, shown)
       return "done" if node.id == @ended_at
+      return "pending" if step_type_for(node)&.ends_here?
       return shown[:state]&.to_s unless step_type_for(node)&.begins_here?
 
       started? ? "done" : "pending"

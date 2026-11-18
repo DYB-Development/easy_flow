@@ -523,5 +523,13 @@ module EasyFlow
     test "draws a step without a summary when the summary its host sets raises an error" do
       assert_nil summarized_by(ask: ->(_node) { raise "the host's summary broke" })["summary"]
     end
+
+    test "gives a step of one of easy_flow's own types the summary its host sets in place of easy_flow's" do
+      host = Host.new(:alembic)
+      host.summaries = { wait: ->(node) { "pauses #{node.config['minutes']}m" } }
+      document = Document.new(flowing("entry" => "w", "nodes" => [ { "id" => "w", "type" => "wait", "step" => "w", "minutes" => 5 } ], "edges" => []))
+
+      assert_equal "pauses 5m", Canvas.new(document, host: host).to_h["nodes"].find { |node| node["id"] == "w" }["summary"]
+    end
   end
 end

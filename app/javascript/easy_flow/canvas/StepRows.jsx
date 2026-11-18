@@ -2,7 +2,7 @@ import React from "react"
 import Joint from "./Joint"
 import { layOut } from "./graph"
 
-const stack = { display: "flex", flexDirection: "column", gap: 14, padding: "64px 0 0" }
+const stack = { display: "flex", flexDirection: "column", gap: 14, padding: "64px 16px 24px" }
 
 const box = { display: "flex", flexDirection: "column", gap: 10, padding: "8px 10px", borderRadius: 8 }
 

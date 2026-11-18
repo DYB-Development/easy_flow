@@ -16,3 +16,7 @@ test("lists under a step each of its connections, by the answer it is taken on a
 
   assert.match(drawn(nodes, edges), /data-step="gate".*true → Write variant.*false → Rejected.*data-step="yes"/)
 })
+
+test("keeps a gutter of 16px at each side of the rows", () => {
+  assert.match(drawn([ step("ask") ], []), /data-flow-rows="true" style="[^"]*padding:64px 16px 24px/)
+})

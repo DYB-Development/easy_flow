@@ -920,5 +920,13 @@ module EasyFlow
 
       assert_nil flow.reload.document["nodes"].find { |node| node["id"] == "w" }["alias"]
     end
+
+    test "saving another agent says which alias it cleared" do
+      agent_on_candidate
+
+      patch "#{canvas_path}/steps/w", params: { config: { agent: "copy_reviewer", alias: "candidate" } }
+
+      assert_equal "Cleared Alias because candidate is not offered for the step's other settings.", response.parsed_body["notice"]
+    end
   end
 end

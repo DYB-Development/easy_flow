@@ -78,12 +78,40 @@ const rowsOf = (ids, forward, columns) => {
   return rows
 }
 
-export const layOut = (nodes, edges) => {
+export const CARD_WIDTH = 184
+export const CARD_HEIGHT = 64
+export const COLUMN_GAP = 136
+export const ROW_GAP = 32
+export const MARGIN = 40
+
+const startsOf = (sizes, gap, from) => {
+  const starts = []
+  sizes.forEach((size, at) => { starts[at] = at === 0 ? from : starts[at - 1] + sizes[at - 1] + gap })
+  return starts
+}
+
+export const layOut = (nodes, edges, { heights = {} } = {}) => {
   const ids = nodes.map((node) => node.id)
   const backward = loopingBack(ids, edges)
   const forward = edges.filter((edge) => !backward.has(edge))
   const columns = columnsOf(ids, forward)
   const rows = rowsOf(ids, forward, columns)
+  const widthOf = () => CARD_WIDTH
+  const heightOf = (id) => heights[id] || CARD_HEIGHT
 
-  return { places: Object.fromEntries(ids.map((id) => [ id, { column: columns.get(id), row: rows.get(id) } ])) }
+  const columnWidths = []
+  const rowHeights = []
+  ids.forEach((id) => {
+    columnWidths[columns.get(id)] = Math.max(columnWidths[columns.get(id)] || 0, widthOf(id))
+    rowHeights[rows.get(id)] = Math.max(rowHeights[rows.get(id)] || 0, heightOf(id))
+  })
+  const lefts = startsOf(columnWidths, COLUMN_GAP, MARGIN)
+  const tops = startsOf(rowHeights, ROW_GAP, MARGIN)
+
+  return {
+    places: Object.fromEntries(ids.map((id) => [ id, {
+      column: columns.get(id), row: rows.get(id),
+      x: lefts[columns.get(id)], y: tops[rows.get(id)], width: widthOf(id), height: heightOf(id)
+    } ]))
+  }
 }

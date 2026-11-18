@@ -27,3 +27,12 @@ test("fans the branches of a step out into separate rows", () => {
 
   assert.notEqual(rowOf(graph, "yes"), rowOf(graph, "no"))
 })
+
+test("puts a step in a lower row below the tallest card in the row above it", () => {
+  const nodes = [ step("start"), step("gate"), step("yes"), step("no") ]
+  const graph = layOut(nodes, [ link("start", "gate"), link("gate", "yes", "true"), link("gate", "no", "false") ], { heights: { start: 140 } })
+  const above = graph.places.yes.row < graph.places.no.row ? "yes" : "no"
+  const below = above === "yes" ? "no" : "yes"
+
+  assert.ok(graph.places[below].y >= graph.places.start.y + 140)
+})

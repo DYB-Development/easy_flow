@@ -573,5 +573,16 @@ module EasyFlow
 
       assert_equal :flows, step_type.settings.fields[:flows]
     end
+
+    def aliased
+      StepType.define(:probe) do
+        setting :agent, type: :string
+        setting :alias, type: :radio_cards, options: ->(config) { config["agent"] == "copy_writer" ? [ { value: "prod", label: "prod → v22" } ] : [ { value: "candidate", label: "candidate → v3" } ] }
+      end
+    end
+
+    test "a radio card setting works out its options from the step's other settings" do
+      assert_equal [ { value: "prod", label: "prod → v22" } ], aliased.settings.choices_for("agent" => "copy_writer")[:alias]
+    end
   end
 end

@@ -24,7 +24,11 @@ module EasyFlow
     end
 
     def choices
-      @choices.transform_values { |offered| offered.respond_to?(:call) ? offered.call : offered }
+      @choices.transform_values { |offered| worked_out(offered) }
+    end
+
+    def choices_for(config)
+      @choices.transform_values { |offered| depends_on_settings?(offered) ? offered.call(config.to_h) : worked_out(offered) }
     end
 
     def kept_values(config)
@@ -70,6 +74,14 @@ module EasyFlow
     end
 
     private
+
+    def worked_out(offered)
+      offered.respond_to?(:call) ? offered.call : offered
+    end
+
+    def depends_on_settings?(offered)
+      offered.respond_to?(:arity) && offered.arity == 1
+    end
 
     def objections_to(name, value)
       [ unoffered(name, value), over_limit(name, value), refused(name, value) ]

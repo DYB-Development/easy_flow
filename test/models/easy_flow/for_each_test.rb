@@ -216,6 +216,12 @@ module EasyFlow
       assert_equal "rescue", digest(rescuing).next_step(ended.transform_keys(&:to_s)).id
     end
 
+    test "stops the run with no next step when a box whose list is not a list has no failed connection" do
+      ended = advanced(drawing, "outline" => { "variants" => "short" })
+
+      assert_nil digest.next_step(ended.transform_keys(&:to_s))
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

@@ -47,8 +47,36 @@ module EasyFlow
       assert_equal({ "type" => "question", "label" => "Outline" }, step("outline").slice("type", "label"))
     end
 
-    test "leaves out the steps a flow starts and ends at" do
-      assert_equal %w[outline draft], drawn["nodes"].map { |node| node["id"] }
+    test "draws the steps a flow starts and ends at" do
+      assert_equal %w[start outline draft end], drawn["nodes"].map { |node| node["id"] }
+    end
+
+    test "shows the Start step as done once any step of the run has left pending" do
+      assert_equal "done", step("start", "outline" => { state: :paused }, "draft" => { state: :pending })["state"]
+    end
+
+    test "shows the End step the run ended at as done" do
+      ended = RunView.new(version, steps: { "draft" => { state: :done } }, ended_at: :end).to_h["nodes"].find { |node| node["id"] == "end" }
+
+      assert_equal "done", ended["state"]
+    end
+
+    test "shows an End step the run did not end at as pending" do
+      assert_equal "pending", step("end", "draft" => { state: :done })["state"]
+    end
+
+    test "gives the Start and End steps no address, since they have no page of their own" do
+      shown = drawn({ "start" => { address: "/runs/1/start" }, "end" => { address: "/runs/1/end" } })["nodes"]
+
+      assert_equal [ nil, nil ], shown.values_at(0, -1).map { |node| node["address"] }
+    end
+
+    test "leaves out the Start and End steps when its host chooses to hide them" do
+      assert_equal %w[outline draft], RunView.new(version, start_and_end: false).to_h["nodes"].map { |node| node["id"] }
+    end
+
+    test "marks the steps a flow starts and ends at, as the editor does" do
+      assert_equal [ [ true, false ], [ false, true ], [ false, false ] ], %w[start end draft].map { |id| step(id).values_at("begins_here", "ends_here") }
     end
 
     test "places each step after the step that leads to it" do

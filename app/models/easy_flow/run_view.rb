@@ -1,9 +1,11 @@
 module EasyFlow
   class RunView
-    def initialize(version, steps: {}, selected: nil, registry: EasyFlow.registry)
+    def initialize(version, steps: {}, selected: nil, ended_at: nil, start_and_end: true, registry: EasyFlow.registry)
       @document = Document.new(version.definition || {}, registry: registry)
       @steps = steps.to_h.transform_keys(&:to_s)
       @selected = selected
+      @ended_at = ended_at&.to_s
+      @start_and_end = start_and_end
       @registry = registry
     end
 
@@ -14,7 +16,7 @@ module EasyFlow
     private
 
     def nodes
-      @document.nodes.reject { |node| bookend?(node) }.map { |node| drawn_step(node) }
+      @document.nodes.reject { |node| hidden?(node) }.map { |node| drawn_step(node) }
     end
 
     def edges
@@ -25,11 +27,6 @@ module EasyFlow
 
     def placed
       @placed ||= Layout.new(@document).positions
-    end
-
-    def bookend?(node)
-      step_type = step_type_for(node)
-      step_type.present? && (step_type.begins_here? || step_type.ends_here?)
     end
 
     def holds(node)
@@ -43,8 +40,29 @@ module EasyFlow
     def drawn_step(node)
       shown = @steps.fetch(node.id, {}).to_h.symbolize_keys
 
-      { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => shown[:state]&.to_s, "status" => shown[:status], "address" => shown[:address], "version" => shown[:version],
-        "holds" => holds(node), **header_of(node), **placed.fetch(node.id, {}) }
+      { "id" => node.id, "type" => node.type, "label" => Name.of(node, @registry), "state" => state_of(node, shown), "status" => shown[:status], "address" => (shown[:address] unless bookend?(node)), "version" => shown[:version],
+        "begins_here" => step_type_for(node)&.begins_here? || false, "ends_here" => step_type_for(node)&.ends_here? || false, "holds" => holds(node), **header_of(node), **placed.fetch(node.id, {}) }
+    end
+
+    def hidden?(node)
+      !@start_and_end && bookend?(node)
+    end
+
+    def bookend?(node)
+      step_type = step_type_for(node)
+      step_type.present? && (step_type.begins_here? || step_type.ends_here?)
+    end
+
+    def state_of(node, shown)
+      return "done" if node.id == @ended_at
+      return "pending" if step_type_for(node)&.ends_here?
+      return shown[:state]&.to_s unless step_type_for(node)&.begins_here?
+
+      started? ? "done" : "pending"
+    end
+
+    def started?
+      @steps.values.map { |shown| shown.to_h.symbolize_keys[:state].to_s }.any? { |state| state.present? && state != "pending" }
     end
 
     def header_of(node)

@@ -2,6 +2,8 @@ class RunViewsController < ApplicationController
   helper KeystoneUiHelper
 
   STEPS = {
+    "review" => { state: :done, status: "answered no" },
+    "gate" => { state: :done, status: "false" },
     "load_brief" => { state: :done, status: "0.3s · $0", version: nil },
     "outline" => { state: :done, status: "8.2s · $0.04", version: "v9" },
     "write_variant" => { state: :done, status: "3/3 · 41s · $0.31", version: "v22" },
@@ -12,6 +14,6 @@ class RunViewsController < ApplicationController
 
   def show
     @version = EasyFlow::Version.find(params[:id])
-    @steps = STEPS.to_h { |id, step| [ id, step.merge(address: "/runs/#{@version.id}?step=#{id}") ] }
+    @steps = @version.definition["nodes"].to_h { |node| [ node["id"], STEPS.fetch(node["id"], {}).merge(address: "/runs/#{@version.id}?step=#{node["id"]}") ] }
   end
 end

@@ -25,7 +25,7 @@ A Rails engine for flows an admin draws on a canvas and a visitor runs one step 
 - `run_address` — private method a `FlowsController` subclass overrides to give the value put in a run's address in place of its id.
 - `find_run` — private method a `FlowsController` subclass overrides to find a run, among the host's own runs, from the value in its address.
 - `EasyFlow::Run` — the stored record of one visitor's pass through a flow, started with `EasyFlow::Run.start` on the live version or a chosen published one and pinned to that version, moved on past a waiting step with `advance`, read for the output its flow ended with by `output`, for the mark of the End it reached by `end_mark`, for whether it ended at an End step by `ended_at_end?`, for the step a loop stopped it at by `stopped_on_loop`, for when each step visit was completed by `completed_at` and for the time a Wait step holds it until by `held_until`, and linked to the runs its Flow steps started by `inner_runs`, to the one it is waiting on by `waiting_on`, and to the run that started it by `parent_run`.
-- `easy_flow_run_view(version, steps:, selected: nil)` — a view helper every view in the app can call, drawing a read-only view of one flow version's steps with the state, status line, version and address the app supplies for each step.
+- `easy_flow_run_view(version, steps:, selected: nil, ended_at: nil, start_and_end: true)` — a view helper every view in the app can call, drawing a read-only view of one flow version's steps with the state, status line, version and address the app supplies for each step, and the Start and End steps unless the app hides them.
 - `EasyFlow::QuestionRunner` — reads a flow document: its steps, the next step for a set of answers and the times their steps were completed, the answers on the path taken, and a question's text and an answer's label.
 
 ## How to use it
@@ -571,7 +571,7 @@ Use this when a visitor's run should stop until a set time has passed, such as a
    <%= easy_flow_run_view(run.definition_version,
          steps: { "outline" => { state: :done, status: "8.2s · $0.04", version: "v9", address: run_step_path(run, "outline") },
                   "human_approve" => { state: :paused, status: "waiting · expires 46h", address: run_step_path(run, "human_approve") } },
-         selected: "outline") %>
+         selected: "outline", ended_at: "published") %>
    ```
 
    - `state` — `:done`, `:paused`, `:pending` or `:failed`, shown on the card's edge. A paused step's edge is thicker than the others. A step with no state or an unknown one is drawn as pending.
@@ -579,8 +579,10 @@ Use this when a visitor's run should stop until a set time has passed, such as a
    - `version` — optional text written after the step's name, such as `v9`.
    - `address` — optional. A card with one is a link to it, and a card without one is not a link.
    - `selected` — the id of one step whose card is ringed in the accent colour, such as the step whose details the page shows.
+   - `ended_at` — optional, the id of the End step the run ended at. That End card is drawn as done, and every other End card as pending. Without it every End card is pending.
+   - `start_and_end` — `true` by default, drawing the Start and End steps. `false` leaves them out, and the graph begins at the first step after Start.
    - Any other keyword is passed to the wrapping element, such as `class:`.
-3. The view lays the steps out left to right whatever the host's `canvas_direction`, as the same graph a left-to-right canvas draws: compact cards in columns by stage, every connection drawn as a line labelled with the answer it is taken on, and a group step's box holding its steps as their own small graph. A flow wider than its box scrolls sideways inside it. On a screen narrower than 640 pixels each step sits on a row of its own with its connections listed under it. The Start and End steps are left out. It has no buttons and nothing on it changes the flow.
+3. The view lays the steps out left to right whatever the host's `canvas_direction`, as the same graph a left-to-right canvas draws: compact cards in columns by stage, every connection drawn as a line labelled with the answer it is taken on, and a group step's box holding its steps as their own small graph. A flow wider than its box scrolls sideways inside it. On a screen narrower than 640 pixels each step sits on a row of its own with its connections listed under it. The Start and End steps are drawn as cards with their name alone, as the editor draws them, with every line into an End step and its branch label. The Start card is done once any step the app supplied has a state other than pending, and pending before that. A Start or End card is never a link, even when the app gives it an address, since neither has a page of its own. On a phone they are listed one per row with the other steps. It has no buttons and nothing on it changes the flow.
 4. Ask the developer what each step's status line says and where each card links. Do not pick.
 
 ### Read a run and its answers

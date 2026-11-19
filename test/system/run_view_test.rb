@@ -21,6 +21,25 @@ module EasyFlow
       ))
     end
 
+    def branching_version
+      Definition.create!(host: "dummy", slug: "branching").record_definition(flowing(
+        "entry" => "review",
+        "nodes" => [ { "id" => "review", "type" => "question", "question" => "Review", "answers" => [ { "value" => "yes" }, { "value" => "no" } ] },
+                     { "id" => "gate", "type" => "condition", "step" => "review", "output" => "answer", "comparison" => "is", "answer" => "yes" },
+                     { "id" => "publish_to_cms", "type" => "question", "question" => "Publish to CMS", "answers" => [ { "value" => "on" } ] },
+                     { "id" => "published", "type" => "terminal" },
+                     { "id" => "rejected", "type" => "terminal" } ],
+        "edges" => [ { "from" => "review", "to" => "gate" }, { "from" => "gate", "to" => "publish_to_cms", "on" => true },
+                     { "from" => "gate", "to" => "rejected", "on" => false }, { "from" => "publish_to_cms", "to" => "published" } ]
+      ))
+    end
+
+    test "a run view shows the End step its run ended at as reached" do
+      visit "/runs/#{branching_version.id}?ended_at=rejected"
+
+      assert_selector "[data-flow-run-view] [data-step='rejected'].border-green-600"
+    end
+
     test "a host page shows the run view of a flow version with each step's state" do
       visit "/runs/#{run_version.id}"
 
@@ -31,6 +50,25 @@ module EasyFlow
       visit "/runs/#{run_version.id}"
 
       assert_selector "[data-flow-run-view] path[data-link^='human_approve-publish_to_cms']", visible: :all
+    end
+
+    test "a run view draws the Start step and the line from it to the first step" do
+      visit "/runs/#{run_version.id}"
+
+      assert_selector "[data-flow-run-view] path[data-link^='start-load_brief']", visible: :all
+    end
+
+    test "a run view draws the line into each End step with its branch label" do
+      visit "/runs/#{branching_version.id}"
+
+      assert_selector "[data-flow-run-view] [data-link-label^='gate-rejected']", text: "false"
+    end
+
+    test "a run view draws the Start and End cards as cards that link nowhere, even when its host gives them an address" do
+      visit "/runs/#{branching_version.id}"
+      find("[data-flow-run-view] a[data-step='review']")
+
+      assert_no_selector "[data-flow-run-view] a[data-step='start'], [data-flow-run-view] a[data-step='rejected']"
     end
 
     def on_a_phone
@@ -50,6 +88,15 @@ module EasyFlow
         find("[data-step='human_approve']")
 
         assert_equal [ [ 16, true ] ] * 3, card_edges("load_brief", "outline", "human_approve")
+      end
+    end
+
+    test "on a phone, the run view lists the Start and End steps one per row with the other steps" do
+      on_a_phone do
+        visit "/runs/#{run_version.id}"
+        find("[data-step='load_brief']")
+
+        assert_equal [ "start", "load_brief", "end" ], all("[data-flow-run-view] [data-step-row]").map { |row| row["data-step-row"] }.values_at(0, 1, -1)
       end
     end
   end

@@ -925,6 +925,29 @@ module EasyFlow
       JS
     end
 
+    def marked
+      @marked ||= Definition.create!(host: "dummy", slug: "canvas-marked").tap do |built|
+        built.record_definition(flowing(
+          "slug" => "canvas-marked", "entry" => "gate",
+          "nodes" => [ { "id" => "gate", "type" => "condition", "step" => "start", "output" => "started", "comparison" => "is", "answer" => "yes" },
+                       { "id" => "published", "type" => "terminal", "mark" => "published after a very long review by every editor on the team" },
+                       { "id" => "rejected", "type" => "terminal" } ],
+          "edges" => [ { "from" => "gate", "to" => "published", "on" => true }, { "from" => "gate", "to" => "rejected", "on" => false } ]
+        ))
+      end
+    end
+
+    def card_size(id)
+      page.evaluate_script(%((() => { const card = document.querySelector("[data-step='#{id}']").getBoundingClientRect(); return [ card.width, card.height ] })()))
+    end
+
+    test "a canvas cuts a long End mark short on one line without widening its card" do
+      canvas_for(marked)
+      find("[data-step='published']", text: "End · published")
+
+      assert_equal card_size("rejected"), card_size("published")
+    end
+
     test "on a phone, a left-to-right canvas shows each step on a row of its own" do
       on_a_phone do
         laid_left_to_right { canvas_for(long_flow) }

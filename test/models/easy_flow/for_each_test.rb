@@ -115,5 +115,11 @@ module EasyFlow
 
       assert_equal({ "items" => ended[:variants]["items"], "passed" => 2, "failed" => 1 }, Inputs.values_of(reading, ended.transform_keys(&:to_s), run: Struct.new(:digest).new(digest(retrying))))
     end
+
+    test "records no items over an empty list and goes on to the step after the box" do
+      ended = advanced(drawing, "outline" => { "variants" => [] })
+
+      assert_equal [ [], "after" ], [ ended[:variants]["items"], digest.next_step(ended.transform_keys(&:to_s)).id ]
+    end
   end
 end

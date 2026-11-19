@@ -189,6 +189,12 @@ module EasyFlow
                    advanced(stopping, outlined.merge("write@item1" => { "result" => "failed" }))[:variants])
     end
 
+    test "ends only the failed item and starts the next one when its rule is continue" do
+      continuing = stopping.merge("nodes" => stopping["nodes"].map { |node| node["id"] == "variants" ? node.merge("on_item_failure" => "continue") : node })
+
+      assert_equal [ "write@item2" ], digest(continuing).ready_steps(outlined.merge("write@item1" => { "result" => "failed" })).map(&:id)
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

@@ -76,7 +76,7 @@ module EasyFlow
     end
 
     def goes_on?(node, state, times = {})
-      acts?(node) || ready?(node, state, times) || decided?(node, state)
+      acts?(node) || @digest.repeats?(node) || ready?(node, state, times) || decided?(node, state)
     end
 
     def allowed(node, state)
@@ -101,6 +101,7 @@ module EasyFlow
 
     def result_of(node, state, run)
       return allowed(node, state).first.to_s if decided?(node, state)
+      return @digest.items_ended(node.id, state) if @digest.repeats?(node)
 
       acts?(node) ? @registry.fetch(node.type).process(node, state, run: run) : true
     end

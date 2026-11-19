@@ -78,6 +78,18 @@ module EasyFlow
       items_of(box, latest_values(state))[visit.item - 1] if box && visit.item
     end
 
+    def items_ended(id, state)
+      box = step(id)
+      ended = items_of(box, latest_values(state)).each_index.map { |index| item_values(box, index + 1, state) }
+      failed = ended.count { |values| values.any? { |held, value| failed?(step(held), state.merge(held => value), {}) } }
+
+      { "result" => failed.zero? ? "passed" : "failed", "items" => ended, "passed" => ended.size - failed, "failed" => failed }
+    end
+
+    def repeats?(node)
+      step_type(node)&.repeats_held_steps? || false
+    end
+
     def next_step(state, times = {})
       walk(state, times)[1]
     end
@@ -217,8 +229,12 @@ module EasyFlow
         .transform_values { |visits| state[visits.max_by(&:visit).to_s] }
     end
 
-    def repeats?(node)
-      step_type(node)&.repeats_held_steps? || false
+    def item_values(box, item, state)
+      visits = state.keys.map { |key| VisitKey.parse(key) }.select { |visit| visit.item == item }
+      Array(box.config["holds"]).filter_map do |held|
+        latest = visits.select { |visit| visit.step == held }.max_by(&:visit)
+        [ held, state[latest.to_s] ] if latest
+      end.to_h
     end
 
     def held_by?(box, node)
@@ -258,7 +274,7 @@ module EasyFlow
     def pending?(node, key, state)
       return false if state.key?(key)
 
-      step_type(node)&.awaits_input? || acts?(node) || step_type(node)&.waits? || false
+      step_type(node)&.awaits_input? || acts?(node) || step_type(node)&.waits? || repeats?(node)
     end
 
     def acts?(node)

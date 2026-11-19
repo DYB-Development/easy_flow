@@ -38,6 +38,12 @@ module EasyFlow
                     "edges" => retried["edges"] + [ { "from" => "write", "to" => "fix", "on" => "failed" }, { "from" => "fix", "to" => "after" } ])
     end
 
+    def advanced(document, state)
+      progress = Class.new(Progress::Loose) { def saved? = true }.new(nil, state, document)
+      Runner.new(document, registry: registry).run(progress)
+      progress.recorded
+    end
+
     def outlined
       { "outline" => { "variants" => %w[short long plain] } }
     end
@@ -89,6 +95,14 @@ module EasyFlow
 
     test "ends an item whose held step ended failed and starts the next item" do
       assert_equal "write@item2", digest(failing).next_step(outlined.merge("write@item1" => { "result" => "failed" })).id
+    end
+
+    test "records its result, each item's reported values and how many items passed and failed once every item has ended" do
+      ended = outlined.merge("write@item1" => { "result" => "passed" }, "write@item2" => { "result" => "failed" }, "write@item3" => { "result" => "passed" })
+
+      assert_equal({ "result" => "failed", "passed" => 2, "failed" => 1,
+                     "items" => [ { "write" => { "result" => "passed" } }, { "write" => { "result" => "failed" } }, { "write" => { "result" => "passed" } } ] },
+                   advanced(retrying, ended)[:variants])
     end
   end
 end

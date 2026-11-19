@@ -178,6 +178,12 @@ module EasyFlow
       assert_equal [ "write@item2@2" ], digest(stopping(concurrency: 2)).ready_steps(running).map(&:id)
     end
 
+    test "leaves the box on the failed held step's failed connection once the running items have ended under the stop rule" do
+      ended = advanced(stopping, outlined.merge("write@item1" => { "result" => "failed" }))
+
+      assert_equal "rescue", digest(stopping).next_step(ended.transform_keys(&:to_s)).id
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

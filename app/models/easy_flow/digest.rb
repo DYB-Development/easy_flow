@@ -2,6 +2,7 @@ module EasyFlow
   class Digest
     Path = Struct.new(:recorded, :latest, :latest_times)
     ItemWalk = Struct.new(:held, :failed_at, :started)
+    ItemsWalk = Struct.new(:ready, :stopped_at)
 
     def initialize(document, registry: EasyFlow.registry)
       @document = document
@@ -165,8 +166,8 @@ module EasyFlow
         visits[cursor.id] += 1
         answers_at_visit[cursor.id] = answered
         key = visit_key(cursor.id, visits[cursor.id])
-        held = repeats?(cursor) ? walk_items(cursor, state, times, Path.new(recorded, latest, latest_times)) : []
-        return [ recorded, held.first, nil, held ] if held.any?
+        items = repeats?(cursor) ? walk_items(cursor, state, times, Path.new(recorded, latest, latest_times)) : ItemsWalk.new([], nil)
+        return [ recorded, items.ready.first, nil, items.ready ] if items.ready.any?
         return [ recorded, cursor.with(id: key), nil, [ cursor.with(id: key) ] ] if pending?(cursor, key, state)
 
         if state.key?(key)
@@ -175,7 +176,7 @@ module EasyFlow
           latest_times[cursor.id] = times[key] if times.key?(key)
           answered += 1 if step_type(cursor)&.awaits_input?
         end
-        cursor = repeats?(cursor) ? box_exit(cursor) : successor(cursor, reached(state, recorded).merge(latest), latest_times)
+        cursor = repeats?(cursor) ? box_exit(cursor, items.stopped_at) : successor(cursor, reached(state, recorded).merge(latest), latest_times)
       end
 
       [ recorded, nil ]
@@ -183,9 +184,10 @@ module EasyFlow
 
     def walk_items(box, state, times, path)
       walked = items_of(box, path.latest).each_index.map { |index| walk_item(box, index + 1, state, times, path) }
-      stopped = stops_on_failure?(box) && walked.any?(&:failed_at)
+      stopped_at = walked.find(&:failed_at)&.failed_at if stops_on_failure?(box)
+      ready = walked.select(&:held).select { |item| item.started || !stopped_at }.first(concurrency_of(box)).map(&:held)
 
-      walked.select(&:held).select { |item| item.started || !stopped }.first(concurrency_of(box)).map(&:held)
+      ItemsWalk.new(ready, stopped_at)
     end
 
     def stops_on_failure?(box)
@@ -262,9 +264,11 @@ module EasyFlow
       entering && @document.node(entering.to)
     end
 
-    def box_exit(box)
+    def box_exit(box, stopped_at)
       held = Array(box.config["holds"])
-      leaving = @document.edges.find { |edge| held.include?(edge.from) && !held.include?(edge.to) && edge.on.to_s != "failed" }
+      leaving = @document.edges.find do |edge|
+        held.include?(edge.from) && !held.include?(edge.to) && (stopped_at ? edge.from == stopped_at.id && edge.on.to_s == "failed" : edge.on.to_s != "failed")
+      end
       leaving && @document.node(leaving.to)
     end
 

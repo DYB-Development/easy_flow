@@ -186,8 +186,15 @@ module EasyFlow
           path.latest[cursor.id] = state[key]
           path.latest_times[cursor.id] = times[key] if times.key?(key)
         end
-        cursor = successor(cursor, reached(state, path.recorded).merge(path.latest), path.latest_times)
+        routed = reached(state, path.recorded).merge(path.latest)
+        return if failed?(cursor, routed, path.latest_times)
+
+        cursor = successor(cursor, routed, path.latest_times)
       end
+    end
+
+    def failed?(node, state, times)
+      step_type(node)&.route(node, state, times).to_s == "failed"
     end
 
     def items_of(box, latest)

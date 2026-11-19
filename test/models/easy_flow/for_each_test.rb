@@ -32,6 +32,12 @@ module EasyFlow
                     "edges" => drawing["edges"].map { |edge| edge["from"] == "write" ? edge.merge("on" => "passed") : edge } + [ { "from" => "write", "to" => "write", "on" => "retry" } ])
     end
 
+    def failing
+      retried = retrying
+      retried.merge("nodes" => retried["nodes"].map { |node| node["id"] == "variants" ? node.merge("holds" => %w[write fix]) : node } + [ { "id" => "fix", "type" => "ask" } ],
+                    "edges" => retried["edges"] + [ { "from" => "write", "to" => "fix", "on" => "failed" }, { "from" => "fix", "to" => "after" } ])
+    end
+
     def outlined
       { "outline" => { "variants" => %w[short long plain] } }
     end
@@ -79,6 +85,10 @@ module EasyFlow
       written = outlined.merge("write@item1" => { "title" => "Short" }, "write@item2" => { "title" => "Long" }, "write@item1@2" => { "title" => "Shorter" })
 
       assert_equal({ "title" => "Long" }, Inputs.values_of(reviewing, written))
+    end
+
+    test "ends an item whose held step ended failed and starts the next item" do
+      assert_equal "write@item2", digest(failing).next_step(outlined.merge("write@item1" => { "result" => "failed" })).id
     end
   end
 end

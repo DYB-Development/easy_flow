@@ -104,5 +104,9 @@ module EasyFlow
                      "items" => [ { "write" => { "result" => "passed" } }, { "write" => { "result" => "failed" } }, { "write" => { "result" => "passed" } } ] },
                    advanced(retrying, ended)[:variants])
     end
+
+    test "offers a later step's inputs its result, items, passed and failed outputs" do
+      assert_equal %w[result items passed failed], digest.outputs_of("variants").map { |output| output["value"] }
+    end
   end
 end

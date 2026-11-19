@@ -10,5 +10,10 @@ module EasyFlow
     setting :list, type: :string
     setting :concurrency, type: :integer
     setting :on_item_failure, type: :select, options: %w[continue stop]
+
+    output :result, values: %w[passed failed]
+    output :items
+    output :passed, type: :integer
+    output :failed, type: :integer
   end
 end

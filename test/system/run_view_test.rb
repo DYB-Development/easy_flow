@@ -122,5 +122,14 @@ module EasyFlow
         assert_equal [ "start", "load_brief", "end" ], all("[data-flow-run-view] [data-step-row]").map { |row| row["data-step-row"] }.values_at(0, 1, -1)
       end
     end
+
+    test "on a phone, the run view cuts a long End mark short on one line without widening its card" do
+      on_a_phone do
+        visit "/runs/#{marked_version.id}"
+        find("[data-flow-run-view] [data-step='published']", text: "End · published")
+
+        assert_equal card_size("rejected"), card_size("published")
+      end
+    end
   end
 end

@@ -55,10 +55,10 @@ module EasyFlow
       Run.start(flow).tap { |run| run.record("outline", outlined["outline"]) }
     end
 
-    test "a for_each step holds steps and offers a list, a concurrency and an item-failure rule" do
+    test "a for_each step holds steps and offers a list, a concurrency, an item-failure rule and an item limit" do
       step_type = ForEach.step_type
 
-      assert_equal [ true, { list: :string, concurrency: :integer, on_item_failure: :select } ], [ step_type.holds_steps?, step_type.settings.fields ]
+      assert_equal [ true, { list: :string, concurrency: :integer, on_item_failure: :select, item_limit: :integer } ], [ step_type.holds_steps?, step_type.settings.fields ]
     end
 
     test "walks its held steps once for each item of the list, one item after another in list order" do

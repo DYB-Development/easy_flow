@@ -100,7 +100,7 @@ module EasyFlow
 
     test "gives a group step its settings and their types for its header line" do
       assert_equal({ "config" => { "list" => "outline.variants", "concurrency" => 3, "holds" => [ "write" ] },
-                     "fields" => { "list" => "string", "concurrency" => "integer", "on_item_failure" => "select" } },
+                     "fields" => { "list" => "string", "concurrency" => "integer", "on_item_failure" => "select", "item_limit" => "integer" } },
                    group.slice("config", "fields"))
     end
 

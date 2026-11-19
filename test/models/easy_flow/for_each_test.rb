@@ -259,6 +259,14 @@ module EasyFlow
       assert_equal %w[write@item1@pass2 write@item2@pass2 write@item3@pass2], reached.map { |state| digest(looping).next_step(state).id }
     end
 
+    test "records a held step retried in the second pass as a further visit of that pass apart from the first pass's visits" do
+      looped = looping.merge("nodes" => looping["nodes"].map { |node| node["id"] == "write" ? node.merge("type" => "reported") : node },
+                             "edges" => looping["edges"].map { |edge| edge["from"] == "write" ? edge.merge("on" => "passed") : edge } + [ { "from" => "write", "to" => "write", "on" => "retry" } ])
+      first_pass = sent_back.merge("write@item1" => { "result" => "retry" }, "write@item1@2" => { "result" => "passed" }, "write@item2" => { "result" => "passed" })
+
+      assert_equal "write@item1@pass2@2", digest(looped).next_step(first_pass.merge("write@item1@pass2" => { "result" => "retry" })).id
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

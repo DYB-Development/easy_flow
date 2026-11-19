@@ -288,6 +288,13 @@ module EasyFlow
       assert_equal({ "items" => [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ], "passed" => 3, "failed" => 0 }, Inputs.values_of(reading, ended, run: Struct.new(:digest).new(digest(looping))))
     end
 
+    test "gives a held step in the second pass the output an earlier held step recorded for the same item in that pass" do
+      reviewing = Node.new(id: "review@item1@pass2", type: "ask", config: { "inputs" => [ { "name" => "title", "step" => "write", "output" => "title" } ] })
+      written = outlined.merge("write@item1" => { "title" => "First" }, "write@item1@pass2" => { "title" => "Second" })
+
+      assert_equal({ "title" => "Second" }, Inputs.values_of(reviewing, written))
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

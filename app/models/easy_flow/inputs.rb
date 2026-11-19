@@ -26,16 +26,16 @@ module EasyFlow
     private_class_method :value_of
 
     def self.latest_output(node, input, state, run)
-      latest_visit = latest_visit_of(input["step"], VisitKey.parse(node.id).item, state)
+      latest_visit = latest_visit_of(input["step"], VisitKey.parse(node.id), state)
       return if unreported?(input, state[latest_visit], run)
 
       CompletedAt.value_of(state, {}, latest_visit, input["output"])
     end
     private_class_method :latest_output
 
-    def self.latest_visit_of(step, item, state)
+    def self.latest_visit_of(step, reader, state)
       visits = state.keys.to_h { |key| [ key, VisitKey.parse(key) ] }.select { |_key, visit| visit.step == step }
-      same_item = visits.select { |_key, visit| visit.item == item }
+      same_item = visits.select { |_key, visit| visit.item == reader.item && visit.pass == reader.pass }
       (same_item.presence || visits.reject { |_key, visit| visit.item }).max_by { |_key, visit| visit.visit }&.first
     end
     private_class_method :latest_visit_of

@@ -31,6 +31,7 @@ module EasyFlow
         EasyFlow::CompareTwoValues.register
         EasyFlow::AllOrAny.register
         EasyFlow::Count.register
+        EasyFlow::ForEach.register
         EasyFlow::ReadData.register
         EasyFlow::WriteData.register
         EasyFlow::Wait.register

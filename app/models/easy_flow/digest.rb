@@ -87,7 +87,8 @@ module EasyFlow
       problem = list_problem(box, latest_values(state))
       return { "result" => "failed", "reason" => problem, "items" => [], "passed" => 0, "failed" => 0 } if problem
 
-      ended = items_of(box, latest_values(state)).each_index.map { |index| item_values(box, index + 1, state) }.reject(&:empty?)
+      pass = VisitKey.parse(id).visit
+      ended = items_of(box, latest_values(state)).each_index.map { |index| item_values(box, index + 1, pass, state) }.reject(&:empty?)
       failed = ended.count { |values| values.any? { |held, value| failed?(step(held), state.merge(held => value), {}) } }
 
       { "result" => failed.zero? ? "passed" : "failed", "items" => ended, "passed" => ended.size - failed, "failed" => failed }
@@ -273,8 +274,8 @@ module EasyFlow
         .transform_values { |visits| state[visits.max_by(&:visit).to_s] }
     end
 
-    def item_values(box, item, state)
-      visits = state.keys.map { |key| VisitKey.parse(key) }.select { |visit| visit.item == item }
+    def item_values(box, item, pass, state)
+      visits = state.keys.map { |key| VisitKey.parse(key) }.select { |visit| visit.item == item && visit.pass == pass }
       Array(box.config["holds"]).filter_map do |held|
         latest = visits.select { |visit| visit.step == held }.max_by(&:visit)
         [ held, state[latest.to_s] ] if latest

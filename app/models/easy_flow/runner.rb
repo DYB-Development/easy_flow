@@ -30,7 +30,7 @@ module EasyFlow
 
     def run(progress)
       while (node = going_on(progress))
-        progress.record(node.id, result_of(@digest.step(node.id), named(progress.recorded), progress.run))
+        progress.record(node.id, result_of(node, named(progress.recorded), progress.run))
       end
       waiting = @digest.next_step(named(progress.recorded), named(progress.completed_at))
       progress.start_inner(waiting) if waiting && starts_a_flow?(waiting)
@@ -111,9 +111,10 @@ module EasyFlow
       @registry.registered?(node.type) && @registry.fetch(node.type).waits? && @registry.fetch(node.type).ready?(node, state, times)
     end
 
-    def result_of(node, state, run)
+    def result_of(visited, state, run)
+      node = @digest.step(visited.id)
       return allowed(node, state).first.to_s if decided?(node, state)
-      return @digest.items_ended(node.id, state) if @digest.repeats?(node)
+      return @digest.items_ended(visited.id, state) if @digest.repeats?(node)
 
       acts?(node) ? @registry.fetch(node.type).process(node, state, run: run) : true
     end

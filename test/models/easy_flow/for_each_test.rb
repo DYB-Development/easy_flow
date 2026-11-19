@@ -267,6 +267,14 @@ module EasyFlow
       assert_equal "write@item1@pass2@2", digest(looped).next_step(first_pass.merge("write@item1@pass2" => { "result" => "retry" })).id
     end
 
+    def second_pass_written
+      sent_back.merge("write@item1@pass2" => "x", "write@item2@pass2" => "y", "write@item3@pass2" => "z")
+    end
+
+    test "records the second pass's items under the for_each step's second visit" do
+      assert_equal [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ], advanced(looping, second_pass_written)[:"variants@2"]["items"]
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

@@ -72,6 +72,12 @@ module EasyFlow
       step_type(node)&.settings&.requirements_for(node.config).to_a
     end
 
+    def item_value(key, state)
+      visit = VisitKey.parse(key)
+      box = holder_of(visit.step)
+      items_of(box, latest_values(state))[visit.item - 1] if box && visit.item
+    end
+
     def next_step(state, times = {})
       walk(state, times)[1]
     end
@@ -192,7 +198,16 @@ module EasyFlow
     end
 
     def item_key(id, item, visit)
-      [ id, "item#{item}", (visit if visit > 1) ].compact.join("@")
+      VisitKey.new(step: id, item: item, visit: visit).to_s
+    end
+
+    def holder_of(id)
+      steps.find { |node| repeats?(node) && Array(node.config["holds"]).include?(id) }
+    end
+
+    def latest_values(state)
+      state.keys.map { |key| VisitKey.parse(key) }.reject(&:item).group_by(&:step)
+        .transform_values { |visits| state[visits.max_by(&:visit).to_s] }
     end
 
     def repeats?(node)

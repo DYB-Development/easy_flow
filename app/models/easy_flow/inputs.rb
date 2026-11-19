@@ -9,15 +9,17 @@ module EasyFlow
         setting :step, type: :previous_step, label: "Earlier step"
         setting :output, outputs_of: :step, label: "Earlier step's output"
         setting :from_run_owner, type: :boolean, label: "The run's owner"
+        setting :current_item, type: :boolean, label: "The current item"
       end
     end
 
     def self.values_of(node, state, run: nil)
-      Array(node.config["inputs"]).to_h { |input| [ input["name"], value_of(input, state, run) ] }
+      Array(node.config["inputs"]).to_h { |input| [ input["name"], value_of(node, input, state, run) ] }
     end
 
-    def self.value_of(input, state, run)
+    def self.value_of(node, input, state, run)
       return run&.owner_id if input["from_run_owner"]
+      return run&.digest&.item_value(node.id, state) if input["current_item"]
 
       input["step"].present? ? latest_output(input, state, run) : input["value"]
     end

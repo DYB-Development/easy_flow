@@ -67,5 +67,11 @@ module EasyFlow
 
       assert_equal %w[write@item1@2 write@item2], reached.map { |state| digest(retrying).next_step(state).id }
     end
+
+    test "gives a held step's input naming the current item that item's value from the list" do
+      writing = Node.new(id: "write@item2", type: "ask", config: { "inputs" => [ { "name" => "variant", "current_item" => true } ] })
+
+      assert_equal({ "variant" => "long" }, Inputs.values_of(writing, outlined, run: Struct.new(:digest).new(digest)))
+    end
   end
 end

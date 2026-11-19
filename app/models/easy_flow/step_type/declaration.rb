@@ -103,6 +103,10 @@ module EasyFlow
         @holds_steps = true
       end
 
+      def repeats_held_steps_for(setting)
+        @repeats_held_steps_for = setting
+      end
+
       def chooses_flow_from_run(&chooser)
         @run_chooser = chooser
       end
@@ -179,7 +183,7 @@ module EasyFlow
 
       def to_step_type
         StepType.new(id: @id, step_name: @step_name, settings: settings, awaits_input: @awaits_input,
-          ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, plays_the_picked_flow: @plays_the_picked_flow, holds_steps: @holds_steps, flow_chooser: @flow_chooser, run_chooser: @run_chooser, behaviour: @behaviour, routing: @routing,
+          ends_here: @ends_here, begins_here: @begins_here, starts_a_flow: @starts_a_flow, plays_the_picked_flow: @plays_the_picked_flow, holds_steps: @holds_steps, repeats_held_steps_for: @repeats_held_steps_for, flow_chooser: @flow_chooser, run_chooser: @run_chooser, behaviour: @behaviour, routing: @routing,
           display: @display, drawn_by: @drawn_by, naming_field: @naming_field, naming: @naming, summarizing: @summarizing, details: @details, linking: @linking,
           outputs: @declared_outputs, outputs_named_by: @outputs_named_by, answer_check: @answer_check, answer_labelling: @answer_labelling, readiness: @readiness, return_rule: @return_rule, unsaved_refusal: @unsaved_refusal)
       end

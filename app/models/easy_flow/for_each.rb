@@ -5,6 +5,7 @@ module EasyFlow
     step_name "For each"
 
     holds_steps
+    repeats_held_steps_for :list
 
     setting :list, type: :string
     setting :concurrency, type: :integer

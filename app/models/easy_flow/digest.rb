@@ -136,6 +136,8 @@ module EasyFlow
         visits[cursor.id] += 1
         answers_at_visit[cursor.id] = answered
         key = visit_key(cursor.id, visits[cursor.id])
+        held = repeats?(cursor) && walk_items(cursor, state, times, Path.new(recorded, latest, latest_times))
+        return [ recorded, held ] if held
         return [ recorded, cursor.with(id: key) ] if pending?(cursor, key, state)
 
         if state.key?(key)
@@ -144,10 +146,72 @@ module EasyFlow
           latest_times[cursor.id] = times[key] if times.key?(key)
           answered += 1 if step_type(cursor)&.awaits_input?
         end
-        cursor = successor(cursor, reached(state, recorded).merge(latest), latest_times)
+        cursor = repeats?(cursor) ? box_exit(cursor) : successor(cursor, reached(state, recorded).merge(latest), latest_times)
       end
 
       [ recorded, nil ]
+    end
+
+    Path = Struct.new(:recorded, :latest, :latest_times)
+
+    def walk_items(box, state, times, path)
+      items_of(box, path.latest).each_index do |index|
+        held = walk_item(box, index + 1, state, times, path)
+        return held if held
+      end
+      nil
+    end
+
+    def walk_item(box, item, state, times, path)
+      visits = Hash.new(0)
+      recorded_at_visit = {}
+      cursor = first_held(box)
+
+      while cursor && held_by?(box, cursor)
+        return if visits[cursor.id].positive? && recorded_at_visit[cursor.id] == path.recorded.size
+
+        visits[cursor.id] += 1
+        recorded_at_visit[cursor.id] = path.recorded.size
+        key = item_key(cursor.id, item, visits[cursor.id])
+        return cursor.with(id: key) if pending?(cursor, key, state)
+
+        if state.key?(key)
+          path.recorded << key
+          path.latest[cursor.id] = state[key]
+          path.latest_times[cursor.id] = times[key] if times.key?(key)
+        end
+        cursor = successor(cursor, reached(state, path.recorded).merge(path.latest), path.latest_times)
+      end
+    end
+
+    def items_of(box, latest)
+      step_id, output = step_type(box).list_named_by(box).split(".", 2)
+      listed = latest[step_id]
+      listed = listed[output] if listed.is_a?(Hash) && output
+      listed.is_a?(Array) ? listed : []
+    end
+
+    def item_key(id, item, visit)
+      [ id, "item#{item}", (visit if visit > 1) ].compact.join("@")
+    end
+
+    def repeats?(node)
+      step_type(node)&.repeats_held_steps? || false
+    end
+
+    def held_by?(box, node)
+      Array(box.config["holds"]).include?(node.id)
+    end
+
+    def first_held(box)
+      entering = @document.edges_from(box.id).first
+      entering && @document.node(entering.to)
+    end
+
+    def box_exit(box)
+      held = Array(box.config["holds"])
+      leaving = @document.edges.find { |edge| held.include?(edge.from) && !held.include?(edge.to) && edge.on.to_s != "failed" }
+      leaving && @document.node(leaving.to)
     end
 
     def reached(state, recorded)

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.54.0] - 2026-11-19
+
+### Added
+
+- A For each step runs the steps its box holds once per item of a list an earlier step recorded, records each held step's visit under its item number, gives held steps the current item and the same item's earlier outputs as inputs, and records its result, items and passed and failed counts once every item has ended.
+
 ## [0.53.0] - 2026-11-18
 
 ### Added

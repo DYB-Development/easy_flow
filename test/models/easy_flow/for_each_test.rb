@@ -206,6 +206,16 @@ module EasyFlow
       assert_equal [ "The list outline.variants is text, not a list.", "The list outline.variants is a number, not a list.", "The list outline.variants is a hash, not a list." ], reasons
     end
 
+    def rescuing
+      drawing.merge("nodes" => drawing["nodes"] + [ { "id" => "rescue", "type" => "ask" } ], "edges" => drawing["edges"] + [ { "from" => "write", "to" => "rescue", "on" => "failed" } ])
+    end
+
+    test "leaves on the box's failed connection when its list is not a list" do
+      ended = advanced(rescuing, "outline" => { "variants" => "short" })
+
+      assert_equal "rescue", digest(rescuing).next_step(ended.transform_keys(&:to_s)).id
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

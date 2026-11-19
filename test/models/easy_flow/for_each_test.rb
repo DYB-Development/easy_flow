@@ -281,6 +281,13 @@ module EasyFlow
       assert_equal [ [ { "write" => "a" }, { "write" => "b" } ], [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ] ], ended.values_at(:variants, :"variants@2").map { |result| result["items"] }
     end
 
+    test "gives a step after the box the items, passed and failed outputs of the latest pass" do
+      ended = advanced(looping, second_pass_written).transform_keys(&:to_s)
+      reading = Node.new(id: "after", type: "ask", config: { "inputs" => %w[items passed failed].map { |output| { "name" => output, "step" => "variants", "output" => output } } })
+
+      assert_equal({ "items" => [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ], "passed" => 3, "failed" => 0 }, Inputs.values_of(reading, ended, run: Struct.new(:digest).new(digest(looping))))
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

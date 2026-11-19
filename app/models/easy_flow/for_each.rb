@@ -2,6 +2,8 @@ module EasyFlow
   class ForEach
     include Step
 
+    ITEM_LIMIT = 100
+
     step_name "For each"
 
     holds_steps

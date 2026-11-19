@@ -222,6 +222,15 @@ module EasyFlow
       assert_nil digest.next_step(ended.transform_keys(&:to_s))
     end
 
+    def limited(limit)
+      drawing.merge("nodes" => drawing["nodes"].map { |node| node["id"] == "variants" ? node.merge("item_limit" => limit) : node })
+    end
+
+    test "records a failed result naming the limit and starts no item when the list is longer than the step's limit" do
+      assert_equal({ "result" => "failed", "reason" => "The list outline.variants holds 3 items, more than the limit of 2.", "items" => [], "passed" => 0, "failed" => 0 },
+                   advanced(limited(2), outlined)[:variants])
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

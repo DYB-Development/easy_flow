@@ -235,8 +235,7 @@ module EasyFlow
     end
 
     def items_of(box, latest)
-      listed = listed_value(box, latest)
-      listed.is_a?(Array) ? listed : []
+      list_problem(box, latest) ? [] : listed_value(box, latest)
     end
 
     def listed_value(box, latest)
@@ -251,7 +250,13 @@ module EasyFlow
       listed = listed_value(box, latest)
       return "The step #{step_id} recorded no value under #{output}." if listed.nil?
 
-      "The list #{named} is #{kind_of_value(listed)}, not a list." unless listed.is_a?(Array)
+      return "The list #{named} is #{kind_of_value(listed)}, not a list." unless listed.is_a?(Array)
+
+      "The list #{named} holds #{listed.size} items, more than the limit of #{item_limit_of(box)}." if listed.size > item_limit_of(box)
+    end
+
+    def item_limit_of(box)
+      box.config["item_limit"].presence&.to_i || ForEach::ITEM_LIMIT
     end
 
     def kind_of_value(value)

@@ -84,6 +84,9 @@ module EasyFlow
 
     def items_ended(id, state)
       box = step(id)
+      problem = list_problem(box, latest_values(state))
+      return { "result" => "failed", "reason" => problem, "items" => [], "passed" => 0, "failed" => 0 } if problem
+
       ended = items_of(box, latest_values(state)).each_index.map { |index| item_values(box, index + 1, state) }.reject(&:empty?)
       failed = ended.count { |values| values.any? { |held, value| failed?(step(held), state.merge(held => value), {}) } }
 
@@ -232,10 +235,19 @@ module EasyFlow
     end
 
     def items_of(box, latest)
+      listed = listed_value(box, latest)
+      listed.is_a?(Array) ? listed : []
+    end
+
+    def listed_value(box, latest)
       step_id, output = step_type(box).list_named_by(box).split(".", 2)
       listed = latest[step_id]
-      listed = listed[output] if listed.is_a?(Hash) && output
-      listed.is_a?(Array) ? listed : []
+      listed.is_a?(Hash) && output ? listed[output] : listed
+    end
+
+    def list_problem(box, latest)
+      step_id, output = step_type(box).list_named_by(box).split(".", 2)
+      "The step #{step_id} recorded no value under #{output}." if listed_value(box, latest).nil?
     end
 
     def item_key(id, item, visit)

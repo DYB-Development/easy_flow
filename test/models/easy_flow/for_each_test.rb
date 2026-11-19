@@ -195,6 +195,11 @@ module EasyFlow
       assert_equal [ "write@item2" ], digest(continuing).ready_steps(outlined.merge("write@item1" => { "result" => "failed" })).map(&:id)
     end
 
+    test "records a failed result naming the step and output when the earlier step recorded no value under the named output" do
+      assert_equal({ "result" => "failed", "reason" => "The step outline recorded no value under variants.", "items" => [], "passed" => 0, "failed" => 0 },
+                   advanced(drawing, "outline" => { "titles" => %w[a b] })[:variants])
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

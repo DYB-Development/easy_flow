@@ -134,6 +134,10 @@ module EasyFlow
       assert_equal %w[write@item1 write@item2 write@item3], digest(concurrent).ready_steps(five_outlined).map(&:id)
     end
 
+    test "names the first held step of the next item as ready once one of the ready items ends" do
+      assert_equal %w[write@item1 write@item3 write@item4], digest(concurrent).ready_steps(five_outlined.merge("write@item2" => "b")).map(&:id)
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

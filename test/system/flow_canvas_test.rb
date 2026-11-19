@@ -948,6 +948,15 @@ module EasyFlow
       assert_equal card_size("rejected"), card_size("published")
     end
 
+    test "on a phone, a left-to-right canvas cuts a long End mark short on one line without widening its card" do
+      on_a_phone do
+        laid_left_to_right { canvas_for(marked) }
+        find("[data-step='published']", text: "End · published")
+
+        assert_equal card_size("rejected"), card_size("published")
+      end
+    end
+
     test "on a phone, a left-to-right canvas shows each step on a row of its own" do
       on_a_phone do
         laid_left_to_right { canvas_for(long_flow) }

@@ -592,20 +592,26 @@ Use this when a visitor's run should stop until a set time has passed, such as a
 1. Ask the developer which earlier step records the list, and under which of its outputs. The list must be recorded as an array, such as `{ "variants" => ["short", "long"] }`.
 2. On the canvas, place a For each step and fill in its settings:
    - `List` — the earlier step and its output as text, `<step>.<output>`, such as `outline.variants`, or the step id alone when it records the array as its plain value.
-   - `Concurrency` — how many items may run at the same time. It is saved and shown in the box's header, and items still run one after another.
-   - `On item failure` — `continue` or `stop`. It is saved and shown in the box's header, and a failed item still lets the next item start.
+   - `Concurrency` — how many items may be unfinished at the same time. With none set, items run one at a time.
+   - `On item failure` — `continue` or `stop`. Under `continue` a failed item ends only that item. Under `stop` no item starts after an item has failed, the items already running are allowed to end, and the run then leaves on the `failed` connection of the held step that failed.
+   - `Most items` — stored as `item_limit`, the most items the list may hold. With none set, the limit is 100.
 3. Drag the steps to run per item into the box. Connect the For each step to the first held step, connect the held steps to each other, and connect the last held step to the step after the box.
 4. Publish the flow set to save each step. A For each step reached in a flow set to save on finish or to save nothing shows the visitor `Steps can only be run for each item in a flow that saves its runs.` and goes no further, at the For each step or at any step it holds.
 5. What then holds when a stored run reaches the For each step:
-   - The run walks the held steps for item 1, then item 2, and so on in list order, one item at a time.
+   - The run starts items in list order and keeps no more than `concurrency` of them unfinished at once. An item counts as running once one of its held steps has a recorded visit.
    - Each visit of a held step is recorded under `<step>@item<n>`, counting items from 1, such as `write@item2`. A held step visited again inside one item, such as after a `retry` connection back to itself, is recorded as `<step>@item<n>@<visit>`, such as `write@item2@2`, and other items' visits are left as they were.
-   - `run.next_step(run.recorded)` returns the held step to run next with that key as its `id`, so the app records its value with `run.record(step.id, value)` and reads its inputs with `EasyFlow::Inputs.values_of(step, run.recorded.stringify_keys, run: run)`.
+   - `run.next_step(run.recorded)` returns one held step to run next with that key as its `id`, so the app records its value with `run.record(step.id, value)` and reads its inputs with `EasyFlow::Inputs.values_of(step, run.recorded.stringify_keys, run: run)`.
+   - `run.ready_steps` returns every step that may run now: the next held step of each unfinished item, up to `concurrency` of them, and outside a For each step the next step alone. An app that hands out several steps at once reads this list, and an app that reads only `next_step` keeps working one item at a time. `run.advance` runs every acting step among them.
    - An item ends when its walk leaves the box, or when a held step's `route` returns `"failed"`, and the next item starts.
-   - Once every item has ended, `run.advance` records the For each step's own value under its id: `result` is `"passed"` when no item failed and `"failed"` otherwise, `items` is an array with one hash per item mapping each held step it reached to that step's latest value for the item, and `passed` and `failed` count the items.
-   - A list that is missing, is not an array or is empty runs no items, records `items` as `[]`, and the run goes on to the step after the box.
+   - Once every item has ended, `run.advance` records the For each step's own value under its id: `result` is `"passed"` when no item failed and `"failed"` otherwise, `items` is an array with one hash per item that ran mapping each held step it reached to that step's latest value for the item, and `passed` and `failed` count the items.
+   - An empty list runs no items, records `items` as `[]`, and the run goes on to the step after the box.
+   - A list that is missing, is not an array, or holds more items than the limit starts no item and records `{ "result" => "failed", "reason" => ..., "items" => [], "passed" => 0, "failed" => 0 }`. The reason names the step and output, the value's kind (text, a number or a hash), or the limit. The run then leaves on a `failed` connection leaving the box from a held step, and with none it stops there, as after any failed step with no `failed` connection.
+   - A run that reaches the For each step again, through a later step looping back, runs the held steps again for each item of the list as it stands then. The second pass's visits are keyed `<step>@item<n>@pass2`, or `<step>@item<n>@pass2@<visit>` for a further visit, and the first pass's keys carry no pass. Each pass's outputs are recorded under the For each step's own visit, such as `variants` and `variants@2`, and a step after the box reads the latest pass.
    - A step after the box reads `result`, `items`, `passed` or `failed` through an input naming the For each step and that output.
 
    ```ruby
+   run.ready_steps.map(&:id)
+   # => ["write@item2", "write@item3", "write@item4"]
    step = run.next_step(run.recorded)
    step.id
    # => "write@item2"
@@ -683,7 +689,7 @@ Use this when a visitor's run should stop until a set time has passed, such as a
 - A run starts only on a version its own flow has published and not retired or withdrawn, and any other version raises `ActiveRecord::RecordInvalid`.
 - Always read a run against `run.pinned_definition`, never the flow's live version, since a run keeps the version it started on after a new one is published.
 - Always look flows and runs up through a host.
-- In a flow that loops, a later visit's answer is keyed `<id>@<n>`, and a step held by a For each step is keyed `<id>@item<n>` or `<id>@item<n>@<visit>`, so code that reads answers never assumes one answer per step id, and takes the part of a key before the first `@` to find its step.
+- In a flow that loops, a later visit's answer is keyed `<id>@<n>`, and a step held by a For each step is keyed `<id>@item<n>`, `<id>@item<n>@<visit>`, or with `@pass<n>` after the item on a later pass, so code that reads answers never assumes one answer per step id, and takes the part of a key before the first `@` to find its step.
 - A Count step and any code that reads every visit of a step together count a held step's visits across all items. A step id may not contain `@`, and a flow with one is refused when published.
 - A loop that comes back to a step with no answer given since the last visit to it ends the flow there and `run.stopped_on_loop` names that step, so every loop needs a step that awaits input.
 - `run.ended_at_end?` is `true` only for a run whose last step reached is of an `ends_here` type, so a run a loop stopped, or one that ended at a step with no connection to follow, is never counted as ended at an End step.

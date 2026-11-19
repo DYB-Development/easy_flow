@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.55.0] - 2026-11-19
+
+### Added
+
+- A For each step keeps up to its concurrency of items unfinished at once, and `run.ready_steps` names every step that may run now while `run.next_step` still names one, can stop starting items after one fails under its `stop` rule, fails with a reason when its list is missing, is not a list, or holds more than its item limit of 100 unless set, and runs its items again as a new pass keyed `@pass<n>` when a run reaches it a second time.
+
 ## [0.54.0] - 2026-11-19
 
 ### Added

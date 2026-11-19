@@ -1,6 +1,8 @@
 module EasyFlow
   class Digest
     Path = Struct.new(:recorded, :latest, :latest_times)
+    ItemWalk = Struct.new(:held, :failed_at, :started)
+    ItemsWalk = Struct.new(:ready, :stopped_at, :problem)
 
     def initialize(document, registry: EasyFlow.registry)
       @document = document
@@ -82,7 +84,11 @@ module EasyFlow
 
     def items_ended(id, state)
       box = step(id)
-      ended = items_of(box, latest_values(state)).each_index.map { |index| item_values(box, index + 1, state) }
+      problem = list_problem(box, latest_values(state))
+      return { "result" => "failed", "reason" => problem, "items" => [], "passed" => 0, "failed" => 0 } if problem
+
+      pass = VisitKey.parse(id).visit
+      ended = items_of(box, latest_values(state)).each_index.map { |index| item_values(box, index + 1, pass, state) }.reject(&:empty?)
       failed = ended.count { |values| values.any? { |held, value| failed?(step(held), state.merge(held => value), {}) } }
 
       { "result" => failed.zero? ? "passed" : "failed", "items" => ended, "passed" => ended.size - failed, "failed" => failed }
@@ -98,6 +104,10 @@ module EasyFlow
 
     def next_step(state, times = {})
       walk(state, times)[1]
+    end
+
+    def ready_steps(state, times = {})
+      walk(state, times)[3].to_a
     end
 
     def output(state, times = {})
@@ -160,9 +170,9 @@ module EasyFlow
         visits[cursor.id] += 1
         answers_at_visit[cursor.id] = answered
         key = visit_key(cursor.id, visits[cursor.id])
-        held = repeats?(cursor) && walk_items(cursor, state, times, Path.new(recorded, latest, latest_times))
-        return [ recorded, held ] if held
-        return [ recorded, cursor.with(id: key) ] if pending?(cursor, key, state)
+        items = repeats?(cursor) ? walk_items(cursor, visits[cursor.id], state, times, Path.new(recorded, latest, latest_times)) : ItemsWalk.new([], nil, nil)
+        return [ recorded, items.ready.first, nil, items.ready ] if items.ready.any? && !state.key?(key)
+        return [ recorded, cursor.with(id: key), nil, [ cursor.with(id: key) ] ] if pending?(cursor, key, state)
 
         if state.key?(key)
           recorded << key
@@ -170,18 +180,26 @@ module EasyFlow
           latest_times[cursor.id] = times[key] if times.key?(key)
           answered += 1 if step_type(cursor)&.awaits_input?
         end
-        cursor = repeats?(cursor) ? box_exit(cursor) : successor(cursor, reached(state, recorded).merge(latest), latest_times)
+        cursor = repeats?(cursor) ? box_exit(cursor, items) : successor(cursor, reached(state, recorded).merge(latest), latest_times)
       end
 
       [ recorded, nil ]
     end
 
-    def walk_items(box, state, times, path)
-      items_of(box, path.latest).each_index do |index|
-        held = walk_item(box, index + 1, state, times, path)
-        return held if held
-      end
-      nil
+    def walk_items(box, pass, state, times, path)
+      walked = items_of(box, path.latest).each_index.map { |index| walk_item(box, VisitKey.new(step: box.id, item: index + 1, pass: pass), state, times, path) }
+      stopped_at = walked.find(&:failed_at)&.failed_at if stops_on_failure?(box)
+      ready = walked.select(&:held).select { |item| item.started || !stopped_at }.first(concurrency_of(box)).map(&:held)
+
+      ItemsWalk.new(ready, stopped_at, list_problem(box, path.latest))
+    end
+
+    def stops_on_failure?(box)
+      box.config["on_item_failure"].to_s == "stop"
+    end
+
+    def concurrency_of(box)
+      [ box.config["concurrency"].to_i, 1 ].max
     end
 
     def walk_item(box, item, state, times, path)
@@ -189,24 +207,28 @@ module EasyFlow
       recorded_at_visit = {}
       cursor = first_held(box)
 
+      started = false
+
       while cursor && held_by?(box, cursor)
-        return if visits[cursor.id].positive? && recorded_at_visit[cursor.id] == path.recorded.size
+        return ItemWalk.new(nil, nil, started) if visits[cursor.id].positive? && recorded_at_visit[cursor.id] == path.recorded.size
 
         visits[cursor.id] += 1
         recorded_at_visit[cursor.id] = path.recorded.size
-        key = item_key(cursor.id, item, visits[cursor.id])
-        return cursor.with(id: key) if pending?(cursor, key, state)
+        key = item.with(step: cursor.id, visit: visits[cursor.id]).to_s
+        return ItemWalk.new(cursor.with(id: key), nil, started) if pending?(cursor, key, state)
 
         if state.key?(key)
+          started = true
           path.recorded << key
           path.latest[cursor.id] = state[key]
           path.latest_times[cursor.id] = times[key] if times.key?(key)
         end
         routed = reached(state, path.recorded).merge(path.latest)
-        return if failed?(cursor, routed, path.latest_times)
+        return ItemWalk.new(nil, cursor, started) if failed?(cursor, routed, path.latest_times)
 
         cursor = successor(cursor, routed, path.latest_times)
       end
+      ItemWalk.new(nil, nil, started)
     end
 
     def failed?(node, state, times)
@@ -214,14 +236,37 @@ module EasyFlow
     end
 
     def items_of(box, latest)
-      step_id, output = step_type(box).list_named_by(box).split(".", 2)
-      listed = latest[step_id]
-      listed = listed[output] if listed.is_a?(Hash) && output
-      listed.is_a?(Array) ? listed : []
+      list_problem(box, latest) ? [] : listed_value(box, latest)
     end
 
-    def item_key(id, item, visit)
-      VisitKey.new(step: id, item: item, visit: visit).to_s
+    def listed_value(box, latest)
+      step_id, output = step_type(box).list_named_by(box).split(".", 2)
+      listed = latest[step_id]
+      listed.is_a?(Hash) && output ? listed[output] : listed
+    end
+
+    def list_problem(box, latest)
+      named = step_type(box).list_named_by(box)
+      step_id, output = named.split(".", 2)
+      listed = listed_value(box, latest)
+      return "The step #{step_id} recorded no value#{" under #{output}" if output}." if listed.nil?
+
+      return "The list #{named} is #{kind_of_value(listed)}, not a list." unless listed.is_a?(Array)
+
+      "The list #{named} holds #{listed.size} items, more than the limit of #{item_limit_of(box)}." if listed.size > item_limit_of(box)
+    end
+
+    def item_limit_of(box)
+      box.config["item_limit"].presence&.to_i || ForEach::ITEM_LIMIT
+    end
+
+    def kind_of_value(value)
+      case value
+      when String then "text"
+      when Numeric then "a number"
+      when Hash then "a hash"
+      else "true or false"
+      end
     end
 
     def latest_values(state)
@@ -229,8 +274,8 @@ module EasyFlow
         .transform_values { |visits| state[visits.max_by(&:visit).to_s] }
     end
 
-    def item_values(box, item, state)
-      visits = state.keys.map { |key| VisitKey.parse(key) }.select { |visit| visit.item == item }
+    def item_values(box, item, pass, state)
+      visits = state.keys.map { |key| VisitKey.parse(key) }.select { |visit| visit.item == item && visit.pass == pass }
       Array(box.config["holds"]).filter_map do |held|
         latest = visits.select { |visit| visit.step == held }.max_by(&:visit)
         [ held, state[latest.to_s] ] if latest
@@ -246,9 +291,13 @@ module EasyFlow
       entering && @document.node(entering.to)
     end
 
-    def box_exit(box)
+    def box_exit(box, items)
       held = Array(box.config["holds"])
-      leaving = @document.edges.find { |edge| held.include?(edge.from) && !held.include?(edge.to) && edge.on.to_s != "failed" }
+      leaving = @document.edges.select { |edge| held.include?(edge.from) && !held.include?(edge.to) }.find do |edge|
+        next edge.from == items.stopped_at.id && edge.on.to_s == "failed" if items.stopped_at
+
+        items.problem ? edge.on.to_s == "failed" : edge.on.to_s != "failed"
+      end
       leaving && @document.node(leaving.to)
     end
 

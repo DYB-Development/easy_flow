@@ -40,6 +40,10 @@ module EasyFlow
       digest.next_step(state.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
     end
 
+    def ready_steps(state = recorded)
+      digest.ready_steps(state.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
+    end
+
     def ended_at_end?
       digest.ended_at_end?(recorded.transform_keys(&:to_s), completed_at.transform_keys(&:to_s))
     end

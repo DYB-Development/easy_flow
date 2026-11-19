@@ -7,6 +7,7 @@ module EasyFlow
         built.register(Start.step_type)
         built.register(ForEach.step_type)
         built.register(StepType.define(:ask) { awaits_input })
+        built.register(StepType.define(:stamp) { process { |node, _state| "stamped #{node.id}" } })
         built.register(StepType.define(:reported) do
           awaits_input
           output :result, values: %w[passed failed retry]
@@ -54,10 +55,10 @@ module EasyFlow
       Run.start(flow).tap { |run| run.record("outline", outlined["outline"]) }
     end
 
-    test "a for_each step holds steps and offers a list, a concurrency and an item-failure rule" do
+    test "a for_each step holds steps and offers a list, a concurrency, an item-failure rule and an item limit" do
       step_type = ForEach.step_type
 
-      assert_equal [ true, { list: :string, concurrency: :integer, on_item_failure: :select } ], [ step_type.holds_steps?, step_type.settings.fields ]
+      assert_equal [ true, { list: :string, concurrency: :integer, on_item_failure: :select, item_limit: :integer } ], [ step_type.holds_steps?, step_type.settings.fields ]
     end
 
     test "walks its held steps once for each item of the list, one item after another in list order" do
@@ -120,6 +121,184 @@ module EasyFlow
       ended = advanced(drawing, "outline" => { "variants" => [] })
 
       assert_equal [ [], "after" ], [ ended[:variants]["items"], digest.next_step(ended.transform_keys(&:to_s)).id ]
+    end
+
+    def concurrent(document = drawing, concurrency: 3)
+      document.merge("nodes" => document["nodes"].map { |node| node["id"] == "variants" ? node.merge("concurrency" => concurrency) : node })
+    end
+
+    def five_outlined
+      { "outline" => { "variants" => %w[a b c d e] } }
+    end
+
+    test "names the first held step of as many items as its concurrency allows as ready at once" do
+      assert_equal %w[write@item1 write@item2 write@item3], digest(concurrent).ready_steps(five_outlined).map(&:id)
+    end
+
+    test "names the first held step of the next item as ready once one of the ready items ends" do
+      assert_equal %w[write@item1 write@item3 write@item4], digest(concurrent).ready_steps(five_outlined.merge("write@item2" => "b")).map(&:id)
+    end
+
+    test "counts an item still running its held steps among the unfinished items its concurrency allows" do
+      started = five_outlined.merge("write@item1" => { "result" => "retry" }, "write@item2" => { "result" => "retry" }, "write@item3" => { "result" => "retry" })
+
+      assert_equal %w[write@item1@2 write@item2@2 write@item3@2], digest(concurrent(retrying)).ready_steps(started).map(&:id)
+    end
+
+    test "names one item's held step as ready at a time when no concurrency is set" do
+      assert_equal [ "write@item1" ], digest.ready_steps(five_outlined).map(&:id)
+    end
+
+    test "runs an acting held step of a later ready item while an earlier ready item waits for its answer" do
+      stamping = concurrent(drawing.merge("nodes" => drawing["nodes"].map { |node| node["id"] == "variants" ? node.merge("holds" => %w[write stamp]) : node } + [ { "id" => "stamp", "type" => "stamp" } ],
+                                          "edges" => drawing["edges"].map { |edge| edge["from"] == "write" ? edge.merge("to" => "stamp") : edge } + [ { "from" => "stamp", "to" => "after" } ]), concurrency: 2)
+
+      assert_equal "stamped stamp", advanced(stamping, five_outlined.merge("write@item2" => "b"))[:"stamp@item2"]
+    end
+
+    test "names only the run's next step as ready outside a for_each step" do
+      run = stored_run.tap { |started| started.update!(recorded: {}) }
+
+      assert_equal [ "outline" ], run.ready_steps(run.recorded).map(&:id)
+    end
+
+    def stopping(concurrency: 1)
+      retried = concurrent(retrying, concurrency: concurrency)
+      retried.merge("nodes" => retried["nodes"].map { |node| node["id"] == "variants" ? node.merge("on_item_failure" => "stop") : node } + [ { "id" => "rescue", "type" => "ask" } ],
+                    "edges" => retried["edges"] + [ { "from" => "write", "to" => "rescue", "on" => "failed" } ])
+    end
+
+    test "starts no item after an item has failed when its rule is stop" do
+      assert_equal [ "variants" ], digest(stopping).ready_steps(outlined.merge("write@item1" => { "result" => "failed" })).map(&:id)
+    end
+
+    test "lets an item already running end after another item has failed when its rule is stop" do
+      running = outlined.merge("write@item1" => { "result" => "failed" }, "write@item2" => { "result" => "retry" })
+
+      assert_equal [ "write@item2@2" ], digest(stopping(concurrency: 2)).ready_steps(running).map(&:id)
+    end
+
+    test "leaves the box on the failed held step's failed connection once the running items have ended under the stop rule" do
+      ended = advanced(stopping, outlined.merge("write@item1" => { "result" => "failed" }))
+
+      assert_equal "rescue", digest(stopping).next_step(ended.transform_keys(&:to_s)).id
+    end
+
+    test "records a failed result holding only the items that ran when stopped by a failed item" do
+      assert_equal({ "result" => "failed", "items" => [ { "write" => { "result" => "failed" } } ], "passed" => 0, "failed" => 1 },
+                   advanced(stopping, outlined.merge("write@item1" => { "result" => "failed" }))[:variants])
+    end
+
+    test "ends only the failed item and starts the next one when its rule is continue" do
+      continuing = stopping.merge("nodes" => stopping["nodes"].map { |node| node["id"] == "variants" ? node.merge("on_item_failure" => "continue") : node })
+
+      assert_equal [ "write@item2" ], digest(continuing).ready_steps(outlined.merge("write@item1" => { "result" => "failed" })).map(&:id)
+    end
+
+    test "records a failed result naming the step and output when the earlier step recorded no value under the named output" do
+      assert_equal({ "result" => "failed", "reason" => "The step outline recorded no value under variants.", "items" => [], "passed" => 0, "failed" => 0 },
+                   advanced(drawing, "outline" => { "titles" => %w[a b] })[:variants])
+    end
+
+    test "records a failed result naming the value's kind when the named value is not a list" do
+      reasons = [ "short", 3, { "title" => "short" } ].map { |value| advanced(drawing, "outline" => { "variants" => value })[:variants]["reason"] }
+
+      assert_equal [ "The list outline.variants is text, not a list.", "The list outline.variants is a number, not a list.", "The list outline.variants is a hash, not a list." ], reasons
+    end
+
+    def rescuing
+      drawing.merge("nodes" => drawing["nodes"] + [ { "id" => "rescue", "type" => "ask" } ], "edges" => drawing["edges"] + [ { "from" => "write", "to" => "rescue", "on" => "failed" } ])
+    end
+
+    test "leaves on the box's failed connection when its list is not a list" do
+      ended = advanced(rescuing, "outline" => { "variants" => "short" })
+
+      assert_equal "rescue", digest(rescuing).next_step(ended.transform_keys(&:to_s)).id
+    end
+
+    test "stops the run with no next step when a box whose list is not a list has no failed connection" do
+      ended = advanced(drawing, "outline" => { "variants" => "short" })
+
+      assert_nil digest.next_step(ended.transform_keys(&:to_s))
+    end
+
+    def limited(limit)
+      drawing.merge("nodes" => drawing["nodes"].map { |node| node["id"] == "variants" ? node.merge("item_limit" => limit) : node })
+    end
+
+    test "records a failed result naming the limit and starts no item when the list is longer than the step's limit" do
+      assert_equal({ "result" => "failed", "reason" => "The list outline.variants holds 3 items, more than the limit of 2.", "items" => [], "passed" => 0, "failed" => 0 },
+                   advanced(limited(2), outlined)[:variants])
+    end
+
+    test "fails a list longer than 100 items when the step sets no item limit" do
+      assert_equal "The list outline.variants holds 101 items, more than the limit of 100.", advanced(drawing, "outline" => { "variants" => (1..101).to_a })[:variants]["reason"]
+    end
+
+    test "records a failed result naming only the step when a list named by a step alone has no value" do
+      listing_step = drawing.merge("nodes" => drawing["nodes"].map { |node| node["id"] == "variants" ? node.merge("list" => "listing") : node })
+
+      assert_equal "The step listing recorded no value.", advanced(listing_step, outlined)[:variants]["reason"]
+    end
+
+    def looping
+      drawing.merge("nodes" => drawing["nodes"] + [ { "id" => "review", "type" => "reported" } ],
+                    "edges" => drawing["edges"].map { |edge| edge["from"] == "write" ? edge.merge("to" => "review") : edge } +
+                               [ { "from" => "review", "to" => "after", "on" => "passed" }, { "from" => "review", "to" => "outline", "on" => "retry" } ])
+    end
+
+    def sent_back
+      { "outline" => { "variants" => %w[a b] }, "write@item1" => "a", "write@item2" => "b",
+        "variants" => { "result" => "passed", "items" => [ { "write" => "a" }, { "write" => "b" } ], "passed" => 2, "failed" => 0 },
+        "review" => { "result" => "retry" }, "outline@2" => { "variants" => %w[x y z] } }
+    end
+
+    test "runs its held steps again for each item of the list as it stands when a run reaches it a second time" do
+      reached = [ sent_back, sent_back.merge("write@item1@pass2" => "x"), sent_back.merge("write@item1@pass2" => "x", "write@item2@pass2" => "y") ]
+
+      assert_equal %w[write@item1@pass2 write@item2@pass2 write@item3@pass2], reached.map { |state| digest(looping).next_step(state).id }
+    end
+
+    test "records a held step retried in the second pass as a further visit of that pass apart from the first pass's visits" do
+      looped = looping.merge("nodes" => looping["nodes"].map { |node| node["id"] == "write" ? node.merge("type" => "reported") : node },
+                             "edges" => looping["edges"].map { |edge| edge["from"] == "write" ? edge.merge("on" => "passed") : edge } + [ { "from" => "write", "to" => "write", "on" => "retry" } ])
+      first_pass = sent_back.merge("write@item1" => { "result" => "retry" }, "write@item1@2" => { "result" => "passed" }, "write@item2" => { "result" => "passed" })
+
+      assert_equal "write@item1@pass2@2", digest(looped).next_step(first_pass.merge("write@item1@pass2" => { "result" => "retry" })).id
+    end
+
+    def second_pass_written
+      sent_back.merge("write@item1@pass2" => "x", "write@item2@pass2" => "y", "write@item3@pass2" => "z")
+    end
+
+    test "records the second pass's items under the for_each step's second visit" do
+      assert_equal [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ], advanced(looping, second_pass_written)[:"variants@2"]["items"]
+    end
+
+    test "keeps both passes' items readable after the run" do
+      ended = advanced(looping, second_pass_written)
+
+      assert_equal [ [ { "write" => "a" }, { "write" => "b" } ], [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ] ], ended.values_at(:variants, :"variants@2").map { |result| result["items"] }
+    end
+
+    test "gives a step after the box the items, passed and failed outputs of the latest pass" do
+      ended = advanced(looping, second_pass_written).transform_keys(&:to_s)
+      reading = Node.new(id: "after", type: "ask", config: { "inputs" => %w[items passed failed].map { |output| { "name" => output, "step" => "variants", "output" => output } } })
+
+      assert_equal({ "items" => [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ], "passed" => 3, "failed" => 0 }, Inputs.values_of(reading, ended, run: Struct.new(:digest).new(digest(looping))))
+    end
+
+    test "gives a held step in the second pass the output an earlier held step recorded for the same item in that pass" do
+      reviewing = Node.new(id: "review@item1@pass2", type: "ask", config: { "inputs" => [ { "name" => "title", "step" => "write", "output" => "title" } ] })
+      written = outlined.merge("write@item1" => { "title" => "First" }, "write@item1@pass2" => { "title" => "Second" })
+
+      assert_equal({ "title" => "Second" }, Inputs.values_of(reviewing, written))
+    end
+
+    test "goes on past a second visit already recorded by an earlier release without running its items again" do
+      stored = sent_back.merge("variants@2" => sent_back["variants"])
+
+      assert_equal "review@2", digest(looping).next_step(stored).id
     end
 
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do

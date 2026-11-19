@@ -2,6 +2,8 @@ module EasyFlow
   class ForEach
     include Step
 
+    ITEM_LIMIT = 100
+
     step_name "For each"
 
     holds_steps
@@ -11,6 +13,7 @@ module EasyFlow
     setting :list, type: :string
     setting :concurrency, type: :integer
     setting :on_item_failure, type: :select, options: %w[continue stop]
+    setting :item_limit, type: :integer, label: "Most items"
 
     output :result, values: %w[passed failed]
     output :items

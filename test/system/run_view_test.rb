@@ -90,5 +90,14 @@ module EasyFlow
         assert_equal [ [ 16, true ] ] * 3, card_edges("load_brief", "outline", "human_approve")
       end
     end
+
+    test "on a phone, the run view lists the Start and End steps one per row with the other steps" do
+      on_a_phone do
+        visit "/runs/#{run_version.id}"
+        find("[data-step='load_brief']")
+
+        assert_equal [ "start", "load_brief", "end" ], all("[data-flow-run-view] [data-step-row]").map { |row| row["data-step-row"] }.values_at(0, 1, -1)
+      end
+    end
   end
 end

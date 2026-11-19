@@ -34,6 +34,29 @@ module EasyFlow
       ))
     end
 
+    def marked_version
+      Definition.create!(host: "dummy", slug: "marked").record_definition(flowing(
+        "entry" => "review",
+        "nodes" => [ { "id" => "review", "type" => "question", "question" => "Review", "answers" => [ { "value" => "yes" }, { "value" => "no" } ] },
+                     { "id" => "gate", "type" => "condition", "step" => "review", "output" => "answer", "comparison" => "is", "answer" => "yes" },
+                     { "id" => "published", "type" => "terminal", "mark" => "published after a very long review by every editor on the team" },
+                     { "id" => "rejected", "type" => "terminal" } ],
+        "edges" => [ { "from" => "review", "to" => "gate" }, { "from" => "gate", "to" => "published", "on" => true },
+                     { "from" => "gate", "to" => "rejected", "on" => false } ]
+      ))
+    end
+
+    def card_size(id)
+      page.evaluate_script(%((() => { const card = document.querySelector("[data-flow-run-view] [data-step='#{id}']").getBoundingClientRect(); return [ card.width, card.height ] })()))
+    end
+
+    test "a run view cuts a long End mark short on one line without widening its card" do
+      visit "/runs/#{marked_version.id}"
+      find("[data-flow-run-view] [data-step='published']", text: "End · published")
+
+      assert_equal card_size("rejected"), card_size("published")
+    end
+
     test "a run view shows the End step its run ended at as reached" do
       visit "/runs/#{branching_version.id}?ended_at=rejected"
 

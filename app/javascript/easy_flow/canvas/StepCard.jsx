@@ -23,6 +23,8 @@ const edge = (target, troubled, selected) => {
 const headingOf = (node, hideStepTypeCodes) =>
   hideStepTypeCodes && node.label === node.id ? node.type_name || node.label : node.label
 
+const markedOf = (node, heading) => [ heading, node.ends_here && node.mark ].filter(Boolean).join(" · ")
+
 const typeLineOf = (node, heading, hideStepTypeCodes) => {
   if (!hideStepTypeCodes) return node.type
   return heading === node.type_name ? null : node.type_name
@@ -50,7 +52,7 @@ const StepCard = ({ node, selected, armed, connecting, onSelect, onOpen, onArm, 
            cursor: pinned ? "default" : connecting ? "crosshair" : "grab"
          }}>
       {!bookend && typeAbove && typeLine && <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{typeLine}</div>}
-      {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{heading}</div>}
+      {bookend && <div className="text-gray-500 dark:text-gray-400" style={bookendCard}>{markedOf(node, heading)}</div>}
       {!bookend && <div style={compact ? compactName : named}>{heading}</div>}
       {node.violations.length > 0 && <div data-error-count className="text-red-600 dark:text-red-400" style={{ fontSize: 10 }}>{`${node.violations.length} error${node.violations.length === 1 ? "" : "s"}`}</div>}
       {!bookend && node.summary && node.violations.length === 0 && <div className={selected ? "text-accent-600 dark:text-accent-400" : "text-gray-500 dark:text-gray-400"} style={{ fontSize: 10 }}>{node.summary}</div>}

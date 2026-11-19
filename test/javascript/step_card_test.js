@@ -162,3 +162,9 @@ test("writes a step's error count in place of its summary when the step has prob
 
   assert.deepEqual(lines.slice(lines.indexOf("Gate") + 1, lines.indexOf("Gate") + 2).concat(lines.includes("copy_writer@prod")), [ "1 error", false ])
 })
+
+const endHeading = (mark) => child(card({ id: "z", label: "End", type: "terminal", ends_here: true, mark }), (element) => String(element.props?.children).startsWith("End")).props.children
+
+test("heads an End card with its mark after the word End, and with End alone when it has no mark", () => {
+  assert.deepEqual([ "published", null ].map(endHeading), [ "End · published", "End" ])
+})

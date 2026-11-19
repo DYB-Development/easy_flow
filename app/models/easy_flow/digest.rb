@@ -1,5 +1,7 @@
 module EasyFlow
   class Digest
+    Path = Struct.new(:recorded, :latest, :latest_times)
+
     def initialize(document, registry: EasyFlow.registry)
       @document = document
       @registry = registry
@@ -173,8 +175,6 @@ module EasyFlow
 
       [ recorded, nil ]
     end
-
-    Path = Struct.new(:recorded, :latest, :latest_times)
 
     def walk_items(box, state, times, path)
       items_of(box, path.latest).each_index do |index|

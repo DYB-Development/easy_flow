@@ -51,3 +51,8 @@ test("writes only the name on the card of a step a flow starts or ends at, as th
   assert.deepEqual([ { begins_here: true, type: "start", label: "Start" }, { ends_here: true, type: "terminal", label: "End" } ].map((node) => text(drawn({ ...node, version: null, status: null }))),
                    [ [ "Start" ], [ "End" ] ])
 })
+
+test("heads an End card with its mark after the word End, and with End alone when it has no mark", () => {
+  assert.deepEqual([ "published", null ].map((mark) => text(drawn({ ends_here: true, type: "terminal", label: "End", mark, version: null, status: null }))),
+                   [ [ "End · published" ], [ "End" ] ])
+})

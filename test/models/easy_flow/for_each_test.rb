@@ -162,6 +162,16 @@ module EasyFlow
       assert_equal [ "outline" ], run.ready_steps(run.recorded).map(&:id)
     end
 
+    def stopping(concurrency: 1)
+      retried = concurrent(retrying, concurrency: concurrency)
+      retried.merge("nodes" => retried["nodes"].map { |node| node["id"] == "variants" ? node.merge("on_item_failure" => "stop") : node } + [ { "id" => "rescue", "type" => "ask" } ],
+                    "edges" => retried["edges"] + [ { "from" => "write", "to" => "rescue", "on" => "failed" } ])
+    end
+
+    test "starts no item after an item has failed when its rule is stop" do
+      assert_equal [ "variants" ], digest(stopping).ready_steps(outlined.merge("write@item1" => { "result" => "failed" })).map(&:id)
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

@@ -1,6 +1,7 @@
 module EasyFlow
   class Digest
     Path = Struct.new(:recorded, :latest, :latest_times)
+    ItemWalk = Struct.new(:held, :failed_at, :started)
 
     def initialize(document, registry: EasyFlow.registry)
       @document = document
@@ -181,11 +182,14 @@ module EasyFlow
     end
 
     def walk_items(box, state, times, path)
-      items_of(box, path.latest).each_index.each_with_object([]) do |index, ready|
-        held = walk_item(box, index + 1, state, times, path)
-        ready << held if held
-        break ready if ready.size == concurrency_of(box)
-      end
+      walked = items_of(box, path.latest).each_index.map { |index| walk_item(box, index + 1, state, times, path) }
+      stopped = stops_on_failure?(box) && walked.any?(&:failed_at)
+
+      walked.select(&:held).select { |item| item.started || !stopped }.first(concurrency_of(box)).map(&:held)
+    end
+
+    def stops_on_failure?(box)
+      box.config["on_item_failure"].to_s == "stop"
     end
 
     def concurrency_of(box)
@@ -197,24 +201,28 @@ module EasyFlow
       recorded_at_visit = {}
       cursor = first_held(box)
 
+      started = false
+
       while cursor && held_by?(box, cursor)
-        return if visits[cursor.id].positive? && recorded_at_visit[cursor.id] == path.recorded.size
+        return ItemWalk.new(nil, nil, started) if visits[cursor.id].positive? && recorded_at_visit[cursor.id] == path.recorded.size
 
         visits[cursor.id] += 1
         recorded_at_visit[cursor.id] = path.recorded.size
         key = item_key(cursor.id, item, visits[cursor.id])
-        return cursor.with(id: key) if pending?(cursor, key, state)
+        return ItemWalk.new(cursor.with(id: key), nil, started) if pending?(cursor, key, state)
 
         if state.key?(key)
+          started = true
           path.recorded << key
           path.latest[cursor.id] = state[key]
           path.latest_times[cursor.id] = times[key] if times.key?(key)
         end
         routed = reached(state, path.recorded).merge(path.latest)
-        return if failed?(cursor, routed, path.latest_times)
+        return ItemWalk.new(nil, cursor, started) if failed?(cursor, routed, path.latest_times)
 
         cursor = successor(cursor, routed, path.latest_times)
       end
+      ItemWalk.new(nil, nil, started)
     end
 
     def failed?(node, state, times)

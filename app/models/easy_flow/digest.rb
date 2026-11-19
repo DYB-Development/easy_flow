@@ -84,7 +84,7 @@ module EasyFlow
 
     def items_ended(id, state)
       box = step(id)
-      ended = items_of(box, latest_values(state)).each_index.map { |index| item_values(box, index + 1, state) }
+      ended = items_of(box, latest_values(state)).each_index.map { |index| item_values(box, index + 1, state) }.reject(&:empty?)
       failed = ended.count { |values| values.any? { |held, value| failed?(step(held), state.merge(held => value), {}) } }
 
       { "result" => failed.zero? ? "passed" : "failed", "items" => ended, "passed" => ended.size - failed, "failed" => failed }

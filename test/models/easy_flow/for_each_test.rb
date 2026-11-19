@@ -184,6 +184,11 @@ module EasyFlow
       assert_equal "rescue", digest(stopping).next_step(ended.transform_keys(&:to_s)).id
     end
 
+    test "records a failed result holding only the items that ran when stopped by a failed item" do
+      assert_equal({ "result" => "failed", "items" => [ { "write" => { "result" => "failed" } } ], "passed" => 0, "failed" => 1 },
+                   advanced(stopping, outlined.merge("write@item1" => { "result" => "failed" }))[:variants])
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

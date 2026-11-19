@@ -39,7 +39,7 @@ module EasyFlow
     end
 
     def advanced(document, state)
-      progress = Class.new(Progress::Loose) { def saved? = true }.new(nil, state, document)
+      progress = Class.new(Progress::Loose) { define_method(:saved?) { true } }.new(nil, state, document)
       Runner.new(document, registry: registry).run(progress)
       progress.recorded
     end

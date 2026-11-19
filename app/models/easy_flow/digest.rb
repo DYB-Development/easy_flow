@@ -171,7 +171,7 @@ module EasyFlow
         answers_at_visit[cursor.id] = answered
         key = visit_key(cursor.id, visits[cursor.id])
         items = repeats?(cursor) ? walk_items(cursor, visits[cursor.id], state, times, Path.new(recorded, latest, latest_times)) : ItemsWalk.new([], nil, nil)
-        return [ recorded, items.ready.first, nil, items.ready ] if items.ready.any?
+        return [ recorded, items.ready.first, nil, items.ready ] if items.ready.any? && !state.key?(key)
         return [ recorded, cursor.with(id: key), nil, [ cursor.with(id: key) ] ] if pending?(cursor, key, state)
 
         if state.key?(key)

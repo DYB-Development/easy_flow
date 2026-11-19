@@ -295,6 +295,12 @@ module EasyFlow
       assert_equal({ "title" => "Second" }, Inputs.values_of(reviewing, written))
     end
 
+    test "goes on past a second visit already recorded by an earlier release without running its items again" do
+      stored = sent_back.merge("variants@2" => sent_back["variants"])
+
+      assert_equal "review@2", digest(looping).next_step(stored).id
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

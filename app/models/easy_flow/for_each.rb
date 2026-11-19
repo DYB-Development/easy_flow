@@ -1,6 +1,6 @@
-module Steps
+module EasyFlow
   class ForEach
-    include EasyFlow::Step
+    include Step
 
     step_name "For each"
 

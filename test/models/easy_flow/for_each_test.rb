@@ -144,6 +144,10 @@ module EasyFlow
       assert_equal %w[write@item1@2 write@item2@2 write@item3@2], digest(concurrent(retrying)).ready_steps(started).map(&:id)
     end
 
+    test "names one item's held step as ready at a time when no concurrency is set" do
+      assert_equal [ "write@item1" ], digest.ready_steps(five_outlined).map(&:id)
+    end
+
     test "names only the run's next step as ready outside a for_each step" do
       run = stored_run.tap { |started| started.update!(recorded: {}) }
 

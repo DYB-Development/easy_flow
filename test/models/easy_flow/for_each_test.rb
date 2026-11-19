@@ -7,6 +7,11 @@ module EasyFlow
         built.register(Start.step_type)
         built.register(ForEach.step_type)
         built.register(StepType.define(:ask) { awaits_input })
+        built.register(StepType.define(:reported) do
+          awaits_input
+          output :result, values: %w[passed failed retry]
+          route { |node, state| state[node.id]["result"] }
+        end)
       end
     end
 
@@ -18,8 +23,13 @@ module EasyFlow
                      { "from" => "variants", "to" => "write" }, { "from" => "write", "to" => "after" } ] }
     end
 
-    def digest
-      Digest.new(Document.new(drawing, registry: registry), registry: registry)
+    def digest(document = drawing)
+      Digest.new(Document.new(document, registry: registry), registry: registry)
+    end
+
+    def retrying
+      drawing.merge("nodes" => drawing["nodes"].map { |node| node["id"] == "write" ? node.merge("type" => "reported") : node },
+                    "edges" => drawing["edges"].map { |edge| edge["from"] == "write" ? edge.merge("on" => "passed") : edge } + [ { "from" => "write", "to" => "write", "on" => "retry" } ])
     end
 
     def outlined
@@ -49,6 +59,13 @@ module EasyFlow
       %w[short-copy long-copy plain-copy].each { |copy| run.record(run.next_step(run.recorded).id, copy) }
 
       assert_equal({ "write@item1": "short-copy", "write@item2": "long-copy", "write@item3": "plain-copy" }, run.reload.recorded.slice(:"write@item1", :"write@item2", :"write@item3"))
+    end
+
+    test "records a held step retried inside one item as a further visit of that item and leaves the next item's visits as they were" do
+      retried = outlined.merge("write@item1" => { "result" => "retry" })
+      reached = [ retried, retried.merge("write@item1@2" => { "result" => "passed" }) ]
+
+      assert_equal %w[write@item1@2 write@item2], reached.map { |state| digest(retrying).next_step(state).id }
     end
   end
 end

@@ -275,6 +275,12 @@ module EasyFlow
       assert_equal [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ], advanced(looping, second_pass_written)[:"variants@2"]["items"]
     end
 
+    test "keeps both passes' items readable after the run" do
+      ended = advanced(looping, second_pass_written)
+
+      assert_equal [ [ { "write" => "a" }, { "write" => "b" } ], [ { "write" => "x" }, { "write" => "y" }, { "write" => "z" } ] ], ended.values_at(:variants, :"variants@2").map { |result| result["items"] }
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

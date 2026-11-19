@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.52.0] - 2026-11-18
+
+### Added
+
+- The run view draws the Start and End steps with every line into them, shows Start as done once any step has left pending and an End as done when the host passes it as `ended_at:`, never links either card, and leaves both out when the host passes `start_and_end: false`.
+
 ## [0.51.0] - 2026-11-18
 
 ### Changed

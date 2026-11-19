@@ -26,6 +26,12 @@ module EasyFlow
       { "outline" => { "variants" => %w[short long plain] } }
     end
 
+    def stored_run
+      flow = Definition.create!(host: "dummy", slug: "per-item", persists: :each_step)
+      flow.publish_version(flow.definition_versions.create!(number: 1, definition: drawing.merge("slug" => "per-item", "nodes" => drawing["nodes"].map { |node| node["type"] == "ask" ? node.merge("type" => "question") : node })))
+      Run.start(flow).tap { |run| run.record("outline", outlined["outline"]) }
+    end
+
     test "a for_each step holds steps and offers a list, a concurrency and an item-failure rule" do
       step_type = ForEach.step_type
 
@@ -36,6 +42,13 @@ module EasyFlow
       reached = [ outlined, outlined.merge("write@item1" => "a"), outlined.merge("write@item1" => "a", "write@item2" => "b") ]
 
       assert_equal %w[write@item1 write@item2 write@item3], reached.map { |state| digest.next_step(state).id }
+    end
+
+    test "records each item's visit of a held step under its item number with its own value" do
+      run = stored_run
+      %w[short-copy long-copy plain-copy].each { |copy| run.record(run.next_step(run.recorded).id, copy) }
+
+      assert_equal({ "write@item1": "short-copy", "write@item2": "long-copy", "write@item3": "plain-copy" }, run.reload.recorded.slice(:"write@item1", :"write@item2", :"write@item3"))
     end
   end
 end

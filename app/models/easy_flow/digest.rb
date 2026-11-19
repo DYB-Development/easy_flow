@@ -100,6 +100,10 @@ module EasyFlow
       walk(state, times)[1]
     end
 
+    def ready_steps(state, times = {})
+      walk(state, times)[3].to_a
+    end
+
     def output(state, times = {})
       ended_setting(state, times, "output")
     end
@@ -160,9 +164,9 @@ module EasyFlow
         visits[cursor.id] += 1
         answers_at_visit[cursor.id] = answered
         key = visit_key(cursor.id, visits[cursor.id])
-        held = repeats?(cursor) && walk_items(cursor, state, times, Path.new(recorded, latest, latest_times))
-        return [ recorded, held ] if held
-        return [ recorded, cursor.with(id: key) ] if pending?(cursor, key, state)
+        held = repeats?(cursor) ? walk_items(cursor, state, times, Path.new(recorded, latest, latest_times)) : []
+        return [ recorded, held.first, nil, held ] if held.any?
+        return [ recorded, cursor.with(id: key), nil, [ cursor.with(id: key) ] ] if pending?(cursor, key, state)
 
         if state.key?(key)
           recorded << key
@@ -177,11 +181,15 @@ module EasyFlow
     end
 
     def walk_items(box, state, times, path)
-      items_of(box, path.latest).each_index do |index|
+      items_of(box, path.latest).each_index.each_with_object([]) do |index, ready|
         held = walk_item(box, index + 1, state, times, path)
-        return held if held
+        ready << held if held
+        break ready if ready.size == concurrency_of(box)
       end
-      nil
+    end
+
+    def concurrency_of(box)
+      [ box.config["concurrency"].to_i, 1 ].max
     end
 
     def walk_item(box, item, state, times, path)

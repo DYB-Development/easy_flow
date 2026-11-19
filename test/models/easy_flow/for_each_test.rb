@@ -7,6 +7,7 @@ module EasyFlow
         built.register(Start.step_type)
         built.register(ForEach.step_type)
         built.register(StepType.define(:ask) { awaits_input })
+        built.register(StepType.define(:stamp) { process { |node, _state| "stamped #{node.id}" } })
         built.register(StepType.define(:reported) do
           awaits_input
           output :result, values: %w[passed failed retry]
@@ -146,6 +147,13 @@ module EasyFlow
 
     test "names one item's held step as ready at a time when no concurrency is set" do
       assert_equal [ "write@item1" ], digest.ready_steps(five_outlined).map(&:id)
+    end
+
+    test "runs an acting held step of a later ready item while an earlier ready item waits for its answer" do
+      stamping = concurrent(drawing.merge("nodes" => drawing["nodes"].map { |node| node["id"] == "variants" ? node.merge("holds" => %w[write stamp]) : node } + [ { "id" => "stamp", "type" => "stamp" } ],
+                                          "edges" => drawing["edges"].map { |edge| edge["from"] == "write" ? edge.merge("to" => "stamp") : edge } + [ { "from" => "stamp", "to" => "after" } ]), concurrency: 2)
+
+      assert_equal "stamped stamp", advanced(stamping, five_outlined.merge("write@item2" => "b"))[:"stamp@item2"]
     end
 
     test "names only the run's next step as ready outside a for_each step" do

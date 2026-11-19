@@ -172,6 +172,12 @@ module EasyFlow
       assert_equal [ "variants" ], digest(stopping).ready_steps(outlined.merge("write@item1" => { "result" => "failed" })).map(&:id)
     end
 
+    test "lets an item already running end after another item has failed when its rule is stop" do
+      running = outlined.merge("write@item1" => { "result" => "failed" }, "write@item2" => { "result" => "retry" })
+
+      assert_equal [ "write@item2@2" ], digest(stopping(concurrency: 2)).ready_steps(running).map(&:id)
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

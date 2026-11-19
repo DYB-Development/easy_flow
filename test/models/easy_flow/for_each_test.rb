@@ -138,6 +138,12 @@ module EasyFlow
       assert_equal %w[write@item1 write@item3 write@item4], digest(concurrent).ready_steps(five_outlined.merge("write@item2" => "b")).map(&:id)
     end
 
+    test "counts an item still running its held steps among the unfinished items its concurrency allows" do
+      started = five_outlined.merge("write@item1" => { "result" => "retry" }, "write@item2" => { "result" => "retry" }, "write@item3" => { "result" => "retry" })
+
+      assert_equal %w[write@item1@2 write@item2@2 write@item3@2], digest(concurrent(retrying)).ready_steps(started).map(&:id)
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

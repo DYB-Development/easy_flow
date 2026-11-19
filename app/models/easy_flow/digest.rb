@@ -169,7 +169,7 @@ module EasyFlow
         visits[cursor.id] += 1
         answers_at_visit[cursor.id] = answered
         key = visit_key(cursor.id, visits[cursor.id])
-        items = repeats?(cursor) ? walk_items(cursor, state, times, Path.new(recorded, latest, latest_times)) : ItemsWalk.new([], nil, nil)
+        items = repeats?(cursor) ? walk_items(cursor, visits[cursor.id], state, times, Path.new(recorded, latest, latest_times)) : ItemsWalk.new([], nil, nil)
         return [ recorded, items.ready.first, nil, items.ready ] if items.ready.any?
         return [ recorded, cursor.with(id: key), nil, [ cursor.with(id: key) ] ] if pending?(cursor, key, state)
 
@@ -185,8 +185,8 @@ module EasyFlow
       [ recorded, nil ]
     end
 
-    def walk_items(box, state, times, path)
-      walked = items_of(box, path.latest).each_index.map { |index| walk_item(box, index + 1, state, times, path) }
+    def walk_items(box, pass, state, times, path)
+      walked = items_of(box, path.latest).each_index.map { |index| walk_item(box, VisitKey.new(step: box.id, item: index + 1, pass: pass), state, times, path) }
       stopped_at = walked.find(&:failed_at)&.failed_at if stops_on_failure?(box)
       ready = walked.select(&:held).select { |item| item.started || !stopped_at }.first(concurrency_of(box)).map(&:held)
 
@@ -213,7 +213,7 @@ module EasyFlow
 
         visits[cursor.id] += 1
         recorded_at_visit[cursor.id] = path.recorded.size
-        key = item_key(cursor.id, item, visits[cursor.id])
+        key = item.with(step: cursor.id, visit: visits[cursor.id]).to_s
         return ItemWalk.new(cursor.with(id: key), nil, started) if pending?(cursor, key, state)
 
         if state.key?(key)
@@ -266,10 +266,6 @@ module EasyFlow
       when Hash then "a hash"
       else "true or false"
       end
-    end
-
-    def item_key(id, item, visit)
-      VisitKey.new(step: id, item: item, visit: visit).to_s
     end
 
     def latest_values(state)

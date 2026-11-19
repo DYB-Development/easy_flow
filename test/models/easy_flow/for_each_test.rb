@@ -241,6 +241,24 @@ module EasyFlow
       assert_equal "The step listing recorded no value.", advanced(listing_step, outlined)[:variants]["reason"]
     end
 
+    def looping
+      drawing.merge("nodes" => drawing["nodes"] + [ { "id" => "review", "type" => "reported" } ],
+                    "edges" => drawing["edges"].map { |edge| edge["from"] == "write" ? edge.merge("to" => "review") : edge } +
+                               [ { "from" => "review", "to" => "after", "on" => "passed" }, { "from" => "review", "to" => "outline", "on" => "retry" } ])
+    end
+
+    def sent_back
+      { "outline" => { "variants" => %w[a b] }, "write@item1" => "a", "write@item2" => "b",
+        "variants" => { "result" => "passed", "items" => [ { "write" => "a" }, { "write" => "b" } ], "passed" => 2, "failed" => 0 },
+        "review" => { "result" => "retry" }, "outline@2" => { "variants" => %w[x y z] } }
+    end
+
+    test "runs its held steps again for each item of the list as it stands when a run reaches it a second time" do
+      reached = [ sent_back, sent_back.merge("write@item1@pass2" => "x"), sent_back.merge("write@item1@pass2" => "x", "write@item2@pass2" => "y") ]
+
+      assert_equal %w[write@item1@pass2 write@item2@pass2 write@item3@pass2], reached.map { |state| digest(looping).next_step(state).id }
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

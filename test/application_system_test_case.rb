@@ -1,6 +1,21 @@
 require "test_helper"
 require "capybara/rails"
 require "selenium-webdriver"
+require "capybara/selenium/driver"
+
+# Chrome 158 refuses the "*" origin Capybara 3.40 clears on reset (teamcapybara/capybara#2865); remove once a released Capybara stops sending it.
+module ChromeResetWithoutWildcard
+  private
+
+  def execute_cdp(cmd, params = {})
+    return super unless cmd == "Storage.clearDataForOrigin" && params[:origin] == "*"
+
+    super("Network.clearBrowserCookies")
+    super(cmd, { origin: Capybara.current_session.server.base_url, storageTypes: params[:storageTypes] })
+  end
+end
+
+Capybara::Selenium::Driver::ChromeDriver.prepend(ChromeResetWithoutWildcard)
 
 module EasyFlow
   class ApplicationSystemTestCase < ActionDispatch::SystemTestCase

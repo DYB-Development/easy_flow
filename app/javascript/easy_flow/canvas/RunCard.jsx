@@ -4,6 +4,8 @@ const card = { display: "block", minWidth: 118, boxSizing: "border-box", borderR
 
 const named = { fontSize: 12, fontWeight: 500, lineHeight: 1.3 }
 
+const bookendName = { ...named, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }
+
 const STATES = {
   done: "border-green-600 bg-green-50 dark:border-green-500 dark:bg-green-950",
   paused: "border-amber-500 bg-amber-50 dark:border-amber-400 dark:bg-amber-950",
@@ -29,7 +31,7 @@ const RunCard = ({ node, selected = false }) => {
   return (
     <Card data-step={node.id} href={node.address || undefined} className={`${node.state === "paused" ? "border-2" : "border"} ${STATES[node.state] || STATES.pending}${selected ? ` ${marked}` : ""}`} style={card}>
       {!bookend && <div className="font-mono text-gray-500 dark:text-gray-400" style={{ fontSize: 11 }}>{node.type}</div>}
-      <div style={bookend ? { ...named, textAlign: "center" } : named}>{markedOf(node)}{node.version && <span className="text-gray-500 dark:text-gray-400" style={{ fontWeight: 400, marginLeft: 4 }}>{node.version}</span>}</div>
+      <div style={bookend ? bookendName : named}>{markedOf(node)}{node.version && <span className="text-gray-500 dark:text-gray-400" style={{ fontWeight: 400, marginLeft: 4 }}>{node.version}</span>}</div>
       {node.status && <div className={STATUS_LINES[node.state] || STATUS_LINES.pending} style={{ fontSize: 11 }}>{node.status}</div>}
     </Card>
   )

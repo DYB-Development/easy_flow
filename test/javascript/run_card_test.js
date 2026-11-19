@@ -56,3 +56,9 @@ test("heads an End card with its mark after the word End, and with End alone whe
   assert.deepEqual([ "published", null ].map((mark) => text(drawn({ ends_here: true, type: "terminal", label: "End", mark, version: null, status: null }))),
                    [ [ "End · published" ], [ "End" ] ])
 })
+
+const headingStyle = () => drawn({ ends_here: true, type: "terminal", label: "End", mark: "published", version: null, status: null }).match(/<div style="([^"]*)">End/)[1]
+
+test("cuts an End card's heading short on one line rather than widening the card", () => {
+  assert.match(headingStyle(), /overflow:hidden;text-overflow:ellipsis;white-space:nowrap/)
+})

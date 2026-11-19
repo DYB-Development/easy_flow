@@ -231,6 +231,10 @@ module EasyFlow
                    advanced(limited(2), outlined)[:variants])
     end
 
+    test "fails a list longer than 100 items when the step sets no item limit" do
+      assert_equal "The list outline.variants holds 101 items, more than the limit of 100.", advanced(drawing, "outline" => { "variants" => (1..101).to_a })[:variants]["reason"]
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

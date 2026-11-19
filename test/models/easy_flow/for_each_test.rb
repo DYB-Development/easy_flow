@@ -108,5 +108,12 @@ module EasyFlow
     test "offers a later step's inputs its result, items, passed and failed outputs" do
       assert_equal %w[result items passed failed], digest.outputs_of("variants").map { |output| output["value"] }
     end
+
+    test "gives a step after the box its items, passed and failed outputs as inputs" do
+      ended = advanced(retrying, outlined.merge("write@item1" => { "result" => "passed" }, "write@item2" => { "result" => "failed" }, "write@item3" => { "result" => "passed" }))
+      reading = Node.new(id: "after", type: "ask", config: { "inputs" => %w[items passed failed].map { |output| { "name" => output, "step" => "variants", "output" => output } } })
+
+      assert_equal({ "items" => ended[:variants]["items"], "passed" => 2, "failed" => 1 }, Inputs.values_of(reading, ended.transform_keys(&:to_s), run: Struct.new(:digest).new(digest(retrying))))
+    end
   end
 end

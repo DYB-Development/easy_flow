@@ -7,7 +7,7 @@ const card = { width: CARD, boxSizing: "border-box", borderRadius: 8 }
 
 const compactCard = { minWidth: 120, boxSizing: "border-box", borderRadius: 6 }
 
-const bookendCard = { padding: "8px 14px", textAlign: "center", fontWeight: 600 }
+const bookendCard = { padding: "8px 14px", textAlign: "center", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }
 
 const named = { fontWeight: 600, lineHeight: 1.3 }
 

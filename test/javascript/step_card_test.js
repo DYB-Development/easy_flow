@@ -168,3 +168,11 @@ const endHeading = (mark) => child(card({ id: "z", label: "End", type: "terminal
 test("heads an End card with its mark after the word End, and with End alone when it has no mark", () => {
   assert.deepEqual([ "published", null ].map(endHeading), [ "End · published", "End" ])
 })
+
+const endLine = () => child(card({ id: "z", label: "End", type: "terminal", ends_here: true, mark: "published" }), (element) => String(element.props?.children).startsWith("End"))
+
+test("cuts an End card's heading short on one line rather than widening the card", () => {
+  const { overflow, textOverflow, whiteSpace } = endLine().props.style
+
+  assert.deepEqual([ overflow, textOverflow, whiteSpace ], [ "hidden", "ellipsis", "nowrap" ])
+})

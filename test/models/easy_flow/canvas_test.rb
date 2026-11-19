@@ -298,6 +298,14 @@ module EasyFlow
       assert canvas(document)["nodes"].last["ends_here"]
     end
 
+    test "gives an End node the mark set in its settings" do
+      document = { "entry" => "a",
+                   "nodes" => [ { "id" => "a", "type" => "ask" }, { "id" => "z", "type" => "stop", "mark" => "published" } ],
+                   "edges" => [ { "from" => "a", "to" => "z" } ] }
+
+      assert_equal "published", canvas(document)["nodes"].last["mark"]
+    end
+
     test "offers no way to add a second beginning" do
       document = { "nodes" => [ { "id" => "a", "type" => "ask" }, { "id" => "z", "type" => "stop" } ],
                    "edges" => [ { "from" => "a", "to" => "z" } ] }

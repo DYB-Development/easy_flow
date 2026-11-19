@@ -79,6 +79,17 @@ module EasyFlow
       assert_equal [ [ true, false ], [ false, true ], [ false, false ] ], %w[start end draft].map { |id| step(id).values_at("begins_here", "ends_here") }
     end
 
+    test "gives an End step the mark set in its settings" do
+      marked = Definition.create!(host: "dummy", slug: "run-view-marked").record_definition(flowing(
+        "entry" => "outline",
+        "nodes" => [ { "id" => "outline", "type" => "question", "question" => "Outline", "answers" => [ { "value" => "on" } ] },
+                     { "id" => "end", "type" => "terminal", "mark" => "published" } ],
+        "edges" => [ { "from" => "outline", "to" => "end" } ]
+      ))
+
+      assert_equal "published", RunView.new(marked).to_h["nodes"].find { |node| node["id"] == "end" }["mark"]
+    end
+
     test "places each step after the step that leads to it" do
       assert_operator step("draft")["row"], :>, step("outline")["row"]
     end

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.53.0] - 2026-11-18
+
+### Added
+
+- An End card on the canvas, in the run view and in the one-step-per-row phone list shows its mark after the word End, such as "End · published", on one line cut short when the mark is too long, and an End with no mark still reads "End".
+
 ## [0.52.0] - 2026-11-18
 
 ### Added

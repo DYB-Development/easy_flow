@@ -121,5 +121,9 @@ module EasyFlow
 
       assert_equal [ [], "after" ], [ ended[:variants]["items"], digest.next_step(ended.transform_keys(&:to_s)).id ]
     end
+
+    test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
+      assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
+    end
   end
 end

@@ -64,6 +64,10 @@ module EasyFlow
     private
 
     def refusal_of(node)
+      own_refusal(node) || own_refusal(node && @digest.holder_of(node.id))
+    end
+
+    def own_refusal(node)
       @registry.fetch(node.type).unsaved_refusal if node && @registry.registered?(node.type)
     end
 

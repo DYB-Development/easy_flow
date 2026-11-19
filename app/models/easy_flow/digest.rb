@@ -90,6 +90,10 @@ module EasyFlow
       step_type(node)&.repeats_held_steps? || false
     end
 
+    def holder_of(key)
+      steps.find { |node| repeats?(node) && Array(node.config["holds"]).include?(VisitKey.parse(key).step) }
+    end
+
     def next_step(state, times = {})
       walk(state, times)[1]
     end
@@ -218,10 +222,6 @@ module EasyFlow
 
     def item_key(id, item, visit)
       VisitKey.new(step: id, item: item, visit: visit).to_s
-    end
-
-    def holder_of(id)
-      steps.find { |node| repeats?(node) && Array(node.config["holds"]).include?(id) }
     end
 
     def latest_values(state)

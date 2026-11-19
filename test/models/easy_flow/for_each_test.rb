@@ -235,6 +235,12 @@ module EasyFlow
       assert_equal "The list outline.variants holds 101 items, more than the limit of 100.", advanced(drawing, "outline" => { "variants" => (1..101).to_a })[:variants]["reason"]
     end
 
+    test "records a failed result naming only the step when a list named by a step alone has no value" do
+      listing_step = drawing.merge("nodes" => drawing["nodes"].map { |node| node["id"] == "variants" ? node.merge("list" => "listing") : node })
+
+      assert_equal "The step listing recorded no value.", advanced(listing_step, outlined)[:variants]["reason"]
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

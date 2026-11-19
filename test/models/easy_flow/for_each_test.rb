@@ -73,5 +73,12 @@ module EasyFlow
 
       assert_equal({ "variant" => "long" }, Inputs.values_of(writing, outlined, run: Struct.new(:digest).new(digest)))
     end
+
+    test "gives a held step's input naming an earlier held step that step's output for the same item" do
+      reviewing = Node.new(id: "review@item2", type: "ask", config: { "inputs" => [ { "name" => "title", "step" => "write", "output" => "title" } ] })
+      written = outlined.merge("write@item1" => { "title" => "Short" }, "write@item2" => { "title" => "Long" }, "write@item1@2" => { "title" => "Shorter" })
+
+      assert_equal({ "title" => "Long" }, Inputs.values_of(reviewing, written))
+    end
   end
 end

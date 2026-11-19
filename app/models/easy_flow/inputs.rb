@@ -21,17 +21,24 @@ module EasyFlow
       return run&.owner_id if input["from_run_owner"]
       return run&.digest&.item_value(node.id, state) if input["current_item"]
 
-      input["step"].present? ? latest_output(input, state, run) : input["value"]
+      input["step"].present? ? latest_output(node, input, state, run) : input["value"]
     end
     private_class_method :value_of
 
-    def self.latest_output(input, state, run)
-      latest_visit = state.keys.select { |key| key.split("@").first == input["step"] }.max_by { |key| key.split("@")[1].to_i }
+    def self.latest_output(node, input, state, run)
+      latest_visit = latest_visit_of(input["step"], VisitKey.parse(node.id).item, state)
       return if unreported?(input, state[latest_visit], run)
 
       CompletedAt.value_of(state, {}, latest_visit, input["output"])
     end
     private_class_method :latest_output
+
+    def self.latest_visit_of(step, item, state)
+      visits = state.keys.to_h { |key| [ key, VisitKey.parse(key) ] }.select { |_key, visit| visit.step == step }
+      same_item = visits.select { |_key, visit| visit.item == item }
+      (same_item.presence || visits.reject { |_key, visit| visit.item }).max_by { |_key, visit| visit.visit }&.first
+    end
+    private_class_method :latest_visit_of
 
     def self.unreported?(input, recorded, run)
       run && input["output"].present? && !recorded.is_a?(Hash) && !run.digest.plain_value_is?(input["step"], input["output"])

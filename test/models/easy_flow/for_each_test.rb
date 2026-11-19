@@ -144,6 +144,12 @@ module EasyFlow
       assert_equal %w[write@item1@2 write@item2@2 write@item3@2], digest(concurrent(retrying)).ready_steps(started).map(&:id)
     end
 
+    test "names only the run's next step as ready outside a for_each step" do
+      run = stored_run.tap { |started| started.update!(recorded: {}) }
+
+      assert_equal [ "outline" ], run.ready_steps(run.recorded).map(&:id)
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end

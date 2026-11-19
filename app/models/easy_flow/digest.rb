@@ -246,8 +246,21 @@ module EasyFlow
     end
 
     def list_problem(box, latest)
-      step_id, output = step_type(box).list_named_by(box).split(".", 2)
-      "The step #{step_id} recorded no value under #{output}." if listed_value(box, latest).nil?
+      named = step_type(box).list_named_by(box)
+      step_id, output = named.split(".", 2)
+      listed = listed_value(box, latest)
+      return "The step #{step_id} recorded no value under #{output}." if listed.nil?
+
+      "The list #{named} is #{kind_of_value(listed)}, not a list." unless listed.is_a?(Array)
+    end
+
+    def kind_of_value(value)
+      case value
+      when String then "text"
+      when Numeric then "a number"
+      when Hash then "a hash"
+      else "true or false"
+      end
     end
 
     def item_key(id, item, visit)

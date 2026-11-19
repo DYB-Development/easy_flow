@@ -200,6 +200,12 @@ module EasyFlow
                    advanced(drawing, "outline" => { "titles" => %w[a b] })[:variants])
     end
 
+    test "records a failed result naming the value's kind when the named value is not a list" do
+      reasons = [ "short", 3, { "title" => "short" } ].map { |value| advanced(drawing, "outline" => { "variants" => value })[:variants]["reason"] }
+
+      assert_equal [ "The list outline.variants is text, not a list.", "The list outline.variants is a number, not a list.", "The list outline.variants is a hash, not a list." ], reasons
+    end
+
     test "refuses a run that keeps nothing at a held step as it refuses one at the for_each step" do
       assert_equal "Steps can only be run for each item in a flow that saves its runs.", Runner.new(drawing, registry: registry).unsaved_refusal(outlined)
     end
